@@ -1,0 +1,142 @@
+<table>
+<tr>
+<td colspan="2">
+<strong> pynchon </strong>     <small><small> </small></small>
+</td>
+</tr>
+<tr>
+<td width="15%">
+<img src=img/icon.png style="width:150px">
+</td>
+<td>
+pynchon
+</td>
+</tr>
+</table>
+<hr />
+<h2 id="overview">Overview</h2>
+<p>Pynchon is a library, tool, and extensible framework for project
+management. It’s useful in general, but also specializes in
+autogenerating documentation for python projects.</p>
+<h2 id="motivation-design">Motivation &amp; Design</h2>
+<p>This project exists because frameworks like <a href="#">sphinx</a>,
+<a href="#">pydoc</a>, and <a href="#">mkdocs</a> do a lot, but require
+quite a bit of opionated/fragile setup, and in the end it’s pretty hard
+to do basic stuff.</p>
+<p>See for example <a
+href="https://stackoverflow.com/questions/36237477/python-docstrings-to-github-readme-md">this
+stack overflow question</a>.</p>
+<p>Popular docs-frameworks also stop short of managing things
+<em>besides</em> docs, although code-gen or code-annotation is a pretty
+similar task. After you start thinking about stuff like this, API-docs
+generation probably can’t succeed anyway as long as you have syntax
+errors, so why not lint files while you’re scanning them, and make sure
+the spec for each is using the <em>source tree</em> DRY-ly?</p>
+<p>But.. <em>pynchon is not a build tool, it’s a project tool.</em> The
+approach is spiritually related to things like <a href="#">tox</a>, <a
+href="#">cog</a>, <a href="#">make</a>, <a href="#">helm</a>, <a
+href="#">jinja</a>, <a href="#">cookie-cutter</a>, or <a
+href="#">pyscaffold</a>. But pynchon is much likely to orchestrate
+<em>across</em> these things than try to replace them.</p>
+<p>Management / generation tasks in source-repositories are usually
+ongoing iterative processes. For this kind of work, pynchon’s interface
+choices are heavily influenced by the design of <a
+href="#">terraform</a>: most things are using a plan/apply workflow,
+where context information is arrived at via optional “providers”. A
+plugin/config system then allows for easy expansion on the basic
+model.</p>
+<h2 id="quick-start">Quick Start</h2>
+<p>Pynchon is on PyPI, so to get the latest:</p>
+<pre><code>pip install pynchon</code></pre>
+<p>Or, for developers:</p>
+<pre><code>git clone ..FIXME..
+pip install -e .</code></pre>
+<hr />
+<h2 id="pynchon-as-a-suite-of-utilities">Pynchon as a Suite of
+Utilities</h2>
+<p>The modules inside the pynchon library publish several stand-alone
+tools.</p>
+<h3 id="util.os">util.os</h3>
+<h3 id="util.loadf">util.loadf</h3>
+<h3 id="util.json">util.json</h3>
+<h3 id="util.jinja">util.jinja</h3>
+<h3 id="util.shfmt">util.shfmt</h3>
+<h3 id="util.ansible">util.ansible</h3>
+<hr />
+<h2 id="pynchon-as-a-framework">Pynchon as a Framework</h2>
+<h3 id="plugins">Plugins</h3>
+<h4 id="plugin-priority">Plugin Priority</h4>
+<h4 id="plugin-config">Plugin Config</h4>
+<h4 id="plugin-clis">Plugin CLIs</h4>
+<h4 id="plugin-types">Plugin Types</h4>
+<h5 id="core-plugins">Core-Plugins</h5>
+<h5 id="provider-plugins">Provider-Plugins</h5>
+<h5 id="planner-plugins">Planner-Plugins</h5>
+<h5 id="manager-plugins">Manager-Plugins</h5>
+<h5 id="tool-plugins">Tool-Plugins</h5>
+<h5 id="namespaces">Namespaces</h5>
+<h3 id="nested-plugins">Nested Plugins</h3>
+<h3 id="rendering-engine">Rendering Engine</h3>
+<h3 id="hooks">Hooks</h3>
+<h3 id="events">Events</h3>
+<hr />
+<h2 id="pynchon-as-a-library">Pynchon as a Library</h2>
+<h3 id="parsers">Parsers</h3>
+<h3 id="planners">Planners</h3>
+<h3 id="solvers">Solvers</h3>
+<h3 id="tagging-typing">Tagging &amp; Typing</h3>
+<h3 id="orchestration">Orchestration</h3>
+<p>System Command Invocation</p>
+<h3 id="cli-framework">CLI Framework</h3>
+<h3 id="application-framework">Application Framework</h3>
+<h3 id="oop-framework">OOP Framework</h3>
+<h3 id="event-framework">Event Framework</h3>
+<hr />
+<h2 id="example-usage">Example Usage</h2>
+<pre><code>pynchon gen version-metadata
+pynchon gen api toc
+pynchon gen cli toc
+pynchon gen api detail</code></pre>
+<hr />
+<h2 id="implementation-notes">Implementation Notes</h2>
+<h3 id="python-plugins">Python Plugins</h3>
+<p>For auto-discovery of things like “name of this package” or
+“entry-points for this package” <code>pynchon</code> assumes by default
+that it is working inside the source-tree for a modern python
+project.</p>
+<p>If your project is using older packaging standards, or you’re working
+on a group of files that’s not a proper python project, you can usually
+work around this by passing information in directly instead of relying
+on auto-discovery. Use the <code>pkg_name</code> top-level config
+key.</p>
+<p>Pynchon relies heavily on <a
+href="https://pypi.org/project/griffe/">griffe</a> for parsing and for
+<a
+href="https://docs.python.org/3/library/ast.html">AST-walking</a>.</p>
+<p>For cyclomatic complexity, we rely on <a
+href="https://github.com/PyCQA/mccabe">mccabe</a>.</p>
+<hr />
+<h2 id="packaging-releases">Packaging &amp; Releases</h2>
+<hr />
+<h2 id="dependencies">Dependencies</h2>
+<hr />
+<h2 id="related-work">Related Work</h2>
+<hr />
+<h2 id="workflows">Workflows</h2>
+<h3 id="workflow-bug-reports-or-feature-requests">Workflow: Bug Reports
+or Feature Requests</h3>
+<h3 id="workflow-finding-a-library-release">Workflow: Finding a Library
+Release</h3>
+<h3 id="workflow-installation-for-library-developers">Workflow:
+Installation for Library Developers</h3>
+<h3 id="workflow-installation-for-users">Workflow: Installation for
+Users</h3>
+<h3 id="workflow-build-install-testing-etc">Workflow: Build, install,
+testing, etc</h3>
+<h3 id="workflow-running-tests">Workflow: Running Tests</h3>
+<hr />
+<h2 id="known-issues">Known Issues</h2>
+<ul>
+<li>Use the <a href="#FIXME">griffe-agent / plugin framework</a>?</li>
+</ul>
+<hr />

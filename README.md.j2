@@ -1,0 +1,59 @@
+<table>
+  <tr>
+    <td colspan=2><strong>
+    {{python.package.name}}
+      </strong>&nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+  </tr>
+  <tr>
+    <td width=15%><img src=img/icon.png style="width:150px"></td>
+    <td>
+      <br/><br/>
+      <a href=https://pypi.python.org/pypi/{{python.package.name}}/><img src="https://img.shields.io/pypi/l/pynchon.svg"></a>
+      <a href=https://pypi.python.org/pypi/{{python.package.name}}/><img src="https://badge.fury.io/py/{{python.package.name}}.svg"></a>
+      {%for action in github.actions%}<a href="{{action.url}}"><img src="{{action.url}}/badge.svg"></a>{%endfor%}
+    </td>
+  </tr>
+</table>
+
+---------------------------------------------------------------------------------
+
+{{markdown_toc(__template__, level=2)}}
+
+---------------------------------------------------------------------------------
+
+## Overview
+
+Pynchon is a library, tool, and extensible framework for documentation and project management.  It's useful in general, but specializes in autogenerating documentation for python projects.
+
+This code is still experimental and interface stability is not yet guaranteed.. make sure to pin pynchon at specific versions in your project.
+
+## Features
+
+* Terraform-style plan/apply workflows, with support for parallel execution
+* Plugin framework for extensions
+* Support for tools like [Jinja](#), Markdown, [Mermaid](#) and [pandoc](#)
+* Friendly output for machines and for humans
+
+## Quick Start
+
+{{python.package.name.title()}} is on PyPI, so to get the latest:
+
+```bash
+pip install {{python.package.name}}
+```
+
+Or, for developers:
+
+```bash
+# for ssh
+git clone {{github.repo_ssh_url}}
+
+# or for http
+# git clone {{github.repo_url}}
+
+cd {{python.package.name}}
+pip install -e .
+```
+
+---------------------------------------------------------------------------------

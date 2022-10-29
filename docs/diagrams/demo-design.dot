@@ -1,0 +1,109 @@
+////
+// This is a dot-file that contains the spec for a labeled digraph.
+// See also the docs here: https://graphviz.org/doc/info/lang.html
+////
+digraph project_dependencies {
+    compound=true;
+    nodesep=.5;
+    // Graph & cluster attributes
+    graph [
+        margin = 1;
+        nodesep=.5;
+        overlap = scale;
+        //layout=circo
+        layout=dot; mode=hier
+        //layout=patchwork
+        //ratio="fill"; size="4,3!";
+        //ratio=.7;
+        compound = true // allows edges between clusters
+        //fillcolor = white
+        fontname = verdana
+        fontsize = 10
+        labeljust = l // aligns label to the left
+        labelloc = t // puts label at top of diagram
+        newrank = true
+        nodesep = .5 // separation between nodes in inches (default is 0.25
+        overlap = false // prism is also interesting
+        rankdir = LR // LR (left-to-right) or TB (top-to-bottom)
+        ranksep = 1.5 // separation between ranks in inches (default is 0.5)
+        ratio = auto // aspect ratio. diagram is tighter when it is declared
+        shape = box
+        splines = true // uses curved lines to avoid nodes
+        #style = "filled"
+        clusterrank=local
+    ]
+
+
+
+
+    // Node attributes
+    node [
+        fontname = verdana
+        fontsize = 10
+        margin = "0.1, 0.05"
+        height=.3
+        shape = box
+        style = "filled, rounded"
+    ]
+
+    // Edge attributes
+    edge [ style=bold; fontname="Arial"; minlen=3.2; weight=.5; arrowsize = 0.9; color=black; penwidth = 0.9 ]
+    subgraph cluster_bonk{
+    label = <
+        <table border="0" cellborder="0" cellspacing="0">
+            <tr><td align="left"><b>Project Dependencies, Artifacts, Deployments</b></td></tr>
+            <tr><td align="left">Key: Yellow⇒3rd party libs; Green⇒Our libs; Red⇒External Services</td></tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+        </table>
+    >
+    empty [label="", visible=false;]
+    }
+    subgraph cluster_iface {
+      graph [colorscheme=greens9 color=4; label="iface"; style=filled; ]
+      node [shape=doublecircle colorscheme="oranges9"]
+      zconfig [color=4, label="Config"];
+      cli [color=5, label="Pynchon CLI"];
+
+    }
+
+    subgraph cluster_api {
+      graph [colorscheme=greens9; color=2; style=filled; label="pynchon.util"]
+      node [colorscheme="blues9"; shape=doublecircle]
+      util [color=5, label="pynchon.util"]; // blue
+      json [color=6, label=".json"];
+      loadf [color=6, label=".loadf"];
+      shfmt [color=6, label=".shfmt"];
+      jinja [color=6, label=".jinja"];
+      {json} -> util [style="dotted"];
+      {jinja} -> util [minlen=3.8, style="dotted"];
+      //{util} -> cli [xlabel="publish"];
+      {loadf} ->util [style="dotted"];
+      {shfmt} ->util [style="dotted"];
+
+    }
+
+    subgraph cluster_default {
+      graph [colorscheme=greens9 color=4; style="filled"]
+      node [colorscheme=purples9]
+    }
+    subgraph cluster_p{
+    graph  [colorscheme=greens9 color=3; style=filled]
+      node [colorscheme=purples9]
+      dot [color=3, label="dot"];
+      fixme [color=3, label="fixme"];
+      src [color=3, label="src"];
+      docs [color=3, label="docs"];
+      {dot,fixme,src,docs} -> plugin2 [style="dotted"]
+      plugin2 [color=4 label="Plugin[]"];
+      {plugin2} -> cli [xlabel="publish"];
+      {plugin2} -> util [xlabel="invoke"];
+      {plugin2} -> zconfig [xlabel="read"];
+    }
+
+    {rank=min;cli;zconfig;util}
+    {rank=same;json;jinja;loadf;}
+    {rank=same;src;docs;fixme;dot}
+
+}
