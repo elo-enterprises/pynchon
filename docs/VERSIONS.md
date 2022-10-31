@@ -3,6 +3,6 @@
 version=`make[1]: Entering directory '/home/matt/code/elo/pynchon'
 make[1]: Leaving directory '/home/matt/code/elo/pynchon'` 
 
-hash=`2d9435e12cd51cb348f01628f614fa9bdcf5086a` 
+hash=`13f2de53b1e5c87051d0dff59386ae9fa7da4ec2` 
 
 pynchon_version=`pynchon, version 2022.10.31+local`

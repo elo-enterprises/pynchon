@@ -22,6 +22,7 @@ init:
 	; pip install --quiet -e .[dev] \
 	; pip install --quiet -e .[testing] \
 	; pip install --quiet -e .[lint] \
+	; pip install --quiet -e .[docs] \
 	; pip install --quiet -e .[publish]
 
 .PHONY: build
@@ -42,6 +43,7 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name  __pycache__ -delete
 	find . -type d -name .tox | xargs -n1 -I% bash -x -c "rm -rf %"
+	rmdir build || true
 
 pypi-release: clean
 	PYPI_RELEASE=1 make build \
@@ -88,15 +90,9 @@ docs:
 	\n\npynchon_version=\``pynchon --version`\`" \
 	> docs/VERSIONS.md \
 	&& pynchon gen api toc \
-	--format markdown \
 	--package ${PYPI_PROJECT_NAME} \
-	--output docs/api/README.md \
-	&& pynchon project entrypoints \
-	-f setup.cfg --format markdown \
-	--output docs/cli/entry-points.md \
-	&& pynchon gen cli click \
-	--format markdown --name pynchon.bin:entry \
-	--output docs/cli/README.md
+	&& pynchon gen cli toc \
+	&& pynchon gen cli all
 
 pip-purge: python-require-pipenv
 	@# Purges all dependencies from the currently active virtualenv

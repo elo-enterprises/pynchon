@@ -11,7 +11,7 @@ PARENT = groups.gen_cli
     name='toc', parent=PARENT,
     formatters=dict(markdown=pynchon.T_TOC_CLI),
     options=[
-        options.file_setupcfg, options.format,
+        options.file_setupcfg, options.format_markdown,
         click.option(
             '--output', '-o', default='docs/cli/README.md',
             help=('output file to write.  (optional)')),
@@ -32,10 +32,9 @@ def toc(format, file, stdout, output, header):
             '--output-dir', default='docs/cli',
             help=('output directory (optional)')),
         options.stdout,])
-
 def _all(
     # format,
-    file, stdout, output_dir, ):
+        file, stdout, output_dir, ):
     """
     Generates help for every entrypoint
     """

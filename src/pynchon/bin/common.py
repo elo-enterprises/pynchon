@@ -31,6 +31,7 @@ class handler(object):
 class stdout_handler(handler):
     """ """
     priority = 9
+
     def match(self, kwargs):
         """ """
         return 'stdout' in kwargs and kwargs['stdout']
@@ -84,6 +85,7 @@ class format_handler(handler):
 
 class kommand(object):
     """ """
+
     def __init__(self, name=None, parent=None, options=[], transformers=[], handlers=[], formatters={}):
         """ """
         self.name = name

@@ -54,7 +54,7 @@ def click_recursive_help(cmd,
     ctx = ClickContext(cmd, info_name=cmd.name, parent=parent)
     help_txt = cmd.get_help(ctx)
     invocation_sample = help_txt.split('\n')[0]
-    for x in 'Usage: [OPTIONS] COMMAND [ARGS] ...'.split():
+    for x in 'Usage: [OPTIONS] COMMAND [COMMAND] [ARGS] ...'.split():
         invocation_sample = invocation_sample.replace(x, '')
     out = {
         **out,
