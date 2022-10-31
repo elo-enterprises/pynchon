@@ -19,10 +19,10 @@ output = click.option(
     '--output', '-o', default='',
     help=('output file to write.  (optional)'))
 format = format_json = click.option(
-    '--format', default='json',
+    '--format', '-m', default='json',
     help=('output format to write'))
 format_markdown = click.option(
-    '--format', default='markdown',
+    '--format', '-m', default='markdown',
     help=('output format to write'))
 file = click.option(
     '--file', '-f', default='',

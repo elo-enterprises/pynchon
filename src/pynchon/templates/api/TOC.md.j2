@@ -1,3 +1,5 @@
+-------------------------------------------------------------------------------
+
 {% set base_url = module._metadata.base_url|default('?') %}
 {% set entrypoint='(entrypoint) |' if module_name.endswith('__main__') else '' %}
 {% set utest_root = utest_root|default('/tests/units')%}
@@ -70,5 +72,3 @@
   {%endif%}
   {%endfor%}
 {% endif %}
-
--------------------------------------------------------------------------------

@@ -1,8 +1,7 @@
 ## API for 'pynchon' package
 
-
-
---------------------------------------------------------------------------------### pynchon
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+### pynchon
 * Overview:  [source code](/src/pynchon/__init__.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)
 * Modules: (4 total)
   * [`pynchon._version`](/src/pynchon/_version.py): [index](#pynchon_version), [source](/src/pynchon/_version.py), [tests](#FIXME)
@@ -36,7 +35,7 @@
   * [`pynchon.util.get_module`](/src/pynchon/util.py#L71-L89) with signature `(package: str = '', file: str = '')`
   * [`pynchon.util.get_refs`](/src/pynchon/util.py#L91-L104) with signature `(working_dir=None, module=None) -> dict`
   * [`pynchon.util.visit_module`](/src/pynchon/util.py#L106-L128)
-    * with signature `(output=['### pynchon\n* Overview:  [source code](/src/pynchon/__init__.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)\n* Modules: (4 total)\n  * [`pynchon._version`](/src/pynchon/_version.py): [index](#pynchon_version), [source](/src/pynchon/_version.py), [tests](#FIXME)\n  * [`pynchon.annotate`](/src/pynchon/annotate.py): [index](#pynchonannotate), [source](/src/pynchon/annotate.py), [tests](#FIXME)\n  * [`pynchon.util`](/src/pynchon/util.py): [index](#pynchonutil), [source](/src/pynchon/util.py), [tests](#FIXME)\n  * [`pynchon.bin`](/src/pynchon/bin/__init__.py): [index](#pynchonbin), [source](/src/pynchon/bin/__init__.py), [tests](#FIXME)\n* Functions: (1 total)\n  * [`pynchon.get_logger`](/src/pynchon/__init__.py#L37-L63) with signature `(name)`\n-------------------------------------------------------------------------------', '### pynchon._version\n* Overview:  [source code](/src/pynchon/_version.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)\n-------------------------------------------------------------------------------', '### pynchon.annotate\n* Overview:  [source code](/src/pynchon/annotate.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)\n* Functions: (3 total)\n  * [`pynchon.annotate.klass`](/src/pynchon/annotate.py#L10-L61) with signature `(name, kls) -> None`\n    * with admonitions:  [🐉 Complex](/src/pynchon/annotate.py#L1 "score 8 / 7") \n  * [`pynchon.annotate.module`](/src/pynchon/annotate.py#L63-L67) with signature `(name, module, working_dir=None) -> None`\n  * [`pynchon.annotate.function`](/src/pynchon/annotate.py#L69-L99) with signature `(name, fxn) -> None`\n-------------------------------------------------------------------------------'], stats={}, module=None, template=<Template 'api/TOC.md.j2'>, visited=[], module_name=None, working_dir='/home/matt/code/elo/pynchon')`
+    * with signature `(output=['-------------------------------------------------------------------------------\n### pynchon\n* Overview:  [source code](/src/pynchon/__init__.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)\n* Modules: (4 total)\n  * [`pynchon._version`](/src/pynchon/_version.py): [index](#pynchon_version), [source](/src/pynchon/_version.py), [tests](#FIXME)\n  * [`pynchon.annotate`](/src/pynchon/annotate.py): [index](#pynchonannotate), [source](/src/pynchon/annotate.py), [tests](#FIXME)\n  * [`pynchon.util`](/src/pynchon/util.py): [index](#pynchonutil), [source](/src/pynchon/util.py), [tests](#FIXME)\n  * [`pynchon.bin`](/src/pynchon/bin/__init__.py): [index](#pynchonbin), [source](/src/pynchon/bin/__init__.py), [tests](#FIXME)\n* Functions: (1 total)\n  * [`pynchon.get_logger`](/src/pynchon/__init__.py#L37-L63) with signature `(name)`', '-------------------------------------------------------------------------------\n### pynchon._version\n* Overview:  [source code](/src/pynchon/_version.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)', '-------------------------------------------------------------------------------\n### pynchon.annotate\n* Overview:  [source code](/src/pynchon/annotate.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)\n* Functions: (3 total)\n  * [`pynchon.annotate.klass`](/src/pynchon/annotate.py#L10-L61) with signature `(name, kls) -> None`\n    * with admonitions:  [🐉 Complex](/src/pynchon/annotate.py#L1 "score 8 / 7") \n  * [`pynchon.annotate.module`](/src/pynchon/annotate.py#L63-L67) with signature `(name, module, working_dir=None) -> None`\n  * [`pynchon.annotate.function`](/src/pynchon/annotate.py#L69-L99) with signature `(name, fxn) -> None`'], stats={}, module=None, template=<Template 'api/TOC.md.j2'>, visited=[], module_name=None, working_dir='/home/matt/code/elo/pynchon')`
   * [`pynchon.util.clean_text`](/src/pynchon/util.py#L131-L134) with signature `(txt: str) -> str`
   * [`pynchon.util.complexity`](/src/pynchon/util.py#L150-L172) with signature `(code: str = None, fname: str = None, threshold: int = 7)`
 -------------------------------------------------------------------------------
@@ -54,7 +53,7 @@
 * Overview:  [source code](/src/pynchon/bin/api.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)
 * Functions: (2 total)
   * [`pynchon.bin.api.markdown`](/src/pynchon/bin/api.py#L10-L11) with signature `(**result)`
-  * [`pynchon.bin.api.toc`](/src/pynchon/bin/api.py#L13-L29) with signature `(*args: Any, **kwargs: Any) -> Any`
+  * [`pynchon.bin.api.toc`](/src/pynchon/bin/api.py#L13-L30) with signature `(*args: Any, **kwargs: Any) -> Any`
 -------------------------------------------------------------------------------
 ### pynchon.bin.cli
 * Overview:  [source code](/src/pynchon/bin/cli.py), [unit tests](/tests/units/), [integration tests](/tests/integrations/)
@@ -98,4 +97,3 @@
   * [`pynchon.bin.groups.gen_cli`](/src/pynchon/bin/groups.py#L38-L40) with signature `(*args: Any, **kwargs: Any) -> Any`
   * [`pynchon.bin.groups.project`](/src/pynchon/bin/groups.py#L42-L44) with signature `(*args: Any, **kwargs: Any) -> Any`
   * [`pynchon.bin.groups.ast`](/src/pynchon/bin/groups.py#L46-L48) with signature `(*args: Any, **kwargs: Any) -> Any`
--------------------------------------------------------------------------------

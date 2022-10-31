@@ -24,6 +24,7 @@ def toc(package, file, output, format, stdout, header):
 
     module = util.get_module(package=package, file=file)
     result = util.visit_module(module=module, module_name=package)
+    header=f"{header}\n\n" if header else ''
     return dict(
-        header=f"## API for '{package}' package\n\n{header}\n\n" + '-' * 80,
+        header=f"## API for '{package}' package\n\n{header}" + '-' * 80,
         blocks=result)

@@ -95,7 +95,7 @@ Usage: pynchon gen cli entrypoint [OPTIONS]
   Autogenenerate docs for python CLIs using click
 
 Options:
-  --format TEXT      output format to write
+  -m, --format TEXT  output format to write
   --stdout           whether to write to stdout.
   --header TEXT      header to prepend output with. (optional)
   -f, --file TEXT    file to read as input
