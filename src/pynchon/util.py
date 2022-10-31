@@ -16,6 +16,10 @@ WORKING_DIR = os.getcwd()
 
 def load_setupcfg(file:str='setup.cfg'):
     """ """
+    if not os.path.exists(file):
+        err = f"Cannot load from nonexistent file @ `{file}`"
+        LOGGER.critical(err)
+        raise RuntimeError(err)
     import configparser
     config = configparser.ConfigParser()
     config.read(file)
@@ -26,18 +30,22 @@ def load_entrypoints(config=None):
     console_scripts = config['options.entry_points']['console_scripts']
     console_scripts = [x for x in console_scripts.split('\n') if x ]
     package = config['metadata']['name']
-    return dict(
-        package=package,
-        entrypoints=[dict(
+    entrypoints = []
+    for c in console_scripts:
+        tmp = dict(
             package=package,
             bin_name=c.split('=')[0].strip(),
             module=c.split('=')[1].strip().split(':')[0],
             entrypoint=c.split('=')[1].strip().split(':')[1],
-            ) for c in console_scripts],)
+        )
+        tmp['setuptools_entrypoint'] = tmp['module']+':'+tmp['entrypoint']
+        entrypoints.append(tmp)
+    return dict(package=package, entrypoints=entrypoints,)
 
 def click_recursive_help(cmd,
     parent=None, out={}, file=sys.stdout):
-    """ source: adapted from https://stackoverflow.com/questions/57810659/automatically-generate-all-help-documentation-for-click-commands """
+    """ """
+    # source: adapted from https://stackoverflow.com/questions/57810659/automatically-generate-all-help-documentation-for-click-commands
     from click.core import Context as ClickContext
     full_name = cmd.name
     _parent = getattr(cmd, 'parent', None)

@@ -9,7 +9,7 @@ LOGGER = pynchon.get_logger(__name__)
 
 def klass(name, kls) -> None:
     """ annotates a class """
-    LOGGER.debug(f"annotating class: {name} {kls}")
+    LOGGER.debug(f"annotating class: {name}")
     mod = importlib.import_module(kls.parent.canonical_path)
     kls._handle = getattr(mod, name)
 
@@ -62,13 +62,13 @@ def klass(name, kls) -> None:
 
 def module(name, module, working_dir=None) -> None:
     """ annotates a module """
-    LOGGER.debug(f"annotating mod: {name} {module}")
+    LOGGER.debug(f"annotating module: {name}")
     module._metadata = dict(
         base_url = str(module.filepath.relative_to(working_dir)))
 
 def function(name, fxn) -> None:
     """ annotates a function """
-    LOGGER.debug(f"annotating fxn: {name} {fxn}")
+    LOGGER.debug(f"annotating fxn: {name}")
     mod = importlib.import_module(fxn.parent.canonical_path)
     handle = getattr(mod, name)
     fxn._handle = getattr(mod,name)
@@ -97,4 +97,3 @@ def function(name, fxn) -> None:
                 link=f'/{fxn_fname}#L{fixme_lines[0]}',
                 hover=f"on lines {fixme_lines}") ] if fixme_lines else [])
     fxn_code and fxn._metadata.update(mccabe=util.complexity(fxn_code, fxn_fname))
-    # logger.debug(exc)

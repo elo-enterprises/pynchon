@@ -4,9 +4,20 @@ import os
 import sys
 import inspect
 import importlib
+import logging
 
 import click
 import jinja2
+
+# NB: this should have been set by CI immediately
+# before pypi-upload.  but the `except` below might
+# be triggered by local development.
+try:
+    from ._version import __version__
+except ImportError:
+    __version__='0.0.0+local'
+
+URL_BUILTINS = "https://docs.python.org/3/library/functions.html"
 
 TEMPLATE_DIR = os.environ.get(
     'PYNCHON_TEMPLATE_DIR',
@@ -15,16 +26,13 @@ TEMPLATE_DIR = os.environ.get(
         'templates',))
 assert os.path.exists(TEMPLATE_DIR), TEMPLATE_DIR
 
-ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
+ENV = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
 
-T_TOC_CLI = ENV.get_template('cli-toc.md.j2')
-T_TOC_API = ENV.get_template('api-toc.md.j2')
-T_ENTRYPOINTS = ENV.get_template('cli-entrypoints.md.j2')
+T_DETAIL_CLI = ENV.get_template('cli/detail.md.j2')
+T_TOC_API = ENV.get_template('api/TOC.md.j2')
+T_TOC_CLI = ENV.get_template('cli/TOC.md.j2')
 
-# t_class = ENV.get_template('class.md.j2')
-URL_BUILTINS = "https://docs.python.org/3/library/functions.html"
-
-import logging
 
 def get_logger(name):
     """
@@ -38,7 +46,6 @@ def get_logger(name):
         FormatterClass = logging.Formatter
     formatter = FormatterClass(
         fmt=' - '.join([
-            # "[%(asctime)s]",
             "%(levelname)s",
             "%(name)s",
             "%(message)s"]),

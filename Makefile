@@ -3,22 +3,19 @@
 ##
 .SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
-#.SHELLFLAGS := -euo pipefail -c
+# .SHELLFLAGS := -euo pipefail -c
 .DEFAULT_GOAL := none
 
 THIS_MAKEFILE := $(abspath $(firstword $(MAKEFILE_LIST)))
 THIS_MAKEFILE := `python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' ${THIS_MAKEFILE}`
 SRC_ROOT := $(shell dirname ${THIS_MAKEFILE})
 
-# WARNING: these vars must come before the includes
+NO_COLOR:=\033[0m
+COLOR_GREEN=\033[92m
+
 PYPI_PROJECT_NAME:=pynchon
 
-# # Makefile includes
-# MAKE_INCLUDES_DIR := ${SRC_ROOT}/.makefiles
-# include ${MAKE_INCLUDES_DIR}/Makefile.base.mk
-# include ${MAKE_INCLUDES_DIR}/Makefile.python.mk
 
-## BEGIN: entrypoints for CI/CD stages
 init:
 	$(call _announce_target, $@)
 	set -x \
@@ -27,39 +24,41 @@ init:
 	; pip install --quiet -e .[lint] \
 	; pip install --quiet -e .[publish]
 
-build:
-	python -m build
+.PHONY: build
+build: clean
+	export version=`python setup.py --version` \
+	&& (git tag $$version \
+	|| printf 'WARNING: Failed to git-tag with release-tag (this is normal if tag already exists).\n' > /dev/stderr) \
+	&& printf "# WARNING: file is maintained by automation\n\n__version__ = \"$${version}\"\n\n" \
+	| tee src/${PYPI_PROJECT_NAME}/_version.py \
+	&& python -m build
+
 version:
 	@python setup.py --version
-clean: python-clean pypi-clean tox-clean
-pypi-clean:
-	$(call _announce_target, $@)
-	set -x \
-	&& rm -f tmp.pypi* dist/* \
+
+clean:
+	rm -rf tmp.pypi* dist/* build/* \
 	&& rm -rf src/*.egg-info/
+	find . -name '*.pyc' -delete
+	find . -name  __pycache__ -delete
+	find . -type d -name .tox | xargs -n1 -I% bash -x -c "rm -rf %"
+
 pypi-release: clean
-	PYPI_RELEASE=1 make build
-	twine upload \
+	PYPI_RELEASE=1 make build \
+	&& twine upload \
 	--user elo-e \
 	--password `secrets get /elo/pypi/elo-e` \
 	dist/*
-smoke-test:
-	pynchon gen cli click \
-	--module pynchon.bin --command entry \
-	--format markdown
 
-push:
-	make pypi-push pep440-describe-push
+release: normalize static-analysis test docs pypi-release
 
-static-analysis: #announce-section-static-analysis
+static-analysis:
 	tox -e static-analysis
 
-test-integrations: announce-section-python-integration-tests
-	$(call _announce_target, $@)
+test-integrations:
 	tox $${tox_args:-} -e itest
 
-test-units: announce-section-python-unit-tests
-	$(call _announce_target, $@)
+test-units:
 	tox $${tox_args:-} -e utest
 
 test:
@@ -75,12 +74,10 @@ utest: test-units
 normalize:
 	@# Uses tox to normalize code with autopep8.
 	@# This helps to satisfy the linter, which by default is strict.
-	$(call _announce_target, $@)
 	tox -e normalize
 
 .PHONY: docs
 docs:
-	$(call _announce_target, $@)
 	set -x \
 	&& mkdir -p docs/api \
 	&& mkdir -p docs/cli \
@@ -103,7 +100,6 @@ docs:
 
 pip-purge: python-require-pipenv
 	@# Purges all dependencies from the currently active virtualenv
-	$(call _announce_target, $@)
 	set -x \
 	&& pipenv uninstall --all --quiet
 
@@ -111,7 +107,6 @@ python-require-pipenv:
 	@# Installs pipenv[0] if not present.
 	@# This is sometimes useful even if the project doesn't use a Pipfile..
 	@# see `python-pip-purge` target.
-	$(call _announce_target, $@)
 	pip freeze | grep pipenv \
 	&& ( \
 		printf '$(COLOR_GREEN)Detected pipenv is already present.$(NO_COLOR)\n' 1>&2 \
@@ -129,14 +124,3 @@ python-normalize: assert-src
 		make python-enumerate \
 		| xargs autopep8 --in-place) \
 	|| printf "$(COLOR_YELLOW)WARNING:$(NO_COLOR) no python source files found in $${src} folder \n" > /dev/stderr
-
-python-clean:
-	@#
-	$(call _announce_target, $@)
-	@find . -name '*.pyc' -delete
-	find . -name  __pycache__ -delete
-
-tox-clean:
-	@# Cleans tmp-dirs for tox
-	$(call _announce_target, $@)
-	find . -type d -name .tox | xargs -n1 -I% bash -x -c "rm -rf %"

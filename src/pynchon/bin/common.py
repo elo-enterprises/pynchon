@@ -3,6 +3,7 @@
 import os
 import sys
 import json
+import functools
 
 import click
 
@@ -12,7 +13,6 @@ LOGGER = pynchon.get_logger(__name__)
 
 class handler(object):
     """ """
-
     def __init__(self, parent=None):
         self.parent=parent
         self.logger=pynchon.get_logger(self.__class__.__name__)
@@ -26,6 +26,7 @@ class handler(object):
         return self.handle(result,**call_kwargs)
 
 class stdout_handler(handler):
+    """ """
     def match(self, kwargs):
         """ """
         return 'stdout' in kwargs and kwargs['stdout']
@@ -105,63 +106,25 @@ class kommand(object):
 
     def wrapper(self, *args, **call_kwargs):
         """ """
-        self.logger.debug(f"Invoking {self.parent.name}.{self.name}")
-        self.logger.debug(f" with: {call_kwargs}")
-        result = self.fxn(*args, **call_kwargs)
-        for tformer in self.transformers:
-            if tformer.match(call_kwargs):
-                result = tformer.transform(result, **call_kwargs)
-        for handler in self.handlers:
-            if handler.match(call_kwargs):
-                self.logger.debug(f"Handling with `{handler.__class__.__name__}`")
-                handler.handle(result, **call_kwargs)
-        return result
-
+        @functools.wraps(self.fxn)
+        def newf(*args, **call_kwargs):
+            self.logger.debug(f"Invoking {self.parent.name}.{self.name}")
+            self.logger.debug(f" with: {call_kwargs}")
+            result = self.fxn(*args, **call_kwargs)
+            for tformer in self.transformers:
+                if tformer.match(call_kwargs):
+                    result = tformer.transform(result, **call_kwargs)
+            for handler in self.handlers:
+                if handler.match(call_kwargs):
+                    self.logger.debug(f"Handling with `{handler.__class__.__name__}`")
+                    handler.handle(result, **call_kwargs)
+            return result
+        return newf
     def __call__(self, fxn):
         """ """
-        self.fxn=fxn
-        f = self.cmd(self.wrapper)
+        self.fxn = fxn
+        f = self.cmd(self.wrapper())
         for opt in self.options:
             f = opt(f)
+        # f = functools.wraps(f)(fxn)
         return f
-
-OPT_header = click.option(
-    '--header', default='',
-    help=('header to prepend output with. (optional)'))
-OPT_name = click.option(
-    '--name', default='',
-    help=('name to use'))
-OPT_stdout=click.option(
-    '--stdout', is_flag=True, default=True,
-    help=('whether to write to stdout.'))
-OPT_output = click.option(
-    '--output', '-o', default='',
-    help=('output file to write.  (optional)'))
-OPT_format = OPT_format_json = click.option(
-    '--format', default='json',
-    help=('output format to write'))
-OPT_format_markdown = click.option(
-    '--format', default='markdown',
-    help=('output format to write'))
-OPT_file = click.option(
-    '--file', '-f', default='',
-    help=('file to read as input'))
-OPT_stdout=click.option(
-    '--stdout', is_flag=True, default=True,
-    help=('whether to write to stdout.'))
-OPT_output = click.option(
-    '--output', '-o', default='',
-    help=('output file to write.  (optional)'))
-OPT_format = click.option(
-    '--format', '-m', default='json',
-    help=('output format to write'))
-OPT_package = click.option(
-    '--package', '-p', default=os.environ.get('PY_PKG', '')
-)
-OPT_file_setupcfg = click.option(
-    '--file', '-f', default='setup.cfg',
-    help=('file to grab entrypoints from'))
-OPT_module=click.option('--module', '-m', default='',
-    help=(
-        'module to grab click-cli from. '
-        '(must be used with `name`)'))

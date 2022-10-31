@@ -1,7 +1,7 @@
 """ pynchon.bin.groups
 """
 import click
-
+import functools
 class group(object):
 
     def __init__(self, name=None, group=None, parent=None,):
