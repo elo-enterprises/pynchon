@@ -10,7 +10,8 @@ PARENT = groups.gen_cli
 @kommand(
     name='toc', parent=PARENT,
     formatters=dict(markdown=pynchon.T_TOC_CLI),
-    options=[ options.file_setupcfg, options.format,
+    options=[
+        options.file_setupcfg, options.format,
         click.option(
             '--output', '-o', default='docs/cli/README.md',
             help=('output file to write.  (optional)')),
@@ -24,32 +25,62 @@ def toc(format, file, stdout, output, header):
 
 @kommand(
     name='all', parent=PARENT,
-    formatters=dict(markdown=pynchon.T_DETAIL_CLI),
-    options=[ options.file_setupcfg, options.format,
+    # formatters=dict(markdown=pynchon.T_DETAIL_CLI),
+    options=[ options.file_setupcfg,
+        # options.format,
         click.option(
             '--output-dir', default='docs/cli',
             help=('output directory (optional)')),
-        options.stdout, options.header])
-def _all(format, file, stdout, output_dir, header):
+        options.stdout,])
+
+def _all(
+    # format,
+    file, stdout, output_dir, ):
     """
     Generates help for every entrypoint
     """
-    return util.load_entrypoints(
+    conf = util.load_entrypoints(
             util.load_setupcfg(file=file))
-
+    entrypoints = conf['entrypoints']
+    docs = {}
+    for e in entrypoints:
+        bin_name = str(e['bin_name'])
+        epoint = e['setuptools_entrypoint']
+        fname = os.path.join(output_dir, bin_name)
+        fname = f"{fname}.md"
+        LOGGER.debug(f"{epoint}: -> `{fname}`")
+        docs[fname] = {
+            **_entrypoint_docs(name=e['setuptools_entrypoint']),
+            **e }
+    for fname in docs:
+        with open(fname,'w') as fhandle:
+            fhandle.write(
+                pynchon.T_DETAIL_CLI.render(
+                    docs[fname]))
+        LOGGER.debug(f"wrote: {fname}")
+    return list(docs.keys())
 
 @kommand(
     name='entrypoint', parent=PARENT,
     formatters=dict(markdown=pynchon.T_DETAIL_CLI),
     options=[
-        options.format, options.stdout,
-        options.header, options.file, options.output,
+        options.format_markdown, options.stdout,
+        options.header, options.file,
+        options.output,
         options.name, options.module,
         ])
-def entrypoint(format, module, name, file, output, stdout, header):
+def entrypoint_docs(
+    format, module, file, output,
+    stdout, header, name):
     """
     Autogenenerate docs for python CLIs using click
     """
+    tmp = _entrypoint_docs(module=module, name=name)
+    return tmp
+
+def _entrypoint_docs(module=None, name=None):
+    """ """
+    import importlib
     result = []
     if name and not module:
         module, name = name.split(':')
@@ -63,5 +94,9 @@ def entrypoint(format, module, name, file, output, stdout, header):
     LOGGER.debug(f"Recursive help for `{module}:{name}`")
     result = util.click_recursive_help(entrypoint, parent=None)
     package = module.split('.')[0]
-    header = f"CLI entry-points for {package} \n\n{header}"
-    return dict(commands=result, header=header)
+    return dict(
+        package=module.split('.')[0],
+        module=module,
+        entrypoint=name,
+        commands=result,
+    )

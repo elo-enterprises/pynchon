@@ -13,9 +13,12 @@ LOGGER = pynchon.get_logger(__name__)
 
 class handler(object):
     """ """
+
+    priority = -1
+
     def __init__(self, parent=None):
-        self.parent=parent
-        self.logger=pynchon.get_logger(self.__class__.__name__)
+        self.parent = parent
+        self.logger = pynchon.get_logger(self.__class__.__name__)
 
     def match(self, call_kwargs):
         """ """
@@ -27,17 +30,20 @@ class handler(object):
 
 class stdout_handler(handler):
     """ """
+    priority = 9
     def match(self, kwargs):
         """ """
         return 'stdout' in kwargs and kwargs['stdout']
 
     def handle(self, result,**call_kwargs):
         """ """
-        self.logger.debug(f"Handling stdout: {result}")
         print(result, file=sys.stdout)
 
 class output_handler(handler):
     """ """
+
+    priority = 10
+
     def match(_, kwargs):
         """ """
         return 'output' in kwargs and kwargs['output']
@@ -56,7 +62,6 @@ class format_handler(handler):
 
     def transform(self, result, format:str=None, **call_kwargs):
         """ """
-        self.logger.debug(f"Transform input: {type(result)}")
         if format.lower()=='json':
             warning = "JSON used for `format`; header will be ignored"
             self.logger.warning(warning)
@@ -79,7 +84,6 @@ class format_handler(handler):
 
 class kommand(object):
     """ """
-
     def __init__(self, name=None, parent=None, options=[], transformers=[], handlers=[], formatters={}):
         """ """
         self.name = name
@@ -89,19 +93,20 @@ class kommand(object):
             **formatters,
             **dict(json = self.format_json)
         }
-        self.transformers = transformers + [
+        self.transformers = sorted(transformers + [
             format_handler(parent=self),
-        ]
-        self.handlers = handlers + [
+        ], key=lambda t: t.priority)
+        self.handlers = sorted(handlers + [
             output_handler(parent=self),
             stdout_handler(parent=self),
-        ]
+        ], key=lambda h: h.priority)
+
         self.cmd = self.parent.command(self.name)
         self.logger=pynchon.get_logger(f'cmd[{name}]')
 
     def format_json(self, result):
         """ """
-        self.logger.debug("Handling input: format=`json`")
+        self.logger.debug("Formatter for: `json`")
         return json.dumps(result, indent=2)
 
     def wrapper(self, *args, **call_kwargs):
@@ -120,11 +125,11 @@ class kommand(object):
                     handler.handle(result, **call_kwargs)
             return result
         return newf
+
     def __call__(self, fxn):
         """ """
         self.fxn = fxn
         f = self.cmd(self.wrapper())
         for opt in self.options:
             f = opt(f)
-        # f = functools.wraps(f)(fxn)
         return f

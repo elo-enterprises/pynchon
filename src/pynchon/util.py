@@ -38,7 +38,8 @@ def load_entrypoints(config=None):
             module=c.split('=')[1].strip().split(':')[0],
             entrypoint=c.split('=')[1].strip().split(':')[1],
         )
-        tmp['setuptools_entrypoint'] = tmp['module']+':'+tmp['entrypoint']
+        abs_entrypoint=tmp['module']+':'+tmp['entrypoint']
+        tmp['setuptools_entrypoint'] = abs_entrypoint
         entrypoints.append(tmp)
     return dict(package=package, entrypoints=entrypoints,)
 
@@ -48,11 +49,19 @@ def click_recursive_help(cmd,
     # source: adapted from https://stackoverflow.com/questions/57810659/automatically-generate-all-help-documentation-for-click-commands
     from click.core import Context as ClickContext
     full_name = cmd.name
-    _parent = getattr(cmd, 'parent', None)
+    pname = getattr(cmd, 'parent', None)
+    pname = parent and getattr(parent, 'name', '') or ''
     ctx = ClickContext(cmd, info_name=cmd.name, parent=parent)
+    help_txt = cmd.get_help(ctx)
+    invocation_sample = help_txt.split('\n')[0]
+    for x in 'Usage: [OPTIONS] COMMAND [ARGS] ...'.split():
+        invocation_sample = invocation_sample.replace(x, '')
     out = {
         **out,
-        **{full_name: cmd.get_help(ctx)}
+        **{full_name: dict(
+            name=cmd.name,
+            invocation_sample=invocation_sample,
+            help=help_txt)}
     }
     commands = getattr(cmd, 'commands', {})
     for sub in commands.values():
