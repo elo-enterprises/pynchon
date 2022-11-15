@@ -13,6 +13,7 @@ from pynchon import annotate
 
 LOGGER = pynchon.get_logger(__name__)
 WORKING_DIR = os.getcwd()
+GLYPH_COMPLEXITY = '🐉 Complex'
 
 def load_setupcfg(file:str='setup.cfg'):
     """ """
@@ -166,7 +167,7 @@ def complexity(code:str=None, fname:str=None, threshold:int=7):
     out = []
     for admonition in complex:
         out.append(dict(
-            glyph='🐉 Complex',
+            glyph=GLYPH_COMPLEXITY,
             hover=f'score {admonition["score"]} / {threshold}',
             link=f'/{admonition["file"]}#L{admonition["lineno"]}'))
     return out

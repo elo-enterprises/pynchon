@@ -1,0 +1,23 @@
+* Functions: ({{functions|length}} total)
+  {% for name,obj in functions.items() %}
+  {% set qname = module_name+'.'+name %}
+  {% set start, end = obj.lineno | string, obj.endlineno | string %}
+  {% set rel_url = '/' + base_url + '#L' + start + '-L' + end %}
+  {% set extras = obj._metadata.signature|string %}
+  {% set admonitions=[]%}
+  {%if obj._metadata.mccabe %}
+  {% set admonitions = obj._metadata.mccabe + admonitions %}
+  {% endif %}
+  {% if obj._metadata.fixme %}{{rel_url}} "")
+  {% set admonitions = obj._metadata.fixme + admonitions %}
+  {% endif %}
+  {% if extras|length > 65 %}
+  * [`{{qname}}`]({{rel_url}})
+    * with signature `{{extras}}`
+  {%else%}
+  * [`{{qname}}`]({{rel_url}}) with signature `{{extras}}`
+  {%endif%}
+  {%if admonitions %}
+    * with admonitions: {% for a in admonitions %} [{{a.glyph}}]({{a.link}} "{{a.hover}}") {% endfor %}
+  {%endif%}
+  {%endfor%}
