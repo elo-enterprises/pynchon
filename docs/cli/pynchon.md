@@ -101,8 +101,7 @@ Options:
   -f, --file TEXT    file to read as input
   -o, --output TEXT  output file to write.  (optional)
   --name TEXT        name to use
-  -m, --module TEXT  module to grab click-cli from. (must be used with
-                     `name`)
+  -m, --module TEXT  module to grab click-cli from. (must be used with `name`)
   --help             Show this message and exit.
 ```
 
@@ -115,7 +114,8 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  entrypoints  Describe entrypoints for this project (parses...
+  entrypoints  Describe entrypoints for this project (parses setup.cfg)
+  version      Describes version details for package (and pynchon itself).
 ```
 
 ###  pynchon project entrypoints 
@@ -130,6 +130,20 @@ Options:
   -m, --format TEXT  output format to write
   --stdout           whether to write to stdout.
   -o, --output TEXT  output file to write.  (optional)
+  --header TEXT      header to prepend output with. (optional)
+  --help             Show this message and exit.
+```
+
+###  pynchon project version 
+
+```
+Usage: pynchon project version [OPTIONS]
+
+  Describes version details for package (and pynchon itself).
+
+Options:
+  -m, --format TEXT  output format to write
+  --stdout           whether to write to stdout.
   --header TEXT      header to prepend output with. (optional)
   --help             Show this message and exit.
 ```

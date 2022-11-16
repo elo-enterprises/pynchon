@@ -106,10 +106,14 @@ def get_refs(working_dir=None, module=None) -> dict:
 
 def visit_module(
         output=[], stats={}, module=None, template=pynchon.T_TOC_API,
-        visited=[], module_name=None, working_dir=WORKING_DIR):
+        visited=[], exclude:list=[], module_name=None, working_dir=WORKING_DIR):
     """ recursive visitor for this package, submodules, classes, functions, etc """
+    if module_name in exclude:
+        LOGGER.debug(f"skipping module: {module_name}")
+        return output
     annotate.module(module_name, module, working_dir=working_dir)
     refs = get_refs(working_dir=working_dir, module=module)
+    # LOGGER.debug(f"exclude: {exclude}")
     LOGGER.debug(f"rendering module: {module_name}")
     rendered = template.render(
         griffe=griffe, stats=stats,
@@ -125,6 +129,7 @@ def visit_module(
             working_dir=working_dir,
             module_name=f"{module_name}.{name}",
             visited=visited+[module],
+            exclude=exclude,
             template=template)
     return output
 

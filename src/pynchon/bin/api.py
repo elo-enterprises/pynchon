@@ -16,14 +16,19 @@ def markdown(**result):
         click.option(
             '--output', '-o', default='docs/api/README.md',
             help=('output file to write.  (optional)')),
+        click.option(
+            '--exclude', default='',
+            help=('comma-separated list of modules to exclude (optional)')),
         options.file, options.stdout, options.header, ])
-def toc(package, file, output, format, stdout, header):
+def toc(package, file, exclude, output, format, stdout, header):
     """
     Generate table-of-contents
     """
-
     module = util.get_module(package=package, file=file)
-    result = util.visit_module(module=module, module_name=package)
+    result = util.visit_module(
+        module=module,
+        module_name=package,
+        exclude=exclude.split(','),)
     header=f"{header}\n\n" if header else ''
     return dict(
         header=f"## API for '{package}' package\n\n{header}" + '-' * 80,
