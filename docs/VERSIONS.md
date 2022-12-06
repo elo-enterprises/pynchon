@@ -2,6 +2,6 @@
 
 version=`` 
 
-hash=`1cfb5cbdf2ef8ce0d936285e68a71c32c61e69be` 
+hash=`e725d356a14c93419dc04eb7d1cd847e8a6eaa92` 
 
-pynchon_version=`pynchon, version 2022.11.16+local`
+pynchon_version=`pynchon, version 2022.12.6+local`
