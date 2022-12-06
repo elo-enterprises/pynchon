@@ -86,11 +86,14 @@ class format_handler(handler):
 class kommand(object):
     """ """
 
-    def __init__(self, name=None, parent=None, options=[], transformers=[], handlers=[], formatters={}):
+    def __init__(self,
+        name=None, parent=None, arguments=[],
+        options=[], transformers=[], handlers=[], formatters={}):
         """ """
         self.name = name
         self.parent = parent or click
         self.options = options
+        self.arguments = arguments
         self.formatters = {
             **formatters,
             **dict(json = self.format_json)
@@ -134,4 +137,6 @@ class kommand(object):
         f = self.cmd(self.wrapper())
         for opt in self.options:
             f = opt(f)
+        for arg in self.arguments:
+            f = arg(f)
         return f

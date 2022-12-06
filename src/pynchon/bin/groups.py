@@ -3,6 +3,7 @@
 import click
 import functools
 class group(object):
+    """ """
 
     def __init__(self, name=None, group=None, parent=None,):
         self.name=name
@@ -28,6 +29,10 @@ def entry():
 @group('gen', parent=entry)
 def gen():
     """ Generate docs """
+
+@group('render', parent=entry)
+def render():
+    """ Misc. helpers for rendering text """
 
 @group('api', parent=gen)
 def gen_api():

@@ -6,6 +6,9 @@ import click
 import pynchon
 LOGGER = pynchon.get_logger(__name__)
 
+ctx = click.option(
+    '--ctx', default='',
+    help=('context to use'))
 header = click.option(
     '--header', default='',
     help=('header to prepend output with. (optional)'))

@@ -1,9 +1,11 @@
 """ pynchon.bin.cli
 """
+import os
+import click
+
 import pynchon
 from pynchon import (util,)
-
-from .common import *
+from pynchon.bin.common import (kommand, )
 from pynchon.bin import (groups, options)
 LOGGER = pynchon.get_logger(__name__)
 PARENT = groups.gen_cli
