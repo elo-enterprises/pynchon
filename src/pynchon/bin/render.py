@@ -1,6 +1,6 @@
 """ pynchon.bin.render
 """
-import yaml 
+import yaml
 import pynchon
 from pynchon import (util,)
 from .common import kommand
@@ -32,7 +32,28 @@ def _rj5(file, output='', in_place=False):
 def _render(text:str='', context:dict={}):
     """
     """
-    return text
+    from jinja2 import (
+        Environment, FileSystemLoader,
+        StrictUndefined,Template,
+        # UndefinedError,
+    )
+    git_root = util.find_git_root()
+    LOGGER.debug(f"found {git_root} for root")
+    env = Environment(
+            loader=FileSystemLoader([
+                os.path.join(git_root, 'docs','templates'),
+                os.path.join(git_root, 'docs','includes'),
+                ]),
+            undefined=StrictUndefined)
+        # allow the !policy decorator to support the same
+        # jinja filters  that the rest of sceptre supports
+    tmp = env.from_string(text)
+    # Template(text)
+    context = {
+        **dict(os.environ.items()),
+        **context
+    }
+    return tmp.render(**context)
 
 def _rj2(file, output='', in_place=False, ctx={}):
     """ """
@@ -55,9 +76,12 @@ def _rj2(file, output='', in_place=False, ctx={}):
         else:
             LOGGER.critical(f"unrecognized extenson for context file: {ext}")
             raise TypeError(ext)
+    tmp = ctx.keys()
+    LOGGER.debug(f"rendering with context: {tmp}")
+    content = _render(text=content, context=ctx)
     if output:
+        LOGGER.debug(f"writing output: {output}")
         with open(output, 'w') as fhandle:
-            content = _render(text=content, context=ctx)
             fhandle.write(f"{content}\n")
     return content
 
@@ -65,27 +89,27 @@ def _rj2(file, output='', in_place=False, ctx={}):
     name='json5', parent=PARENT,
     # formatters=dict(),
     options=[
-        options.file,
-        options.stdout,
+        # options.file,
+        # options.stdout,
         options.output,
         click.option(
             '--in-place', is_flag=True, default=False,
             help=('if true, writes to {file}.json (dropping any other extensions)')),
     ],
     arguments=[files_arg],)
-def render_json5(file, files, stdout, output, in_place):
+def render_json5(files, output, in_place):
     """
     Render render JSON5 files -> JSON
     """
     assert (file or files) and not (file and files), 'expected files would be provided'
-    if file:
-        return _rj5(file, output=output, in_place=in_place)
-    elif files:
+    # if file:
+    #     return _rj5(file, output=output, in_place=in_place)
+    # elif files:
         # files = files.split(' ')
-        LOGGER.debug(f"Running with many: {files}")
-        return [
-            _rj5(file, output=output, in_place=in_place)
-            for file in files ]
+    LOGGER.debug(f"Running with many: {files}")
+    file = files[0]
+    files = files[1:]
+    return _rj5(file, output=output, in_place=in_place)
 
 @kommand(
     name='any', parent=PARENT,
@@ -93,10 +117,11 @@ def render_json5(file, files, stdout, output, in_place):
         # markdown=pynchon.T_TOC_CLI,
     ),
     options=[
-        options.file,
+        # options.file,
         options.format,
-        options.stdout,
-        options.output,])
+        # options.stdout,
+        options.output,
+        ])
 def render_any(format, file, stdout, output):
     """
     Render files with given renderer
@@ -106,20 +131,20 @@ def render_any(format, file, stdout, output):
 @kommand(
     name='jinja', parent=PARENT,
     options=[
-        options.file,
+        # options.file,
         options.ctx,
-        options.stdout,
+        # options.stdout,
         options.output,
         click.option(
             '--in-place', is_flag=True, default=False,
             help=('if true, writes to {file}.{ext} (dropping any .j2 extension if present)')),
     ],
     arguments=[files_arg],)
-def render_j2(file, files, ctx, stdout, output, in_place):
+def render_j2(files, ctx, output, in_place):
     """
     Render render J2 files with given context
     """
-    assert (file or files) and not (file and files), 'expected files would be provided'
+    # assert (file or files) and not (file and files), 'expected files would be provided'
     if ctx:
         if '{' in ctx:
             LOGGER.debug("context is inlined JSON")
@@ -140,8 +165,8 @@ def render_j2(file, files, ctx, stdout, output, in_place):
                 raise TypeError(f'not sure how to load: {ctx}')
     else:
         ctx = {}
-    if file:
-        return _rj2(file, ctx=ctx, output=output, in_place=in_place)
+    if files:
+        return [ _rj2(file, ctx=ctx, output=output, in_place=in_place) for file in files ]
     elif files:
         LOGGER.debug(f"Running with many: {files}")
         return [

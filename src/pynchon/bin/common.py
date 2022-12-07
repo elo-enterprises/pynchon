@@ -51,9 +51,12 @@ class output_handler(handler):
 
     def handle(self, result, output=None, **call_kwargs) -> None:
         """ """
-        self.logger.debug(f"Saving to file: {output}")
-        with open(output, 'w') as fhandle:
-            fhandle.write(result)
+        if isinstance(result, (str,)):
+            self.logger.debug(f"Saving to file: {output}")
+            with open(output, 'w') as fhandle:
+                fhandle.write(result)
+        else:
+            self.logger.warning(f"skipping output_handler; result is not a string! (got {type(result)})")
 
 class format_handler(handler):
     """ """

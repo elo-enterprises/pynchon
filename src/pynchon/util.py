@@ -15,6 +15,14 @@ LOGGER = pynchon.get_logger(__name__)
 WORKING_DIR = os.getcwd()
 GLYPH_COMPLEXITY = '🐉 Complex'
 
+def find_git_root(path:str='.'):
+    """ """
+    path = os.path.abspath(path)
+    if '.git' in os.listdir(path):
+        return path
+    else:
+        return find_git_root(os.path.dirname(path))
+
 def load_setupcfg(file:str='setup.cfg'):
     """ """
     if not os.path.exists(file):
