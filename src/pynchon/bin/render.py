@@ -14,7 +14,7 @@ import pyjson5
 
 files_arg = click.argument('files', nargs=-1)
 
-def _rj5(file, output='', in_place=False):
+def _rj5(file, output='', in_place=False,):
     """ """
     LOGGER.debug(f"Running with one file: {file}")
     with open(file, 'r') as fhandle:
@@ -29,7 +29,7 @@ def _rj5(file, output='', in_place=False):
             fhandle.write(f"{content}\n")
     return data
 
-def _render(text:str='', context:dict={}):
+def _render(text:str='', context:dict={}, templates_dir='.'):
     """
     """
     from jinja2 import (
@@ -45,8 +45,8 @@ def _render(text:str='', context:dict={}):
                 os.path.join(git_root, 'docs','includes'),
                 ]),
             undefined=StrictUndefined)
-        # allow the !policy decorator to support the same
-        # jinja filters  that the rest of sceptre supports
+    # allow the !policy decorator to support the same
+    # jinja filters  that the rest of sceptre supports
     tmp = env.from_string(text)
     # Template(text)
     context = {
@@ -55,7 +55,7 @@ def _render(text:str='', context:dict={}):
     }
     return tmp.render(**context)
 
-def _rj2(file, output='', in_place=False, ctx={}):
+def _rj2(file, output='', in_place=False, ctx={}, templates_dir='.'):
     """ """
     LOGGER.debug(f"Running with one file: {file}")
     with open(file, 'r') as fhandle:
@@ -69,16 +69,19 @@ def _rj2(file, output='', in_place=False, ctx={}):
             output = ''.join(output)
     if not isinstance(ctx, (dict,)):
         ext = os.path.splitext(ctx)[-1]
-        if ext in ['json']:
+        if '{' in ctx:
+            LOGGER.debug(f"found bracket in context, assuming it is data instead of file.")
+            ctx = json.loads(ctx)
+        elif ext in ['json']:
             LOGGER.debug(f"context is json file @ `{ctx}`")
             with open(ctx,'r') as fhandle:
                 ctx = json.loads(fhandle.read())
         else:
-            LOGGER.critical(f"unrecognized extenson for context file: {ext}")
+            LOGGER.critical(f"unrecognized extension for context file: {ext}")
             raise TypeError(ext)
     tmp = ctx.keys()
     LOGGER.debug(f"rendering with context: {tmp}")
-    content = _render(text=content, context=ctx)
+    content = _render(text=content, context=ctx, templates_dir=templates_dir)
     if output:
         LOGGER.debug(f"writing output: {output}")
         with open(output, 'w') as fhandle:
@@ -105,11 +108,11 @@ def render_json5(files, output, in_place):
     # if file:
     #     return _rj5(file, output=output, in_place=in_place)
     # elif files:
-        # files = files.split(' ')
+    # files = files.split(' ')
     LOGGER.debug(f"Running with many: {files}")
     file = files[0]
     files = files[1:]
-    return _rj5(file, output=output, in_place=in_place)
+    return _rj5(file, output=output, in_place=in_place, templates_dir=templates_dir)
 
 @kommand(
     name='any', parent=PARENT,
@@ -138,13 +141,18 @@ def render_any(format, file, stdout, output):
         click.option(
             '--in-place', is_flag=True, default=False,
             help=('if true, writes to {file}.{ext} (dropping any .j2 extension if present)')),
+        click.option(
+            '-t', '--templates', default='.',
+            help=('path to use for template-root / includes')),
     ],
     arguments=[files_arg],)
-def render_j2(files, ctx, output, in_place):
+def render_j2(files, ctx, output, in_place, templates_dir):
     """
     Render render J2 files with given context
     """
     # assert (file or files) and not (file and files), 'expected files would be provided'
+    templates_dir=templates
+    assert os.path.exists(templates_dir),f'template directory @ `{templates_dir}` does not exist'
     if ctx:
         if '{' in ctx:
             LOGGER.debug("context is inlined JSON")
@@ -166,11 +174,11 @@ def render_j2(files, ctx, output, in_place):
     else:
         ctx = {}
     if files:
-        return [ _rj2(file, ctx=ctx, output=output, in_place=in_place) for file in files ]
+        return [ _rj2(file, ctx=ctx, output=output, in_place=in_place, templates_dir=templates_dir) for file in files ]
     elif files:
         LOGGER.debug(f"Running with many: {files}")
         return [
-            _rj2(file, output=output, in_place=in_place)
+            _rj2(file, output=output, in_place=in_place, templates_dir=templates_dir)
             for file in files ]
 
 # @kommand(
