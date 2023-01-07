@@ -1,5 +1,6 @@
 """ pynchon.bin.render
 """
+import sys
 import yaml
 import pynchon
 from pynchon import (util,)
@@ -29,7 +30,7 @@ def _rj5(file, output='', in_place=False,):
             fhandle.write(f"{content}\n")
     return data
 
-def _render(text:str='', context:dict={}, templates_dir='.'):
+def _render(text:str='', context:dict={}, templates='.'):
     """
     """
     from jinja2 import (
@@ -55,7 +56,7 @@ def _render(text:str='', context:dict={}, templates_dir='.'):
     }
     return tmp.render(**context)
 
-def _rj2(file, output='', in_place=False, ctx={}, templates_dir='.'):
+def _rj2(file, output='', in_place=False, ctx={}, templates='.', strict:bool=True):
     """ """
     LOGGER.debug(f"Running with one file: {file}")
     with open(file, 'r') as fhandle:
@@ -79,13 +80,12 @@ def _rj2(file, output='', in_place=False, ctx={}, templates_dir='.'):
         else:
             LOGGER.critical(f"unrecognized extension for context file: {ext}")
             raise TypeError(ext)
-    tmp = ctx.keys()
+    tmp = list(ctx.keys())
     LOGGER.debug(f"rendering with context: {tmp}")
-    content = _render(text=content, context=ctx, templates_dir=templates_dir)
-    if output:
-        LOGGER.debug(f"writing output: {output}")
-        with open(output, 'w') as fhandle:
-            fhandle.write(f"{content}\n")
+    content = _render(text=content, context=ctx, templates=templates)
+    fhandle = open(output, 'w')if output else sys.stdout
+    fhandle.write(f"{content}\n")
+    fhandle.close()
     return content
 
 @kommand(
@@ -112,7 +112,7 @@ def render_json5(files, output, in_place):
     LOGGER.debug(f"Running with many: {files}")
     file = files[0]
     files = files[1:]
-    return _rj5(file, output=output, in_place=in_place, templates_dir=templates_dir)
+    return _rj5(file, output=output, in_place=in_place, templates=templates)
 
 @kommand(
     name='any', parent=PARENT,
@@ -146,40 +146,46 @@ def render_any(format, file, stdout, output):
             help=('path to use for template-root / includes')),
     ],
     arguments=[files_arg],)
-def render_j2(files, ctx, output, in_place, templates_dir):
+def render_j2(files, ctx, output, in_place, templates):
     """
     Render render J2 files with given context
     """
     # assert (file or files) and not (file and files), 'expected files would be provided'
-    templates_dir=templates
-    assert os.path.exists(templates_dir),f'template directory @ `{templates_dir}` does not exist'
+    if not os.path.exists(templates):
+        err = f'template directory @ `{templates}` does not exist'
+        raise ValueError(err)
     if ctx:
         if '{' in ctx:
             LOGGER.debug("context is inlined JSON")
-            ctx = {}
+            ctx = json.loads(ctx)
         elif '=' in ctx:
             LOGGER.debug("context is inlined (comma-separed k=v format)")
-            ctx = {}
+            ctx = dict([kv.split('=') for kv in ctx.split(',')])
         else:
             with open(ctx,'r') as fhandle:
                 content = fhandle.read()
             if ctx.endswith('.json'):
+                LOGGER.debug("context is JSON file")
                 ctx = json.loads(content)
             elif ctx.endswith('.json5'):
+                LOGGER.debug("context is JSON-5 file")
                 ctx = pyjson5.loads(content)
             elif ctx.endswith('.yml') or ctx.endswith('.yaml'):
+                LOGGER.debug("context is yaml file")
                 ctx = yaml.loads(content)
             else:
                 raise TypeError(f'not sure how to load: {ctx}')
     else:
         ctx = {}
+    LOGGER.debug("using context: ")
+    LOGGER.debug(json.dumps(ctx))
     if files:
-        return [ _rj2(file, ctx=ctx, output=output, in_place=in_place, templates_dir=templates_dir) for file in files ]
-    elif files:
-        LOGGER.debug(f"Running with many: {files}")
-        return [
-            _rj2(file, output=output, in_place=in_place, templates_dir=templates_dir)
-            for file in files ]
+        return [ _rj2(file, ctx=ctx, output=output, in_place=in_place, templates=templates) for file in files ]
+    # elif files:
+    #     LOGGER.debug(f"Running with many: {files}")
+    #     return [
+    #         _rj2(file, output=output, in_place=in_place, templates=templates)
+    #         for file in files ]
 
 # @kommand(
 #     name='version', parent=PARENT,
