@@ -1,4 +1,5 @@
-""" pynchon.bin.groups
+""" pynchon.bin.groups:
+    Top-level subcommands
 """
 import click
 import functools
@@ -29,6 +30,12 @@ def entry():
 @group('gen', parent=entry)
 def gen():
     """ Generate docs """
+
+# def _proj():
+#     """ Project subcommands """
+# project = group('project', help=_proj.__doc__, parent=entry)(_proj)
+# proj = group('proj', help='Alias for `project` subcommand', parent=entry)(_proj)
+
 
 @group('render', parent=entry)
 def render():

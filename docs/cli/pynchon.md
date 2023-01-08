@@ -128,8 +128,6 @@ Usage: pynchon render json5 [OPTIONS] [FILES]...
   Render render JSON5 files -> JSON
 
 Options:
-  -f, --file TEXT    file to read as input
-  --stdout           whether to write to stdout.
   -o, --output TEXT  output file to write.  (optional)
   --in-place         if true, writes to {file}.json (dropping any other
                      extensions)
@@ -144,9 +142,7 @@ Usage: pynchon render any [OPTIONS]
   Render files with given renderer
 
 Options:
-  -f, --file TEXT    file to read as input
   -m, --format TEXT  output format to write
-  --stdout           whether to write to stdout.
   -o, --output TEXT  output file to write.  (optional)
   --help             Show this message and exit.
 ```
@@ -159,13 +155,12 @@ Usage: pynchon render jinja [OPTIONS] [FILES]...
   Render render J2 files with given context
 
 Options:
-  -f, --file TEXT    file to read as input
-  --ctx TEXT         context to use
-  --stdout           whether to write to stdout.
-  -o, --output TEXT  output file to write.  (optional)
-  --in-place         if true, writes to {file}.{ext} (dropping any .j2
-                     extension if present)
-  --help             Show this message and exit.
+  --ctx TEXT            context to use
+  -o, --output TEXT     output file to write.  (optional)
+  --in-place            if true, writes to {file}.{ext} (dropping any .j2
+                        extension if present)
+  -t, --templates TEXT  path to use for template-root / includes
+  --help                Show this message and exit.
 ```
 
 ###  pynchon project   

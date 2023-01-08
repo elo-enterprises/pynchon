@@ -1,10 +1,16 @@
-""" pynchon.bin.options
+""" pynchon.bin.options:
+    Common options for CLI
 """
 import os
 import sys
 import click
 import pynchon
 LOGGER = pynchon.get_logger(__name__)
+
+templates = click.option(
+    '-t', '--templates', default='.',
+    help=('path to use for template-root / includes'))
+template=templates
 
 ctx = click.option(
     '--ctx', default='',

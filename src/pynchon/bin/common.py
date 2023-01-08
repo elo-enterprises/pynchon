@@ -1,4 +1,5 @@
-""" pynchon.bin.common
+""" pynchon.bin.common:
+    Common options/arguments and base classes for CLI
 """
 import os
 import sys

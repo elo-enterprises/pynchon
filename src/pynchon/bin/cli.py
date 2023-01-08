@@ -1,4 +1,5 @@
-""" pynchon.bin.cli
+""" pynchon.bin.cli:
+    Option parsing for the `cli` subcommand
 """
 import os
 import click
