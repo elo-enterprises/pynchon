@@ -1,4 +1,5 @@
-""" pynchon.bin.render
+""" pynchon.bin.render:
+    Option parsing for the `render` subcommand
 """
 import sys
 import yaml
@@ -6,87 +7,15 @@ import pynchon
 from pynchon import (util,)
 from .common import kommand
 from pynchon.bin import (groups, options)
-LOGGER = pynchon.get_logger(__name__)
-PARENT=groups.render
+from pynchon.api import render
 import click
 import os
 import json
 import pyjson5
 
+LOGGER = pynchon.get_logger(__name__)
+PARENT=groups.render
 files_arg = click.argument('files', nargs=-1)
-
-def _rj5(file, output='', in_place=False,):
-    """ """
-    LOGGER.debug(f"Running with one file: {file}")
-    with open(file, 'r') as fhandle:
-        data = pyjson5.loads(fhandle.read())
-    if in_place:
-        assert not output,'cannot use --in-place and --output at the same time'
-        output = os.path.splitext(file)[0]
-        output = f'{output}.json'
-    if output:
-        with open(output,'w') as fhandle:
-            content = json.dumps(data)
-            fhandle.write(f"{content}\n")
-    return data
-
-def _render(text:str='', context:dict={}, templates='.'):
-    """
-    """
-    from jinja2 import (
-        Environment, FileSystemLoader,
-        StrictUndefined,Template,
-        # UndefinedError,
-    )
-    git_root = util.find_git_root()
-    LOGGER.debug(f"found {git_root} for root")
-    env = Environment(
-            loader=FileSystemLoader([
-                os.path.join(git_root, 'docs','templates'),
-                os.path.join(git_root, 'docs','includes'),
-                ]),
-            undefined=StrictUndefined)
-    # allow the !policy decorator to support the same
-    # jinja filters  that the rest of sceptre supports
-    tmp = env.from_string(text)
-    # Template(text)
-    context = {
-        **dict(os.environ.items()),
-        **context
-    }
-    return tmp.render(**context)
-
-def _rj2(file, output='', in_place=False, ctx={}, templates='.', strict:bool=True):
-    """ """
-    LOGGER.debug(f"Running with one file: {file}")
-    with open(file, 'r') as fhandle:
-        content = fhandle.read()
-    if in_place:
-        assert not output,'cannot use --in-place and --output at the same time'
-        output = os.path.splitext(file)
-        if output[-1]=='.j2':
-            output = output[0]
-        else:
-            output = ''.join(output)
-    if not isinstance(ctx, (dict,)):
-        ext = os.path.splitext(ctx)[-1]
-        if '{' in ctx:
-            LOGGER.debug(f"found bracket in context, assuming it is data instead of file.")
-            ctx = json.loads(ctx)
-        elif ext in ['json']:
-            LOGGER.debug(f"context is json file @ `{ctx}`")
-            with open(ctx,'r') as fhandle:
-                ctx = json.loads(fhandle.read())
-        else:
-            LOGGER.critical(f"unrecognized extension for context file: {ext}")
-            raise TypeError(ext)
-    tmp = list(ctx.keys())
-    LOGGER.debug(f"rendering with context: {tmp}")
-    content = _render(text=content, context=ctx, templates=templates)
-    fhandle = open(output, 'w')if output else sys.stdout
-    fhandle.write(f"{content}\n")
-    fhandle.close()
-    return content
 
 @kommand(
     name='json5', parent=PARENT,
@@ -95,24 +24,25 @@ def _rj2(file, output='', in_place=False, ctx={}, templates='.', strict:bool=Tru
         # options.file,
         # options.stdout,
         options.output,
+        options.templates,
         click.option(
             '--in-place', is_flag=True, default=False,
             help=('if true, writes to {file}.json (dropping any other extensions)')),
     ],
     arguments=[files_arg],)
-def render_json5(files, output, in_place):
+def render_json5(files, output, in_place, templates):
     """
     Render render JSON5 files -> JSON
     """
-    assert (file or files) and not (file and files), 'expected files would be provided'
+    assert files, 'expected files would be provided'
     # if file:
-    #     return _rj5(file, output=output, in_place=in_place)
+    #     return render.j5(file, output=output, in_place=in_place)
     # elif files:
     # files = files.split(' ')
     LOGGER.debug(f"Running with many: {files}")
     file = files[0]
     files = files[1:]
-    return _rj5(file, output=output, in_place=in_place, templates=templates)
+    return render.j5(file, output=output, in_place=in_place, templates=templates)
 
 @kommand(
     name='any', parent=PARENT,
@@ -136,14 +66,11 @@ def render_any(format, file, stdout, output):
     options=[
         # options.file,
         options.ctx,
-        # options.stdout,
         options.output,
+        options.template,
         click.option(
             '--in-place', is_flag=True, default=False,
             help=('if true, writes to {file}.{ext} (dropping any .j2 extension if present)')),
-        click.option(
-            '-t', '--templates', default='.',
-            help=('path to use for template-root / includes')),
     ],
     arguments=[files_arg],)
 def render_j2(files, ctx, output, in_place, templates):
@@ -180,11 +107,11 @@ def render_j2(files, ctx, output, in_place, templates):
     LOGGER.debug("using context: ")
     LOGGER.debug(json.dumps(ctx))
     if files:
-        return [ _rj2(file, ctx=ctx, output=output, in_place=in_place, templates=templates) for file in files ]
+        return [ render.j2(file, ctx=ctx, output=output, in_place=in_place, templates=templates) for file in files ]
     # elif files:
     #     LOGGER.debug(f"Running with many: {files}")
     #     return [
-    #         _rj2(file, output=output, in_place=in_place, templates=templates)
+    #         render.j2(file, output=output, in_place=in_place, templates=templates)
     #         for file in files ]
 
 # @kommand(

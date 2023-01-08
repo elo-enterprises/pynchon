@@ -15,7 +15,9 @@ LOGGER = pynchon.get_logger(__name__)
 WORKING_DIR = os.getcwd()
 GLYPH_COMPLEXITY = '🐉 Complex'
 
-def find_git_root(path:str='.'):
+def is_python_project() -> bool:
+    return True
+def find_git_root(path:str='.') -> str:
     """ """
     path = os.path.abspath(path)
     if '.git' in os.listdir(path):
