@@ -128,10 +128,11 @@ Usage: pynchon render json5 [OPTIONS] [FILES]...
   Render render JSON5 files -> JSON
 
 Options:
-  -o, --output TEXT  output file to write.  (optional)
-  --in-place         if true, writes to {file}.json (dropping any other
-                     extensions)
-  --help             Show this message and exit.
+  -o, --output TEXT     output file to write.  (optional)
+  -t, --templates TEXT  path to use for template-root / includes
+  --in-place            if true, writes to {file}.json (dropping any other
+                        extensions)
+  --help                Show this message and exit.
 ```
 
 ###  pynchon render any 
@@ -157,9 +158,9 @@ Usage: pynchon render jinja [OPTIONS] [FILES]...
 Options:
   --ctx TEXT            context to use
   -o, --output TEXT     output file to write.  (optional)
+  -t, --templates TEXT  path to use for template-root / includes
   --in-place            if true, writes to {file}.{ext} (dropping any .j2
                         extension if present)
-  -t, --templates TEXT  path to use for template-root / includes
   --help                Show this message and exit.
 ```
 
@@ -173,7 +174,8 @@ Options:
 
 Commands:
   entrypoints  Describe entrypoints for this project (parses setup.cfg)
-  version      Describes version details for package (and pynchon itself).
+  plan         List goals for auto-documenting this project
+  version      Describes version details for this package (and pynchon...
 ```
 
 ###  pynchon project entrypoints 
@@ -197,13 +199,25 @@ Options:
 ```
 Usage: pynchon project version [OPTIONS]
 
-  Describes version details for package (and pynchon itself).
+  Describes version details for this package (and pynchon itself).
 
 Options:
   -m, --format TEXT  output format to write
   --stdout           whether to write to stdout.
   --header TEXT      header to prepend output with. (optional)
   --help             Show this message and exit.
+```
+
+###  pynchon project plan 
+
+```
+Usage: pynchon project plan [OPTIONS]
+
+  List goals for auto-documenting this project
+
+Options:
+  --stdout  whether to write to stdout.
+  --help    Show this message and exit.
 ```
 
 ###  pynchon ast   
