@@ -15,15 +15,41 @@ LOGGER = pynchon.get_logger(__name__)
 WORKING_DIR = os.getcwd()
 GLYPH_COMPLEXITY = '🐉 Complex'
 
+def project_version() -> str:
+    """
+    """
+    cmd = invoke("python setup.py --version")
+    return cmd.succeeded and cmd.stdout.strip()
+
+def pynchon_version() -> str:
+    """ """
+    from pynchon import __version__
+    return __version__
+
 def is_python_project() -> bool:
+    """ """
     return True
+
 def find_git_root(path:str='.') -> str:
     """ """
     path = os.path.abspath(path)
     if '.git' in os.listdir(path):
-        return path
+        return os.path.relpath(path)
+    elif not path:
+        return None
     else:
         return find_git_root(os.path.dirname(path))
+
+def get_git_hash()->str:
+    """ """
+    cmd =  invoke('git rev-parse HEAD')
+    return cmd.succeeded and cmd.stdout.strip()
+
+def find_src_root(config:dict) -> str:
+    """ """
+    src_root = os.path.join(config['project']['root'], 'src')
+    src_root = src_root if os.path.isdir(src_root) else None
+    return os.path.relpath(src_root)
 
 def load_setupcfg(file:str='setup.cfg'):
     """ """
@@ -34,6 +60,13 @@ def load_setupcfg(file:str='setup.cfg'):
     import configparser
     config = configparser.ConfigParser()
     config.read(file)
+    config = {
+        s:dict(config.items(s))
+        for s in config.sections() }
+    pynchon_section = config.get('tool:pynchon', {})
+    pynchon_section['project'] = pynchon_section.get(
+        'project','').split('\n')
+    config['tool:pynchon'] = pynchon_section
     return config
 
 def load_entrypoints(config=None):
@@ -186,3 +219,67 @@ def complexity(code:str=None, fname:str=None, threshold:int=7):
             hover=f'score {admonition["score"]} / {threshold}',
             link=f'/{admonition["file"]}#L{admonition["lineno"]}'))
     return out
+
+
+import subprocess
+def invoke(
+    cmd=None,
+    stdin='',
+    interactive: bool = False,
+    large_output: bool = False,
+    log_command: bool = True,
+    environment: dict = {},
+    log_stdin: bool = True,
+    system: bool = False,
+):
+    """
+    dependency-free replacement for the `invoke` module,
+    which fixes problems with subprocess.POpen and os.system.
+    """
+    log_command and LOGGER.info(
+        "running command: (system={})\n\t{}".format(system, ((cmd)))
+    )
+    if system:
+        assert not stdin and not interactive
+        error = os.system(cmd)
+
+        class result(object):  # noqa
+            failed = failure = bool(error)
+            success = succeeded = not bool(error)
+            stdout = stdin = '<os.system>'
+
+        return result
+    exec_kwargs = dict(
+        shell=True, env={**{k: v for k, v in os.environ.items()}, **environment}
+    )
+    if stdin:
+        msg = "command will receive pipe:\n{}"
+        log_stdin and LOGGER.debug(msg.format(((stdin))))
+        exec_kwargs.update(
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        exec_cmd = subprocess.Popen(cmd, **exec_kwargs)
+        exec_cmd.stdin.write(stdin.encode('utf-8'))
+        exec_cmd.stdin.close()
+        exec_cmd.wait()
+    else:
+        if not interactive:
+            exec_kwargs.update(
+                stdout=subprocess.PIPE,
+                # stderr=subprocess.PIPE
+            )
+        exec_cmd = subprocess.Popen(cmd, **exec_kwargs)
+        exec_cmd.wait()
+    if exec_cmd.stdout:
+        exec_cmd.stdout = (
+            '<LargeOutput>' if large_output else exec_cmd.stdout.read().decode('utf-8')
+        )
+    else:
+        exec_cmd.stdout = '<Interactive>'
+    if exec_cmd.stderr:
+        exec_cmd.stderr = exec_cmd.stderr.read().decode('utf-8')
+    exec_cmd.failed = exec_cmd.returncode > 0
+    exec_cmd.succeeded = not exec_cmd.failed
+    exec_cmd.success = exec_cmd.succeeded
+    exec_cmd.failure = exec_cmd.failed
+    return exec_cmd
