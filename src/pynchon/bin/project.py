@@ -18,7 +18,6 @@ def project_entrypoints(format, file, stdout, output, header):
     return util.load_entrypoints(
             util.load_setupcfg(file=file))
 
-
 @kommand(
     name='version', parent=PARENT,
     # FIXME: formatters=dict(markdown=pynchon.T_VERSION_METADATA),
@@ -48,9 +47,11 @@ def plan():
     List goals for auto-documenting this project
     """
     import os, glob
+    setupcfg = util.load_setupcfg()['tool:pynchon']
     config = dict(
         git_root=util.find_git_root(),
         python_project=util.is_python_project(),
+        setupcfg=setupcfg,
     )
     src_root = os.path.join(config['git_root'],'src')
     src_root = src_root if os.path.isdir(src_root) else None

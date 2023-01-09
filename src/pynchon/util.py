@@ -17,6 +17,7 @@ GLYPH_COMPLEXITY = '🐉 Complex'
 
 def is_python_project() -> bool:
     return True
+
 def find_git_root(path:str='.') -> str:
     """ """
     path = os.path.abspath(path)
@@ -34,6 +35,13 @@ def load_setupcfg(file:str='setup.cfg'):
     import configparser
     config = configparser.ConfigParser()
     config.read(file)
+    config = {
+        s:dict(config.items(s))
+        for s in config.sections() }
+    pynchon_section = config.get('tool:pynchon', {})
+    pynchon_section['project'] = pynchon_section.get(
+        'project','').split('\n')
+    config['tool:pynchon'] = pynchon_section
     return config
 
 def load_entrypoints(config=None):
