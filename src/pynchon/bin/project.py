@@ -21,44 +21,40 @@ def project_entrypoints(format, file, stdout, output, header):
 
 @kommand(
     name='version', parent=PARENT,
-    # FIXME: formatters=dict(markdown=pynchon.T_VERSION_METADATA),
+    formatters=dict(
+        markdown=pynchon.T_VERSION_METADATA),
     options=[
         # FIXME: options.output_with_default('docs/VERSION.md'),
         options.format_markdown,
-        options.stdout, options.header])
-def project_version(format, file, stdout, output, header):
+        options.output,
+        options.header])
+def project_version(format, output, header):
     """
     Describes version details for this package (and pynchon itself).
     """
     return dict(
         pynchon_version=util.pynchon_version(),
-        package_version='..',
+        package_version=util.project_version(),
         git_hash=util.get_git_hash(), )
 
 # @kommand(
-#     name='init', parent=PARENT,
+#     name='apply', parent=PARENT,
 #     # FIXME: formatters=dict(markdown=pynchon.T_VERSION_METADATA),
 #     options=[
 #         # FIXME: options.output_with_default('docs/VERSION.md'),
 #         # options.format_markdown,
 #         # options.stdout, options.header
 #         ])
-# def project_init():
+# def project_apply():
 #     """
-#     Initialize working-directory as a pynchon project
+#     Apply the plan created by `pynchon project plan`
 #     """
 
 @kommand(
     name='plan', parent=PARENT,
-    # formatters=dict(
-    #     # markdown=pynchon.T_VERSION_METADATA
-    #     json=True,
-    #     ),
     options=[
-        # FIXME: options.output_with_default('docs/VERSION.md'),
-        # options.format_markdown,
         options.stdout,
-         # options.header
+        # FIXME: options.header
         ])
 def project_plan(stdout):
     """
@@ -71,18 +67,7 @@ def project_plan(stdout):
     #     python_project=util.is_python_project(),
     #     setupcfg=setupcfg,
     plan = []
-    config = dict(
-        pynchon=dict(
-            version=util.pynchon_version(),
-            ),
-        project=dict(
-            name=os.path.split(os.getcwd())[-1],
-            root=util.find_git_root(),
-            # project=util.is_python_project(),
-            version=util.project_version(),
-            hash=util.get_git_hash(),
-        )
-    )
+    config = util.project_config()
     src_root = util.find_src_root(config)
     config['source'] = dict(root=src_root)
     if config['source']['root']:
@@ -94,6 +79,7 @@ def project_plan(stdout):
         ]
         if __main__:
             plan += [f'mkdir -p {src_root}/docs/cli',]
+    plan+=['pynchon project version --output docs/VERSIONS.md']
     # LOGGER.debug(f"{config}")
-    config['plan']=plan
+    config['plan'] = plan
     return json.dumps(config,indent=2)

@@ -15,6 +15,34 @@ LOGGER = pynchon.get_logger(__name__)
 WORKING_DIR = os.getcwd()
 GLYPH_COMPLEXITY = '🐉 Complex'
 
+def project_config() -> dict:
+    """
+    """
+    out = dict(
+        pynchon=dict(
+            version=pynchon_version(),
+            ),
+        project=dict(
+            name=os.path.split(os.getcwd())[-1],
+            root=find_git_root(),
+            # project=util.is_python_project(),
+            version=project_version(),
+            hash=get_git_hash(),
+        )
+    )
+    config = {
+        **out,
+        **load_setupcfg()['tool:pynchon'] }
+    src_root = find_src_root(config)
+    config['source'] = dict(root=src_root)
+    if config['source']['root']:
+        __main__ = os.path.join(
+            config.get('source',{}).get('root',os.getcwd()),
+            '**', '__main__.py')
+        __main__ = [os.path.relpath(x) for x in glob.glob(__main__, recursive=True)],
+        config['source'].update(__main__=__main__)
+    return config
+
 def project_version() -> str:
     """
     """
@@ -47,7 +75,11 @@ def get_git_hash()->str:
 
 def find_src_root(config:dict) -> str:
     """ """
-    src_root = os.path.join(config['project']['root'], 'src')
+    pconf=config.get('project', {})
+    raise Exception(pconf)
+    src_root = os.path.join(
+        pconf.get('root', os.getcwd()),
+        'src')
     src_root = src_root if os.path.isdir(src_root) else None
     return os.path.relpath(src_root)
 

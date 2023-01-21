@@ -32,7 +32,7 @@ ENV = jinja2.Environment(
 T_DETAIL_CLI = ENV.get_template('cli/detail.md.j2')
 T_TOC_API = ENV.get_template('api/TOC.md.j2')
 T_TOC_CLI = ENV.get_template('cli/TOC.md.j2')
-
+T_VERSION_METADATA = ENV.get_template('VERSIONS.md.j2')
 
 def get_logger(name):
     """
