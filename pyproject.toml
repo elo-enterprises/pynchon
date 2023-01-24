@@ -1,0 +1,39 @@
+# pynchon is a docs-generation tool.
+# this config is used implicitly with
+# any direct invocations of the `pynchon` CLI
+# tool, or via `make docs` (which drives the CLI)
+[tool.pynchon]
+src_root = "src"
+api_pkg = "pynchon"
+docs_root = "docs"
+cli_gen = true
+api_gen = true
+
+# pyright is a type-checking tool.
+# this config is used implicitly with
+# any direct invocation of the pyright CLI,
+# or via tox -e check, or via `make check`.
+[tool.pyright]
+include = ["src"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+    "src/experimental",
+    "src/typestubs"
+]
+ignore = ["src/oldstuff"]
+defineConstant = { DEBUG = true }
+stubPath = "src/stubs"
+venv = "env367"
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.6"
+pythonPlatform = "Linux"
+
+executionEnvironments = [
+  { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [ "src/service_libs" ] },
+  { root = "src/sdk", pythonVersion = "3.0", extraPaths = [ "src/backend" ] },
+  { root = "src/tests", extraPaths = ["src/tests/e2e", "src/sdk" ]},
+  { root = "src" }
+]

@@ -78,6 +78,10 @@ normalize:
 	@# This helps to satisfy the linter, which by default is strict.
 	tox -e normalize
 
+check:
+	@# Uses tox to type-check code with pyright.
+	tox -e check
+
 .PHONY: docs
 docs:
 	set -x \
@@ -104,12 +108,3 @@ python-require-pipenv:
 		printf '$(COLOR_GREEN)Detected pipenv is missing. Installing it..$(NO_COLOR)\n' 1>&2 \
 		&& pip install pipenv==2022.10.12 \
 )
-python-normalize: assert-src
-	@# NB: most projects should really be doing this with a tox target,
-	@# but this is still useful for handling things like scripts which are
-	@# missing tox project boilerplate.
-	make python-enumerate > /dev/null \
-	&& ( \
-		make python-enumerate \
-		| xargs autopep8 --in-place) \
-	|| printf "$(COLOR_YELLOW)WARNING:$(NO_COLOR) no python source files found in $${src} folder \n" > /dev/stderr

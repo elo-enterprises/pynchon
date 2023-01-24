@@ -4,10 +4,14 @@ import os
 import sys
 import ast
 import glob
+import subprocess
+from collections import OrderedDict
+import termcolor
 import mccabe
 import griffe
-
+import tomli as tomllib # tomllib only available in py3.11
 import pynchon
+PYNCHON_CONFIG_FILE="pyproject.toml"
 
 LOGGER = pynchon.get_logger(__name__)
 from pynchon import annotate
@@ -19,12 +23,15 @@ GLYPH_COMPLEXITY = "🐉 Complex"
 
 def project_config() -> dict:
     """ """
+    xxx = load_setupcfg()
+    import IPython; IPython.embed()
+
     out = dict(
         pynchon=dict(
             version=pynchon_version(),
         ),
         project={
-            **load_setupcfg()["pynchon"],
+            **xxx['tool']['pynchon'],
             **dict(
                 name=os.path.split(os.getcwd())[-1],
                 root=find_git_root(),
@@ -60,10 +67,9 @@ def pynchon_version() -> str:
 
     return __version__
 
-
 def is_python_project() -> bool:
     """ """
-    return os.path.exists(os.path.join(find_git_root(), ".pynchon.ini"))
+    return os.path.exists(os.path.join(find_git_root(), PYNCHON_CONFIG_FILE))
 
 
 def find_git_root(path: str = ".") -> str:
@@ -94,28 +100,15 @@ def find_src_root(config: dict) -> str:
 
 def load_setupcfg(file: str = ""):
     """ """
-    file = file or os.path.join(find_git_root(), ".pynchon.ini")
+    file = file or os.path.join(find_git_root(), PYNCHON_CONFIG_FILE)
     if not os.path.exists(file):
         err = f"Cannot load from nonexistent file @ `{file}`"
         LOGGER.critical(err)
         raise RuntimeError(err)
-    # from dynaconf import settings, Dynaconf
-    #
-    # setup_cfg = os.path.join(find_git_root(), '.pynchon.ini')
-    # LOGGER.debug(f'loading config: {setup_cfg}')
-    # config = Dynaconf(
-    #     envvar_prefix='PYNCHON_',
-    #     loaders=['dynaconf.loaders.ini_loader'],
-    #     settings_files=[setup_cfg,])
-    # config = settings.load_file(
-    #     settings_files=[setup_cfg,])  # list or `;/,` separated allowed
-    # LOGGER.debug(f'loaded config: {config}')
-    # import IPython; IPython.embed()
-    import configparser
 
-    config = configparser.ConfigParser()
-    config.read(file)
-    config = {s: dict(config.items(s)) for s in config.sections()}
+    with open(PYNCHON_CONFIG_FILE, "rb") as f:
+        config = tomllib.load(f)
+    # config = {s: dict(config.items(s)) for s in config.sections()}
     pynchon_section = config.get("pynchon", {})
     # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(
     #     'project', '').split('\n') if x.strip())
@@ -210,10 +203,10 @@ def get_refs(working_dir=None, module=None) -> dict:
                 if not module.modules[k].is_alias
             ]
         ),
-        functions=dict(
+        functions=OrderedDict(
             [
                 [k, v]
-                for k, v in module.functions.items()
+                for k, v in sorted(module.functions.items())
                 if not module.functions[k].is_alias
             ]
         ),
@@ -300,7 +293,7 @@ def complexity(code: str = None, fname: str = None, threshold: int = 7):
         return 0
     complex = []
     Checker.max_complexity = threshold
-    for complexity, lineno, offset, text, check in Checker(tree, fname).run():
+    for complexity, lineno, _offset, text, check in Checker(tree, fname).run():
         complex.append(
             dict(
                 file=os.path.relpath(fname),
@@ -321,9 +314,7 @@ def complexity(code: str = None, fname: str = None, threshold: int = 7):
     return out
 
 
-import subprocess
-
-
+from collections import namedtuple
 def invoke(
     cmd=None,
     stdin="",
@@ -339,17 +330,19 @@ def invoke(
     which fixes problems with subprocess.POpen and os.system.
     """
     log_command and LOGGER.info(
-        "running command: (system={})\n\t{}".format(system, ((cmd)))
+        "running command: (system={})\n\t{}".format(
+            system, termcolor.colored(cmd, color="green")
+        )
     )
     if system:
         assert not stdin and not interactive
         error = os.system(cmd)
-
-        class result(object):  # noqa
-            failed = failure = bool(error)
-            success = succeeded = not bool(error)
-            stdout = stdin = "<os.system>"
-
+        result = namedtuple(
+            'InvocationResult',
+            ['failed', 'failure', 'success', 'succeeded', 'stdout', 'stdin'])
+        result.failed = result.failure = bool(error)
+        result.success = result.succeeded = not bool(error)
+        result.stdout = result.stdin = "<os.system>"
         return result
     exec_kwargs = dict(
         shell=True, env={**{k: v for k, v in os.environ.items()}, **environment}

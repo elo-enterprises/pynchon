@@ -57,42 +57,26 @@ def project_version(format, output, header):
 @kommand(
     name="apply",
     parent=PARENT,
-    # FIXME: formatters=dict(markdown=pynchon.T_VERSION_METADATA),
-    options=[
-        # FIXME: options.output_with_default('docs/VERSION.md'),
-        # options.format_markdown,
-        # options.stdout, options.header
-    ],
+    options=[],
 )
 def project_apply():
     """
     Apply the plan created by `pynchon project plan`
     """
+    config, plan = _project_plan()
+    for p in plan:
+        util.invoke(p)
+    return plan
 
 
-@kommand(
-    name="plan",
-    parent=PARENT,
-    options=[
-        options.stdout,
-        # FIXME: options.header
-    ],
-)
-def project_plan(stdout):
-    """
-    List goals for auto-documenting this project
-    """
-    # setupcfg = util.load_setupcfg()['tool:pynchon']
-    # config = dict(
-    #     git_root=util.find_git_root(),
-    #     python_project=util.is_python_project(),
-    #     setupcfg=setupcfg,
+def _project_plan(config: dict = {}) -> dict:
+    """ """
     plan = []
-    config = util.project_config()
+    config = config or util.project_config()
     src_root = util.find_src_root(config)
     project = config["project"]
-    cli_gen = project.get("cli_gen", "true").lower() in "true yes 1".split()
-    api_gen = project.get("api_gen", "true").lower() in "true yes 1".split()
+    cli_gen = project.get("cli_gen", True)
+    api_gen = project.get("api_gen", True)
     config["source"] = dict(root=project["src_root"])
     docs_root = project.get("docs_root", os.path.join(src_root, "docs"))
     conf_root = project.get("conf_root", os.path.join(src_root, "config"))
@@ -109,13 +93,30 @@ def project_plan(stdout):
         ]
         if api_gen:
             api_root = f"{docs_root}/api"
-            plan += [f'pynchon gen api toc --package {project["api_pkg"]}']
+            plan += [
+                f'pynchon gen api toc --package {project["api_pkg"]} --output {api_root}/README.md'
+            ]
         if cli_gen:
             if __main__:
                 LOGGER.warning("ignoring __main__ files")
             cli_root = f"{docs_root}/cli"
             plan += [f"mkdir -p {cli_root}"]
-            plan += ["pynchon gen cli toc --output {cli_root}/README.md"]
-            plan += ["pynchon gen cli all --output-dir {cli_root}"]
+            plan += [f"pynchon gen cli toc --output {cli_root}/README.md"]
+            plan += [f"pynchon gen cli all --output-dir {cli_root}"]
+    return config, plan
+
+
+@kommand(
+    name="plan",
+    parent=PARENT,
+    options=[
+        options.stdout,
+    ],
+)
+def project_plan(stdout):
+    """
+    List goals for auto-documenting this project
+    """
+    config, plan = _project_plan()
     config["plan"] = plan
     return json.dumps(config, indent=2)
