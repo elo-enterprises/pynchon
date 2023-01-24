@@ -3,151 +3,179 @@
 import os
 import sys
 import ast
-
+import glob
 import mccabe
 import griffe
 
 import pynchon
+
 LOGGER = pynchon.get_logger(__name__)
 from pynchon import annotate
 
 LOGGER = pynchon.get_logger(__name__)
 WORKING_DIR = os.getcwd()
-GLYPH_COMPLEXITY = '🐉 Complex'
+GLYPH_COMPLEXITY = "🐉 Complex"
+
 
 def project_config() -> dict:
-    """
-    """
+    """ """
     out = dict(
         pynchon=dict(
             version=pynchon_version(),
+        ),
+        project={
+            **load_setupcfg()["pynchon"],
+            **dict(
+                name=os.path.split(os.getcwd())[-1],
+                root=find_git_root(),
+                # project=util.is_python_project(),
+                version=project_version(),
+                hash=get_git_hash(),
             ),
-        project=dict(
-            name=os.path.split(os.getcwd())[-1],
-            root=find_git_root(),
-            # project=util.is_python_project(),
-            version=project_version(),
-            hash=get_git_hash(),
-        )
+        },
     )
     config = {
         **out,
-        **load_setupcfg()['tool:pynchon'] }
+    }
     src_root = find_src_root(config)
-    config['source'] = dict(root=src_root)
-    if config['source']['root']:
+    config["source"] = dict(root=src_root)
+    if config["source"]["root"]:
         __main__ = os.path.join(
-            config.get('source',{}).get('root',os.getcwd()),
-            '**', '__main__.py')
-        __main__ = [os.path.relpath(x) for x in glob.glob(__main__, recursive=True)],
-        config['source'].update(__main__=__main__)
+            config.get("source", {}).get("root", os.getcwd()), "**", "__main__.py"
+        )
+        __main__ = ([os.path.relpath(x) for x in glob.glob(__main__, recursive=True)],)
+        config["source"].update(__main__=__main__)
     return config
 
+
 def project_version() -> str:
-    """
-    """
+    """ """
     cmd = invoke("python setup.py --version")
     return cmd.succeeded and cmd.stdout.strip()
+
 
 def pynchon_version() -> str:
     """ """
     from pynchon import __version__
+
     return __version__
+
 
 def is_python_project() -> bool:
     """ """
-    return True
+    return os.path.exists(os.path.join(find_git_root(), ".pynchon.ini"))
 
-def find_git_root(path:str='.') -> str:
+
+def find_git_root(path: str = ".") -> str:
     """ """
     path = os.path.abspath(path)
-    if '.git' in os.listdir(path):
+    if ".git" in os.listdir(path):
         return os.path.relpath(path)
     elif not path:
         return None
     else:
         return find_git_root(os.path.dirname(path))
 
-def get_git_hash()->str:
+
+def get_git_hash() -> str:
     """ """
-    cmd =  invoke('git rev-parse HEAD')
+    cmd = invoke("git rev-parse HEAD")
     return cmd.succeeded and cmd.stdout.strip()
 
-def find_src_root(config:dict) -> str:
+
+def find_src_root(config: dict) -> str:
     """ """
-    pconf=config.get('project', {})
-    raise Exception(pconf)
-    src_root = os.path.join(
-        pconf.get('root', os.getcwd()),
-        'src')
+    pconf = config.get("project", {})
+    LOGGER.debug(f"project config: {pconf}")
+    src_root = os.path.join(pconf.get("root", os.getcwd()), "src")
     src_root = src_root if os.path.isdir(src_root) else None
     return os.path.relpath(src_root)
 
-def load_setupcfg(file:str='setup.cfg'):
+
+def load_setupcfg(file: str = ""):
     """ """
+    file = file or os.path.join(find_git_root(), ".pynchon.ini")
     if not os.path.exists(file):
         err = f"Cannot load from nonexistent file @ `{file}`"
         LOGGER.critical(err)
         raise RuntimeError(err)
+    # from dynaconf import settings, Dynaconf
+    #
+    # setup_cfg = os.path.join(find_git_root(), '.pynchon.ini')
+    # LOGGER.debug(f'loading config: {setup_cfg}')
+    # config = Dynaconf(
+    #     envvar_prefix='PYNCHON_',
+    #     loaders=['dynaconf.loaders.ini_loader'],
+    #     settings_files=[setup_cfg,])
+    # config = settings.load_file(
+    #     settings_files=[setup_cfg,])  # list or `;/,` separated allowed
+    # LOGGER.debug(f'loaded config: {config}')
+    # import IPython; IPython.embed()
     import configparser
+
     config = configparser.ConfigParser()
     config.read(file)
-    config = {
-        s:dict(config.items(s))
-        for s in config.sections() }
-    pynchon_section = config.get('tool:pynchon', {})
-    pynchon_section['project'] = pynchon_section.get(
-        'project','').split('\n')
-    config['tool:pynchon'] = pynchon_section
+    config = {s: dict(config.items(s)) for s in config.sections()}
+    pynchon_section = config.get("pynchon", {})
+    # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(
+    #     'project', '').split('\n') if x.strip())
+    # config['tool:pynchon'] = pynchon_section
     return config
+
 
 def load_entrypoints(config=None):
     """ """
-    console_scripts = config['options.entry_points']['console_scripts']
-    console_scripts = [x for x in console_scripts.split('\n') if x ]
-    package = config['metadata']['name']
+    console_scripts = config["options.entry_points"]["console_scripts"]
+    console_scripts = [x for x in console_scripts.split("\n") if x]
+    package = config["metadata"]["name"]
     entrypoints = []
     for c in console_scripts:
         tmp = dict(
             package=package,
-            bin_name=c.split('=')[0].strip(),
-            module=c.split('=')[1].strip().split(':')[0],
-            entrypoint=c.split('=')[1].strip().split(':')[1],
+            bin_name=c.split("=")[0].strip(),
+            module=c.split("=")[1].strip().split(":")[0],
+            entrypoint=c.split("=")[1].strip().split(":")[1],
         )
-        abs_entrypoint=tmp['module']+':'+tmp['entrypoint']
-        tmp['setuptools_entrypoint'] = abs_entrypoint
+        abs_entrypoint = tmp["module"] + ":" + tmp["entrypoint"]
+        tmp["setuptools_entrypoint"] = abs_entrypoint
         entrypoints.append(tmp)
-    return dict(package=package, entrypoints=entrypoints,)
+    return dict(
+        package=package,
+        entrypoints=entrypoints,
+    )
 
-def click_recursive_help(cmd,
-    parent=None, out={}, file=sys.stdout):
+
+def click_recursive_help(cmd, parent=None, out={}, file=sys.stdout):
     """ """
     # source: adapted from https://stackoverflow.com/questions/57810659/automatically-generate-all-help-documentation-for-click-commands
     from click.core import Context as ClickContext
+
     full_name = cmd.name
-    pname = getattr(cmd, 'parent', None)
-    pname = parent and getattr(parent, 'name', '') or ''
+    pname = getattr(cmd, "parent", None)
+    pname = parent and getattr(parent, "name", "") or ""
     ctx = ClickContext(cmd, info_name=cmd.name, parent=parent)
     help_txt = cmd.get_help(ctx)
-    invocation_sample = help_txt.split('\n')[0]
-    for x in 'Usage: [OPTIONS] COMMAND [COMMAND] [ARGS] ...'.split():
-        invocation_sample = invocation_sample.replace(x, '')
+    invocation_sample = help_txt.split("\n")[0]
+    for x in "Usage: [OPTIONS] COMMAND [COMMAND] [ARGS] ...".split():
+        invocation_sample = invocation_sample.replace(x, "")
     out = {
         **out,
-        **{full_name: dict(
-            name=cmd.name,
-            invocation_sample=invocation_sample,
-            help=help_txt)}
+        **{
+            full_name: dict(
+                name=cmd.name, invocation_sample=invocation_sample, help=help_txt
+            )
+        },
     }
-    commands = getattr(cmd, 'commands', {})
+    commands = getattr(cmd, "commands", {})
     for sub in commands.values():
-        out ={**out, **click_recursive_help(sub, ctx)}
+        out = {**out, **click_recursive_help(sub, ctx)}
     return out
 
-def get_module(package:str='', file:str=''):
+
+def get_module(package: str = "", file: str = ""):
     """ """
     if not bool(package) ^ bool(file):
-        err = 'Expected --file or --package, but not both'
+        err = "Expected --file or --package, but not both"
         raise RuntimeError(err)
     if file:
         file = os.path.abspath(file)
@@ -164,25 +192,52 @@ def get_module(package:str='', file:str=''):
     annotate.module(package, module, working_dir=working_dir)
     return module
 
+
 def get_refs(working_dir=None, module=None) -> dict:
     """ """
     refs = dict(
-        classes=dict([[k, v] for k, v in module.classes.items() if not module.classes[k].is_alias]),
-        modules=dict([[k, v] for k, v in module.modules.items() if not module.modules[k].is_alias]),
-        functions=dict([[k, v] for k, v in module.functions.items() if not module.functions[k].is_alias]),
+        classes=dict(
+            [
+                [k, v]
+                for k, v in module.classes.items()
+                if not module.classes[k].is_alias
+            ]
+        ),
+        modules=dict(
+            [
+                [k, v]
+                for k, v in module.modules.items()
+                if not module.modules[k].is_alias
+            ]
+        ),
+        functions=dict(
+            [
+                [k, v]
+                for k, v in module.functions.items()
+                if not module.functions[k].is_alias
+            ]
+        ),
     )
-    for name,kls in refs['classes'].items():
+    for name, kls in refs["classes"].items():
         annotate.klass(name, kls)
-    for name,mod in refs['modules'].items():
+    for name, mod in refs["modules"].items():
         annotate.module(name, mod, working_dir=working_dir)
-    for name,fxn in refs['functions'].items():
+    for name, fxn in refs["functions"].items():
         annotate.function(name, fxn)
     return refs
 
+
 def visit_module(
-        output=[], stats={}, module=None, template=pynchon.T_TOC_API,
-        visited=[], exclude:list=[], module_name=None, working_dir=WORKING_DIR):
-    """ recursive visitor for this package, submodules, classes, functions, etc """
+    output=[],
+    stats={},
+    module=None,
+    template=pynchon.T_TOC_API,
+    visited=[],
+    exclude: list = [],
+    module_name=None,
+    working_dir=WORKING_DIR,
+):
+    """recursive visitor for this package, submodules, classes, functions, etc"""
     if module_name in exclude:
         LOGGER.debug(f"skipping module: {module_name}")
         return output
@@ -191,28 +246,33 @@ def visit_module(
     # LOGGER.debug(f"exclude: {exclude}")
     LOGGER.debug(f"rendering module: {module_name}")
     rendered = template.render(
-        griffe=griffe, stats=stats,
+        griffe=griffe,
+        stats=stats,
         working_dir=working_dir,
-        module_name=module_name, module=module,
-        **refs)
+        module_name=module_name,
+        module=module,
+        **refs,
+    )
     output.append(clean_text(rendered))
-    for name, sub in refs['modules'].items():
+    for name, sub in refs["modules"].items():
         if sub in visited:
             continue
         visit_module(
-            output=output, module=sub,
+            output=output,
+            module=sub,
             working_dir=working_dir,
             module_name=f"{module_name}.{name}",
-            visited=visited+[module],
+            visited=visited + [module],
             exclude=exclude,
-            template=template)
+            template=template,
+        )
     return output
 
 
-def clean_text(txt:str) -> str:
+def clean_text(txt: str) -> str:
     """ """
-    return '\n'.join([
-        line for line in txt.split('\n') if line.strip() ])
+    return "\n".join([line for line in txt.split("\n") if line.strip()])
+
 
 class Checker(mccabe.McCabeChecker):
     """ """
@@ -223,14 +283,15 @@ class Checker(mccabe.McCabeChecker):
         visitor = mccabe.PathGraphingAstVisitor()
         visitor.preorder(self.tree, visitor)
         for graph in visitor.graphs.values():
-            tmp=graph.complexity()
+            tmp = graph.complexity()
             if tmp > self.max_complexity:
                 text = self._error_tmpl % (graph.entity, tmp)
                 yield tmp, graph.lineno, graph.column, text, type(self)
 
-def complexity(code:str=None, fname:str=None, threshold:int=7):
+
+def complexity(code: str = None, fname: str = None, threshold: int = 7):
     """ """
-    threshold=7
+    threshold = 7
     try:
         tree = compile(code, fname, "exec", ast.PyCF_ONLY_AST)
     except SyntaxError:
@@ -240,23 +301,32 @@ def complexity(code:str=None, fname:str=None, threshold:int=7):
     complex = []
     Checker.max_complexity = threshold
     for complexity, lineno, offset, text, check in Checker(tree, fname).run():
-        complex.append(dict(
-            file=os.path.relpath(fname),lineno=lineno,
-            # text=text,
-            score=complexity))
+        complex.append(
+            dict(
+                file=os.path.relpath(fname),
+                lineno=lineno,
+                # text=text,
+                score=complexity,
+            )
+        )
     out = []
     for admonition in complex:
-        out.append(dict(
-            glyph=GLYPH_COMPLEXITY,
-            hover=f'score {admonition["score"]} / {threshold}',
-            link=f'/{admonition["file"]}#L{admonition["lineno"]}'))
+        out.append(
+            dict(
+                glyph=GLYPH_COMPLEXITY,
+                hover=f'score {admonition["score"]} / {threshold}',
+                link=f'/{admonition["file"]}#L{admonition["lineno"]}',
+            )
+        )
     return out
 
 
 import subprocess
+
+
 def invoke(
     cmd=None,
-    stdin='',
+    stdin="",
     interactive: bool = False,
     large_output: bool = False,
     log_command: bool = True,
@@ -278,7 +348,7 @@ def invoke(
         class result(object):  # noqa
             failed = failure = bool(error)
             success = succeeded = not bool(error)
-            stdout = stdin = '<os.system>'
+            stdout = stdin = "<os.system>"
 
         return result
     exec_kwargs = dict(
@@ -291,7 +361,7 @@ def invoke(
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         exec_cmd = subprocess.Popen(cmd, **exec_kwargs)
-        exec_cmd.stdin.write(stdin.encode('utf-8'))
+        exec_cmd.stdin.write(stdin.encode("utf-8"))
         exec_cmd.stdin.close()
         exec_cmd.wait()
     else:
@@ -304,12 +374,12 @@ def invoke(
         exec_cmd.wait()
     if exec_cmd.stdout:
         exec_cmd.stdout = (
-            '<LargeOutput>' if large_output else exec_cmd.stdout.read().decode('utf-8')
+            "<LargeOutput>" if large_output else exec_cmd.stdout.read().decode("utf-8")
         )
     else:
-        exec_cmd.stdout = '<Interactive>'
+        exec_cmd.stdout = "<Interactive>"
     if exec_cmd.stderr:
-        exec_cmd.stderr = exec_cmd.stderr.read().decode('utf-8')
+        exec_cmd.stderr = exec_cmd.stderr.read().decode("utf-8")
     exec_cmd.failed = exec_cmd.returncode > 0
     exec_cmd.succeeded = not exec_cmd.failed
     exec_cmd.success = exec_cmd.succeeded

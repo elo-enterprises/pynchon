@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 src/pynchon/_version.py
 .DS_Store
+
+# Ignore dynaconf secret files
+.secrets.*

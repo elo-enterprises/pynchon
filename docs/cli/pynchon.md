@@ -173,6 +173,7 @@ Options:
   --help  Show this message and exit.
 
 Commands:
+  apply        Apply the plan created by `pynchon project plan`
   entrypoints  Describe entrypoints for this project (parses setup.cfg)
   plan         List goals for auto-documenting this project
   version      Describes version details for this package (and pynchon...
@@ -203,9 +204,20 @@ Usage: pynchon project version [OPTIONS]
 
 Options:
   -m, --format TEXT  output format to write
-  --stdout           whether to write to stdout.
+  -o, --output TEXT  output file to write.  (optional)
   --header TEXT      header to prepend output with. (optional)
   --help             Show this message and exit.
+```
+
+###  pynchon project apply 
+
+```
+Usage: pynchon project apply [OPTIONS]
+
+  Apply the plan created by `pynchon project plan`
+
+Options:
+  --help  Show this message and exit.
 ```
 
 ###  pynchon project plan 

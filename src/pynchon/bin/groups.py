@@ -3,11 +3,18 @@
 """
 import click
 import functools
+
+
 class group(object):
     """ """
 
-    def __init__(self, name=None, group=None, parent=None,):
-        self.name=name
+    def __init__(
+        self,
+        name=None,
+        group=None,
+        parent=None,
+    ):
+        self.name = name
         self.parent = parent
         self.group = group or (self.parent.group if parent else click.group)
 
@@ -19,17 +26,20 @@ class group(object):
         self.fxn = fxn
         return self.group(self.name)(self.wrapper)
 
+
 @click.version_option()
-@click.group('pynchon')
+@click.group("pynchon")
 def entry():
-    """ pynchon CLI: """
+    """pynchon CLI:"""
     # ensure that ctx.obj exists and is a dict (in case `cli()` is called
     # by means other than the `if` block below)
     # ctx.ensure_object(dict)
 
-@group('gen', parent=entry)
+
+@group("gen", parent=entry)
 def gen():
-    """ Generate docs """
+    """Generate docs"""
+
 
 # def _proj():
 #     """ Project subcommands """
@@ -37,24 +47,28 @@ def gen():
 # proj = group('proj', help='Alias for `project` subcommand', parent=entry)(_proj)
 
 
-@group('render', parent=entry)
+@group("render", parent=entry)
 def render():
-    """ Misc. helpers for rendering text """
+    """Misc. helpers for rendering text"""
 
-@group('api', parent=gen)
+
+@group("api", parent=gen)
 def gen_api():
     """
     Generate API docs from python modules, packages, etc
     """
 
-@group('cli',parent=gen)
+
+@group("cli", parent=gen)
 def gen_cli():
-    """ Generate CLI docs """
+    """Generate CLI docs"""
 
-@group('project',parent=entry)
+
+@group("project", parent=entry)
 def project():
-    """ Inspect project"""
+    """Inspect project"""
 
-@group('ast',parent=entry)
+
+@group("ast", parent=entry)
 def ast():
-    """ Inspect AST """
+    """Inspect AST"""
