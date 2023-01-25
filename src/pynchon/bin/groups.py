@@ -66,8 +66,12 @@ def gen_cli():
 
 @group("project", parent=entry)
 def project():
-    """Inspect project"""
+    """Project automation"""
 
+
+@group("parse", parent=entry)
+def parse():
+    """Helpers for parsing output for other tools"""
 
 @group("ast", parent=entry)
 def ast():
