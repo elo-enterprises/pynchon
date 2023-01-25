@@ -4,10 +4,9 @@
 # tool, or via `make docs` (which drives the CLI)
 [tool.pynchon]
 src_root = "src"
-api_pkg = "pynchon"
+pkg_name = "pynchon"
 docs_root = "docs"
-cli_gen = true
-api_gen = true
+generate = ["cli", "api"]
 
 # pyright is a type-checking tool.
 # this config is used implicitly with

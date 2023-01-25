@@ -1,0 +1,13 @@
+{##}
+{% for fname, metadata in source.__main__.items() %}
+------------
+## {{metadata.dotpath}}
+
+**entrypoint:** `python -m{{metadata.dotpath}}`
+**source:** [{{metadata.path}}]({{metadata.path}})}})
+
+```
+{{metadata.help}}
+```
+------------
+{%-endfor%}

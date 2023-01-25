@@ -9,70 +9,32 @@ from collections import OrderedDict
 import termcolor
 import mccabe
 import griffe
-import tomli as tomllib # tomllib only available in py3.11
+import tomli as tomllib  # tomllib only available in py3.11
 import pynchon
-PYNCHON_CONFIG_FILE="pyproject.toml"
+
 
 LOGGER = pynchon.get_logger(__name__)
 from pynchon import annotate
 
-LOGGER = pynchon.get_logger(__name__)
 WORKING_DIR = os.getcwd()
 GLYPH_COMPLEXITY = "🐉 Complex"
 
+def find_j2s(config):
+    project = config['project'].get(
+        'subproject',
+        config['project'])
+    project_root = project.get('root', config['git']['root'])
+    globs = [
+        os.path.join(project_root, "**", "*.j2"),
+        ]
+    LOGGER.debug(f"finding .j2s under {globs}")
+    globs = [glob.glob(x, recursive=True) for x in globs]
+    import functools
+    matches = functools.reduce(lambda x,y: x+y, globs)
+    j2s = [os.path.relpath(m) for m in matches]
+    return j2s
 
-def project_config() -> dict:
-    """ """
-    xxx = load_setupcfg()
-    import IPython; IPython.embed()
-
-    out = dict(
-        pynchon=dict(
-            version=pynchon_version(),
-        ),
-        project={
-            **xxx['tool']['pynchon'],
-            **dict(
-                name=os.path.split(os.getcwd())[-1],
-                root=find_git_root(),
-                # project=util.is_python_project(),
-                version=project_version(),
-                hash=get_git_hash(),
-            ),
-        },
-    )
-    config = {
-        **out,
-    }
-    src_root = find_src_root(config)
-    config["source"] = dict(root=src_root)
-    if config["source"]["root"]:
-        __main__ = os.path.join(
-            config.get("source", {}).get("root", os.getcwd()), "**", "__main__.py"
-        )
-        __main__ = ([os.path.relpath(x) for x in glob.glob(__main__, recursive=True)],)
-        config["source"].update(__main__=__main__)
-    return config
-
-
-def project_version() -> str:
-    """ """
-    cmd = invoke("python setup.py --version")
-    return cmd.succeeded and cmd.stdout.strip()
-
-
-def pynchon_version() -> str:
-    """ """
-    from pynchon import __version__
-
-    return __version__
-
-def is_python_project() -> bool:
-    """ """
-    return os.path.exists(os.path.join(find_git_root(), PYNCHON_CONFIG_FILE))
-
-
-def find_git_root(path: str = ".") -> str:
+def get_root(path: str = ".") -> str:
     """ """
     path = os.path.abspath(path)
     if ".git" in os.listdir(path):
@@ -80,62 +42,24 @@ def find_git_root(path: str = ".") -> str:
     elif not path:
         return None
     else:
-        return find_git_root(os.path.dirname(path))
+        return get_root(os.path.dirname(path))
 
 
-def get_git_hash() -> str:
+def is_python_project() -> bool:
     """ """
-    cmd = invoke("git rev-parse HEAD")
-    return cmd.succeeded and cmd.stdout.strip()
+    from pynchon.api import git
+
+    return os.path.exists(os.path.join(git.get_root(), pynchon.PYNCHON_CONFIG_FILE))
 
 
 def find_src_root(config: dict) -> str:
     """ """
     pconf = config.get("project", {})
     LOGGER.debug(f"project config: {pconf}")
-    src_root = os.path.join(pconf.get("root", os.getcwd()), "src")
+    src_root = pconf.get("src_root", os.getcwd())
+    # src_root = os.path.join(project_root, "src")
     src_root = src_root if os.path.isdir(src_root) else None
     return os.path.relpath(src_root)
-
-
-def load_setupcfg(file: str = ""):
-    """ """
-    file = file or os.path.join(find_git_root(), PYNCHON_CONFIG_FILE)
-    if not os.path.exists(file):
-        err = f"Cannot load from nonexistent file @ `{file}`"
-        LOGGER.critical(err)
-        raise RuntimeError(err)
-
-    with open(PYNCHON_CONFIG_FILE, "rb") as f:
-        config = tomllib.load(f)
-    # config = {s: dict(config.items(s)) for s in config.sections()}
-    pynchon_section = config.get("pynchon", {})
-    # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(
-    #     'project', '').split('\n') if x.strip())
-    # config['tool:pynchon'] = pynchon_section
-    return config
-
-
-def load_entrypoints(config=None):
-    """ """
-    console_scripts = config["options.entry_points"]["console_scripts"]
-    console_scripts = [x for x in console_scripts.split("\n") if x]
-    package = config["metadata"]["name"]
-    entrypoints = []
-    for c in console_scripts:
-        tmp = dict(
-            package=package,
-            bin_name=c.split("=")[0].strip(),
-            module=c.split("=")[1].strip().split(":")[0],
-            entrypoint=c.split("=")[1].strip().split(":")[1],
-        )
-        abs_entrypoint = tmp["module"] + ":" + tmp["entrypoint"]
-        tmp["setuptools_entrypoint"] = abs_entrypoint
-        entrypoints.append(tmp)
-    return dict(
-        package=package,
-        entrypoints=entrypoints,
-    )
 
 
 def click_recursive_help(cmd, parent=None, out={}, file=sys.stdout):
@@ -315,6 +239,8 @@ def complexity(code: str = None, fname: str = None, threshold: int = 7):
 
 
 from collections import namedtuple
+
+
 def invoke(
     cmd=None,
     stdin="",
@@ -338,8 +264,9 @@ def invoke(
         assert not stdin and not interactive
         error = os.system(cmd)
         result = namedtuple(
-            'InvocationResult',
-            ['failed', 'failure', 'success', 'succeeded', 'stdout', 'stdin'])
+            "InvocationResult",
+            ["failed", "failure", "success", "succeeded", "stdout", "stdin"],
+        )
         result.failed = result.failure = bool(error)
         result.success = result.succeeded = not bool(error)
         result.stdout = result.stdin = "<os.system>"

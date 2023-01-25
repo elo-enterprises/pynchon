@@ -15,6 +15,14 @@ COLOR_GREEN=\033[92m
 
 PYPI_PROJECT_NAME:=pynchon
 
+check:
+	src=src/ make python-pyright
+
+python-pyright:
+	docker run -w /workspace -v `pwd`:/workspace \
+	--entrypoint sh node:alpine -c "\
+	npm install -g --quiet pyright \
+	&& pyright $${src} --outputjson"
 
 init:
 	$(call _announce_target, $@)
@@ -77,10 +85,6 @@ normalize:
 	@# Uses tox to normalize code with autopep8.
 	@# This helps to satisfy the linter, which by default is strict.
 	tox -e normalize
-
-check:
-	@# Uses tox to type-check code with pyright.
-	tox -e check
 
 .PHONY: docs
 docs:

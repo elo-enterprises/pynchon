@@ -123,6 +123,9 @@ def render_j2(files, ctx, output, in_place, templates):
                 raise TypeError(f"not sure how to load: {ctx}")
     else:
         ctx = {}
+    from pynchon.api import project
+    config=project.get_config()
+    ctx = {**ctx, **config}
     LOGGER.debug("using context: ")
     LOGGER.debug(json.dumps(ctx))
     if files:

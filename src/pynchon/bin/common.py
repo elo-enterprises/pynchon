@@ -88,6 +88,7 @@ class format_handler(handler):
                     return template.render({**kargs, **result})
 
             self.logger.debug(f"Dispatching formatter for `markdown` @ {fmt.__name__}")
+            self.logger.debug(f"context={result}")
             msg = fmt(**result)
             return msg
         else:

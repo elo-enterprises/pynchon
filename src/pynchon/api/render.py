@@ -19,7 +19,7 @@ from pynchon import (
 LOGGER = pynchon.get_logger(__name__)
 
 
-def rj5(
+def j5(
     file,
     output="",
     in_place=False,
@@ -39,12 +39,8 @@ def rj5(
     return data
 
 
-def rj2(file, output="", in_place=False, ctx={}, templates=".", strict: bool = True):
+def j2(file, output="", in_place=False, ctx={}, templates=".", strict: bool = True):
     """render jinja2 file"""
-
-    def load_ctx():
-        """ """
-        pass
 
     LOGGER.debug(f"Running with one file: {file}")
     with open(file, "r") as fhandle:
@@ -87,13 +83,15 @@ def _render(
 ):
     """ """
     # FIXME: support strict
-    git_root = util.find_git_root()
-    LOGGER.debug(f"found {git_root} for root")
+    # git_root = util.find_git_root()
+    # LOGGER.debug(f"found {git_root} for root")
     env = Environment(
         loader=FileSystemLoader(
             [
-                os.path.join(git_root, "docs", "templates"),
-                os.path.join(git_root, "docs", "includes"),
+                # os.path.join(git_root, "docs", "templates"),
+                # os.path.join(git_root, "docs", "includes"),
+                # config['pynchon']["jinja_includes"]
+                templates,
             ]
         ),
         undefined=StrictUndefined,
@@ -103,4 +101,4 @@ def _render(
     return tmp.render(**context)
 
 
-__all__ = [rj5, rj2]
+__all__ = [j5, j2]

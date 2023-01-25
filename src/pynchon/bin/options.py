@@ -24,6 +24,9 @@ stdout = click.option(
 output = click.option(
     "--output", "-o", default="", help=("output file to write.  (optional)")
 )
+output_dir = click.option(
+    "--output-dir", default="docs/cli", help=("output directory (optional)")
+)
 format = format_json = click.option(
     "--format", "-m", default="json", help=("output format to write")
 )

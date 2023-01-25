@@ -38,7 +38,10 @@ def toc(format, file, stdout, output, header):
     """
     Describe entrypoints for this project (parses setup.cfg)
     """
-    return util.load_entrypoints(util.load_setupcfg(file=file))
+    from pynchon.bin.project import _project_plan
+
+    config, plan = _project_plan()
+    return config
 
 
 @kommand(
@@ -47,10 +50,7 @@ def toc(format, file, stdout, output, header):
     # formatters=dict(markdown=pynchon.T_DETAIL_CLI),
     options=[
         options.file_setupcfg,
-        # options.format,
-        click.option(
-            "--output-dir", default="docs/cli", help=("output directory (optional)")
-        ),
+        options.output_dir,
         options.stdout,
     ],
 )
@@ -59,12 +59,15 @@ def _all(
     file,
     stdout,
     output_dir,
-):
+) -> list:
     """
     Generates help for every entrypoint
     """
     conf = util.load_entrypoints(util.load_setupcfg(file=file))
-    entrypoints = conf["entrypoints"]
+    entrypoints = conf.get("entrypoints", {})
+    if not entrypoints:
+        LOGGER.warning(f"failed loading entrypoints from {file}")
+        return []
     docs = {}
     for e in entrypoints:
         bin_name = str(e["bin_name"])
@@ -73,11 +76,43 @@ def _all(
         fname = f"{fname}.md"
         LOGGER.debug(f"{epoint}: -> `{fname}`")
         docs[fname] = {**_entrypoint_docs(name=e["setuptools_entrypoint"]), **e}
+
     for fname in docs:
         with open(fname, "w") as fhandle:
             fhandle.write(pynchon.T_DETAIL_CLI.render(docs[fname]))
         LOGGER.debug(f"wrote: {fname}")
     return list(docs.keys())
+
+
+@kommand(
+    name="main",
+    parent=PARENT,
+    formatters=dict(markdown=pynchon.T_CLI_MAIN_MODULE),
+    options=[
+        options.format_markdown,
+        options.stdout,
+        options.header,
+        options.file,
+        # options.output,
+        options.output_dir,
+        options.name,
+        options.module,
+    ],
+)
+def main_docs(format, module, file, output_dir, stdout, header, name):
+    """
+    Autogenenerate docs for python modules using __main__
+    """
+    from pynchon.bin.project import _project_plan
+
+    config, plan = _project_plan()
+    for fname, metadata in config["python"]["entrypoints"].items():
+        if fname == file:
+            dotpath = metadata["dotpath"]
+            cmd = util.invoke(f"python -m{dotpath} --help")
+            help = cmd.succeeded and cmd.stdout.strip()
+            config["python"]["entrypoints"][fname] = {**metadata, **dict(help=help)}
+            return config
 
 
 @kommand(

@@ -18,7 +18,7 @@ except ImportError:
     __version__ = "0.0.0+local"
 
 URL_BUILTINS = "https://docs.python.org/3/library/functions.html"
-
+PYNCHON_CONFIG_FILE = "pyproject.toml"
 TEMPLATE_DIR = os.environ.get(
     "PYNCHON_TEMPLATE_DIR",
     os.path.join(
@@ -34,6 +34,7 @@ T_DETAIL_CLI = ENV.get_template("cli/detail.md.j2")
 T_TOC_API = ENV.get_template("api/TOC.md.j2")
 T_TOC_CLI = ENV.get_template("cli/TOC.md.j2")
 T_VERSION_METADATA = ENV.get_template("VERSIONS.md.j2")
+T_CLI_MAIN_MODULE = ENV.get_template("cli/main.module.md.j2")
 
 
 def get_logger(name):
