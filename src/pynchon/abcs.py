@@ -1,9 +1,24 @@
 """ pynchon.abcs
 """
+import os
+import json
+
+from extended_pathlib import Path as BasePath
+
 import pynchon
 
 LOGGER = pynchon.get_logger(__name__)
 
+class JSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # Match all the types you want to handle in your converter
+        if isinstance(obj, Path):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)
+
+class Path(type(BasePath())):
+    def list(self):
+        return os.listdir(str(self))
 
 class Config(dict):
     """ """
@@ -22,8 +37,11 @@ class Config(dict):
         ]
         for p in props:
             # LOGGER.debug(f'initializing property: {p}')
-            # if p in kwargs:
-            #     continue
+            if p in kwargs:
+                LOGGER.warning(
+                    f"property '{p}' exists, but provided kwargs overrides it"
+                )
+                continue
             self[p] = getattr(self, p)
 
     # @property

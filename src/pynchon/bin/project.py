@@ -3,9 +3,8 @@
 import os, glob
 import json
 import pynchon
-from pynchon import (
-    util,
-)
+
+from pynchon import (abcs, util,)
 from .common import kommand
 from pynchon.bin import groups, options
 from pynchon.api import project
@@ -71,7 +70,7 @@ def project_config():
     Describe the config for this project
     """
     tmp = project.get_config()
-    LOGGER.debug(json.dumps(tmp, indent=2))
+    LOGGER.debug(json.dumps(tmp, indent=2, cls=abcs.JSONEncoder))
 
 
 @kommand(
@@ -102,4 +101,4 @@ def project_plan(stdout):
     """
     config, plan = project.plan()
     config["plan"] = plan
-    return json.dumps(config, indent=2)
+    return json.dumps(config, indent=2, cls=abcs.JSONEncoder)

@@ -38,9 +38,8 @@ def toc(format, file, stdout, output, header):
     """
     Describe entrypoints for this project (parses setup.cfg)
     """
-    from pynchon.bin.project import _project_plan
-
-    config, plan = _project_plan()
+    from pynchon.api import project
+    config, plan = project.plan()
     return config
 
 

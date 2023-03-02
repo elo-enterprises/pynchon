@@ -5,7 +5,6 @@
 [tool.pynchon]
 src_root = "src"
 pkg_name = "pynchon"
-docs_root = "docs"
 generate = ["cli", "api"]
 
 # pyright is a type-checking tool.

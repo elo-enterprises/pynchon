@@ -3,7 +3,7 @@
 
 -------------------------------------------------------------------------------
 
-These are scripts/commands that ship with `{{project.pkg_name}}`:
+These are scripts/commands that ship with the package `{{python.package.name}}`:
 
 {% for item in entrypoints %}
 {%- set dotpath = item.module + '.' + item.entrypoint %}
@@ -12,6 +12,6 @@ These are scripts/commands that ship with `{{project.pkg_name}}`:
 
 Modules that use `__main__`:
 
-{% for fname,metadata in source.__main__.items() %}
-* [`python -m{{metadata.dotpath}}`](/docs/cli/{{metadata.dotpath}}.md) @ [`{{metadata.path}}/__main__.py`](/{{metadata.path}}) @
+{% for fname,metadata in python.entrypoints.items() %}
+* [`python -m{{metadata.dotpath}}`](/docs/cli/{{metadata.dotpath}}.md) @ [`{{f}}`](/{{metadata.path}}) @
 {%-endfor%}

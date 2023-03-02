@@ -3,6 +3,7 @@
 import os
 import sys
 import ast
+import functools
 import glob
 import subprocess
 from collections import OrderedDict
@@ -11,7 +12,7 @@ import mccabe
 import griffe
 import tomli as tomllib  # tomllib only available in py3.11
 import pynchon
-
+from pynchon.abcs import Path
 
 LOGGER = pynchon.get_logger(__name__)
 from pynchon import annotate
@@ -19,26 +20,26 @@ from pynchon import annotate
 WORKING_DIR = os.getcwd()
 GLYPH_COMPLEXITY = "🐉 Complex"
 
+
 def find_j2s(config):
-    project = config['project'].get(
-        'subproject',
-        config['project'])
-    project_root = project.get('root', config['git']['root'])
+    project = config["project"].get("subproject", config["project"])
+    project_root = project.get("root", config["git"]["root"])
     globs = [
         os.path.join(project_root, "**", "*.j2"),
-        ]
+    ]
     LOGGER.debug(f"finding .j2s under {globs}")
     globs = [glob.glob(x, recursive=True) for x in globs]
-    import functools
-    matches = functools.reduce(lambda x,y: x+y, globs)
+
+    matches = functools.reduce(lambda x, y: x + y, globs)
     j2s = [os.path.relpath(m) for m in matches]
     return j2s
+
 
 def get_root(path: str = ".") -> str:
     """ """
     path = os.path.abspath(path)
     if ".git" in os.listdir(path):
-        return os.path.relpath(path)
+        return Path(os.path.relpath(path))
     elif not path:
         return None
     else:
@@ -48,7 +49,6 @@ def get_root(path: str = ".") -> str:
 def is_python_project() -> bool:
     """ """
     from pynchon.api import git
-
     return os.path.exists(os.path.join(git.get_root(), pynchon.PYNCHON_CONFIG_FILE))
 
 
@@ -59,7 +59,7 @@ def find_src_root(config: dict) -> str:
     src_root = pconf.get("src_root", os.getcwd())
     # src_root = os.path.join(project_root, "src")
     src_root = src_root if os.path.isdir(src_root) else None
-    return os.path.relpath(src_root)
+    return Path(os.path.relpath(src_root))
 
 
 def click_recursive_help(cmd, parent=None, out={}, file=sys.stdout):

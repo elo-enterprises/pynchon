@@ -4,9 +4,7 @@
 import sys
 import yaml
 import pynchon
-from pynchon import (
-    util,
-)
+from pynchon import (abcs, util,)
 from .common import kommand
 from pynchon.bin import groups, options
 from pynchon.api import render
@@ -124,10 +122,11 @@ def render_j2(files, ctx, output, in_place, templates):
     else:
         ctx = {}
     from pynchon.api import project
-    config=project.get_config()
+
+    config = project.get_config()
     ctx = {**ctx, **config}
     LOGGER.debug("using context: ")
-    LOGGER.debug(json.dumps(ctx))
+    LOGGER.debug(json.dumps(ctx, cls=abcs.JSONEncoder))
     if files:
         return [
             render.j2(
