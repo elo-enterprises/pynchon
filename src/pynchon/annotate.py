@@ -24,7 +24,12 @@ def klass(name, kls) -> None:
         if not is_property:
             continue
         fxn = prop.fget
-        fxn_sig, fxn_doc = inspect.signature(fxn), fxn.__doc__ or ""
+        fxn_doc = fxn.__doc__ or ""
+        try:
+            fxn_sig = inspect.signature(fxn)
+        except (ValueError,) as exc:
+            LOGGER.warning(f"Could not retrieve function signature for {fxn}!")
+            fxn_sig = None
         try:
             fxn_code = fxn.__code__
         except AttributeError:  # C extensions..
@@ -37,7 +42,8 @@ def klass(name, kls) -> None:
                 signature=fxn_sig,
                 start=str(start),
                 end="",  # FIXME
-                annotation=str(fxn_sig.return_annotation)
+                annotation=fxn_sig
+                and str(fxn_sig.return_annotation)
                 .replace("<class '", "")
                 .replace("'>", ""),
                 fixme="FIXME" in fxn_doc,

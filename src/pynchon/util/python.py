@@ -20,9 +20,9 @@ from pynchon import annotate, util
 
 def is_package() -> bool:
     """ """
-    LOGGER.debug("checking if this a python package..")
-    cmd = util.invoke("python setup.py --version")
-    return cmd.succeeded
+    from pynchon.config import python
+
+    return python.is_package
 
 
 def load_setupcfg(path: str = ""):
@@ -34,7 +34,7 @@ def load_setupcfg(path: str = ""):
     parser.read(path)
     out = dict()
     for sect in parser.sections():
-        print("Section:", sect)
+        # print("Section:", sect)
         out[sect] = dict(parser.items(sect))
     return out
 
@@ -42,6 +42,7 @@ def load_setupcfg(path: str = ""):
 def load_pyprojecttoml(path: str = ""):
     """ """
     from pynchon.api import git
+
     path = (path or util.get_root()).joinpath(pynchon.PYNCHON_CONFIG_FILE)
     if not os.path.exists(path):
         err = f"Cannot load config from nonexistent path @ `{path}`"
@@ -56,7 +57,7 @@ def load_pyprojecttoml(path: str = ""):
     # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(
     #     'project', '').split('\n') if x.strip())
     # config['tool:pynchon'] = pynchon_section
-    return path,config
+    return path, config
 
 
 def load_entrypoints(config=None) -> dict:

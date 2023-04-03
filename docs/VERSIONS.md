@@ -1,5 +1,5 @@
 ## Version Info
 
-version: `2023.2.8+local`
-git_hash:`e565d558ac412dab6dd681a0a5b3986305ecbc29`
+version: `2023.4.3+local`
+git_hash:`bd010c6d083cf112c90f72ce0e755252630f563f`
 pynchon_version: `0.0.0+local`

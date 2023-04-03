@@ -4,7 +4,10 @@ import os, glob
 import json
 import pynchon
 
-from pynchon import (abcs, util,)
+from pynchon import (
+    abcs,
+    util,
+)
 from .common import kommand
 from pynchon.bin import groups, options
 from pynchon.api import project
@@ -31,7 +34,7 @@ def project_entrypoints(format, file, stdout, output, header):
     """
     config, plan = project.plan()
     return {
-        **util.load_entrypoints(util.load_setupcfg(file=file)),
+        **util.python.load_entrypoints(util.python.load_setupcfg(file=file)),
         **dict(__main__=config.get("source", {}).get("__main__", [])),
     }
 
@@ -51,12 +54,13 @@ def project_version(format, output, header):
     """
     Describes version details for this package (and pynchon itself).
     """
-    from pynchon.api import python, git
+    # from pynchon.api import python #, git
+    from pynchon.config import git, python
 
     return dict(
-        pynchon_version=util.pynchon_version(),
-        package_version=python.get_package_version(),
-        git_hash=git.get_hash(),
+        pynchon_version=pynchon.__version__,
+        package_version=python.package.version,
+        git_hash=git.hash,
     )
 
 

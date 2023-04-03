@@ -39,6 +39,7 @@ def toc(format, file, stdout, output, header):
     Describe entrypoints for this project (parses setup.cfg)
     """
     from pynchon.api import project
+
     config, plan = project.plan()
     return config
 
@@ -62,7 +63,7 @@ def _all(
     """
     Generates help for every entrypoint
     """
-    conf = util.load_entrypoints(util.load_setupcfg(file=file))
+    conf = util.python.load_entrypoints(util.python.load_setupcfg(path=file))
     entrypoints = conf.get("entrypoints", {})
     if not entrypoints:
         LOGGER.warning(f"failed loading entrypoints from {file}")
@@ -102,9 +103,9 @@ def main_docs(format, module, file, output_dir, stdout, header, name):
     """
     Autogenenerate docs for python modules using __main__
     """
-    from pynchon.bin.project import _project_plan
+    from pynchon.api import project
 
-    config, plan = _project_plan()
+    config, plan = project.plan()
     for fname, metadata in config["python"]["entrypoints"].items():
         if fname == file:
             dotpath = metadata["dotpath"]

@@ -4,7 +4,10 @@
 import sys
 import yaml
 import pynchon
-from pynchon import (abcs, util,)
+from pynchon import (
+    abcs,
+    util,
+)
 from .common import kommand
 from pynchon.bin import groups, options
 from pynchon.api import render
@@ -49,6 +52,35 @@ def render_json5(files, output, in_place, templates):
     file = files[0]
     files = files[1:]
     return render.j5(file, output=output, in_place=in_place, templates=templates)
+
+
+@kommand(
+    name="dot",
+    parent=PARENT,
+    options=[
+        options.output,
+        click.option(
+            "--in-place",
+            is_flag=True,
+            default=False,
+            help=("if true, writes to {file}.png (dropping any other extensions)"),
+        ),
+    ],
+    arguments=[files_arg],
+)
+def render_dot(files, output, in_place):
+    """
+    Render render dot file (graphviz) -> PNG
+    """
+    assert files, "expected files would be provided"
+    # if file:
+    #     return render.j5(file, output=output, in_place=in_place)
+    # elif files:
+    # files = files.split(' ')
+    LOGGER.debug(f"Running with many: {files}")
+    file = files[0]
+    files = files[1:]
+    return render.dot(file, output=output, in_place=in_place)
 
 
 @kommand(

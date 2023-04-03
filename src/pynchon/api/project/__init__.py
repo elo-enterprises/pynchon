@@ -3,7 +3,11 @@
 import os, glob
 import json
 import pynchon
-from pynchon import (util, abcs, config,)
+from pynchon import (
+    util,
+    abcs,
+    config,
+)
 from pynchon.bin import groups, options
 
 LOGGER = pynchon.get_logger(__name__)
@@ -35,7 +39,8 @@ def plan(config: dict = {}) -> dict:
     config["source"] = dict(root=project.get("src_root"))
     # raise Exception(config)
     docs_root = config["pynchon"].get(
-        "docs_root", os.path.relpath(config["pynchon"]['working_dir']))
+        "docs_root", os.path.relpath(config["pynchon"]["working_dir"])
+    )
     # config['git']['root']project.get("docs_root", os.path.join(src_root, "docs"))
     # conf_root = project.get("conf_root", os.path.join(src_root, "config"))
     # if project["root"]:
@@ -91,16 +96,15 @@ def plan(config: dict = {}) -> dict:
 
     if "j2" in render_instructions:
         # templates_root = f"{config['pynchon']['docs_root']}/templates"
-        templates = config['pynchon']['jinja_includes']
+        templates = config["pynchon"]["jinja_includes"]
         templates = [t for t in templates]
         # import IPython; IPython.embed()
-        templates = [ f"--templates {t}" for t in templates ]
-        templates = ' '.join(templates)
+        templates = [f"--templates {t}" for t in templates]
+        templates = " ".join(templates)
         j2s = util.find_j2s(config)
         if j2s:
             plan += [
-                f"pynchon render jinja {templates} --in-place {fname} "
-                for fname in j2s
+                f"pynchon render jinja {templates} --in-place {fname} " for fname in j2s
             ]
         else:
             LOGGER.critical(

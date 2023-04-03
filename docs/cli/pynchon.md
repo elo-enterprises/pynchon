@@ -15,6 +15,7 @@ Options:
 Commands:
   ast
   gen
+  parse
   project
   render
 ```
@@ -71,6 +72,7 @@ Options:
 Commands:
   all         Generates help for every entrypoint
   entrypoint  Autogenenerate docs for python CLIs using click
+  main        Autogenenerate docs for python modules using __main__
   toc         Describe entrypoints for this project (parses setup.cfg)
 ```
 
@@ -85,6 +87,24 @@ Options:
   -f, --file TEXT    file to grab entrypoints from
   --output-dir TEXT  output directory (optional)
   --stdout           whether to write to stdout.
+  --help             Show this message and exit.
+```
+
+###  pynchon gen cli main 
+
+```
+Usage: pynchon gen cli main [OPTIONS]
+
+  Autogenenerate docs for python modules using __main__
+
+Options:
+  -m, --format TEXT  output format to write
+  --stdout           whether to write to stdout.
+  --header TEXT      header to prepend output with. (optional)
+  -f, --file TEXT    file to read as input
+  --output-dir TEXT  output directory (optional)
+  --name TEXT        name to use
+  -m, --module TEXT  module to grab click-cli from. (must be used with `name`)
   --help             Show this message and exit.
 ```
 
@@ -174,6 +194,7 @@ Options:
 
 Commands:
   apply        Apply the plan created by `pynchon project plan`
+  config       Describe the config for this project
   entrypoints  Describe entrypoints for this project (parses setup.cfg)
   plan         List goals for auto-documenting this project
   version      Describes version details for this package (and pynchon...
@@ -209,6 +230,17 @@ Options:
   --help             Show this message and exit.
 ```
 
+###  pynchon project config 
+
+```
+Usage: pynchon project config [OPTIONS]
+
+  Describe the config for this project
+
+Options:
+  --help  Show this message and exit.
+```
+
 ###  pynchon project apply 
 
 ```
@@ -230,6 +262,29 @@ Usage: pynchon project plan [OPTIONS]
 Options:
   --stdout  whether to write to stdout.
   --help    Show this message and exit.
+```
+
+###  pynchon parse   
+
+```
+Usage: pynchon parse [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  pyright  Parses pyright output into a markdown-based report card
+```
+
+###  pynchon parse pyright 
+
+```
+Usage: pynchon parse pyright [OPTIONS]
+
+  Parses pyright output into a markdown-based report card
+
+Options:
+  --help  Show this message and exit.
 ```
 
 ###  pynchon ast   

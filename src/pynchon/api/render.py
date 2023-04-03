@@ -18,6 +18,14 @@ from pynchon import (
 
 LOGGER = pynchon.get_logger(__name__)
 
+def dot(file:str, output:str="", in_place:bool=False, output_mode:str="png"):
+    """ renders .dot file to png """
+    if in_place:
+        assert not output
+        output = os.path.splitext(file)[0] + ".png"
+    # Using https://github.com/nickshine/dot
+    DOT_DOCKER_IMG="nshine/dot"
+    util.invoke(f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode}> {output}")
 
 def j5(
     file,
