@@ -32,6 +32,7 @@ def plan(config: dict = {}) -> dict:
     # src_root = config['pynchon']['working_dir']
     # raise Exception(src_root)
     project = config["project"]
+    render_instructions = config.get("pynchon", {}).get("render", [])
     gen_instructions = config.get("pynchon", {}).get("generate", [])
     LOGGER.debug(f"parsed generate-instructions: {gen_instructions}")
     render_instructions = config.get("pynchon", {}).get("render", [])
@@ -68,10 +69,21 @@ def plan(config: dict = {}) -> dict:
     # json5=json5s,
     # j2=j2s
     # )
+    LOGGER.debug("planning to ensure docs_root exists..")
+    plan += [
+        f"mkdir -p {docs_root}",
+    ]
     LOGGER.debug("planning for versioning these docs..")
     plan += [
         f"pynchon project version --output {docs_root}/VERSIONS.md",
     ]
+    if "dot" in render_instructions:
+        LOGGER.debug("planning for rendering dot-graphs..")
+        dot_root = project['root']
+        for line in util.invoke(f"find {dot_root} -type f -name *.dot").stdout.split('\n'):
+            line=line.strip()
+            if not line: continue
+            plan+=[f'pynchon render dot {line} --in-place']
     if "api" in gen_instructions:
         LOGGER.debug("planning for API docs..")
         api_root = f"{docs_root}/api"
