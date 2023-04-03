@@ -6,6 +6,8 @@
 src_root = "src"
 pkg_name = "pynchon"
 generate = ["cli", "api"]
+render = ["dot"]
+api = { skip_private_methods = true }
 
 # pyright is a type-checking tool.
 # this config is used implicitly with
