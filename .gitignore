@@ -132,3 +132,4 @@ src/pynchon/_version.py
 
 # Ignore dynaconf secret files
 .secrets.*
+tests/fixtures/graph.png

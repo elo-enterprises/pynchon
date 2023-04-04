@@ -85,7 +85,9 @@ normalize:
 	@# Uses tox to normalize code with autopep8.
 	@# This helps to satisfy the linter, which by default is strict.
 	tox -e normalize
-
+plan: docs-plan
+docs-plan:
+	pynchon project plan | jq .
 .PHONY: docs
 docs:
 	set -x \
@@ -99,7 +101,6 @@ pip-purge: python-require-pipenv
 	@# Purges all dependencies from the currently active virtualenv
 	set -x \
 	&& pipenv uninstall --all --quiet
-
 python-require-pipenv:
 	@# Installs pipenv[0] if not present.
 	@# This is sometimes useful even if the project doesn't use a Pipfile..

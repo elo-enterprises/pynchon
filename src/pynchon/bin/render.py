@@ -53,12 +53,19 @@ def render_json5(files, output, in_place, templates):
     files = files[1:]
     return render.j5(file, output=output, in_place=in_place, templates=templates)
 
-
+DEFAULT_OPENER = 'open'
 @kommand(
     name="dot",
     parent=PARENT,
     options=[
         options.output,
+        click.option(
+            "--open",
+            'open_after',
+            is_flag=True,
+            default=False,
+            help=(f"if true, opens the created file using {DEFAULT_OPENER}"),
+        ),
         click.option(
             "--in-place",
             is_flag=True,
@@ -68,7 +75,7 @@ def render_json5(files, output, in_place, templates):
     ],
     arguments=[files_arg],
 )
-def render_dot(files, output, in_place):
+def render_dot(files, output, in_place, open_after):
     """
     Render render dot file (graphviz) -> PNG
     """
@@ -80,7 +87,11 @@ def render_dot(files, output, in_place):
     LOGGER.debug(f"Running with many: {files}")
     file = files[0]
     files = files[1:]
-    return render.dot(file, output=output, in_place=in_place)
+    result = render.dot(file, output=output, in_place=in_place)
+    output = result['output']
+    if open_after:
+        LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
+        util.invoke(f"{DEFAULT_OPENER} {output}")
 
 
 @kommand(

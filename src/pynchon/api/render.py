@@ -26,6 +26,7 @@ def dot(file:str, output:str="", in_place:bool=False, output_mode:str="png"):
     # Using https://github.com/nickshine/dot
     DOT_DOCKER_IMG="nshine/dot"
     util.invoke(f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}")
+    return dict(output=output)
 
 def j5(
     file,
