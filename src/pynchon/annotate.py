@@ -1,12 +1,14 @@
 """ """
+import importlib
+import inspect
 import os
 import sys
-import inspect
-import importlib
+
 import pynchon
 from pynchon import util
+from pynchon.util import lme
 
-LOGGER = pynchon.get_logger(__name__)
+LOGGER = lme.get_logger(__name__)
 
 
 def klass(name, kls) -> None:
@@ -82,17 +84,22 @@ def module(name, module, working_dir=None) -> None:
     LOGGER.debug(f"annotating module: {name}")
     module._metadata = dict(base_url=str(module.filepath.relative_to(working_dir)))
 
-def should_skip(name:str):
+
+def should_skip(name: str):
     """ """
     from pynchon.config import pynchon as pynchon_config
-    api_config = pynchon_config.get('api')
-    should_skip = api_config.get('skip_private_methods', False)
-    should_skip=should_skip and name.startswith('_')
-    LOGGER.warning(f"annotation for `{name}` exits early; `pynchon.api.skip_private_methods` is set and this looks private")
+
+    api_config = pynchon_config.get("api")
+    should_skip = api_config.get("skip_private_methods", False)
+    should_skip = should_skip and name.startswith("_")
+    LOGGER.warning(
+        f"annotation for `{name}` exits early; `pynchon.api.skip_private_methods` is set and this looks private"
+    )
     return should_skip
 
+
 def function(name, fxn) -> None:
-    """ annotates a function """
+    """annotates a function"""
     LOGGER.debug(f"annotating fxn: {name}")
     fxn._metadata = dict()
     if should_skip(name):

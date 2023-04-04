@@ -1,22 +1,24 @@
 """ pynchon.util
 """
-import os
-import sys
 import ast
 import functools
 import glob
+import os
 import subprocess
+import sys
 from collections import OrderedDict, namedtuple
-import termcolor
-import mccabe
+
 import griffe
+import mccabe
+import termcolor
 import tomli as tomllib  # tomllib only available in py3.11
 
-import pynchon
+from pynchon import annotate, constants
 from pynchon.abcs import Path
-from pynchon import annotate
 
-LOGGER = pynchon.get_logger(__name__)
+from . import lme
+
+LOGGER = lme.get_logger(__name__)
 
 WORKING_DIR = os.getcwd()
 GLYPH_COMPLEXITY = "🐉 Complex"
@@ -24,7 +26,7 @@ GLYPH_COMPLEXITY = "🐉 Complex"
 
 def find_j2s(conf) -> list:
     """ """
-    from pynchon import config, abcs
+    from pynchon import abcs, config
 
     project = config.project.get("subproject", config.project)
     project_root = project.get("root", config.git["root"])
@@ -36,8 +38,7 @@ def find_j2s(conf) -> list:
     matches = functools.reduce(lambda x, y: x + y, globs)
     includes = []
     for i, m in enumerate(matches):
-        for d in config.pynchon["jinja_includes"]:
-            print([i, m, d])
+        for d in config.jinja.includes:
             if d.has_file(m):
                 includes.append(m)
             else:
@@ -61,7 +62,7 @@ def is_python_project() -> bool:
     """ """
     from pynchon.api import git
 
-    return os.path.exists(os.path.join(git.get_root(), pynchon.PYNCHON_CONFIG_FILE))
+    return os.path.exists(os.path.join(git.get_root(), constants.PYNCHON_CONFIG_FILE))
 
 
 def find_src_root(config: dict) -> str:
@@ -160,7 +161,7 @@ def visit_module(
     output=[],
     stats={},
     module=None,
-    template=pynchon.T_TOC_API,
+    template=constants.T_TOC_API,
     visited=[],
     exclude: list = [],
     module_name=None,

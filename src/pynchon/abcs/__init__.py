@@ -1,13 +1,14 @@
 """ pynchon.abcs
 """
-import os
 import json
-
+import os
 from pathlib import Path as BasePath
 
-import pynchon
+from pynchon.util import lme, typing
 
-LOGGER = pynchon.get_logger(__name__)
+from .attrdict import AttrDict
+
+LOGGER = lme.get_logger(__name__)
 
 
 class JSONEncoder(json.JSONEncoder):

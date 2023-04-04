@@ -62,32 +62,23 @@ pypi-release: clean
 
 release: normalize static-analysis test docs pypi-release
 
-static-analysis:
-	tox -e static-analysis
+tox-%:
+	tox -e ${*}
 
-test-integrations:
-	tox $${tox_args:-} -e itest
+normalize: tox-normalize
+static-analysis: tox-static-analysis
+test-units: test
+test-integrations: itest
+smoke-test: stest
+itest: tox-itest
+utest: tox-utest
+stest: tox-stest
+test: utest itest stest
 
-test-units:
-	tox $${tox_args:-} -e utest
-
-test:
-	@# NB: tox tries to decide whether to refresh venvs,
-	@# but doesn't always get it right.  the test-* targets above are
-	@# naive, but using this target ensures recreation for test-venvs.
-	tox_args=--recreate \
-	make test-units test-integrations
-
-itest: test-integrations
-utest: test-units
-
-normalize:
-	@# Uses tox to normalize code with autopep8.
-	@# This helps to satisfy the linter, which by default is strict.
-	tox -e normalize
 plan: docs-plan
 docs-plan:
 	pynchon project plan | jq .
+
 .PHONY: docs
 docs:
 	set -x \

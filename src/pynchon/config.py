@@ -1,16 +1,31 @@
 """ pynchon.api.config
 """
+import glob
 import os
 import platform
-import glob
+import typing
 
-import pynchon as base
-from pynchon import util
-from pynchon import __version__
-from pynchon.abcs import Config, Path, JSONEncoder
+from memoized_property import memoized_property
+
+from pynchon import __version__, util
+from pynchon.abcs import Config, JSONEncoder, Path
+from pynchon.util import lme
 from pynchon.util import python as util_python
 
-LOGGER = base.get_logger(__name__)
+LOGGER = lme.get_logger(__name__)
+
+
+class JinjaConfig(Config):
+    """ """
+
+    @property
+    def includes(self) -> typing.List:
+        docs_root = pynchon.get("docs_root", None)
+        if docs_root:
+            return [Path(docs_root.joinpath("templates"))]
+        else:
+            LOGGER.warning("`docs_root` is not set; cannot guess `jinja.includes`")
+            return []
 
 
 class GitConfig(Config):
@@ -37,9 +52,6 @@ class GitConfig(Config):
         path = self.root
         cmd = util.invoke(f"cd {path} && git rev-parse HEAD", log_command=False)
         return cmd.succeeded and cmd.stdout.strip()
-
-
-from memoized_property import memoized_property
 
 
 class PythonConfig(Config):
@@ -79,7 +91,7 @@ class PythonConfig(Config):
         matches = dict(matches)
         pkg_name = self.package.get("name", "unknown")
         for f, meta in matches.items():
-            tmp = f[len(src_root): -len("__main__.py")]
+            tmp = f[len(src_root) : -len("__main__.py")]
             tmp = tmp[1:] if tmp.startswith("/") else tmp
             tmp = tmp[:-1] if tmp.endswith("/") else tmp
             matches[f] = {**matches[f], **dict(dotpath=".".join(tmp.split("/")))}
@@ -90,6 +102,7 @@ class PynchonConfig(Config):
     """ """
 
     def __init__(self, **kwargs):
+        """ " """
         super(PynchonConfig, self).__init__(**kwargs)
         file, config = util_python.load_pyprojecttoml(path=git["root"])
         config = config.get("tool", {}).get("pynchon", {})
@@ -125,14 +138,6 @@ class PynchonConfig(Config):
         #     tmp = Path(self.working_dir.joinpath("docs"))
         #     if tmp.exists():
         #         return Path(tmp)
-
-    @property
-    def jinja_includes(self) -> list:
-        if self.get("docs_root"):
-            return [Path(self["docs_root"].joinpath("templates"))]
-        else:
-            LOGGER.warning("`docs_root` is not set; cannot guess `jinja_includes`")
-            return []
 
     @property
     def working_dir(self):
@@ -192,3 +197,4 @@ git = GitConfig()
 pynchon = PynchonConfig()
 project = ProjectConfig()
 python = PythonConfig()
+jinja = JinjaConfig()

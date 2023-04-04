@@ -1,14 +1,15 @@
 """ pynchon.bin.api
 """
 import click
-import pynchon
-from pynchon import (
-    util,
-)
-from .common import kommand
-from pynchon.bin import groups, options
 
-LOGGER = pynchon.get_logger(__name__)
+import pynchon
+from pynchon import util
+from pynchon.bin import groups, options
+from pynchon.util import lme
+
+from .common import kommand
+
+LOGGER = lme.get_logger(__name__)
 
 
 def markdown(**result):

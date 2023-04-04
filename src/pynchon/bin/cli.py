@@ -2,25 +2,22 @@
     Option parsing for the `cli` subcommand
 """
 import os
+
 import click
 
-import pynchon
-from pynchon import (
-    util,
-)
-from pynchon.bin.common import (
-    kommand,
-)
+from pynchon import constants, util
 from pynchon.bin import groups, options
+from pynchon.bin.common import kommand
+from pynchon.util import lme
 
-LOGGER = pynchon.get_logger(__name__)
+LOGGER = lme.get_logger(__name__)
 PARENT = groups.gen_cli
 
 
 @kommand(
     name="toc",
     parent=PARENT,
-    formatters=dict(markdown=pynchon.T_TOC_CLI),
+    formatters=dict(markdown=constants.T_TOC_CLI),
     options=[
         options.file_setupcfg,
         options.format_markdown,
@@ -47,7 +44,7 @@ def toc(format, file, stdout, output, header):
 @kommand(
     name="all",
     parent=PARENT,
-    # formatters=dict(markdown=pynchon.T_DETAIL_CLI),
+    # formatters=dict(markdown=constants.T_DETAIL_CLI),
     options=[
         options.file_setupcfg,
         options.output_dir,
@@ -79,7 +76,7 @@ def _all(
 
     for fname in docs:
         with open(fname, "w") as fhandle:
-            fhandle.write(pynchon.T_DETAIL_CLI.render(docs[fname]))
+            fhandle.write(constants.T_DETAIL_CLI.render(docs[fname]))
         LOGGER.debug(f"wrote: {fname}")
     return list(docs.keys())
 
@@ -87,7 +84,7 @@ def _all(
 @kommand(
     name="main",
     parent=PARENT,
-    formatters=dict(markdown=pynchon.T_CLI_MAIN_MODULE),
+    formatters=dict(markdown=constants.T_CLI_MAIN_MODULE),
     options=[
         options.format_markdown,
         options.stdout,
@@ -118,7 +115,7 @@ def main_docs(format, module, file, output_dir, stdout, header, name):
 @kommand(
     name="entrypoint",
     parent=PARENT,
-    formatters=dict(markdown=pynchon.T_DETAIL_CLI),
+    formatters=dict(markdown=constants.T_DETAIL_CLI),
     options=[
         options.format_markdown,
         options.stdout,

@@ -1,22 +1,24 @@
 """ pynchon.bin.project
 """
-import os, glob
+import glob
 import json
-import pynchon
-from pynchon import (
-    util,
-)
-from .common import kommand
-from pynchon.bin import groups, options
+import os
 
-LOGGER = pynchon.get_logger(__name__)
+import pynchon
+from pynchon import constants, util
+from pynchon.bin import groups, options
+from pynchon.util import lme
+
+from .common import kommand
+
+LOGGER = lme.get_logger(__name__)
 PARENT = groups.parse
 
 
 @kommand(
     name="pyright",
     parent=PARENT,
-    formatters=dict(markdown=pynchon.T_TOC_CLI),
+    formatters=dict(markdown=constants.T_TOC_CLI),
     options=[
         # options.file_setupcfg,
         # options.format,

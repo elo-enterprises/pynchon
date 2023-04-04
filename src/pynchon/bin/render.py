@@ -1,22 +1,23 @@
 """ pynchon.bin.render:
     Option parsing for the `render` subcommand
 """
-import sys
-import yaml
-import pynchon
-from pynchon import (
-    abcs,
-    util,
-)
-from .common import kommand
-from pynchon.bin import groups, options
-from pynchon.api import render
-import click
-import os
 import json
-import pyjson5
+import os
+import sys
 
-LOGGER = pynchon.get_logger(__name__)
+import click
+import pyjson5
+import yaml
+
+import pynchon
+from pynchon import abcs, util
+from pynchon.api import render
+from pynchon.bin import groups, options
+from pynchon.util import lme
+
+from .common import kommand
+
+LOGGER = lme.get_logger(__name__)
 PARENT = groups.render
 files_arg = click.argument("files", nargs=-1)
 
@@ -53,7 +54,10 @@ def render_json5(files, output, in_place, templates):
     files = files[1:]
     return render.j5(file, output=output, in_place=in_place, templates=templates)
 
-DEFAULT_OPENER = 'open'
+
+DEFAULT_OPENER = "open"
+
+
 @kommand(
     name="dot",
     parent=PARENT,
@@ -61,7 +65,7 @@ DEFAULT_OPENER = 'open'
         options.output,
         click.option(
             "--open",
-            'open_after',
+            "open_after",
             is_flag=True,
             default=False,
             help=(f"if true, opens the created file using {DEFAULT_OPENER}"),
@@ -88,7 +92,7 @@ def render_dot(files, output, in_place, open_after):
     file = files[0]
     files = files[1:]
     result = render.dot(file, output=output, in_place=in_place)
-    output = result['output']
+    output = result["output"]
     if open_after:
         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
         util.invoke(f"{DEFAULT_OPENER} {output}")
@@ -111,7 +115,7 @@ def render_any(format, file, stdout, output):
     """
     Render files with given renderer
     """
-    print("hello world")
+    raise NotImplementedError()
 
 
 @kommand(

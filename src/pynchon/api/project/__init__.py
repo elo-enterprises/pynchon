@@ -1,16 +1,15 @@
 """ pynchon.api.project
 """
-import os, glob
+import glob
 import json
-import pynchon
-from pynchon import (
-    util,
-    abcs,
-    config,
-)
-from pynchon.bin import groups, options
+import os
 
-LOGGER = pynchon.get_logger(__name__)
+import pynchon
+from pynchon import abcs, config, util
+from pynchon.bin import groups, options
+from pynchon.util import lme
+
+LOGGER = lme.get_logger(__name__)
 
 
 def get_config() -> dict:
@@ -20,6 +19,7 @@ def get_config() -> dict:
         git=config.git,
         python=config.python,
         project=config.project,
+        jinja=config.jinja,
     )
     return out
 
@@ -28,9 +28,6 @@ def plan(config: dict = {}) -> dict:
     """ """
     plan = []
     config = config or get_config()
-    # src_root = util.find_src_root(config)
-    # src_root = config['pynchon']['working_dir']
-    # raise Exception(src_root)
     project = config["project"]
     render_instructions = config.get("pynchon", {}).get("render", [])
     gen_instructions = config.get("pynchon", {}).get("generate", [])
@@ -78,22 +75,44 @@ def plan(config: dict = {}) -> dict:
         f"pynchon project version --output {docs_root}/VERSIONS.md",
     ]
     if "dot" in render_instructions:
-        LOGGER.debug("planning for rendering dot-graphs..")
-        dot_root = project['root']
-        for line in util.invoke(f"find {dot_root} -type f -name *.dot").stdout.split('\n'):
-            line=line.strip()
-            if not line: continue
-            plan+=[f'pynchon render dot {line} --in-place']
+        LOGGER.debug("planning for rendering for .dot graph files..")
+        dot_root = project["root"]
+        for line in util.invoke(f"find {dot_root} -type f -name *.dot").stdout.split(
+            "\n"
+        ):
+            line = line.strip()
+            if not line:
+                continue
+            plan += [f"pynchon render dot {line} --in-place"]
+    if "dot" in gen_instructions:
+        LOGGER.debug("planning generation for .dot graph files..")
+        from pathlib import Path
+
+        dot_config = config["pynchon"].get("dot", {})
+        script = dot_config.get("script")
+        assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'
+        from pynchon.api import render
+
+        # FIXME: do this substition everywhere!
+        script = render._render(text=script, context=config)
+        cmd = f"pynchon gen dot files --script {script}"
+        plan += [cmd]
+    if "fixme" in gen_instructions:
+        plan += [f"pynchon gen fixme --output {docs_root}/FIXME.md"]
     if "api" in gen_instructions:
+        LOGGER.critical("loading `api` generator..")
         LOGGER.debug("planning for API docs..")
         api_root = f"{docs_root}/api"
         plan += [f"mkdir -p {api_root}"]
         plan += [
-            f'pynchon gen api toc --package {config["python"]["package"]["name"]} --output {api_root}/README.md'
+            "pynchon gen api toc"
+            f' --package {config["python"]["package"]["name"]}'
+            f" --output {api_root}/README.md"
         ]
     else:
         LOGGER.warning("skipping plan for API-docs")
     if "cli" in gen_instructions:
+        LOGGER.critical("loading cli generator..")
         LOGGER.debug("planning for CLI docs..")
         cli_root = f"{docs_root}/cli"
         plan += [f"mkdir -p {cli_root}"]
@@ -107,12 +126,13 @@ def plan(config: dict = {}) -> dict:
         LOGGER.warning("skipping plan for CLI-docs")
 
     if "j2" in render_instructions:
-        # templates_root = f"{config['pynchon']['docs_root']}/templates"
-        templates = config["pynchon"]["jinja_includes"]
+        LOGGER.critical("loading j2 renderer..")
+        templates = config["jinja"].includes
         templates = [t for t in templates]
         # import IPython; IPython.embed()
         templates = [f"--templates {t}" for t in templates]
         templates = " ".join(templates)
+        LOGGER.warning(f"j2 templates: {templates}")
         j2s = util.find_j2s(config)
         if j2s:
             plan += [

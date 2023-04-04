@@ -1,8 +1,9 @@
 """ pynchon.bin.groups:
     Top-level subcommands
 """
-import click
 import functools
+
+import click
 
 
 class group(object):
@@ -46,22 +47,13 @@ def gen():
 # project = group('project', help=_proj.__doc__, parent=entry)(_proj)
 # proj = group('proj', help='Alias for `project` subcommand', parent=entry)(_proj)
 
+from .dot import *
+from .gen import gen_api, gen_cli
+
 
 @group("render", parent=entry)
 def render():
     """Misc. helpers for rendering text"""
-
-
-@group("api", parent=gen)
-def gen_api():
-    """
-    Generate API docs from python modules, packages, etc
-    """
-
-
-@group("cli", parent=gen)
-def gen_cli():
-    """Generate CLI docs"""
 
 
 @group("project", parent=entry)

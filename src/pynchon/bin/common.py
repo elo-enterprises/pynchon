@@ -1,16 +1,16 @@
 """ pynchon.bin.common:
     Common options/arguments and base classes for CLI
 """
+import functools
+import json
 import os
 import sys
-import json
-import functools
 
 import click
 
-import pynchon
+from pynchon.util import lme
 
-LOGGER = pynchon.get_logger(__name__)
+LOGGER = lme.get_logger(__name__)
 
 
 class handler(object):
@@ -20,7 +20,7 @@ class handler(object):
 
     def __init__(self, parent=None):
         self.parent = parent
-        self.logger = pynchon.get_logger(self.__class__.__name__)
+        self.logger = lme.get_logger(self.__class__.__name__)
 
     def match(self, call_kwargs):
         """ """
@@ -85,12 +85,11 @@ class format_handler(handler):
                 template = fmt
 
                 def fmt(**kargs):
-                    return template.render({**kargs, **result})
+                    return template.render({**kargs, **result}) + "\n"
 
             self.logger.debug(f"Dispatching formatter for `markdown` @ {fmt.__name__}")
             self.logger.debug(f"context={result}")
-            msg = fmt(**result)
-            return msg
+            return fmt(**result)
         else:
             err = f"Unsupported mode for `format`: {format}"
             self.logger.critical(err)
@@ -135,7 +134,7 @@ class kommand(object):
         )
 
         self.cmd = self.parent.command(self.name)
-        self.logger = pynchon.get_logger(f"cmd[{name}]")
+        self.logger = lme.get_logger(f"cmd[{name}]")
 
     def format_json(self, result):
         """ """

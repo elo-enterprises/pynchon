@@ -1,25 +1,24 @@
 """ pynchon.bin.project
 """
-import os, glob
+import glob
 import json
-import pynchon
+import os
 
-from pynchon import (
-    abcs,
-    util,
-)
-from .common import kommand
-from pynchon.bin import groups, options
+from pynchon import abcs, constants, util
 from pynchon.api import project
+from pynchon.bin import groups, options
+from pynchon.util import lme
 
-LOGGER = pynchon.get_logger(__name__)
+from .common import kommand
+
+LOGGER = lme.get_logger(__name__)
 PARENT = groups.project
 
 
 @kommand(
     name="entrypoints",
     parent=PARENT,
-    formatters=dict(markdown=pynchon.T_TOC_CLI),
+    formatters=dict(markdown=constants.T_TOC_CLI),
     options=[
         options.file_setupcfg,
         options.format,
@@ -28,7 +27,7 @@ PARENT = groups.project
         options.header,
     ],
 )
-def project_entrypoints(format, file, stdout, output, header):
+def project_entrypoints(format, file, stdout, output, header) -> None:
     """
     Describe entrypoints for this project (parses setup.cfg)
     """
@@ -42,7 +41,7 @@ def project_entrypoints(format, file, stdout, output, header):
 @kommand(
     name="version",
     parent=PARENT,
-    formatters=dict(markdown=pynchon.T_VERSION_METADATA),
+    formatters=dict(markdown=constants.T_VERSION_METADATA),
     options=[
         # FIXME: options.output_with_default('docs/VERSION.md'),
         options.format_markdown,
@@ -50,11 +49,12 @@ def project_entrypoints(format, file, stdout, output, header):
         options.header,
     ],
 )
-def project_version(format, output, header):
+def project_version(format, output, header) -> None:
     """
     Describes version details for this package (and pynchon itself).
     """
     # from pynchon.api import python #, git
+    import pynchon
     from pynchon.config import git, python
 
     return dict(
@@ -69,12 +69,12 @@ def project_version(format, output, header):
     parent=PARENT,
     options=[],
 )
-def project_config():
+def project_config() -> None:
     """
     Describe the config for this project
     """
     tmp = project.get_config()
-    LOGGER.debug(json.dumps(tmp, indent=2, cls=abcs.JSONEncoder))
+    print(json.dumps(tmp, cls=abcs.JSONEncoder))
 
 
 @kommand(
@@ -82,7 +82,7 @@ def project_config():
     parent=PARENT,
     options=[],
 )
-def project_apply():
+def project_apply() -> None:
     """
     Apply the plan created by `pynchon project plan`
     """

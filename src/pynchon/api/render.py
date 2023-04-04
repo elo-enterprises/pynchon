@@ -1,32 +1,31 @@
 """ pynchon.api.render
 """
-import os, json, sys
+import json
+import os
+import sys
+
 import pyjson5
+from jinja2 import Environment  # Template,; UndefinedError,
+from jinja2 import FileSystemLoader, StrictUndefined
 
-from jinja2 import (
-    Environment,
-    FileSystemLoader,
-    StrictUndefined,
-    # Template,
-    # UndefinedError,
-)
+from pynchon import util
+from pynchon.util import lme
 
-import pynchon
-from pynchon import (
-    util,
-)
+LOGGER = lme.get_logger(__name__)
 
-LOGGER = pynchon.get_logger(__name__)
 
-def dot(file:str, output:str="", in_place:bool=False, output_mode:str="png"):
-    """ renders .dot file to png """
+def dot(file: str, output: str = "", in_place: bool = False, output_mode: str = "png"):
+    """renders .dot file to png"""
     if in_place:
         assert not output
         output = os.path.splitext(file)[0] + ".png"
     # Using https://github.com/nickshine/dot
-    DOT_DOCKER_IMG="nshine/dot"
-    util.invoke(f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}")
+    DOT_DOCKER_IMG = "nshine/dot"
+    util.invoke(
+        f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}"
+    )
     return dict(output=output)
+
 
 def j5(
     file,
@@ -50,8 +49,7 @@ def j5(
 
 def j2(file, output="", in_place=False, ctx={}, templates=".", strict: bool = True):
     """render jinja2 file"""
-
-    LOGGER.debug(f"Running with one file: {file}")
+    LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
         content = fhandle.read()
     if in_place:
@@ -78,9 +76,17 @@ def j2(file, output="", in_place=False, ctx={}, templates=".", strict: bool = Tr
     tmp = list(ctx.keys())
     LOGGER.debug(f"rendering with context: {tmp}")
     content = _render(text=content, context=ctx, templates=templates)
+    LOGGER.warning(f"writing output to {output or sys.stdout.name}")
+    before = None
+    if output:
+        with open(output, "r") as fhandle:
+            before = fhandle.read()
     fhandle = open(output, "w") if output else sys.stdout
-    fhandle.write(f"{content}\n")
+    content = f"{content}\n"
+    fhandle.write(content)
     fhandle.close()
+    if before and content == before:
+        LOGGER.critical(f"content in {output} did not change")
     return content
 
 
