@@ -8,7 +8,7 @@ import pyjson5
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
-from pynchon import util
+from pynchon import abcs, util
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
@@ -47,8 +47,21 @@ def j5(
     return data
 
 
-def j2(file, output="", in_place=False, ctx={}, templates=".", strict: bool = True):
+def j2(
+    file: str,
+    output: str = "",
+    in_place: bool = False,
+    ctx: dict = {},
+    templates: list = ["."],
+    strict: bool = True,
+):
     """render jinja2 file"""
+    templates = [abcs.Path(t) for t in templates]
+    for template_dir in templates:
+        if not template_dir.exists:
+            err = f"template directory @ `{template_dir}` does not exist"
+            raise ValueError(err)
+
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
         content = fhandle.read()
@@ -74,7 +87,8 @@ def j2(file, output="", in_place=False, ctx={}, templates=".", strict: bool = Tr
             LOGGER.critical(f"unrecognized extension for context file: {ext}")
             raise TypeError(ext)
     tmp = list(ctx.keys())
-    LOGGER.debug(f"rendering with context: {tmp}")
+    LOGGER.debug(f"Templates: {templates}")
+    LOGGER.debug(f"Rendering with context: {tmp}")
     content = _render(text=content, context=ctx, templates=templates)
     LOGGER.warning(f"writing output to {output or sys.stdout.name}")
     before = None
@@ -97,23 +111,19 @@ def _render(
     strict: bool = True,
 ):
     """ """
+    # LOGGER.debug(f"_render with templates={templates}")
     # FIXME: support strict
     # git_root = util.find_git_root()
     # LOGGER.debug(f"found {git_root} for root")
     env = Environment(
-        loader=FileSystemLoader(
-            [
-                # os.path.join(git_root, "docs", "templates"),
-                # os.path.join(git_root, "docs", "includes"),
-                # config['pynchon']["jinja_includes"]
-                templates,
-            ]
-        ),
+        loader=FileSystemLoader([str(t) for t in templates]),
         undefined=StrictUndefined,
     )
-    tmp = env.from_string(text)
+    LOGGER.warning("known templates:")
+    LOGGER.warning(env.loader.list_templates())
+    template = env.from_string(text)
     context = {**dict(os.environ.items()), **context}
-    return tmp.render(**context)
+    return template.render(**context)
 
 
-__all__ = [j5, j2]
+__all__ = ["j5", "j2"]

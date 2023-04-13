@@ -131,7 +131,8 @@ def render_any(format, file, stdout, output):
             is_flag=True,
             default=False,
             help=(
-                "if true, writes to {file}.{ext} (dropping any .j2 extension if present)"
+                "if true, writes to {file}.{ext} "
+                "(dropping any .j2 extension if present)"
             ),
         ),
     ],
@@ -141,10 +142,12 @@ def render_j2(files, ctx, output, in_place, templates):
     """
     Render render J2 files with given context
     """
+    templates = templates.split(",")
+    assert isinstance(templates, (list, tuple)), f"expected list got {type(templates)}"
     # assert (file or files) and not (file and files), 'expected files would be provided'
-    if not os.path.exists(templates):
-        err = f"template directory @ `{templates}` does not exist"
-        raise ValueError(err)
+    from pynchon import config
+
+    templates = templates + config.jinja.includes
     if ctx:
         if "{" in ctx:
             LOGGER.debug("context is inlined JSON")
@@ -186,20 +189,3 @@ def render_j2(files, ctx, output, in_place, templates):
     #     return [
     #         render.j2(file, output=output, in_place=in_place, templates=templates)
     #         for file in files ]
-
-
-# @kommand(
-#     name='version', parent=PARENT,
-#     # FIXME: formatters=dict(markdown=pynchon.T_VERSION_METADATA),
-#     options=[
-#         # FIXME: options.output_with_default('docs/VERSION.md'),
-#         options.format_markdown,
-#         options.stdout, options.header])
-# def version(format, file, stdout, output, header):
-#     """
-#     Describes version details for package (and pynchon itself).
-#     """
-#     return dict(
-#         pynchon_version='..',
-#         package_version='..',
-#         git_hash='..', )

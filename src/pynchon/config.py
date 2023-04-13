@@ -7,28 +7,33 @@ import typing
 
 from memoized_property import memoized_property
 
-from pynchon import __version__, util
-from pynchon.abcs import Config, JSONEncoder, Path
+from pynchon import __version__, abcs, util
 from pynchon.util import lme
 from pynchon.util import python as util_python
 
 LOGGER = lme.get_logger(__name__)
 
 
-class JinjaConfig(Config):
+class JinjaConfig(abcs.Config):
     """ """
+
+    @property
+    def _base(self) -> abcs.AttrDict:
+        return abcs.AttrDict(**pynchon.get("jinja", {}))
 
     @property
     def includes(self) -> typing.List:
         docs_root = pynchon.get("docs_root", None)
+        docs_root = docs_root and abcs.Path(docs_root)
         if docs_root:
-            return [Path(docs_root.joinpath("templates"))]
+            extra = [abcs.Path(docs_root.joinpath("templates"))]
         else:
             LOGGER.warning("`docs_root` is not set; cannot guess `jinja.includes`")
-            return []
+            extra = []
+        return extra + self._base.get("includes", [])
 
 
-class GitConfig(Config):
+class GitConfig(abcs.Config):
     """ """
 
     @property
@@ -54,7 +59,7 @@ class GitConfig(Config):
         return cmd.succeeded and cmd.stdout.strip()
 
 
-class PythonConfig(Config):
+class PythonConfig(abcs.Config):
     """ """
 
     def __init__(self, **kwargs):
@@ -98,7 +103,7 @@ class PythonConfig(Config):
         return matches
 
 
-class PynchonConfig(Config):
+class PynchonConfig(abcs.Config):
     """ """
 
     def __init__(self, **kwargs):
@@ -133,15 +138,15 @@ class PynchonConfig(Config):
             return git["root"].joinpath("docs")
         # git_root.joinpath('docs')
         # if 'docs_root' in self: # set in pyproject.toml
-        #     return Path(self["docs_root"]).relative_to(pynchon['config_file'])
+        #     return abcs.Path(self["docs_root"]).relative_to(pynchon['config_file'])
         # else:
-        #     tmp = Path(self.working_dir.joinpath("docs"))
+        #     tmp = abcs.Path(self.working_dir.joinpath("docs"))
         #     if tmp.exists():
-        #         return Path(tmp)
+        #         return abcs.Path(tmp)
 
     @property
     def working_dir(self):
-        return Path(".").absolute()
+        return abcs.Path(".").absolute()
 
     @property
     def version(self) -> str:
@@ -151,7 +156,7 @@ class PynchonConfig(Config):
 from memoized_property import memoized_property
 
 
-class PackageConfig(Config):
+class PackageConfig(abcs.Config):
     @property
     def name(self) -> str:
         return util_python.load_setupcfg().get("metadata", {}).get("name")
@@ -164,7 +169,7 @@ class PackageConfig(Config):
         return cmd.succeeded and cmd.stdout.strip()
 
 
-class ProjectConfig(Config):
+class ProjectConfig(abcs.Config):
     """ """
 
     # @property

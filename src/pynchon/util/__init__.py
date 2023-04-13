@@ -39,7 +39,7 @@ def find_j2s(conf) -> list:
     includes = []
     for i, m in enumerate(matches):
         for d in config.jinja.includes:
-            if d.has_file(m):
+            if abcs.Path(d).has_file(m):
                 includes.append(m)
             else:
                 LOGGER.warning(f"'{d}'.has_file('{m}') -> false")

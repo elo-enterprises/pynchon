@@ -11,7 +11,11 @@ from pynchon.util import lme
 LOGGER = lme.get_logger(__name__)
 
 templates = click.option(
-    "-t", "--templates", default=".", help=("path to use for template-root / includes")
+    "-t",
+    "--templates",
+    default=".",
+    help=("path to use for template-root / includes"),
+    # cls=OptionEatAll,
 )
 template = templates
 
