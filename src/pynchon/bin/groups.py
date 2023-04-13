@@ -31,15 +31,14 @@ class group(object):
 @click.version_option()
 @click.group("pynchon")
 def entry():
-    """pynchon CLI:"""
-    # ensure that ctx.obj exists and is a dict (in case `cli()` is called
-    # by means other than the `if` block below)
-    # ctx.ensure_object(dict)
+    """pynchon: a utility for docs generation and template-rendering"""
 
 
 @group("gen", parent=entry)
 def gen():
-    """Generate docs"""
+    """
+    Generate docs
+    """
 
 
 # def _proj():
@@ -51,21 +50,45 @@ from .dot import *
 from .gen import gen_api, gen_cli
 
 
+@entry.command("plan")
+def plan() -> None:
+    """
+    shortcut for `pynchon project plan`
+    """
+    raise NotImplementedError()
+
+
+@entry.command("config")
+def config() -> None:
+    """
+    shortcut for `pynchon project config`
+    """
+    raise NotImplementedError()
+
+
 @group("render", parent=entry)
 def render():
-    """Misc. helpers for rendering text"""
+    """
+    Misc. helpers for rendering text
+    """
 
 
 @group("project", parent=entry)
 def project():
-    """Project automation"""
+    """
+    Project Automation
+    """
 
 
 @group("parse", parent=entry)
 def parse():
-    """Helpers for parsing output for other tools"""
+    """
+    Helpers for parsing output from other tools
+    """
 
 
 @group("ast", parent=entry)
 def ast():
-    """Inspect AST"""
+    """
+    AST Inspector
+    """

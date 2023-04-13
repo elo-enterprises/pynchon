@@ -33,15 +33,38 @@ class JinjaConfig(abcs.Config):
         return extra + self._base.get("includes", [])
 
 
+class PyPiConfig(abcs.Config):
+    @property
+    def name(self):
+        return "Public PyPI"
+
+    @property
+    def docs_url(self):
+        return "https://pypi.org/"
+
+    @property
+    def base_url(self):
+        return "https://pypi.org/project"
+
+
 class GitConfig(abcs.Config):
     """ """
 
-    @property
-    def root(self):
-        return util.get_root(os.getcwd())
+    @memoized_property
+    def default_remote_branch(self):
+        """ """
+        return util.invoke(
+            "git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'"
+        ).stdout.strip()
 
     @property
+    def root(self):
+        """ """
+        return util.get_root(os.getcwd())
+
+    @memoized_property
     def repo(self):
+        """ """
         path = self.root
         cmd = util.invoke(
             f"cd {path} && git config --get remote.origin.url", log_command=False
@@ -49,11 +72,25 @@ class GitConfig(abcs.Config):
         return cmd.stdout.strip() if cmd.succeeded else ""
 
     @property
+    def repo_url(self):
+        """ """
+        tmp = self.repo  # i.e. git@github.com:org/repo-name.git
+        if not tmp.startswith("git@github"):
+            self._logger.warning(f"don't know how to tokenize {tmp}")
+        else:
+            tmp = tmp.split(":")[-1]
+            org, repo_name = tmp.split("/")
+            repo_name = tmp.split(".git")[0]
+            return f"https://github.com/{org}/{repo_name}"
+
+    @property
     def repo_name(self):
+        """ """
         return self.repo.split("/")[-1].split(".")[0]
 
     @property
     def hash(self) -> str:
+        """ """
         path = self.root
         cmd = util.invoke(f"cd {path} && git rev-parse HEAD", log_command=False)
         return cmd.succeeded and cmd.stdout.strip()
@@ -78,6 +115,7 @@ class PythonConfig(abcs.Config):
 
     @property
     def package(self) -> dict:
+        """ """
         if self.is_package:
             return PackageConfig()
         else:
@@ -134,6 +172,7 @@ class PynchonConfig(abcs.Config):
     #
     @property
     def docs_root(self):
+        """ """
         if git["root"].joinpath("docs"):
             return git["root"].joinpath("docs")
         # git_root.joinpath('docs')
@@ -146,19 +185,19 @@ class PynchonConfig(abcs.Config):
 
     @property
     def working_dir(self):
+        """ """
         return abcs.Path(".").absolute()
 
     @property
     def version(self) -> str:
+        """ """
         return __version__
-
-
-from memoized_property import memoized_property
 
 
 class PackageConfig(abcs.Config):
     @property
     def name(self) -> str:
+        """ """
         return util_python.load_setupcfg().get("metadata", {}).get("name")
 
     @memoized_property
@@ -198,8 +237,11 @@ class ProjectConfig(abcs.Config):
         return {}
 
 
-git = GitConfig()
+git = GitConfig(
+    # **pynchon.get("git", {})
+)
 pynchon = PynchonConfig()
-project = ProjectConfig()
-python = PythonConfig()
-jinja = JinjaConfig()
+project = ProjectConfig(**pynchon.get("project", {}))
+python = PythonConfig(**pynchon.get("python", {}))
+jinja = JinjaConfig(**pynchon.get("jinja", {}))
+pypi = PyPiConfig(**pynchon.get("pypi", {}))

@@ -4,6 +4,8 @@ import json
 import os
 from pathlib import Path as BasePath
 
+from memoized_property import memoized_property
+
 from pynchon.util import lme, typing
 
 from .attrdict import AttrDict
@@ -44,6 +46,10 @@ class Path(type(BasePath())):
 class Config(dict):
     """ """
 
+    @memoized_property
+    def _logger(self):
+        return lme.get_logger(f"Config[{self.__class__.__name__}]")
+
     def __init__(self, **kwargs):
         super(Config, self).__init__(**kwargs)
         props = [
@@ -58,7 +64,7 @@ class Config(dict):
         ]
         for p in props:
             if p in kwargs:
-                LOGGER.warning(
+                self._logger.warning(
                     f"property '{p}' exists, but provided kwargs overrides it"
                 )
                 continue

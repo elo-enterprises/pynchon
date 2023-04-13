@@ -14,14 +14,13 @@ LOGGER = lme.get_logger(__name__)
 
 def get_config() -> dict:
     """ """
-    out = dict(
-        pynchon=config.pynchon,
-        git=config.git,
-        python=config.python,
-        project=config.project,
-        jinja=config.jinja,
+    return dict(
+        [
+            [k, getattr(config, k)]
+            for k in dir(config)
+            if isinstance(getattr(config, k), (abcs.Config,))
+        ]
     )
-    return out
 
 
 def plan(config: dict = {}) -> dict:
@@ -90,12 +89,12 @@ def plan(config: dict = {}) -> dict:
 
         dot_config = config["pynchon"].get("dot", {})
         script = dot_config.get("script")
-        assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'
-        from pynchon.api import render
-
-        # FIXME: do this substition everywhere!
-        script = render._render(text=script, context=config)
-        cmd = f"pynchon gen dot files --script {script}"
+        # # assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'
+        # from pynchon.api import render
+        #
+        # # FIXME: do this substition everywhere!
+        # script = render._render(text=script, context=config)
+        cmd = "pynchon gen dot files --script {script}"
         plan += [cmd]
     if "fixme" in gen_instructions:
         plan += [f"pynchon gen fixme --output {docs_root}/FIXME.md"]

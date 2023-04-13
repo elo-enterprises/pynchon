@@ -53,9 +53,14 @@ def load_pyprojecttoml(path: str = ""):
         LOGGER.critical(err)
         return None, {}
         # raise RuntimeError(err)
+    import tomli
 
     with open(path, "rb") as f:
-        config = tomllib.load(f)
+        try:
+            config = tomllib.load(f)
+        except (tomli.TOMLDecodeError,) as exc:
+            LOGGER.critical(f"cannot decode data from toml @ {f}")
+            raise
     # config = {s: dict(config.items(s)) for s in config.sections()}
     pynchon_section = config.get("pynchon", {})
     # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(

@@ -56,6 +56,11 @@ def j2(
     strict: bool = True,
 ):
     """render jinja2 file"""
+    from pynchon.api import project
+
+    config = project.get_config()
+    ctx = {**ctx, **config}
+    LOGGER.debug(f"final context: {ctx}")
     templates = [abcs.Path(t) for t in templates]
     for template_dir in templates:
         if not template_dir.exists:
@@ -65,6 +70,7 @@ def j2(
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
         content = fhandle.read()
+
     if in_place:
         assert not output, "cannot use --in-place and --output at the same time"
         output = os.path.splitext(file)
@@ -72,6 +78,7 @@ def j2(
             output = output[0]
         else:
             output = "".join(output)
+
     if not isinstance(ctx, (dict,)):
         ext = os.path.splitext(ctx)[-1]
         if "{" in ctx:
@@ -87,12 +94,13 @@ def j2(
             LOGGER.critical(f"unrecognized extension for context file: {ext}")
             raise TypeError(ext)
     tmp = list(ctx.keys())
-    LOGGER.debug(f"Templates: {templates}")
+
+    LOGGER.critical(f"Templates: {templates}")
     LOGGER.debug(f"Rendering with context: {tmp}")
     content = _render(text=content, context=ctx, templates=templates)
     LOGGER.warning(f"writing output to {output or sys.stdout.name}")
     before = None
-    if output:
+    if output and output not in ["/dev/stdout", "-"]:
         with open(output, "r") as fhandle:
             before = fhandle.read()
     fhandle = open(output, "w") if output else sys.stdout
@@ -111,19 +119,28 @@ def _render(
     strict: bool = True,
 ):
     """ """
-    # LOGGER.debug(f"_render with templates={templates}")
-    # FIXME: support strict
-    # git_root = util.find_git_root()
-    # LOGGER.debug(f"found {git_root} for root")
     env = Environment(
         loader=FileSystemLoader([str(t) for t in templates]),
         undefined=StrictUndefined,
     )
+    # explict_includes = abcs.Path('.')
+    known_templates = map(abcs.Path, env.loader.list_templates())
+    known_templates = [str(p) for p in known_templates if dot not in p.parents]
     LOGGER.warning("known templates:")
-    LOGGER.warning(env.loader.list_templates())
+    LOGGER.warning(known_templates)
+
     template = env.from_string(text)
     context = {**dict(os.environ.items()), **context}
-    return template.render(**context)
+    import jinja2
+
+    try:
+        return template.render(**context)
+    except (jinja2.exceptions.TemplateNotFound,) as exc:
+        LOGGER.critical(exc)
+        LOGGER.critical(known_templates)
+        raise RuntimeError()
+
+        # raise
 
 
 __all__ = ["j5", "j2"]
