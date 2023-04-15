@@ -15,6 +15,7 @@ from pynchon.api import render
 from pynchon.bin import groups, options
 from pynchon.bin.gen import gen_dot as PARENT
 from pynchon.util import lme
+from pynchon.util.os import invoke
 
 from .common import kommand
 
@@ -51,4 +52,4 @@ def gen_dot_files(files, in_place, templates, script):
     This creates the .dot files themselves; use `pynchon render dot` to convert those to an image.
     """
     assert os.path.exists(script), f"script file @`{script}` is missing!"
-    util.invoke(f"python {script}")
+    invoke(f"python {script}")

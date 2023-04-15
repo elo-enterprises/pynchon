@@ -72,13 +72,11 @@ def render():
     Misc. helpers for rendering text
     """
 
-
 @group("project", parent=entry)
 def project():
     """
     Project Automation
     """
-
 
 @group("parse", parent=entry)
 def parse():

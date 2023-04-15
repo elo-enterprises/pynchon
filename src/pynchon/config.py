@@ -10,6 +10,7 @@ from memoized_property import memoized_property
 from pynchon import __version__, abcs, util
 from pynchon.util import lme
 from pynchon.util import python as util_python
+from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
@@ -53,7 +54,7 @@ class GitConfig(abcs.Config):
     @memoized_property
     def default_remote_branch(self):
         """ """
-        return util.invoke(
+        return invoke(
             "git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'"
         ).stdout.strip()
 
@@ -66,7 +67,7 @@ class GitConfig(abcs.Config):
     def repo(self):
         """ """
         path = self.root
-        cmd = util.invoke(
+        cmd = invoke(
             f"cd {path} && git config --get remote.origin.url", log_command=False
         )
         return cmd.stdout.strip() if cmd.succeeded else ""
@@ -92,7 +93,7 @@ class GitConfig(abcs.Config):
     def hash(self) -> str:
         """ """
         path = self.root
-        cmd = util.invoke(f"cd {path} && git rev-parse HEAD", log_command=False)
+        cmd = invoke(f"cd {path} && git rev-parse HEAD", log_command=False)
         return cmd.succeeded and cmd.stdout.strip()
 
 
@@ -110,7 +111,7 @@ class PythonConfig(abcs.Config):
     @memoized_property
     def is_package(self):
         LOGGER.debug("checking if this a python package..")
-        cmd = util.invoke("python setup.py --version 2>/dev/null", log_command=False)
+        cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
         return cmd.succeeded
 
     @property
@@ -204,7 +205,7 @@ class PackageConfig(abcs.Config):
     def version(self) -> str:
         """ """
         LOGGER.debug("resolving project version..")
-        cmd = util.invoke("python setup.py --version 2>/dev/null", log_command=False)
+        cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
         return cmd.succeeded and cmd.stdout.strip()
 
 

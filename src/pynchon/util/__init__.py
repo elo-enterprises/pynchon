@@ -15,10 +15,11 @@ from pynchon import annotate, constants
 from pynchon.abcs import Path
 
 from . import lme
+from .os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
-WORKING_DIR = os.getcwd()
+WORKING_DIR = Path(".")
 GLYPH_COMPLEXITY = "🐉 Complex"
 
 
@@ -45,15 +46,20 @@ def find_j2s(conf) -> list:
     return j2s
 
 
+from pynchon.abcs import Path
+
+
 def get_root(path: str = ".") -> str:
     """ """
-    path = os.path.abspath(path)
-    if ".git" in os.listdir(path):
-        return Path(os.path.relpath(path))
+    import os
+
+    path = Path(path).absolute()
+    if (path / ".git").exists():
+        return path.relative_to(os.getcwd())
     elif not path:
         return None
     else:
-        return get_root(os.path.dirname(path))
+        return get_root(path.parents[0])
 
 
 def is_python_project() -> bool:
@@ -67,10 +73,10 @@ def find_src_root(config: dict) -> str:
     """ """
     pconf = config.get("project", {})
     LOGGER.debug(f"project config: {pconf}")
-    src_root = pconf.get("src_root", os.getcwd())
+    src_root = Path(pconf.get("src_root", "."))
     # src_root = os.path.join(project_root, "src")
-    src_root = src_root if os.path.isdir(src_root) else None
-    return Path(os.path.relpath(src_root))
+    src_root = src_root if src_root.is_dir() else None
+    return src_root.relative_to(".")
 
 
 def click_recursive_help(cmd, parent=None, out={}, file=sys.stdout):

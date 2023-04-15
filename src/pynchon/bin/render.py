@@ -14,6 +14,7 @@ from pynchon import abcs, util
 from pynchon.api import render
 from pynchon.bin import groups, options
 from pynchon.util import lme
+from pynchon.util.os import invoke
 
 from .common import kommand
 
@@ -95,7 +96,7 @@ def render_dot(files, output, in_place, open_after):
     output = result["output"]
     if open_after:
         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-        util.invoke(f"{DEFAULT_OPENER} {output}")
+        invoke(f"{DEFAULT_OPENER} {output}")
 
 
 @kommand(

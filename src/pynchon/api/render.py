@@ -96,9 +96,9 @@ def j2(
     tmp = list(ctx.keys())
 
     LOGGER.critical(f"Templates: {templates}")
-    LOGGER.debug(f"Rendering with context: {tmp}")
+    LOGGER.debug("Rendering with context:\n{}".format(json.dumps(tmp, indent=2)))
     content = _render(text=content, context=ctx, templates=templates)
-    LOGGER.warning(f"writing output to {output or sys.stdout.name}")
+    LOGGER.warning("writing output to {}".format(output or sys.stdout.name))
     before = None
     if output and output not in ["/dev/stdout", "-"]:
         with open(output, "r") as fhandle:
@@ -110,6 +110,12 @@ def j2(
     if before and content == before:
         LOGGER.critical(f"content in {output} did not change")
     return content
+
+def shell_helper( *args, **kwargs) -> str:
+    from pynchon.util.os import invoke
+    out = invoke(*args, **kwargs)
+    assert out.succeeded
+    return out.stdout
 
 
 def _render(
@@ -123,11 +129,14 @@ def _render(
         loader=FileSystemLoader([str(t) for t in templates]),
         undefined=StrictUndefined,
     )
-    # explict_includes = abcs.Path('.')
-    known_templates = map(abcs.Path, env.loader.list_templates())
+    env.globals.update(shell=shell_helper)
+
+    known_templates = map(abcs.Path, set(env.loader.list_templates()))
     known_templates = [str(p) for p in known_templates if dot not in p.parents]
-    LOGGER.warning("known templates:")
-    LOGGER.warning(known_templates)
+    msg = "Known templates: "
+    msg+= "(excluding the ones under working-dir)"
+    msg+="\n{}".format(json.dumps(known_templates,indent=2))
+    LOGGER.warning(msg)
 
     template = env.from_string(text)
     context = {**dict(os.environ.items()), **context}

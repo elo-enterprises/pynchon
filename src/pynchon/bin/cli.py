@@ -9,6 +9,7 @@ from pynchon import constants, util
 from pynchon.bin import groups, options
 from pynchon.bin.common import kommand
 from pynchon.util import lme
+from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 PARENT = groups.gen_cli
@@ -106,7 +107,7 @@ def main_docs(format, module, file, output_dir, stdout, header, name):
     for fname, metadata in config["python"]["entrypoints"].items():
         if fname == file:
             dotpath = metadata["dotpath"]
-            cmd = util.invoke(f"python -m{dotpath} --help")
+            cmd = invoke(f"python -m{dotpath} --help")
             help = cmd.succeeded and cmd.stdout.strip()
             config["python"]["entrypoints"][fname] = {**metadata, **dict(help=help)}
             return config
