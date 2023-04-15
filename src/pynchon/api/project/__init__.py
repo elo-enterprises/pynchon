@@ -33,7 +33,7 @@ def plan(config: dict = {}) -> dict:
     LOGGER.debug(f"parsed generate-instructions: {gen_instructions}")
     render_instructions = config.get("pynchon", {}).get("render", [])
     LOGGER.debug(f"parsed render-instructions: {render_instructions}")
-    config["source"] = dict(root=project.get("src_root"))
+    # config["source"] = dict(root=project.get("src_root"))
     # raise Exception(config)
     docs_root = config["pynchon"].get(
         "docs_root", os.path.relpath(config["pynchon"]["working_dir"])

@@ -55,7 +55,8 @@ class GitConfig(abcs.Config):
     def default_remote_branch(self):
         """ """
         return invoke(
-            "git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'"
+            "git remote show origin "
+            "| sed -n '/HEAD branch/s/.*: //p'"
         ).stdout.strip()
 
     @property
@@ -73,16 +74,32 @@ class GitConfig(abcs.Config):
         return cmd.stdout.strip() if cmd.succeeded else ""
 
     @property
+    def is_github(self):
+        """ """
+        tmp = "git@github https://github.com http://github.com".split()
+        return any([self.repo.startswith(x) for x in tmp])
+
+
+    @property
+    def github_org(self):
+        """ """
+        if self.is_github:
+            tmp = self.repo.split(":")[-1]
+            org, repo_name = tmp.split("/")
+            return org
+
+    @property
+    def repo_name(self):
+        """ """
+        tmp = self.repo.split(":")[-1]
+        org, repo_name = tmp.split("/")
+        repo_name = repo_name.split(".git")[0]
+        return repo_name
+
+    @property
     def repo_url(self):
         """ """
-        tmp = self.repo  # i.e. git@github.com:org/repo-name.git
-        if not tmp.startswith("git@github"):
-            self._logger.warning(f"don't know how to tokenize {tmp}")
-        else:
-            tmp = tmp.split(":")[-1]
-            org, repo_name = tmp.split("/")
-            repo_name = tmp.split(".git")[0]
-            return f"https://github.com/{org}/{repo_name}"
+        return f"https://github.com/{self.github_org}/{self.repo_name}"
 
     @property
     def repo_name(self):
