@@ -59,8 +59,13 @@ def j2(
     from pynchon.api import project
 
     config = project.get_config()
-    ctx = {**ctx, **config}
-    LOGGER.debug(f"final context: {ctx}")
+    ctx = {
+        **ctx,
+        **config,
+    }
+    from pynchon.util import text
+
+    LOGGER.debug("render context: \n{}".format(text.to_json(ctx)))
     templates = [abcs.Path(t) for t in templates]
     for template_dir in templates:
         if not template_dir.exists:
@@ -111,8 +116,10 @@ def j2(
         LOGGER.critical(f"content in {output} did not change")
     return content
 
-def shell_helper( *args, **kwargs) -> str:
+
+def shell_helper(*args, **kwargs) -> str:
     from pynchon.util.os import invoke
+
     out = invoke(*args, **kwargs)
     assert out.succeeded
     return out.stdout
@@ -134,8 +141,8 @@ def _render(
     known_templates = map(abcs.Path, set(env.loader.list_templates()))
     known_templates = [str(p) for p in known_templates if dot not in p.parents]
     msg = "Known templates: "
-    msg+= "(excluding the ones under working-dir)"
-    msg+="\n{}".format(json.dumps(known_templates,indent=2))
+    msg += "(excluding the ones under working-dir)"
+    msg += "\n{}".format(json.dumps(known_templates, indent=2))
     LOGGER.warning(msg)
 
     template = env.from_string(text)

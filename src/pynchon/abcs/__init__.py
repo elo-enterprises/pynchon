@@ -43,29 +43,4 @@ class Path(type(BasePath())):
         return [x for x in os.listdir(str(self))]
 
 
-class Config(dict):
-    """ """
-
-    @memoized_property
-    def _logger(self):
-        return lme.get_logger(f"Config[{self.__class__.__name__}]")
-
-    def __init__(self, **kwargs):
-        super(Config, self).__init__(**kwargs)
-        props = [
-            p
-            for p in dir(self.__class__)
-            if all(
-                [
-                    not p.startswith("_"),
-                    isinstance(getattr(self.__class__, p), property),
-                ]
-            )
-        ]
-        for p in props:
-            if p in kwargs:
-                self._logger.warning(
-                    f"property '{p}' exists, but provided kwargs overrides it"
-                )
-                continue
-            self[p] = getattr(self, p)
+from .config import Config

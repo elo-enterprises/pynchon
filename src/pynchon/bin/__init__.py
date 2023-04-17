@@ -1,5 +1,5 @@
 """
 """
 
-from pynchon.bin import (api, cli, parse, project, render, scaffold)
+from pynchon.bin import api, cli, parse, project, render, scaffold
 from pynchon.bin.groups import entry

@@ -25,7 +25,8 @@ def scaffold():
     Scaffolding Automation
     (Creates folder layouts and other boilerplate)
     """
-@scaffold.command('list')
+
+
+@scaffold.command("list")
 def scaffold_list():
-    """ list available scaffolds
-    """
+    """list available scaffolds"""

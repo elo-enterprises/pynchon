@@ -1,13 +1,14 @@
 """ tests for `python -mlib605.databricks` CLI
 """
-from pynchon.util import os, testing
+from pynchon.util import os,testing
 
 TEST_INFO = testing.get_test_info(__file__)
 
 TEST_CMDS = [
     # used by ..
-    "pynchon project plan"
-    # "python -m pynchon version --help",
+    "pynchon project plan | jq .plan ",
+    "pynchon scaffold --help",
+    "python -m pynchon version --help",
     # "python -m pynchon shell --help",
     # "pynchon project version --output /dev/stdout",
     # "pynchon render dot ./tests/fixtures/scripts/gen_dot.dot --in-place",
@@ -20,5 +21,5 @@ TEST_CMDS = [
 
 def test_cmds():
     for cmd in TEST_CMDS:
-        out = os.invoke(cmd, working_dir=)
+        out = os.invoke(cmd)
         assert out.succeeded

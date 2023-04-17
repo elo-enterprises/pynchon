@@ -8,6 +8,7 @@ pkg_name = "pynchon"
 generate = ["cli", "api"]
 render = ["dot"]
 api = { skip_private_methods = true }
+pypi = {name="The Public PyPI"}
 
 # pyright is a type-checking tool.
 # this config is used implicitly with
