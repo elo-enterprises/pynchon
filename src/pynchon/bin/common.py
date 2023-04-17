@@ -3,7 +3,6 @@
 """
 import functools
 import json
-import os
 import sys
 
 import click

@@ -2,7 +2,7 @@
 """
 import os
 import subprocess
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 
 import termcolor
 

@@ -4,12 +4,10 @@ import json
 import os
 from pathlib import Path as BasePath
 
-from memoized_property import memoized_property
-
 from pynchon.util import lme, typing
 
-from .attrdict import AttrDict
-
+from .attrdict import AttrDict # noqa
+from .config import Config # noqa
 LOGGER = lme.get_logger(__name__)
 
 
@@ -25,7 +23,7 @@ class JSONEncoder(json.JSONEncoder):
 class Path(type(BasePath())):
     """ """
 
-    def has_file(self, fname):
+    def has_file(self, fname) -> bool:
         """ """
         p = Path(fname)
         if not p.is_absolute():
@@ -39,8 +37,8 @@ class Path(type(BasePath())):
                 Path(p.parent).absolute() == self.absolute() and p.name in self.list()
             )
 
-    def list(self):
+    def list(self) -> typing.List[str]:
         return [x for x in os.listdir(str(self))]
 
 
-from .config import Config
+# from .config import Config

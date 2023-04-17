@@ -2,7 +2,6 @@
 """
 import click
 
-import pynchon
 from pynchon import util
 from pynchon.bin import groups, options
 from pynchon.util import lme

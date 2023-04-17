@@ -13,5 +13,5 @@ def get_test_info(fname: str) -> dict:
     return AttrDict(
         root=test_root,
         suite=AttrDict(dir=suite_dir, name=suite_dir.name),
-        fixtures=AttrDict(dir=test_root / 'fixtures'),
+        fixtures=AttrDict(dir=test_root / "fixtures"),
     )

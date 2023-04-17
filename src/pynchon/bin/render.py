@@ -1,16 +1,14 @@
 """ pynchon.bin.render:
+
     Option parsing for the `render` subcommand
 """
 import json
-import os
-import sys
 
 import click
 import pyjson5
 import yaml
 
-import pynchon
-from pynchon import abcs, util
+from pynchon import abcs
 from pynchon.api import render
 from pynchon.bin import groups, options
 from pynchon.util import lme

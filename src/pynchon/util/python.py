@@ -1,24 +1,18 @@
 """ pynchon.api.python
 """
-import ast
-import glob
 import os
-import platform
-import subprocess
-import sys
-from collections import OrderedDict
 
-import griffe
-import mccabe
-import termcolor
 import tomli as tomllib  # tomllib only available in py3.11
 
-import pynchon
+# import pynchon
 from pynchon import constants
 from pynchon.util import lme
 
+# from collections import OrderedDict
+
+
 LOGGER = lme.get_logger(__name__)
-from pynchon import annotate, util
+from pynchon import util
 
 
 def is_package() -> bool:
@@ -31,7 +25,7 @@ def is_package() -> bool:
 def load_setupcfg(path: str = ""):
     import configparser
 
-    from pynchon.api import git
+    # from pynchon.api import git
 
     path = path or os.path.join(util.get_root(), "setup.cfg")
     parser = configparser.ConfigParser()
@@ -45,8 +39,6 @@ def load_setupcfg(path: str = ""):
 
 def load_pyprojecttoml(path: str = ""):
     """ """
-    from pynchon.api import git
-
     path = (path or util.get_root()).joinpath(constants.PYNCHON_CONFIG_FILE)
     if not os.path.exists(path):
         err = f"Cannot load config from nonexistent path @ `{path}`"

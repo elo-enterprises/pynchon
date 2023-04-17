@@ -6,8 +6,8 @@ import platform
 
 from memoized_property import memoized_property
 
-from pynchon import abcs, util
-from pynchon.util import lme, python, text, typing
+from pynchon import abcs
+from pynchon.util import lme, python, typing
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
@@ -27,13 +27,13 @@ class PythonConfig(abcs.Config):
         super(PythonConfig, self).__init__(**kwargs)
 
     @memoized_property
-    def is_package(self):
+    def is_package(self) -> bool:
         # self.logger.debug("checking if this a python package..")
         cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
         return cmd.succeeded
 
     @property
-    def package(self) -> dict:
+    def package(self) -> typing.Dict:
         """ """
         if self.is_package:
             return PackageConfig()

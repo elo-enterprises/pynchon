@@ -1,6 +1,6 @@
 """ pynchon.abcs.plugin
 """
-from memoized_property import memoized_property
+# from memoized_property import memoized_property
 
 from pynchon.util import lme, typing
 

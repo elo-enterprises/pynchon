@@ -2,7 +2,6 @@
     Common options for CLI
 """
 import os
-import sys
 
 import click
 

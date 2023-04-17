@@ -2,11 +2,8 @@
 """
 import os
 
-from memoized_property import memoized_property
-
-from pynchon import abcs, util
-from pynchon.util import lme, python, text, typing
-from pynchon.util.os import invoke
+from pynchon import abcs
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -33,7 +30,7 @@ class ProjectConfig(abcs.Config):
         return initialized["git"].get("root")
 
     @property
-    def subproject(self) -> dict:
+    def subproject(self) -> typing.Dict:
         """ """
         git, pynchon = initialized["git"], initialized["pynchon"]
         r1 = os.path.abspath(pynchon["working_dir"])

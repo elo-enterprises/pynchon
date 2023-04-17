@@ -5,17 +5,18 @@ import functools
 import glob
 import os
 import sys
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 
 import griffe
 import mccabe
-import tomli as tomllib  # tomllib only available in py3.11
 
 from pynchon import annotate, constants
 from pynchon.abcs import Path
 
 from . import lme
-from .os import invoke
+
+# import tomli as tomllib  # tomllib only available in py3.11
+
 
 LOGGER = lme.get_logger(__name__)
 

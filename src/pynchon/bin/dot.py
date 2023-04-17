@@ -1,18 +1,11 @@
 """ pynchon.bin.dot:
     Option parsing for the `dot` subcommands
 """
-import json
 import os
-import sys
 
 import click
-import pyjson5
-import yaml
 
-import pynchon
-from pynchon import abcs, util
-from pynchon.api import render
-from pynchon.bin import groups, options
+from pynchon.bin import options
 from pynchon.bin.gen import gen_dot as PARENT
 from pynchon.util import lme
 from pynchon.util.os import invoke

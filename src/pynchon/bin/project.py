@@ -1,8 +1,6 @@
 """ pynchon.bin.project
 """
-import glob
 import json
-import os
 
 from pynchon import abcs, constants, util
 from pynchon.api import project

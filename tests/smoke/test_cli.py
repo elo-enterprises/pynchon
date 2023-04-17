@@ -1,6 +1,7 @@
 """ tests for `python -mlib605.databricks` CLI
 """
-from pynchon.util import os,testing
+from pynchon.util import testing
+from pynchon.util.os import invoke
 
 TEST_INFO = testing.get_test_info(__file__)
 
@@ -21,5 +22,5 @@ TEST_CMDS = [
 
 def test_cmds():
     for cmd in TEST_CMDS:
-        out = os.invoke(cmd)
+        out = invoke(cmd)
         assert out.succeeded

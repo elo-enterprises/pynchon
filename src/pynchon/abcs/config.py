@@ -1,16 +1,11 @@
+""" pynchon.abcs.config
 """
-"""
-from memoized_property import memoized_property
+# from memoized_property import memoized_property
 
-from pynchon.util import lme
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
-class classproperty(object):
-    def __init__(self, f):
-        self.f = f
-    def __get__(self, obj, owner):
-        return self.f(owner)
 
 class Config(dict):
     """ """
@@ -20,7 +15,7 @@ class Config(dict):
     config_key = None
     override_from_base = True
 
-    @classproperty
+    @typing.classproperty
     def logger(kls):
         """ """
         return lme.get_logger(f"Config['{kls.config_key}']")

@@ -1,12 +1,7 @@
 """ pynchon.bin.project
 """
-import glob
-import json
-import os
-
-import pynchon
-from pynchon import constants, util
-from pynchon.bin import groups, options
+from pynchon import constants
+from pynchon.bin import groups
 from pynchon.util import lme
 
 from .common import kommand

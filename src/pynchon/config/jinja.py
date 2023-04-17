@@ -1,7 +1,7 @@
 """ pynchon.config.jinja
 """
 from pynchon import abcs
-from pynchon.util import lme, text, typing
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 

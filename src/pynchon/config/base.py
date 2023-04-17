@@ -1,7 +1,7 @@
 """ pynchon.config.base
 """
-from pynchon import __version__, abcs, util
-from pynchon.util import lme, python, text, typing
+from pynchon import __version__, abcs
+from pynchon.util import lme, python, typing
 
 LOGGER = lme.get_logger(__name__)
 from . import initialized
@@ -12,8 +12,17 @@ class BaseConfig(abcs.Config):
 
     priority = 1
     config_key = "pynchon"
-    defaults = dict(version=__version__)
+    defaults = dict(
+        version=__version__,
+        plugins=[
+            "git",
+            "jinja",
+            "scaffold",
+            "dot",
+        ],
+    )
     override_from_base = False
+
     def __init__(self, **kwargs):
         """ " """
         super(BaseConfig, self).__init__(**kwargs)
@@ -40,7 +49,7 @@ class BaseConfig(abcs.Config):
     #         git['root'])
     #
     @property
-    def docs_root(self):
+    def docs_root(self) -> typing.StringMaybe:
         """ """
         result = self.get("docs_root")
         if result:

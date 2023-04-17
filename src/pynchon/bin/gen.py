@@ -1,20 +1,8 @@
 """ pynchon.bin.gen:
     Option parsing for the `gen` subcommand
 """
-import json
-import os
-import sys
-
-import click
-import pyjson5
-import yaml
-
-import pynchon
-from pynchon import abcs, util
-from pynchon.api import render
-from pynchon.bin import groups, options
-
-from .common import kommand
+# from pynchon.api import render
+from pynchon.bin import groups
 
 PARENT = groups.gen
 

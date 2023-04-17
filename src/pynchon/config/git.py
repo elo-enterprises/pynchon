@@ -5,12 +5,12 @@ import os
 from memoized_property import memoized_property
 
 from pynchon import abcs, util
-from pynchon.util import lme, text, typing
+from pynchon.util import lme, typing
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
-from . import initialized
+# from . import initialized
 
 
 class GitConfig(abcs.Config):
@@ -27,7 +27,7 @@ class GitConfig(abcs.Config):
         ).stdout.strip()
 
     @property
-    def root(self):
+    def root(self) -> typing.StringMaybe:
         """ """
         return util.get_root(os.getcwd())
 

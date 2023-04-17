@@ -1,12 +1,8 @@
 """ pynchon.api.project
 """
-import glob
-import json
 import os
 
-import pynchon
 from pynchon import abcs, config, util
-from pynchon.bin import groups, options
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
@@ -85,8 +81,6 @@ def plan(config: dict = {}) -> dict:
             plan += [f"pynchon render dot {line} --in-place"]
     if "dot" in gen_instructions:
         LOGGER.debug("planning generation for .dot graph files..")
-        from pathlib import Path
-
         dot_config = config["pynchon"].get("dot", {})
         script = dot_config.get("script")
         # # assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'

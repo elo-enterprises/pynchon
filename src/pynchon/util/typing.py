@@ -22,3 +22,13 @@ CallableNamespace = typing.Dict[str, typing.Callable]
 
 # i.e. `obj,created = model.objects.get_or_create()`
 GetOrCreateResult = typing.Tuple[object, bool]
+
+
+class classproperty(object):
+    """ """
+
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, owner) -> OptionalAny:
+        return self.f(owner)

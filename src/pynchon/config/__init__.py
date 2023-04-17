@@ -1,22 +1,17 @@
 """ pynchon.config
 """
-import glob
-import os
-import platform
+# from memoized_property import memoized_property
 
-from memoized_property import memoized_property
-
-from pynchon import __version__, abcs, util
-from pynchon.util import lme, python, text, typing
-from pynchon.util.os import invoke
+from pynchon import abcs
+from pynchon.util import lme, text, typing
 
 LOGGER = lme.get_logger(__name__)
 initialized = {}
-from .base import BaseConfig as PynchonConfig
-from .git import GitConfig
-from .jinja import JinjaConfig
-from .project import ProjectConfig
-from .python import PackageConfig, PyPiConfig, PythonConfig
+from .base import BaseConfig as PynchonConfig  # noqa
+from .git import GitConfig  # noqa
+from .jinja import JinjaConfig  # noqa
+from .project import ProjectConfig  # noqa
+from .python import PackageConfig, PyPiConfig, PythonConfig  # noqa
 
 config_classes = [eval(kls_name) for kls_name in dir()]
 config_classes = [

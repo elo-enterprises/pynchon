@@ -1,8 +1,6 @@
 """ pynchon.bin.groups:
     Top-level subcommands
 """
-import functools
-
 import click
 
 
@@ -46,8 +44,8 @@ def gen():
 # project = group('project', help=_proj.__doc__, parent=entry)(_proj)
 # proj = group('proj', help='Alias for `project` subcommand', parent=entry)(_proj)
 
-from .dot import *
-from .gen import gen_api, gen_cli
+from .dot import *  # noqa
+from .gen import gen_api, gen_cli  # noqa
 
 
 @entry.command("plan")
