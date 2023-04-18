@@ -4,12 +4,7 @@ import os
 
 import tomli as tomllib  # tomllib only available in py3.11
 
-# import pynchon
-from pynchon import constants
 from pynchon.util import lme
-
-# from collections import OrderedDict
-
 
 LOGGER = lme.get_logger(__name__)
 from pynchon import util
@@ -23,29 +18,20 @@ def is_package() -> bool:
 
 
 def load_setupcfg(path: str = ""):
-    import configparser
-
-    # from pynchon.api import git
-
+    """ """
     path = path or os.path.join(util.get_git_root(), "setup.cfg")
-    parser = configparser.ConfigParser()
-    parser.read(path)
-    out = dict()
-    for sect in parser.sections():
-        # print("Section:", sect)
-        out[sect] = dict(parser.items(sect))
-    return out
+    return util.config.ini_loads(path)
 
 
 def load_pyprojecttoml(path: str = ""):
     """ """
-    path = (path or util.get_git_root()).joinpath(constants.PYNCHON_CONFIG_FILE)
+    import tomli
+
     if not os.path.exists(path):
         err = f"Cannot load config from nonexistent path @ `{path}`"
         LOGGER.critical(err)
         return None, {}
         # raise RuntimeError(err)
-    import tomli
 
     with open(path, "rb") as f:
         try:
@@ -58,7 +44,7 @@ def load_pyprojecttoml(path: str = ""):
     # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(
     #     'project', '').split('\n') if x.strip())
     # config['tool:pynchon'] = pynchon_section
-    return path, config
+    return config
 
 
 def load_entrypoints(config=None) -> dict:

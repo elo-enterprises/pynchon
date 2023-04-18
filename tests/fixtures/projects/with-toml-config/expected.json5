@@ -1,0 +1,46 @@
+// NB: these values are expected from the output of
+// `pynchon project config` running inside this folder
+{
+  "git": {
+    "default_remote_branch": "main",
+    "github_org": "elo-enterprises",
+    "hash": "faa8e3e981a5a49cf0f5a8d49315a6ccb379d72d",
+    "is_github": true,
+    "repo": "git@github.com:elo-enterprises/pynchon.git",
+    "repo_name": "pynchon",
+    "repo_url": "https://github.com/elo-enterprises/pynchon",
+    "root": "/Users/mattanderson-admin/code/elo/pynchon"
+  },
+  "jinja": {
+    "includes": [
+      "docs/templates"
+    ]
+  },
+  "project": {
+    "name": "pynchon",
+    "root": ".",
+    "subproject": {}
+  },
+  "pynchon": {
+    "version": "0.0.0+local",
+    "plugins": [
+      "scaffolding",
+      "fixme"
+    ],
+    "docs_root": "docs",
+    "root": ".",
+    "working_dir": "/Users/mattanderson-admin/code/elo/pynchon/tests/fixtures/projects/p1",
+    "config_source": "/Users/mattanderson-admin/code/elo/pynchon/tests/fixtures/projects/p1/pyproject.toml"
+  },
+  "pypi": {
+    "name": "Public PyPI",
+    "docs_url": "https://pypi.org/",
+    "base_url": "https://pypi.org/project"
+  },
+  "python": {
+    "version": "3.8.15",
+    "entrypoints": [],
+    "is_package": false,
+    "package": {}
+  }
+}

@@ -5,7 +5,6 @@ import os
 import jinja2
 
 URL_BUILTINS = "https://docs.python.org/3/library/functions.html"
-PYNCHON_CONFIG_FILE = "pyproject.toml"
 TEMPLATE_DIR = os.environ.get(
     "PYNCHON_TEMPLATE_DIR",
     os.path.join(

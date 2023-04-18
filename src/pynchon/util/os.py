@@ -20,6 +20,7 @@ def invoke(
     environment: dict = {},
     log_stdin: bool = True,
     system: bool = False,
+    load_json: bool = False,
 ):
     """
     dependency-free replacement for the `invoke` module,
@@ -74,4 +75,9 @@ def invoke(
     exec_cmd.succeeded = not exec_cmd.failed
     exec_cmd.success = exec_cmd.succeeded
     exec_cmd.failure = exec_cmd.failed
+    if load_json:
+        assert exec_cmd.succeeded
+        import json
+
+        exec_cmd.json = json.loads(exec_cmd.stdout)
     return exec_cmd
