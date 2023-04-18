@@ -7,9 +7,9 @@ import click
 
 from pynchon import constants, util
 from pynchon.bin import groups, options
-from pynchon.bin.common import kommand
 from pynchon.util import lme
 from pynchon.util.os import invoke
+from pynchon.bin.common import kommand
 
 LOGGER = lme.get_logger(__name__)
 PARENT = groups.gen_cli

@@ -1,7 +1,7 @@
 """ pynchon.util
 """
-import ast
 import os
+import ast
 import sys
 from collections import OrderedDict
 

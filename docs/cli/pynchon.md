@@ -6,7 +6,7 @@
 ```
 Usage: pynchon [OPTIONS] COMMAND [ARGS]...
 
-  pynchon CLI:
+  pynchon: a utility for docs generation and template-rendering
 
 Options:
   --version  Show the version and exit.
@@ -14,10 +14,13 @@ Options:
 
 Commands:
   ast
+  config    shortcut for `pynchon project config`
   gen
   parse
+  plan      shortcut for `pynchon project plan`
   project
   render
+  scaffold
 ```
 
 ###  pynchon gen   
@@ -31,6 +34,8 @@ Options:
 Commands:
   api
   cli
+  dot
+  fixme  Generate FIXME.md files, aggregating references to all FIXME's...
 ```
 
 ###  pynchon gen api   
@@ -59,6 +64,53 @@ Options:
   --stdout           whether to write to stdout.
   --header TEXT      header to prepend output with. (optional)
   --help             Show this message and exit.
+```
+
+###  pynchon gen fixme 
+
+```
+Usage: pynchon gen fixme [OPTIONS]
+
+  Generate FIXME.md files, aggregating references to all FIXME's in code-base
+
+Options:
+  -m, --format TEXT  output format to write
+  -o, --output TEXT  output file to write.  (optional)
+  --stdout           whether to write to stdout.
+  --header TEXT      header to prepend output with. (optional)
+  --help             Show this message and exit.
+```
+
+###  pynchon render dot  [FILES]
+
+```
+Usage: pynchon render dot [OPTIONS] [FILES]...
+
+  Render render dot file (graphviz) -> PNG
+
+Options:
+  -o, --output TEXT  output file to write.  (optional)
+  --open             if true, opens the created file using open
+  --in-place         if true, writes to {file}.png (dropping any other
+                     extensions)
+  --help             Show this message and exit.
+```
+
+###  pynchon gen dot files  [FILES]
+
+```
+Usage: pynchon gen dot files [OPTIONS] [FILES]...
+
+  Render .dot files for this project. This creates the .dot files themselves;
+  use `pynchon render dot` to convert those to an image.
+
+Options:
+  --script TEXT         script to use
+  -t, --templates TEXT  path to use for template-root / includes
+  --script TEXT         generates .dot files using script
+  --in-place            if true, writes to {file}.json (dropping any other
+                        extensions)
+  --help                Show this message and exit.
 ```
 
 ###  pynchon gen cli   
@@ -126,6 +178,29 @@ Options:
   --help             Show this message and exit.
 ```
 
+###  pynchon project plan 
+
+```
+Usage: pynchon project plan [OPTIONS]
+
+  List goals for auto-documenting this project
+
+Options:
+  --stdout  whether to write to stdout.
+  --help    Show this message and exit.
+```
+
+###  pynchon project config 
+
+```
+Usage: pynchon project config [OPTIONS]
+
+  Describe the config for this project
+
+Options:
+  --help  Show this message and exit.
+```
+
 ###  pynchon render   
 
 ```
@@ -136,6 +211,7 @@ Options:
 
 Commands:
   any    Render files with given renderer
+  dot    Render render dot file (graphviz) -> PNG
   jinja  Render render J2 files with given context
   json5  Render render JSON5 files -> JSON
 ```
@@ -230,17 +306,6 @@ Options:
   --help             Show this message and exit.
 ```
 
-###  pynchon project config 
-
-```
-Usage: pynchon project config [OPTIONS]
-
-  Describe the config for this project
-
-Options:
-  --help  Show this message and exit.
-```
-
 ###  pynchon project apply 
 
 ```
@@ -250,18 +315,6 @@ Usage: pynchon project apply [OPTIONS]
 
 Options:
   --help  Show this message and exit.
-```
-
-###  pynchon project plan 
-
-```
-Usage: pynchon project plan [OPTIONS]
-
-  List goals for auto-documenting this project
-
-Options:
-  --stdout  whether to write to stdout.
-  --help    Show this message and exit.
 ```
 
 ###  pynchon parse   
@@ -291,6 +344,29 @@ Options:
 
 ```
 Usage: pynchon ast [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+```
+
+###  pynchon scaffold   
+
+```
+Usage: pynchon scaffold [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  list  list available scaffolds
+```
+
+###  pynchon scaffold list 
+
+```
+Usage: pynchon scaffold list [OPTIONS]
+
+  list available scaffolds
 
 Options:
   --help  Show this message and exit.

@@ -20,7 +20,8 @@ def is_package() -> bool:
 def load_setupcfg(path: str = ""):
     """ """
     path = path or os.path.join(util.get_git_root(), "setup.cfg")
-    return util.config.ini_loads(path)
+    from pynchon.util import config
+    return config.ini_loads(path)
 
 
 def load_pyprojecttoml(path: str = ""):

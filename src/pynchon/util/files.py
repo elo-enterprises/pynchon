@@ -1,12 +1,34 @@
 """ pynchon.util.files
 """
+import re
+import glob
+import functools
+
 from . import lme
 
 LOGGER = lme.get_logger(__name__)
-import functools
-import glob
 
 from pynchon.abcs import Path
+
+
+def find_src(src_root: str, exclude_patterns=[]) -> list:
+    """ """
+    exclude_patterns = set(list(map(re.compile, exclude_patterns)))
+    globs = [
+        Path(src_root).joinpath("**/*"),
+    ]
+    LOGGER.debug(f"finding src under {globs}")
+    globs = [glob.glob(str(x), recursive=True) for x in globs]
+    matches = functools.reduce(lambda x, y: x + y, globs)
+    matches = [str(x.absolute()) for x in map(Path, matches) if not x.is_dir()]
+    LOGGER.debug(matches)
+    import IPython
+
+    IPython.embed()
+    matches = [
+        m for m in matches if not any([p.match(str(m)) for p in exclude_patterns])
+    ]
+    return matches
 
 
 def find_j2s(conf) -> list:

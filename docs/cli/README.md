@@ -3,7 +3,7 @@
 
 -------------------------------------------------------------------------------
 
-These are scripts/commands that ship with the package `pynchon`:
+These are scripts/commands that ship with the package `None`:
 
 
 

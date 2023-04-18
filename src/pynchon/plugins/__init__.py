@@ -1,16 +1,18 @@
 """ pynchon.plugins
 """
 from pynchon import abcs
+from pynchon.util import files, lme, typing
+from pynchon.util.os import invoke
 from pynchon.abcs.plugin import Plugin
 from pynchon.config.jinja import JinjaConfig
 from pynchon.config.scaffold import ScaffoldConfig
-from pynchon.util import files, lme, typing
-from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
 
 class PythonCLI(Plugin):
+    """ """
+
     name = "python-cli"
 
     def plan(self, config):
@@ -27,6 +29,8 @@ class PythonCLI(Plugin):
 
 
 class PythonAPI(Plugin):
+    """ """
+
     name = "python-api"
 
     def plan(self, config) -> typing.List:
@@ -43,6 +47,8 @@ class PythonAPI(Plugin):
 
 
 class Jinja(Plugin):
+    """ """
+
     name = "jinja"
     config = JinjaConfig
 
@@ -69,6 +75,8 @@ class Jinja(Plugin):
 
 
 class FixMe(Plugin):
+    """ """
+
     name = "fixme"
 
     def plan(self, config):
@@ -78,6 +86,8 @@ class FixMe(Plugin):
 
 
 class Dot(Plugin):
+    """ """
+
     name = "dot"
     # config= DotConfig
 
@@ -107,6 +117,8 @@ class Dot(Plugin):
 
 
 class Scaffolding(Plugin):
+    """ """
+
     priority = 0
     name = "scaffolding"
     config = ScaffoldConfig

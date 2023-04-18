@@ -7,11 +7,11 @@ from pynchon.util import lme, text, typing
 
 LOGGER = lme.get_logger(__name__)
 initialized = {}
-from .base import BaseConfig as PynchonConfig  # noqa
 from .git import GitConfig  # noqa
+from .base import BaseConfig as PynchonConfig  # noqa
 from .jinja import JinjaConfig  # noqa
-from .project import ProjectConfig  # noqa
 from .python import PackageConfig, PyPiConfig, PythonConfig  # noqa
+from .project import ProjectConfig  # noqa
 
 config_classes = [eval(kls_name) for kls_name in dir()]
 config_classes = [

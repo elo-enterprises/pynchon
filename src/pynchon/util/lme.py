@@ -1,7 +1,7 @@
 """
 """
-import logging
 import sys
+import logging
 
 
 def get_logger(name):

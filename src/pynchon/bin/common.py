@@ -1,9 +1,9 @@
 """ pynchon.bin.common:
     Common options/arguments and base classes for CLI
 """
-import functools
-import json
 import sys
+import json
+import functools
 
 import click
 

@@ -1,15 +1,16 @@
 """ pynchon.api.render
 """
-import json
 import os
 import sys
+import json
 
 import pyjson5
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
-from pynchon import abcs, util
+from pynchon import abcs
 from pynchon.util import lme, text, typing
+from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
@@ -21,7 +22,7 @@ def dot(file: str, output: str = "", in_place: bool = False, output_mode: str = 
         output = os.path.splitext(file)[0] + ".png"
     # Using https://github.com/nickshine/dot
     DOT_DOCKER_IMG = "nshine/dot"
-    util.invoke(
+    invoke(
         f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}"
     )
     return dict(output=output)

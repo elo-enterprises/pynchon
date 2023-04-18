@@ -1,7 +1,7 @@
 """ pynchon.config.python
 """
-import glob
 import os
+import glob
 import platform
 
 from memoized_property import memoized_property

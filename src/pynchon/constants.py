@@ -16,6 +16,7 @@ assert os.path.exists(TEMPLATE_DIR), TEMPLATE_DIR
 
 ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
 
+T_FIXME = ENV.get_template("FIXME.md.j2")
 T_DETAIL_CLI = ENV.get_template("cli/detail.md.j2")
 T_TOC_API = ENV.get_template("api/TOC.md.j2")
 T_TOC_CLI = ENV.get_template("cli/TOC.md.j2")

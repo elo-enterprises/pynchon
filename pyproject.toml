@@ -1,40 +1,48 @@
-# pynchon is a docs-generation tool.
-# this config is used implicitly with
-# any direct invocations of the `pynchon` CLI
-# tool, or sometimes via `make docs` (which drives the CLI)
-[tool.pynchon]
-src_root = "src"
-pkg_name = "pynchon"
-generate = ["cli", "api"]
-render = ["dot"]
-api = { skip_private_methods = true }
-pypi = {name="The Public PyPI"}
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=42", "calver"]
 
-# pyright is a type-checking tool.
-# this config is used implicitly with
-# any direct invocation of the pyright CLI,
-# or via tox -e check, or via `make check`.
-[tool.pyright]
-include = ["src"]
-exclude = ["**/node_modules",
-    "**/__pycache__",
-    "src/experimental",
-    "src/typestubs"
-]
-ignore = ["src/oldstuff"]
-defineConstant = { DEBUG = true }
-stubPath = "src/stubs"
-venv = "env367"
+[tool.black]
+skip-string-normalization = true
 
-reportMissingImports = true
-reportMissingTypeStubs = false
+# [tool.coverage.paths]
+# source = ["src",]
+#
+# [tool.coverage.run]
+# branch = true
+# source = ["src"]
+# omit = ["*/.tmp/*"]
+#
+# [tool.coverage.report]
+# show_missing = true
+# fail_under = 1
+# exclude_lines =
+#     pragma: no cover
+#     def __repr__
+#     if self.debug:
+#     if settings.DEBUG
+#     raise AssertionError
+#     raise NotImplementedError
+#     if 0:
+#     if __name__ == .__main__.:
+#     if TYPE_CHECKING:
+#     class .*\bProtocol\):
+#     @(abc\.)?abstractmethod
 
-pythonVersion = "3.6"
-pythonPlatform = "Linux"
+# https://github.com/PyCQA/isort
+# https://pycqa.github.io/isort/docs/configuration/profiles.html
+[tool.isort]
+profile = "black"
+length_sort=true
+no_inline_sort=true # changing import order here can introduce import-errors.
 
-executionEnvironments = [
-  { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [ "src/service_libs" ] },
-  { root = "src/sdk", pythonVersion = "3.0", extraPaths = [ "src/backend" ] },
-  { root = "src/tests", extraPaths = ["src/tests/e2e", "src/sdk" ]},
-  { root = "src" }
-]
+[tool.mypy]
+disallow_untyped_defs = true
+show_error_codes = true
+no_implicit_optional = false
+warn_return_any = true
+warn_unused_ignores = true
+# exclude = ["src/pynchon/util/typing.py",]
+[[tool.mypy.overrides]]
+module = "pynchon.*"
+disable_error_code = ["union-attr", "arg-type","assignment", "return-value", "no-any-return", "index", "attr-defined"]

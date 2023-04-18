@@ -4,9 +4,9 @@
 """
 import json
 
+import yaml
 import click
 import pyjson5
-import yaml
 
 from pynchon import abcs
 from pynchon.api import render

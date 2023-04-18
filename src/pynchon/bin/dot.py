@@ -6,8 +6,8 @@ import os
 import click
 
 from pynchon.bin import options
-from pynchon.bin.gen import gen_dot as PARENT
 from pynchon.util import lme
+from pynchon.bin.gen import gen_dot as PARENT
 from pynchon.util.os import invoke
 
 from .common import kommand

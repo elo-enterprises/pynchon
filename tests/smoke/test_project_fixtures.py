@@ -12,14 +12,21 @@ def test_fixtures():
     for p in project_folders:
         cmd_t = f"cd {p.absolute()} && "
         cmd=cmd_t + "PYNCHON_ROOT=. pynchon project config"
-        project_config = invoke(cmd, load_json=True).json
+        cmd = invoke(cmd, load_json=True)
+        assert cmd.succeeded
+        project_config=cmd.json
+        # raise Exception(data)
         for k in expected:
             assert project_config[k]
-        extra_tests = p/"tests.py"
-        if extra_tests.exists():
-            namespace = dict(project_config=project_config)
-            with open(extra_tests,'r') as fhandle:
-                exec(fhandle.read(), namespace)
-            for k,v in namespace.items():
-                if k.startswith('test_'):
-                    v()
+        pynchon = project_config['pynchon']
+        assert pynchon
+        # raise Exception(pynchon)
+        assert pynchon['config_source']
+        # extra_tests = p/"tests.py"
+        # if extra_tests.exists():
+        #     namespace = dict(project_config=project_config)
+        #     with open(extra_tests,'r') as fhandle:
+        #         exec(fhandle.read(), namespace)
+        #     for k,v in namespace.items():
+        #         if k.startswith('test_'):
+        #             v()

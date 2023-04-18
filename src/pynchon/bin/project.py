@@ -6,6 +6,7 @@ from pynchon import abcs, constants, util
 from pynchon.api import project
 from pynchon.bin import groups, options
 from pynchon.util import lme, text
+from pynchon.util.os import invoke
 
 from .common import kommand
 
@@ -86,7 +87,7 @@ def project_apply() -> None:
     """
     config, plan = project.plan()
     for p in plan:
-        util.invoke(p)
+        invoke(p)
     return plan
 
 

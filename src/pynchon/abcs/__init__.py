@@ -4,9 +4,9 @@ import json
 
 from pynchon.util import lme, typing
 
-from .attrdict import AttrDict  # noqa
-from .config import Config  # noqa
 from .path import Path
+from .config import Config  # noqa
+from .attrdict import AttrDict  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
