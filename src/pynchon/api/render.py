@@ -9,7 +9,7 @@ from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
 from pynchon import abcs, util
-from pynchon.util import lme
+from pynchon.util import lme, text, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -31,7 +31,7 @@ def j5(
     file,
     output="",
     in_place=False,
-):
+) -> typing.StringMaybe:
     """renders json5 file"""
     LOGGER.debug(f"Running with one file: {file}")
     with open(file, "r") as fhandle:
@@ -42,7 +42,7 @@ def j5(
         output = f"{output}.json"
     if output:
         with open(output, "w") as fhandle:
-            content = json.dumps(data)
+            content = text.to_json(data)
             fhandle.write(f"{content}\n")
     return data
 
@@ -55,17 +55,34 @@ def j2(
     templates: list = ["."],
     strict: bool = True,
 ):
-    """render jinja2 file"""
+    """
+    render jinja2 file
+    """
     from pynchon.api import project
 
-    config = project.get_config()
-    ctx = {
-        **ctx,
-        **config,
-    }
-    from pynchon.util import text
+    user_ctx = ctx
+    project_config = project.get_config()
+    if not isinstance(user_ctx, (dict,)):
+        ext = os.path.splitext(ctx)[-1]
+        if "{" in user_ctx:
+            LOGGER.debug(
+                "found bracket in context, assuming it is data instead of file."
+            )
+            ctx = json.loads(ctx)
+        elif ext in ["json"]:
+            LOGGER.debug(f"context is json file @ `{ctx}`")
+            with open(ctx, "r") as fhandle:
+                ctx = json.loads(fhandle.read())
+        else:
+            LOGGER.critical(f"unrecognized extension for context file: {ext}")
+            raise TypeError(ext)
 
-    LOGGER.debug("render context: \n{}".format(text.to_json(ctx)))
+    final_ctx = {
+        **ctx,
+        **project_config,
+    }
+
+    LOGGER.debug("render context: \n{}".format(text.to_json(final_ctx)))
     templates = [abcs.Path(t) for t in templates]
     for template_dir in templates:
         if not template_dir.exists:
@@ -84,25 +101,11 @@ def j2(
         else:
             output = "".join(output)
 
-    if not isinstance(ctx, (dict,)):
-        ext = os.path.splitext(ctx)[-1]
-        if "{" in ctx:
-            LOGGER.debug(
-                "found bracket in context, assuming it is data instead of file."
-            )
-            ctx = json.loads(ctx)
-        elif ext in ["json"]:
-            LOGGER.debug(f"context is json file @ `{ctx}`")
-            with open(ctx, "r") as fhandle:
-                ctx = json.loads(fhandle.read())
-        else:
-            LOGGER.critical(f"unrecognized extension for context file: {ext}")
-            raise TypeError(ext)
     tmp = list(ctx.keys())
 
     LOGGER.critical(f"Templates: {templates}")
-    LOGGER.debug("Rendering with context:\n{}".format(json.dumps(tmp, indent=2)))
-    content = _render(text=content, context=ctx, templates=templates)
+    LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
+    content = _render(text=content, context=final_ctx, templates=templates)
     LOGGER.warning("writing output to {}".format(output or sys.stdout.name))
     before = None
     if output and output not in ["/dev/stdout", "-"]:
@@ -136,7 +139,7 @@ def _render(
         loader=FileSystemLoader([str(t) for t in templates]),
         undefined=StrictUndefined,
     )
-    env.globals.update(shell=shell_helper)
+    env.globals.update(shell=shell_helper, env=os.getenv)
 
     known_templates = map(abcs.Path, set(env.loader.list_templates()))
     known_templates = [str(p) for p in known_templates if dot not in p.parents]

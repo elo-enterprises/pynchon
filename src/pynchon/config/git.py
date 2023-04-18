@@ -1,10 +1,9 @@
 """ pynchon.config.git
 """
-import os
-
 from memoized_property import memoized_property
 
 from pynchon import abcs, util
+from pynchon.abcs import Path
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
 
@@ -19,24 +18,27 @@ class GitConfig(abcs.Config):
     priority = 0
     config_key = "git"
 
-    @memoized_property
-    def default_remote_branch(self):
+    def _run(self, cmd, log_command=False, **kwargs):
         """ """
-        return invoke(
-            "git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'"
-        ).stdout.strip()
+        return invoke(f"cd {self.root} && {cmd}", log_command=log_command, **kwargs)
+
+    @memoized_property
+    def default_remote_branch(self) -> typing.StringMaybe:
+        """ """
+        tmp = self._run("git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'")
+        if tmp.succeeded:
+            return tmp.stdout.strip()
 
     @property
     def root(self) -> typing.StringMaybe:
         """ """
-        return util.get_root(os.getcwd())
+        return util.get_git_root(Path(".")).parents[0]
 
     @memoized_property
     def repo(self):
         """ """
-        path = self.root
         cmd = invoke(
-            f"cd {path} && git config --get remote.origin.url", log_command=False
+            f"cd {self.root} && git config --get remote.origin.url", log_command=False
         )
         return cmd.stdout.strip() if cmd.succeeded else ""
 
@@ -55,21 +57,25 @@ class GitConfig(abcs.Config):
             return org
 
     @property
-    def repo_name(self):
+    def repo_name(self) -> typing.StringMaybe:
         """ """
-        tmp = self.repo.split(":")[-1]
-        _org, repo_name = tmp.split("/")
-        repo_name = repo_name.split(".git")[0]
-        return repo_name
+        if self.repo:
+            tmp = self.repo.split(":")[-1]
+            _org, repo_name = tmp.split("/")
+            # err=f"cannot determine repo name from {self.repo}"
+            # self.logger.critical(err)
+            # raise ValueError(err)
+            repo_name = repo_name.split(".git")[0]
+            return repo_name
 
     @property
     def repo_url(self):
         """ """
-        return f"https://github.com/{self.github_org}/{self.repo_name}"
+        if all([self.github_org, self.repo_name]):
+            return f"https://github.com/{self.github_org}/{self.repo_name}"
 
     @property
     def hash(self) -> str:
         """ """
-        path = self.root
-        cmd = invoke(f"cd {path} && git rev-parse HEAD", log_command=False)
+        cmd = self._run("git rev-parse HEAD")
         return cmd.succeeded and cmd.stdout.strip()

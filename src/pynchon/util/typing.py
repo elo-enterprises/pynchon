@@ -24,6 +24,15 @@ CallableNamespace = typing.Dict[str, typing.Callable]
 GetOrCreateResult = typing.Tuple[object, bool]
 
 
+def is_subclass(x, y, strict=True):
+    """ """
+    if isinstance(x, (typing.Type)) and issubclass(x, y):
+        if strict and x == y:
+            return False
+        return True
+    return False
+
+
 class classproperty(object):
     """ """
 

@@ -1,7 +1,7 @@
 # pynchon is a docs-generation tool.
 # this config is used implicitly with
 # any direct invocations of the `pynchon` CLI
-# tool, or via `make docs` (which drives the CLI)
+# tool, or sometimes via `make docs` (which drives the CLI)
 [tool.pynchon]
 src_root = "src"
 pkg_name = "pynchon"

@@ -27,7 +27,7 @@ def load_setupcfg(path: str = ""):
 
     # from pynchon.api import git
 
-    path = path or os.path.join(util.get_root(), "setup.cfg")
+    path = path or os.path.join(util.get_git_root(), "setup.cfg")
     parser = configparser.ConfigParser()
     parser.read(path)
     out = dict()
@@ -39,7 +39,7 @@ def load_setupcfg(path: str = ""):
 
 def load_pyprojecttoml(path: str = ""):
     """ """
-    path = (path or util.get_root()).joinpath(constants.PYNCHON_CONFIG_FILE)
+    path = (path or util.get_git_root()).joinpath(constants.PYNCHON_CONFIG_FILE)
     if not os.path.exists(path):
         err = f"Cannot load config from nonexistent path @ `{path}`"
         LOGGER.critical(err)

@@ -5,7 +5,7 @@ import json
 from pynchon import abcs, constants, util
 from pynchon.api import project
 from pynchon.bin import groups, options
-from pynchon.util import lme
+from pynchon.util import lme, text
 
 from .common import kommand
 
@@ -72,7 +72,7 @@ def project_config() -> None:
     Describe the config for this project
     """
     tmp = project.get_config()
-    print(json.dumps(tmp, cls=abcs.JSONEncoder))
+    print(text.to_json(tmp))
 
 
 @kommand(

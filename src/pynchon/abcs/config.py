@@ -10,6 +10,7 @@ LOGGER = lme.get_logger(__name__)
 class Config(dict):
     """ """
 
+    debug = False
     parent = None
     priority = 100
     config_key = None

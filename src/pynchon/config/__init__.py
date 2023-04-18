@@ -26,16 +26,17 @@ for kls in config_classes:
     if parent is not None:
         kls.logger.warning(f"skipping init because parent is set (parent={parent})")
         continue
-    config_defaults = initialized.get("pynchon", {}).get(kls.config_key, {})
+    raw_defaults = initialized.get("pynchon", {}).get(kls.config_key, {})
     kls_defaults = getattr(kls, "defaults", {})
-    # LOGGER.debug(f"defaults loaded from config: {config_defaults}")
+    # LOGGER.debug(f"defaults loaded from config: {raw_defaults}")
     # LOGGER.debug(f"defaults loaded from class: {kls_defaults}")
-    final_defaults = {**kls_defaults, **config_defaults}
-    if final_defaults:
+    final_defaults = {**kls_defaults, **raw_defaults}
+    if final_defaults and kls.debug:
         msg = text.to_json(final_defaults)
         msg = f"using defaults:\n{msg}"
-        kls.logger.debug(msg)
-    initialized[kls.config_key] = conf = kls(**final_defaults)
+        kls.logger.info(msg)
+    # conf = kls(**final_defaults)
+    initialized[kls.config_key] = kls(**final_defaults)
     # conf.logger.debug("initialized.")
-for k, v in initialized.items():
-    exec(f"{k}=v")
+for k in initialized:
+    exec(f"{k} = initialized['{k}']")

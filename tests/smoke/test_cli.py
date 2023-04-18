@@ -9,7 +9,7 @@ TEST_CMDS = [
     # used by ..
     "pynchon project plan | jq .plan ",
     "pynchon scaffold --help",
-    "python -m pynchon version --help",
+    "python -m pynchon --version",
     # "python -m pynchon shell --help",
     # "pynchon project version --output /dev/stdout",
     # "pynchon render dot ./tests/fixtures/scripts/gen_dot.dot --in-place",

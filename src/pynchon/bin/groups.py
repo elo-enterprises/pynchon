@@ -26,10 +26,7 @@ class group(object):
         return self.group(self.name)(self.wrapper)
 
 
-@click.version_option()
-@click.group("pynchon")
-def entry():
-    """pynchon: a utility for docs generation and template-rendering"""
+from .entry import entry
 
 
 @group("gen", parent=entry)

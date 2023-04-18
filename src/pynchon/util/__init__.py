@@ -1,8 +1,6 @@
 """ pynchon.util
 """
 import ast
-import functools
-import glob
 import os
 import sys
 from collections import OrderedDict
@@ -14,9 +12,7 @@ from pynchon import annotate, constants
 from pynchon.abcs import Path
 
 from . import lme
-
-# import tomli as tomllib  # tomllib only available in py3.11
-
+from .click import click_recursive_help  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -24,43 +20,16 @@ WORKING_DIR = Path(".")
 GLYPH_COMPLEXITY = "🐉 Complex"
 
 
-def find_j2s(conf) -> list:
+def get_git_root(path: str = ".") -> str:
     """ """
-    from pynchon import abcs, config
-
-    project = config.project.get("subproject", config.project)
-    project_root = project.get("root", config.git["root"])
-    globs = [
-        Path(project_root).joinpath("**/*.j2"),
-    ]
-    LOGGER.debug(f"finding .j2s under {globs}")
-    globs = [glob.glob(str(x), recursive=True) for x in globs]
-    matches = functools.reduce(lambda x, y: x + y, globs)
-    includes = []
-    for i, m in enumerate(matches):
-        for d in config.jinja.includes:
-            if abcs.Path(d).has_file(m):
-                includes.append(m)
-            else:
-                LOGGER.warning(f"'{d}'.has_file('{m}') -> false")
-    j2s = [Path(m).relative_to(".") for m in matches if m not in includes]
-    return j2s
-
-
-from pynchon.abcs import Path
-
-
-def get_root(path: str = ".") -> str:
-    """ """
-    import os
-
     path = Path(path).absolute()
-    if (path / ".git").exists():
-        return path.relative_to(os.getcwd())
+    tmp = path / ".git"
+    if tmp.exists():
+        return tmp
     elif not path:
         return None
     else:
-        return get_root(path.parents[0])
+        return get_git_root(path.parents[0])
 
 
 def is_python_project() -> bool:
@@ -78,33 +47,6 @@ def find_src_root(config: dict) -> str:
     # src_root = os.path.join(project_root, "src")
     src_root = src_root if src_root.is_dir() else None
     return src_root.relative_to(".")
-
-
-def click_recursive_help(cmd, parent=None, out={}, file=sys.stdout):
-    """ """
-    # source: adapted from https://stackoverflow.com/questions/57810659/automatically-generate-all-help-documentation-for-click-commands
-    from click.core import Context as ClickContext
-
-    full_name = cmd.name
-    pname = getattr(cmd, "parent", None)
-    pname = parent and getattr(parent, "name", "") or ""
-    ctx = ClickContext(cmd, info_name=cmd.name, parent=parent)
-    help_txt = cmd.get_help(ctx)
-    invocation_sample = help_txt.split("\n")[0]
-    for x in "Usage: [OPTIONS] COMMAND [COMMAND] [ARGS] ...".split():
-        invocation_sample = invocation_sample.replace(x, "")
-    out = {
-        **out,
-        **{
-            full_name: dict(
-                name=cmd.name, invocation_sample=invocation_sample, help=help_txt
-            )
-        },
-    }
-    commands = getattr(cmd, "commands", {})
-    for sub in commands.values():
-        out = {**out, **click_recursive_help(sub, ctx)}
-    return out
 
 
 def get_module(package: str = "", file: str = ""):
