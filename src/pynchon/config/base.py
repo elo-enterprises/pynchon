@@ -1,6 +1,7 @@
 """ pynchon.config.base
 """
 import os
+
 from pynchon import __version__, abcs
 from pynchon.util import lme, python, typing
 
@@ -31,12 +32,13 @@ class BaseConfig(abcs.Config):
         """ " """
         super(BaseConfig, self).__init__(**kwargs)
         file, config = python.load_pyprojecttoml(
-            path=abcs.Path(os.environ.get('PYNCHON_ROOT', initialized["git"]["root"])))
+            path=abcs.Path(os.environ.get("PYNCHON_ROOT", initialized["git"]["root"]))
+        )
         config = config.get("tool", {}).get("pynchon", {})
         if config:
             for k, v in config.items():
                 self[k] = v
-            self['config_source'] = file.absolute()
+            self["config_source"] = file.absolute()
         else:
             LOGGER.warning("could not load pyproject.toml")
         # for k, v in os.environ.items():
@@ -51,7 +53,7 @@ class BaseConfig(abcs.Config):
     @property
     def root(self):
         """ """
-        return abcs.Path(self.get('root', os.environ.get('PYNCHON_ROOT')))
+        return abcs.Path(self.get("root", os.environ.get("PYNCHON_ROOT")))
 
     @property
     def docs_root(self) -> typing.StringMaybe:
@@ -60,7 +62,7 @@ class BaseConfig(abcs.Config):
         if result:
             return result
         root = self.root or initialized["git"]["root"]
-        return root/"docs"
+        return root / "docs"
 
     @property
     def working_dir(self):

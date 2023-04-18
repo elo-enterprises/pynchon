@@ -27,14 +27,12 @@ class ProjectConfig(abcs.Config):
     @property
     def root(self) -> str:
         """ """
-        return os.environ.get(
-            'PYNCHON_ROOT',
-            initialized["git"].get("root"))
+        return os.environ.get("PYNCHON_ROOT", initialized["git"].get("root"))
 
     @property
     def subproject(self) -> typing.Dict:
         """ """
-        if os.environ.get('PYNCHON_ROOT'):
+        if os.environ.get("PYNCHON_ROOT"):
             return {}
         git, pynchon = initialized["git"], initialized["pynchon"]
         workdir = pynchon["working_dir"]
@@ -42,7 +40,5 @@ class ProjectConfig(abcs.Config):
         r2 = git["root"].absolute()
         if r1 != r2:
             self.logger.warning("subproject detected (pynchon[working_dir]!=git[root])")
-            return dict(
-                name=workdir.name,
-                root=workdir.absolute())
+            return dict(name=workdir.name, root=workdir.absolute())
         return {}

@@ -1,5 +1,6 @@
 import click
 
+
 @click.version_option()
 @click.group("pynchon")
 def entry():

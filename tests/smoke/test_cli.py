@@ -1,4 +1,4 @@
-""" tests for `python -mlib605.databricks` CLI
+""" tests for `pynchon` CLI
 """
 from pynchon.util import testing
 from pynchon.util.os import invoke

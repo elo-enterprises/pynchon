@@ -9,6 +9,7 @@ LOGGER = lme.get_logger(__name__)
 
 class BasePlugin(object):
     priority = 0
+
     def __init__(self, config=None):
         self.config = config
         self.state = None
@@ -27,7 +28,8 @@ class BasePlugin(object):
 
 
 class PynchonPlugin(BasePlugin):
-    priority=10
+    priority = 10
+
     @memoized_property
     def render_instructions(self):
         result = self.state.pynchon.get("render", [])

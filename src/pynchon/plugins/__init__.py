@@ -1,13 +1,12 @@
 """ pynchon.plugins
 """
-from collections import OrderedDict
-
 from pynchon import abcs
 from pynchon.abcs.plugin import Plugin
 from pynchon.config.jinja import JinjaConfig
 from pynchon.config.scaffold import ScaffoldConfig
 from pynchon.util import files, lme, typing
 from pynchon.util.os import invoke
+
 LOGGER = lme.get_logger(__name__)
 
 
@@ -25,6 +24,7 @@ class PythonCLI(Plugin):
             for fname in config["python"]["entrypoints"]
         ]
         return plan
+
 
 class PythonAPI(Plugin):
     name = "python-api"
@@ -57,11 +57,10 @@ class Jinja(Plugin):
         templates = " ".join(templates)
         self.logger.warning(f"j2 templates: {templates}")
         j2s = files.find_j2s(config)
-        j2s = [p for p in j2s if not abcs.Path(config.pynchon['src_root']).has_file(p)]
+        j2s = [p for p in j2s if not abcs.Path(config.pynchon["src_root"]).has_file(p)]
         if j2s:
             plan += [
-                f"pynchon render jinja {templates} --in-place {fname} "
-                for fname in j2s
+                f"pynchon render jinja {templates} --in-place {fname} " for fname in j2s
             ]
         else:
             err = "`j2` is present in `render` instructions, but found no .j2 files!"
@@ -88,9 +87,7 @@ class Dot(Plugin):
         # if "dot" in render_instructions:
         self.logger.debug("planning for rendering for .dot graph files..")
         dot_root = config.project["root"]
-        for line in invoke(f"find {dot_root} -type f -name *.dot").stdout.split(
-            "\n"
-        ):
+        for line in invoke(f"find {dot_root} -type f -name *.dot").stdout.split("\n"):
             line = line.strip()
             if not line:
                 continue
@@ -99,11 +96,11 @@ class Dot(Plugin):
         self.logger.debug("planning generation for .dot graph files..")
         dot_config = config["pynchon"].get("dot", {})
         script = dot_config.get("script")
-            # # assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'
-            # from pynchon.api import render
-            #
-            # # FIXME: do this substition everywhere!
-            # script = render._render(text=script, context=config)
+        # # assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'
+        # from pynchon.api import render
+        #
+        # # FIXME: do this substition everywhere!
+        # script = render._render(text=script, context=config)
         cmd = "pynchon gen dot files --script {script}"
         plan += [cmd]
         return plan
@@ -127,7 +124,7 @@ class Scaffolding(Plugin):
 registry = [eval(name) for name in dir()]
 registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
 registry = [kls() for kls in registry]
-registry = sorted(registry,key=lambda plugin: plugin.priority)
+registry = sorted(registry, key=lambda plugin: plugin.priority)
 registry = dict([plugin.name, plugin] for plugin in registry)
 LOGGER.info(f"prioritized plugin-registry: {registry}")
 # raise Exception(registry)

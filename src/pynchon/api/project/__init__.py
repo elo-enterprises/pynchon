@@ -1,7 +1,7 @@
 """ pynchon.api.project
 """
 from pynchon import abcs, config
-from pynchon.util import typing, lme, text
+from pynchon.util import lme, text, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -25,6 +25,7 @@ def plan(config: dict = {}) -> dict:
     config = config or get_config()
     project = config.project
     from pynchon.plugins import registry
+
     for plugin_name in config.pynchon["plugins"]:
         assert plugin_name in registry, f"missing required plugin @ {plugin_name}"
         plugin = registry[plugin_name]
@@ -36,7 +37,9 @@ def plan(config: dict = {}) -> dict:
             plugin.logger.debug(msg.format(text.to_json(result)))
         else:
             plugin.logger.critical(msg + "But plugin produced an empty plan!")
-        assert isinstance(result, typing.List), f'plugin @ {plugin_name} generates bad plan {result}'
+        assert isinstance(
+            result, typing.List
+        ), f"plugin @ {plugin_name} generates bad plan {result}"
         plan += result
 
     return config, plan

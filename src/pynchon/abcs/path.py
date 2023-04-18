@@ -1,8 +1,12 @@
 """ pynchon.abcs.path
 """
+import os
 from pathlib import Path as BasePath
-from pynchon.util import typing, lme
+
+from pynchon.util import lme, typing
+
 LOGGER = lme.get_logger(__name__)
+
 
 class Path(type(BasePath())):
     """ """
