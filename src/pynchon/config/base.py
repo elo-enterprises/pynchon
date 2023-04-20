@@ -39,6 +39,7 @@ class BaseConfig(abcs.Config):
         def load_config():
             """ """
             import pyjson5
+
             contents = []
             for src in self.config_source:
                 if src.name.endswith('.toml'):
@@ -84,14 +85,15 @@ class BaseConfig(abcs.Config):
             self.config_folder / "pynchon.json5",
             self.config_folder / ".pynchon.json5",
             self.config_folder / "pyproject.toml",
-            ]
+        ]
         subproject = initialized['project']['subproject']
         subproject_root = subproject and subproject['root']
         if subproject_root:
-            config_candidates +=[
-                subproject_root/"pynchon.json5",
-                subproject_root/".pynchon.json5",
-                subproject_root/"pyproject.toml"]
+            config_candidates += [
+                subproject_root / "pynchon.json5",
+                subproject_root / ".pynchon.json5",
+                subproject_root / "pyproject.toml",
+            ]
         config_candidates = [p for p in config_candidates if p.exists()]
         return config_candidates
 

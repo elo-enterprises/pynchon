@@ -12,7 +12,8 @@ from . import initialized
 
 class ProjectConfig(abcs.Config):
     """ """
-    priority=1
+
+    priority = 1
     config_key = "project"
     # @property
     # def src_root(self) -> str:

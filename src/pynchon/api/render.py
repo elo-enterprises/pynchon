@@ -83,13 +83,6 @@ def j2(
         **project_config,
     }
 
-    LOGGER.debug("render context: \n{}".format(text.to_json(final_ctx)))
-    templates = [abcs.Path(t) for t in templates]
-    for template_dir in templates:
-        if not template_dir.exists:
-            err = f"template directory @ `{template_dir}` does not exist"
-            raise ValueError(err)
-
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
         content = fhandle.read()
@@ -102,11 +95,10 @@ def j2(
         else:
             output = "".join(output)
 
+    LOGGER.debug("render context: \n{}".format(text.to_json(final_ctx)))
     tmp = list(ctx.keys())
-
-    LOGGER.critical(f"Templates: {templates}")
     LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
-    content = _render(text=content, context=final_ctx, templates=templates)
+    content = j2_loads(text=content, context=final_ctx, templates=templates)
     LOGGER.warning("writing output to {}".format(output or sys.stdout.name))
     before = None
     if output and output not in ["/dev/stdout", "-"]:
@@ -129,13 +121,22 @@ def shell_helper(*args, **kwargs) -> str:
     return out.stdout
 
 
-def _render(
+import jinja2
+
+
+def j2_loads(
     text: str = "",
     context: dict = {},
-    templates=".",
+    templates=["."],
     strict: bool = True,
 ):
     """ """
+    templates = [abcs.Path(t) for t in templates]
+    for template_dir in templates:
+        if not template_dir.exists:
+            err = f"template directory @ `{template_dir}` does not exist"
+            raise ValueError(err)
+    LOGGER.critical(f"Templates: {templates}")
     env = Environment(
         loader=FileSystemLoader([str(t) for t in templates]),
         undefined=StrictUndefined,
@@ -151,7 +152,6 @@ def _render(
 
     template = env.from_string(text)
     context = {**dict(os.environ.items()), **context}
-    import jinja2
 
     try:
         return template.render(**context)

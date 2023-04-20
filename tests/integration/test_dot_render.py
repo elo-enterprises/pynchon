@@ -7,7 +7,7 @@ Relevant subcommands:
 """
 import os
 
-from pynchon import util
+# from pynchon import util
 from pynchon.util.os import invoke
 
 ITEST_ROOT = os.path.dirname(__file__)

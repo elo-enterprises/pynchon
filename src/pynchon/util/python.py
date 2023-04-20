@@ -4,10 +4,9 @@ import os
 
 import tomli as tomllib  # tomllib only available in py3.11
 
-from pynchon.util import lme
+from pynchon.util import lme, files
 
 LOGGER = lme.get_logger(__name__)
-from pynchon import util
 
 
 def is_package() -> bool:
@@ -19,7 +18,7 @@ def is_package() -> bool:
 
 def load_setupcfg(path: str = ""):
     """ """
-    path = path or os.path.join(util.get_git_root(), "setup.cfg")
+    path = path or os.path.join(files.get_git_root(), "setup.cfg")
     from pynchon.util import config
 
     return config.ini_loads(path)

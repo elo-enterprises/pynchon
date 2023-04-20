@@ -1,6 +1,7 @@
 """ pynchon.abcs.path
 """
 import os
+import json
 from pathlib import Path as BasePath
 
 from pynchon.util import lme, typing
@@ -17,3 +18,12 @@ class Path(type(BasePath())):
 
     def list(self) -> typing.List[str]:
         return [x for x in os.listdir(str(self))]
+
+
+class JSONEncoder(json.JSONEncoder):
+    """ """
+
+    def default(self, obj):
+        if isinstance(obj, Path):
+            return str(obj)
+        return json.JSONEncoder.default(self, obj)

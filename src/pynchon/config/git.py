@@ -2,7 +2,7 @@
 """
 from memoized_property import memoized_property
 
-from pynchon import abcs, util
+from pynchon import abcs
 from pynchon.abcs import Path
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
@@ -32,7 +32,9 @@ class GitConfig(abcs.Config):
     @property
     def root(self) -> typing.StringMaybe:
         """ """
-        return util.get_git_root(Path(".")).parents[0]
+        from pynchon.util import files
+
+        return files.get_git_root(Path(".")).parents[0]
 
     @memoized_property
     def repo(self):
