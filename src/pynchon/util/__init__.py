@@ -18,8 +18,7 @@ LOGGER = lme.get_logger(__name__)
 
 WORKING_DIR = Path(".")
 GLYPH_COMPLEXITY = "🐉 Complex"
-
-
+                
 def get_git_root(path: str = ".") -> str:
     """ """
     path = Path(path).absolute()

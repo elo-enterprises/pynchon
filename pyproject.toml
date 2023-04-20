@@ -43,6 +43,7 @@ no_implicit_optional = false
 warn_return_any = true
 warn_unused_ignores = true
 # exclude = ["src/pynchon/util/typing.py",]
+
 [[tool.mypy.overrides]]
 module = "pynchon.*"
 disable_error_code = ["union-attr", "arg-type","assignment", "return-value", "no-any-return", "index", "attr-defined"]

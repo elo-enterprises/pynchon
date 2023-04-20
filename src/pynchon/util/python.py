@@ -21,6 +21,7 @@ def load_setupcfg(path: str = ""):
     """ """
     path = path or os.path.join(util.get_git_root(), "setup.cfg")
     from pynchon.util import config
+
     return config.ini_loads(path)
 
 

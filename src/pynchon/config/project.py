@@ -12,7 +12,7 @@ from . import initialized
 
 class ProjectConfig(abcs.Config):
     """ """
-
+    priority=1
     config_key = "project"
     # @property
     # def src_root(self) -> str:
@@ -34,11 +34,12 @@ class ProjectConfig(abcs.Config):
         """ """
         if os.environ.get("PYNCHON_ROOT"):
             return {}
-        git, pynchon = initialized["git"], initialized["pynchon"]
-        workdir = pynchon["working_dir"]
+        git = initialized["git"]
+        workdir = abcs.Path('.')
+        # workdir = pynchon["working_dir"]
         r1 = workdir.absolute()
         r2 = git["root"].absolute()
         if r1 != r2:
-            self.logger.warning("subproject detected (pynchon[working_dir]!=git[root])")
+            self.logger.warning("subproject detected ({tmp}!=git[root])")
             return dict(name=workdir.name, root=workdir.absolute())
         return {}

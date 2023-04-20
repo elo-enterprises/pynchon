@@ -9,23 +9,13 @@
   "pkg_name": "pynchon",
   "docs_root": "docs",
   "src_root": "src",
-  "exclude_patterns": [
-    ".*[.]pyc"],
-  "plugins":[
-    "scaffolding",
-    "dot","python-api",
-    "python-cli",
-    "jinja",
-    "fixme"],
   "dot":{},
   "api":{
     "skip_private_methods": true,
     "skip_patterns": [],
   },
   "jinja":{
-    "includes": [
-      "{{docs_root}}/includes",
-    ],
+    "includes": [".makefiles/docs"],
   },
   "pypi": {
     "name":"The public PyPI"

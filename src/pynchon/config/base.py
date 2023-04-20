@@ -38,25 +38,28 @@ class BaseConfig(abcs.Config):
 
         def load_config():
             """ """
-            contents = {}
-            if self.config_source:
-                if self.config_source.name.endswith('.toml'):
-                    LOGGER.debug(f"Loading from toml: {self.config_source}")
-                    contents = python.load_pyprojecttoml(path=toml_path)
-                    contents = contents.get("tool", {}).get("pynchon", {})
+            import pyjson5
+            contents = []
+            for src in self.config_source:
+                if src.name.endswith('.toml'):
+                    LOGGER.debug(f"Loading from toml: {src}")
+                    tmp = python.load_pyprojecttoml(path=src)
+                    tmp = tmp.get("tool", {}).get("pynchon", {})
+                    contents.append(tmp)
+                elif src.name.endswith('.json5'):
+                    LOGGER.debug(f"Loading from json5: {src}")
+                    with open(src.absolute(), "r") as fhandle:
+                        contents.append(pyjson5.loads(fhandle.read()))
 
-                elif self.config_source.name.endswith('.json5'):
-                    LOGGER.debug(f"Loading from json5: {self.config_source}")
-                    import pyjson5
-
-                    with open(self.config_source.absolute(), "r") as fhandle:
-                        contents = pyjson5.loads(fhandle.read())
             return contents
 
-        toml_path = self.config_folder / "pyproject.toml"
-        json5_path = self.config_folder / "pynchon.json5"
-        json5_path_hidden = self.config_folder / ".pynchon.json5"
-        contents = {**load_config(), **dict(config_source=self.config_source)}
+        # toml_path = self.config_folder / "pyproject.toml"
+        # json5_path = self.config_folder / "pynchon.json5"
+        # json5_path_hidden = self.config_folder / ".pynchon.json5"
+        contents = {}
+        for conf in load_config():
+            contents.update(conf)
+        contents.update(dict(config_source=self.config_source))
 
         if contents:
             for k, v in contents.items():
@@ -77,15 +80,20 @@ class BaseConfig(abcs.Config):
         """ """
         if os.environ.get('PYNCHON_CONFIG', None):
             return abcs.Path(os.environ['PYNCHON_CONFIG'])
-        toml_path = self.config_folder / "pyproject.toml"
-        json5_path = self.config_folder / "pynchon.json5"
-        json5_path_hidden = self.config_folder / ".pynchon.json5"
-        if json5_path.exists():
-            return json5_path
-        if json5_path_hidden.exists():
-            return json5_path_hidden
-        if toml_path.exists():
-            return toml_path
+        config_candidates = [
+            self.config_folder / "pynchon.json5",
+            self.config_folder / ".pynchon.json5",
+            self.config_folder / "pyproject.toml",
+            ]
+        subproject = initialized['project']['subproject']
+        subproject_root = subproject and subproject['root']
+        if subproject_root:
+            config_candidates +=[
+                subproject_root/"pynchon.json5",
+                subproject_root/".pynchon.json5",
+                subproject_root/"pyproject.toml"]
+        config_candidates = [p for p in config_candidates if p.exists()]
+        return config_candidates
 
     @property
     def root(self):
