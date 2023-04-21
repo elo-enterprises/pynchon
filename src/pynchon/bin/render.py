@@ -41,7 +41,7 @@ files_arg = click.argument("files", nargs=-1)
 )
 def render_json5(files, output, in_place, templates):
     """
-    Render render JSON5 files -> JSON
+    Render JSON5 files -> JSON
     """
     assert files, "expected files would be provided"
     # if file:
@@ -80,7 +80,7 @@ DEFAULT_OPENER = "open"
 )
 def render_dot(files, output, in_place, open_after):
     """
-    Render render dot file (graphviz) -> PNG
+    Render dot file (graphviz) -> PNG
     """
     assert files, "expected files would be provided"
     # if file:
@@ -139,7 +139,7 @@ def render_any(format, file, stdout, output):
 )
 def render_j2(files, ctx, output, in_place, templates):
     """
-    Render render J2 files with given context
+    Render J2 files with given context
     """
     templates = templates.split(",")
     assert isinstance(templates, (list, tuple)), f"expected list got {type(templates)}"

@@ -11,7 +11,7 @@
   },
   "jinja": {
     "includes": [
-      "docs/templates"
+      ".makefiles/docs"
     ]
   },
   "project": {
@@ -21,26 +21,38 @@
   },
   "pynchon": {
     "version": "2022.12.6.18.29",
-    "plugins": [
-      "scaffolding",
-      "fixme"
-    ],
+    "plugins": [],
     "config_folder": ".",
     "config_source": [
-      "pyproject.toml"
+      "pynchon.json5"
     ],
     "docs_root": "docs",
     "root": ".",
-    "working_dir": "/home/matt/code/elo/pynchon/tests/fixtures/projects/with-toml-config"
+    "working_dir": "/home/matt/code/elo/pynchon/tests/fixtures/projects/with-pynchon.json5",
+    "src_root": "src",
+    "pkg_name": "pynchon",
+    "dot": {},
+    "api": {
+      "skip_private_methods": true,
+      "skip_patterns": []
+    },
+    "jinja": {
+      "includes": [
+        ".makefiles/docs"
+      ]
+    },
+    "pypi": {
+      "name": "The public PyPI"
+    }
   },
   "pypi": {
-    "name": "Public PyPI",
+    "name": "The public PyPI",
     "docs_url": "https://pypi.org/",
     "base_url": "https://pypi.org/project"
   },
   "python": {
     "version": "3.8.10",
-    "entrypoints": [],
+    "entrypoints": {},
     "is_package": false,
     "package": {}
   }

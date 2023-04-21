@@ -8,20 +8,28 @@ PROJECT_FIXTURES = TEST_INFO.fixtures.path/"projects"
 
 def test_fixtures():
     project_folders = [d for d in PROJECT_FIXTURES.iterdir() if d.is_dir()]
-    expected = 'git python pynchon jinja pypi'.split()
+    import pyjson5
+
     for p in project_folders:
-        cmd_t = f"cd {p.absolute()} && "
-        cmd=cmd_t + "PYNCHON_ROOT=. pynchon project config"
+        p=p.absolute()
+        expected = p/"expected.json5"
+        with open(expected,'r') as fhandle:
+            expected = pyjson5.loads(fhandle.read())
+        cmd_t = f"cd {p} && "
+        cmd = cmd_t + "PYNCHON_ROOT=. pynchon project config"
         cmd = invoke(cmd, load_json=True)
         assert cmd.succeeded
         project_config=cmd.json
-        # raise Exception(data)
-        for k in expected:
-            assert project_config[k]
-        pynchon = project_config['pynchon']
-        assert pynchon
-        # raise Exception(pynchon)
-        assert pynchon['config_source']
+        actual=sorted(project_config.items())
+        expected=sorted(expected.items())
+        assert actual==expected,[p,actual,expected]
+        # # raise Exception(data)
+        # for k in expected:
+        #     assert project_config[k]
+        # pynchon = project_config['pynchon']
+        # assert pynchon
+        # # raise Exception(pynchon)
+        # assert pynchon['config_source']
         # extra_tests = p/"tests.py"
         # if extra_tests.exists():
         #     namespace = dict(project_config=project_config)

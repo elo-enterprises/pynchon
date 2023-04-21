@@ -1,8 +1,13 @@
 """ pynchon.abcs.visitor
 """
+import sys
+
 import pydash
 
 from pynchon import abcs
+from pynchon.util import lme
+
+LOGGER = lme.get_logger(__name__)
 
 
 class Visitor:
@@ -10,7 +15,7 @@ class Visitor:
         self,
         filter_path=lambda _: True,
         filter_value=lambda _: True,
-        trigger=lambda p, v: [print(f"[{p}: {v}]")],
+        trigger=lambda p, v: [print(f"[{p}: {v}]", file=sys.stderr)],
         paths=[],
         obj=None,
         **kwargs,
@@ -81,3 +86,74 @@ def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):
     )
     result = abcs.AttrDict(**result)
     return result
+
+
+class TemplatedDict(dict):
+    def get_path(self, path):
+        return pydash.get(self, path)
+
+    def set_path(self, path, val):
+        return pydash.set_with(self, path, val)
+
+    @property
+    def traversal(self):
+        traversed = traverse(
+            self,
+            visitor_kwargs=dict(filter_value=self.is_templated, accumulate_paths=True),
+        )
+        return traversed
+
+    @property
+    def unresolved(self):
+        return self.traversal.visits
+
+
+import jinja2
+
+
+class JinjaDict(TemplatedDict):
+    """ """
+
+    def render(self, ctx={}):
+        while self.unresolved:
+            templated=self.unresolved
+            LOGGER.debug(f"resolving: {templated}")
+            LOGGER.debug(f"remaining unresolved: {templated}")
+            for i, path in enumerate(templated):
+                templated.pop(i)
+                val=self.get_path(path)
+                # if any([path.startswith(r) for r in ignore]):
+                #     LOGGER.debug(f"resolution for {path} skipped")
+                try:
+                    x = self.render_path(path, ctx=ctx)
+                    LOGGER.debug(f"resolution for `{val}` @ {path} succeeded ({x})")
+                except (jinja2.exceptions.UndefinedError,) as exc:
+                    LOGGER.debug(f"resolution for `{val}` @{path} failed ({exc})")
+                    LOGGER.debug(f"self: {self}")
+                    LOGGER.debug(f"ctx: {ctx}")
+                    # move it to the end
+                    templated.append(path)
+                else:
+                    # templated = templated
+                    break
+            else:
+                break
+        return dict(self)
+
+    def render_path(self, path, ctx={}, strict=False):
+        """ """
+        from pynchon.api import render
+
+        strict and True
+        value = self.get_path(path)
+        resolved = render.j2_loads(
+            text=value,
+            context={**self, **ctx},
+            templates=[],
+        )
+        self.set_path(path, resolved)
+        LOGGER.debug(f"resolved `{value}`@`{path}` as {resolved}")
+        return resolved
+
+    def is_templated(self, v):
+        return isinstance(v, (str,)) and '{{' in v

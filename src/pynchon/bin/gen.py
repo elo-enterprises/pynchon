@@ -1,29 +1,26 @@
 """ pynchon.bin.gen:
     Option parsing for the `gen` subcommand
 """
+import click
+
 from pynchon import constants
 from pynchon.bin import groups
 
 # from pynchon.api import render
 from pynchon.util import lme
+from pynchon.bin.common import kommand, groop
 
 from . import options
 
 PARENT = groups.gen
-
 LOGGER = lme.get_logger(__name__)
 
 
-@groups.group("api", parent=PARENT)
+@groop("api", parent=PARENT)
 def gen_api() -> None:
     """
     Generate API docs from python modules, packages, etc
     """
-
-
-import click
-
-from pynchon.bin.common import kommand
 
 
 @kommand(
@@ -66,13 +63,35 @@ def gen_fixme(output, format, stdout, header):
     return dict(items=items)
 
 
-@groups.group("dot", parent=PARENT)
+@kommand(
+    name="makefile",
+    parent=groups.gen,
+    formatters=dict(markdown=constants.T_FIXME),
+    options=[
+        options.format_markdown,
+        click.option(
+            "--output",
+            "-o",
+            default="docs/MAKE.md",
+            help=("output file to write.  (optional)"),
+        ),
+        options.stdout,
+        options.header,
+    ],
+)
+def gen_makefiles(output, format, stdout, header):
+    """
+    Generate documents for project makefiles
+    """
+
+
+@groop("dot", parent=PARENT)
 def gen_dot():
     """
     Generate .dot files
     """
 
 
-@groups.group("cli", parent=PARENT)
+@groop("cli", parent=PARENT)
 def gen_cli():
     """Generate CLI docs"""

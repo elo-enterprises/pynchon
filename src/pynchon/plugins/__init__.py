@@ -5,7 +5,8 @@ from pynchon.util import files, lme, typing
 from pynchon.util.os import invoke
 from pynchon.abcs.plugin import Plugin
 from pynchon.config.jinja import JinjaConfig
-from pynchon.config.scaffold import ScaffoldConfig
+from pynchon.config.python import PyPiConfig, PythonConfig, PackageConfig
+# from pynchon.config.scaffold import ScaffoldConfig
 
 LOGGER = lme.get_logger(__name__)
 
@@ -14,6 +15,8 @@ class PythonCLI(Plugin):
     """ """
 
     name = "python-cli"
+    config = dict
+    defaults = dict()
 
     def plan(self, config):
         plan = super(self.__class__, self).plan(config)
@@ -30,9 +33,9 @@ class PythonCLI(Plugin):
 
 class PythonAPI(Plugin):
     """ """
-
     name = "python-api"
-
+    config = dict
+    defaults = dict()
     def plan(self, config) -> typing.List:
         plan = super(self.__class__, self).plan(config)
         # self.logger.debug("planning for API docs..")
@@ -45,12 +48,20 @@ class PythonAPI(Plugin):
         ]
         return plan
 
+class Pypi(Plugin):
+    """
+    """
+    name="pypi"
+    config = PyPiConfig
+    defaults=dict()
+
 
 class Jinja(Plugin):
     """ """
 
     name = "jinja"
     config = JinjaConfig
+    defaults = dict()
 
     def plan(self, config) -> typing.List:
         plan = super(self.__class__, self).plan(config)
@@ -78,6 +89,8 @@ class FixMe(Plugin):
     """ """
 
     name = "fixme"
+    config = dict
+    defaults = dict()
 
     def plan(self, config):
         plan = super(self.__class__, self).plan(config)
@@ -90,6 +103,9 @@ class Dot(Plugin):
 
     name = "dot"
     # config= DotConfig
+    config = dict
+    defaults = dict()
+
 
     def plan(self, config):
         plan = super(self.__class__, self).plan(config)
@@ -116,12 +132,37 @@ class Dot(Plugin):
         return plan
 
 
+# """ pynchon.config.scaffold
+# """
+# from pynchon import abcs
+# from pynchon.util import lme
+#
+# LOGGER = lme.get_logger(__name__)
+# from . import initialized
+class ScaffoldConfig(abcs.Config):
+    """ """
+
+    config_key = "scaffold"
+
+
+#    @property
+#    def includes(self) -> typing.List:
+#        docs_root = initialized["pynchon"].get("docs_root", None)
+#        docs_root = docs_root and abcs.Path(docs_root)
+#        if docs_root:
+#            extra = [abcs.Path(docs_root.joinpath("templates"))]
+#        else:
+#            LOGGER.warning("`docs_root` is not set; cannot guess `scaffold.includes`")
+#            extra = []
+#        return extra + self._base.get("includes", [])
+
 class Scaffolding(Plugin):
     """ """
 
     priority = 0
     name = "scaffolding"
-    config = ScaffoldConfig
+    config = dict
+    defaults = dict()
 
     def plan(self, config):
         """ """
@@ -135,8 +176,13 @@ class Scaffolding(Plugin):
 
 registry = [eval(name) for name in dir()]
 registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
-registry = [kls() for kls in registry]
+# registry = [kls() for kls in registry]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
 registry = dict([plugin.name, plugin] for plugin in registry)
 LOGGER.info(f"prioritized plugin-registry: {registry}")
+for k,v in registry.items():
+    print(k)
+
+    # assert isinstance(v.config,(dict,)), [type(v), type(v.config), v.config,]
+    # assert isinstance(v.config,(dict,)), [type(v), type(v.config), v.config, v.__class__.config]
 # raise Exception(registry)

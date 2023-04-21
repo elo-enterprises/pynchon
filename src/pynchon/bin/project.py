@@ -63,12 +63,12 @@ def project_version(format, output, header) -> None:
     )
 
 
-@kommand(
+@PARENT.command(
     name="config",
-    parent=PARENT,
-    options=[],
+    # parent=PARENT,
+    # options=[],
 )
-def project_config() -> None:
+def project_config(config=None) -> None:
     """
     Describe the config for this project
     """

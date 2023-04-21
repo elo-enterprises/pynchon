@@ -5,34 +5,19 @@
 //  any direct invocations of the `pynchon` CLI
 //  tool, sometimes via `make docs` (which drives the CLI)
 {
-  "src_root": "src",
   "pkg_name": "pynchon",
   "docs_root": "docs",
-  "plugins":[
-    "scaffolding",
-    "dot","python-api",
-    "python-cli",
-    "jinja",
-    "fixme"],
-  // begin globals
-  "globals": {
-    "exclude_patterns": [
-      ".*[.]pyc"
-    ],
-  },
-  // begin plugins-config
+  "src_root": "src",
+  "plugins":["fixme"],
   "dot":{},
-  "fixme":{},
   "api":{
     "skip_private_methods": true,
     "skip_patterns": [],
   },
   "jinja":{
-    "includes": [
-      "{{pynchon.docs_root}}/includes",
-    ],
+    "includes": ["{{src_root}}"],
   },
   "pypi": {
-    "name":"THE public PyPI"
+    "name":"The public PyPI"
   }
 }

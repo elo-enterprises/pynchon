@@ -15,22 +15,11 @@ COLOR_GREEN=\033[92m
 
 PYPI_PROJECT_NAME:=pynchon
 
-check:
-	src=src/ make python-pyright
-
-python-pyright:
-	docker run -w /workspace -v `pwd`:/workspace \
-	--entrypoint sh node:alpine -c "\
-	npm install -g --quiet pyright \
-	&& pyright $${src} --outputjson"
-
 init:
 	$(call _announce_target, $@)
 	set -x \
 	; pip install --quiet -e .[dev] \
 	; pip install --quiet -e .[testing] \
-	; pip install --quiet -e .[lint] \
-	; pip install --quiet -e .[docs] \
 	; pip install --quiet -e .[publish]
 
 .PHONY: build
@@ -73,7 +62,9 @@ smoke-test: stest
 itest: tox-itest
 utest: tox-utest
 stest: tox-stest
-test: utest itest stest
+test: utest itest stest coverage
+coverage:
+	echo NotImplementedYet
 
 plan: docs-plan
 docs-plan:
@@ -87,7 +78,7 @@ docs:
 	&& pynchon gen api toc --package ${PYPI_PROJECT_NAME} \
 	&& pynchon gen cli toc \
 	&& pynchon gen cli all
-
+purge: clean pip-purge
 pip-purge: python-require-pipenv
 	@# Purges all dependencies from the currently active virtualenv
 	set -x \

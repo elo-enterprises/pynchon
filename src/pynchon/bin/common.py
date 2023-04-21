@@ -100,6 +100,8 @@ class format_handler(handler):
 class kommand(object):
     """ """
 
+    is_group = False
+
     def __init__(
         self,
         name=None,
@@ -132,7 +134,10 @@ class kommand(object):
             key=lambda h: h.priority,
         )
 
-        self.cmd = self.parent.command(self.name)
+        if not self.is_group:
+            self.cmd = self.parent.command(self.name)
+        else:
+            self.cmd = self.parent.group(self.name)
         self.logger = lme.get_logger(f"cmd[{name}]")
 
     def format_json(self, result):
@@ -168,3 +173,7 @@ class kommand(object):
         for arg in self.arguments:
             f = arg(f)
         return f
+
+
+class groop(kommand):
+    is_group = True

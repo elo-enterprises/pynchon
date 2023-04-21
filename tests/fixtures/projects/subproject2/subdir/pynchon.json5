@@ -8,31 +8,23 @@
   "src_root": "src",
   "pkg_name": "pynchon",
   "docs_root": "docs",
-  "plugins":[
-    "scaffolding",
-    "dot","python-api",
-    "python-cli",
-    "jinja",
-    "fixme"],
-  // begin globals
-  "globals": {
-    "exclude_patterns": [
-      ".*[.]pyc"
-    ],
-  },
-  // begin plugins-config
+  "src_root": "src",
   "dot":{},
-  "fixme":{},
   "api":{
     "skip_private_methods": true,
     "skip_patterns": [],
   },
   "jinja":{
-    "includes": [
-      "{{pynchon.docs_root}}/includes",
-    ],
+    "includes": ["{{docs_root}}"],
   },
   "pypi": {
-    "name":"THE public PyPI"
-  }
+    "name":"The public PyPI"
+  },
+  "scaffold": {
+      "{{git.root}}/tox.ini":{
+          "name": "use-tox.ini from {{git.root}}/tox.ini",
+          "patterns": [
+            "{{pynchon.working_dir}}/**/tox.ini"],
+      },
+    }
 }
