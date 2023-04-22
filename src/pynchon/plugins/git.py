@@ -6,6 +6,7 @@ from pynchon import abcs
 from pynchon.abcs import Path
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
+from pynchon.abcs.plugin import Plugin
 
 LOGGER = lme.get_logger(__name__)
 
@@ -13,7 +14,6 @@ LOGGER = lme.get_logger(__name__)
 class GitConfig(abcs.Config):
     """ """
 
-    priority = 0
     config_key = "git"
 
     def _run(self, cmd, log_command=False, **kwargs):
@@ -79,3 +79,10 @@ class GitConfig(abcs.Config):
         """ """
         cmd = self._run("git rev-parse HEAD")
         return cmd.succeeded and cmd.stdout.strip()
+
+
+class Git(Plugin):
+    priority = 0
+    name = 'git'
+    defaults = dict()
+    config = GitConfig

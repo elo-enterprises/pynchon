@@ -10,11 +10,8 @@
   "docs_root": "docs",
   "plugins":[
     "project",
-    "scaffolding",
     "dot","python-api",
-    "python-cli",
-    "jinja",
-    "fixme"],
+    "python-cli", "fixme"],
   // begin globals
   "globals": {
     "exclude_patterns": [

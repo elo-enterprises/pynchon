@@ -76,6 +76,8 @@ for _, config in load_config().items():
 from pynchon.abcs.visitor import JinjaDict
 
 pynchon = initialized['pynchon'] = PynchonConfig(**_merged)
+# import IPython; IPython.embed()
+pynchon['plugins'] = pynchon.plugins
 raw = frozendict(pynchon)
 defaults = JinjaDict(raw.copy()).render(dict(pynchon=raw))
 # config_classes = [eval(kls_name) for kls_name in dir()]

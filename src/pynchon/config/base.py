@@ -18,32 +18,32 @@ class BaseConfig(abcs.Config):
     defaults = dict(
         version=__version__,
         plugins=[
-            "scaffolding",
             "git",
             "jinja",
-            # "dot",
-            # "fixme",
-            # "python-cli",
-            # "python-api",
+            "project",
+            "scaffolding",
         ],
     )
-    # override_from_base = False  # this is the base :)
 
-    # def __init__(self, **kwargs):
-    #     """ " """
-    #     super(BaseConfig, self).__init__(**kwargs)
-    #
-    #     # for k, v in os.environ.items():
-    #     #     if k.startswith("PYNCHON_"):
-    #     #         var = k[len("PYNCHON_"):].lower()
-    #     #         val = os.environ[k]
-    #     #         if "," in val:
-    #     #             val = val.split(",")
-    #     #         LOGGER.debug(f"found {k}; assigning pynchon[{var}] = {val}")
-    #     #         self[var] = val
+    def __init__(self, **core_config):
+        LOGGER.debug('validating..')
+        for k, v in core_config.items():
+            if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
+                raise ValueError(f"Top-level keys should be simple strings! {k}")
+            if isinstance(v, str) and '{{' in v:
+                raise ValueError(f"No templating in top level! {v}")
+            if isinstance(v, (dict, tuple, list)):
+                from pynchon.plugins import registry
+
+                if k in 'plugins globals'.split():
+                    continue
+                if k not in registry:
+                    err = f'top level keys with complex values should correspond to plugins! {k}'
+                    raise ValueError(err)
+        super(BaseConfig, self).__init__(**core_config)
 
     @property
-    def root(self):
+    def root(self) -> str:
         """
         pynchon root:
             * user-config
@@ -54,6 +54,12 @@ class BaseConfig(abcs.Config):
         root = root or os.environ.get("PYNCHON_ROOT")
         root = root or initialized["git"].get("root")
         return root and abcs.Path(root)
+
+    @property
+    def plugins(self):
+        return sorted(
+            list(set(self.get('plugins', []) + self.__class__.defaults['plugins']))
+        )
 
     @property
     def docs_root(self) -> typing.StringMaybe:

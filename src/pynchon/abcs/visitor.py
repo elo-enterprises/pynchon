@@ -1,6 +1,5 @@
 """ pynchon.abcs.visitor
 """
-# import sys
 import pydash
 
 from pynchon import abcs
@@ -122,8 +121,6 @@ class JinjaDict(TemplatedDict):
             for i, path in enumerate(templated):
                 templated.pop(i)
                 val = self.get_path(path)
-                # if any([path.startswith(r) for r in ignore]):
-                #     LOGGER.debug(f"resolution for {path} skipped")
                 try:
                     x = self.render_path(path, ctx=ctx)
                     LOGGER.debug(f"resolution for `{val}` @ {path} succeeded ({x})")
@@ -131,10 +128,8 @@ class JinjaDict(TemplatedDict):
                     LOGGER.debug(f"resolution for `{val}` @{path} failed ({exc})")
                     LOGGER.debug(f"self: {self}")
                     LOGGER.debug(f"ctx: {ctx}")
-                    # move it to the end
                     templated.append(path)
                 else:
-                    # templated = templated
                     break
             else:
                 break
