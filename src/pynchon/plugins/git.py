@@ -1,4 +1,4 @@
-""" pynchon.config.git
+""" pynchon.plugins.git
 """
 from memoized_property import memoized_property
 
@@ -8,8 +8,6 @@ from pynchon.util import lme, typing
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
-
-# from . import initialized
 
 
 class GitConfig(abcs.Config):

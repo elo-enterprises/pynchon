@@ -1,7 +1,6 @@
 """ pynchon.abcs.visitor
 """
-import sys
-
+# import sys
 import pydash
 
 from pynchon import abcs
@@ -15,7 +14,8 @@ class Visitor:
         self,
         filter_path=lambda _: True,
         filter_value=lambda _: True,
-        trigger=lambda p, v: [print(f"[{p}: {v}]", file=sys.stderr)],
+        # trigger=lambda p, v: [print(f"[{p}: {v}]", file=sys.stderr)],
+        trigger=lambda p, v: (p, v),
         paths=[],
         obj=None,
         **kwargs,
@@ -116,12 +116,12 @@ class JinjaDict(TemplatedDict):
 
     def render(self, ctx={}):
         while self.unresolved:
-            templated=self.unresolved
+            templated = self.unresolved
             LOGGER.debug(f"resolving: {templated}")
             LOGGER.debug(f"remaining unresolved: {templated}")
             for i, path in enumerate(templated):
                 templated.pop(i)
-                val=self.get_path(path)
+                val = self.get_path(path)
                 # if any([path.startswith(r) for r in ignore]):
                 #     LOGGER.debug(f"resolution for {path} skipped")
                 try:

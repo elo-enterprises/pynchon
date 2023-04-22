@@ -12,10 +12,10 @@ from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
-from . import initialized
+from pynchon.config import initialized
 
 
-class PythonConfig(abcs.Config):
+class PythonPlatformConfig(abcs.Config):
     """ """
 
     config_key = "python"
@@ -24,7 +24,7 @@ class PythonConfig(abcs.Config):
     )
 
     def __init__(self, **kwargs):
-        super(PythonConfig, self).__init__(**kwargs)
+        super(PythonPlatformConfig, self).__init__(**kwargs)
 
     @memoized_property
     def is_package(self) -> bool:
@@ -71,7 +71,7 @@ class PyPiConfig(abcs.Config):
 
 
 class PackageConfig(abcs.Config):
-    parent = PythonConfig
+    parent = PythonPlatformConfig
     config_key = "package"
 
     @property
@@ -85,3 +85,54 @@ class PackageConfig(abcs.Config):
         # self.logger.debug("resolving project version..")
         cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
         return cmd.succeeded and cmd.stdout.strip()
+
+
+from pynchon.abcs.plugin import Plugin
+
+
+class PythonCLI(Plugin):
+    """ """
+
+    name = "python-cli"
+    config = dict
+    defaults = dict()
+
+    def plan(self, config):
+        plan = super(self.__class__, self).plan(config)
+        cli_root = f"{config.pynchon.docs_root}/cli"
+        plan += [f"mkdir -p {cli_root}"]
+        plan += [f"pynchon gen cli toc --output {cli_root}/README.md"]
+        plan += [f"pynchon gen cli all --output-dir {cli_root}"]
+        plan += [
+            f"pynchon gen cli main --file {fname} --output-dir {cli_root}"
+            for fname in config["python"]["entrypoints"]
+        ]
+        return plan
+
+
+class PythonAPI(Plugin):
+    """ """
+
+    name = "python-api"
+    config = dict
+    defaults = dict()
+
+    def plan(self, config) -> typing.List:
+        plan = super(self.__class__, self).plan(config)
+        # self.logger.debug("planning for API docs..")
+        api_root = f"{config.pynchon['docs_root']}/api"
+        plan += [f"mkdir -p {api_root}"]
+        plan += [
+            "pynchon gen api toc"
+            f' --package {config["python"]["package"]["name"]}'
+            f" --output {api_root}/README.md"
+        ]
+        return plan
+
+
+class PyPI(Plugin):
+    """ """
+
+    name = "pypi"
+    config = PyPiConfig
+    defaults = dict()

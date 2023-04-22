@@ -4,12 +4,17 @@ import re
 import glob
 import functools
 
-from . import lme
+from pynchon.abcs import Path
+from pynchon.util.os import invoke
+
+from . import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
-from pynchon.abcs import Path
+def find_suffix(root: str = '', suffix: str = '') -> typing.StringMaybe:
+    assert root and suffix
+    return invoke(f"{root} -type f -name *.{suffix}").stdout.split("\n")
 
 
 def get_git_root(path: str = ".") -> str:

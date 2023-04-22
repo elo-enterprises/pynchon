@@ -1,16 +1,18 @@
 """ pynchon.abcs.attrdict
 """
 from frozendict import frozendict
+
 from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
-class AttrDictBase():
+class AttrDictBase:
     """
     A dictionary with attribute-style access.
     It maps attribute access to the real dictionary.
     """
+
     def __init__(self, **init: typing.OptionalAny):
         dict.__init__(self, init)
 
@@ -40,8 +42,10 @@ class AttrDictBase():
     __getattr__ = __getitem__
     __setattr__ = __setitem__
 
-class AttrDict(AttrDictBase,dict):
+
+class AttrDict(AttrDictBase, dict):
     pass
 
-class fAttrDict(AttrDictBase,frozendict):
+
+class fAttrDict(AttrDictBase, frozendict):
     pass

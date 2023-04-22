@@ -9,6 +9,7 @@
   "pkg_name": "pynchon",
   "docs_root": "docs",
   "plugins":[
+    "project",
     "scaffolding",
     "dot","python-api",
     "python-cli",
@@ -23,10 +24,17 @@
   // begin plugins-config
   "dot":{},
   "fixme":{},
-  "api":{
+  "python-api":{
     "skip_private_methods": true,
     "skip_patterns": [],
   },
+  "scaffolding":
+    { "**/tox.ini":
+        { "name":"{{pynchon.src_root}}",
+          "scope":"",
+          "config":{},
+        },
+    },
   "jinja":{
     "includes": [
       "{{pynchon.docs_root}}/includes",

@@ -3,24 +3,24 @@
 import os
 
 from pynchon import __version__, abcs
-from pynchon.util import lme, python, typing
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
-import pyjson5
 
 from . import initialized
 
 
 class BaseConfig(abcs.Config):
     """ """
+
     priority = 1
     config_key = "pynchon"
     defaults = dict(
         version=__version__,
         plugins=[
-            # "git",
-            # "jinja",
-            # "scaffolding",
+            "scaffolding",
+            "git",
+            "jinja",
             # "dot",
             # "fixme",
             # "python-cli",
@@ -28,7 +28,6 @@ class BaseConfig(abcs.Config):
         ],
     )
     # override_from_base = False  # this is the base :)
-
 
     # def __init__(self, **kwargs):
     #     """ " """
