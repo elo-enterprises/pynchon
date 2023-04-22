@@ -3,6 +3,7 @@
 from pynchon.util import lme, typing
 from pynchon.abcs.plugin import Plugin
 
+# from .jenkins import Jenkins  # noqa
 from .dot import Dot  # noqa
 from .git import Git  # noqa
 from .fixme import FixMe  # noqa

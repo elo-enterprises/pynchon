@@ -17,7 +17,7 @@ def find_suffix(root: str = '', suffix: str = '') -> typing.StringMaybe:
     return invoke(f"{root} -type f -name *.{suffix}").stdout.split("\n")
 
 
-def get_git_root(path: str = ".") -> str:
+def get_git_root(path: str = ".") -> typing.StringMaybe:
     """ """
     path = Path(path).absolute()
     tmp = path / ".git"
@@ -26,7 +26,10 @@ def get_git_root(path: str = ".") -> str:
     elif not path:
         return None
     else:
-        return get_git_root(path.parents[0])
+        try:
+            return get_git_root(path.parents[0])
+        except IndexError:
+            LOGGER.critical("Could not find a git-root!")
 
 
 def find_src(src_root: str, exclude_patterns=[]) -> list:

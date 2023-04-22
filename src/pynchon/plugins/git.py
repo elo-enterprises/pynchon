@@ -7,6 +7,7 @@ from pynchon.abcs import Path
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
 from pynchon.abcs.plugin import Plugin
+from pynchon.util import files
 
 LOGGER = lme.get_logger(__name__)
 
@@ -30,9 +31,8 @@ class GitConfig(abcs.Config):
     @property
     def root(self) -> typing.StringMaybe:
         """ """
-        from pynchon.util import files
-
-        return files.get_git_root(Path(".")).parents[0]
+        tmp = files.get_git_root(Path("."))
+        return tmp and tmp.parents[0]
 
     @memoized_property
     def repo(self):
