@@ -62,9 +62,9 @@ smoke-test: stest
 itest: tox-itest
 utest: tox-utest
 stest: tox-stest
-test: utest itest stest coverage
-coverage:
-	echo NotImplementedYet
+test: utest itest stest
+# coverage:
+# 	echo NotImplementedYet
 
 plan: docs-plan
 docs-plan:

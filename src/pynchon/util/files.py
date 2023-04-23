@@ -52,7 +52,7 @@ def find_src(src_root: str, exclude_patterns=[]) -> list:
     return matches
 
 
-def find_j2s(globs:typing.List[str]) -> list:
+def find_j2s(globs: typing.List[str]) -> list:
     """ """
     LOGGER.debug(f"finding .j2s under {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]

@@ -3,11 +3,12 @@
 from memoized_property import memoized_property
 
 from pynchon import abcs
+from pynchon.bin import groups, common
+from pynchon.bin.entry import entry
 from pynchon.abcs import Path
-from pynchon.util import lme, typing
+from pynchon.util import lme, typing, files
 from pynchon.util.os import invoke
 from pynchon.abcs.plugin import Plugin
-from pynchon.util import files
 
 LOGGER = lme.get_logger(__name__)
 
@@ -83,7 +84,21 @@ class GitConfig(abcs.Config):
 
 class Git(Plugin):
     """ """
+
     priority = 0
     name = 'git'
     defaults = dict()
-    config = GitConfig
+    config_kls =GitConfig
+
+    @classmethod
+    def init_cli(kls):
+        """pynchon.bin.project"""
+
+        @common.groop(kls.name, parent=entry)
+        def plugin_main():
+            """subcommands for plugin"""
+
+        @plugin_main.command('config')
+        def config():
+            """shows current config for this plugin"""
+            LOGGER.debug(kls.config)

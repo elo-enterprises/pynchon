@@ -3,36 +3,83 @@
 import os
 
 from pynchon import abcs, config
+from pynchon.bin import groups, options, common
 from pynchon.util import lme, typing
+from pynchon.bin.entry import entry
 from pynchon.abcs.plugin import Plugin
 
 LOGGER = lme.get_logger(__name__)
+
+class ProjectConfig(abcs.Config):
+        """ """
+
+        priority = 1
+        config_key = "project"
+        # @property
+        # def src_root(self) -> str:
+        #     """ """
+        #     return self.subproject and pynchon["working_dir"]
+
+        @property
+        def name(self) -> str:
+            """ """
+            repo_name = config.git.get("repo_name")
+            return repo_name or os.path.split(os.getcwd())[-1]
+
+        @property
+        def root(self) -> str:
+            """ """
+            git = config.initialized["git"]
+            return (
+                os.environ.get("PYNCHON_ROOT")
+                or (git and git.get("root"))
+                or os.getcwd()
+            )
+
+        @property
+        def subproject(self) -> typing.Dict:
+            """ """
+            if os.environ.get("PYNCHON_ROOT"):
+                return {}
+            git = config.initialized["git"]
+            git_root = git["root"]
+            workdir = abcs.Path('.')
+            # workdir = pynchon["working_dir"]
+            r1 = workdir.absolute()
+            r2 = git_root and git_root.absolute()
+            if r2 and (r1 != r2):
+                self.logger.warning("subproject detected ({tmp}!=git[root])")
+                return dict(name=workdir.name, root=workdir.absolute())
+            return {}
 
 
 class Project(Plugin):
     name = 'project'
     priority = 2
     defaults = dict()
+    config_kls = ProjectConfig
+
     @classmethod
     def init_cli(kls):
-        """ pynchon.bin.project
-        """
+        """pynchon.bin.project"""
         import json
+
         from pynchon import abcs, constants, util
         from pynchon.api import project
-        from pynchon.bin import groups, options
         from pynchon.util import lme, text
         from pynchon.util.os import invoke
 
-        from pynchon.bin.common import kommand
-
         LOGGER = lme.get_logger(__name__)
-        PARENT = groups.project
 
+        @common.groop(f"{kls.name}", parent=entry)
+        def project_group():
+            """
+            Project Automation
+            """
 
-        @kommand(
+        @common.kommand(
             name="entrypoints",
-            parent=PARENT,
+            parent=project_group,
             formatters=dict(markdown=constants.T_TOC_CLI),
             options=[
                 options.file_setupcfg,
@@ -52,10 +99,9 @@ class Project(Plugin):
                 **dict(__main__=config.get("source", {}).get("__main__", [])),
             }
 
-
-        @kommand(
+        @common.kommand(
             name="version",
-            parent=PARENT,
+            parent=project_group,
             formatters=dict(markdown=constants.T_VERSION_METADATA),
             options=[
                 # FIXME: options.output_with_default('docs/VERSION.md'),
@@ -78,10 +124,9 @@ class Project(Plugin):
                 git_hash=git.hash,
             )
 
-
-        @PARENT.command(
+        @project_group.command(
             name="config",
-            # parent=PARENT,
+            # parent=project_group,
             # options=[],
         )
         def project_config(config=None) -> None:
@@ -91,10 +136,9 @@ class Project(Plugin):
             tmp = project.get_config()
             print(text.to_json(tmp))
 
-
-        @kommand(
+        @common.kommand(
             name="apply",
-            parent=PARENT,
+            parent=project_group,
             options=[],
         )
         def project_apply() -> None:
@@ -106,10 +150,9 @@ class Project(Plugin):
                 invoke(p)
             return plan
 
-
-        @kommand(
+        @common.kommand(
             name="plan",
-            parent=PARENT,
+            parent=project_group,
             options=[
                 options.stdout,
             ],
@@ -121,43 +164,3 @@ class Project(Plugin):
             config, plan = project.plan()
             config["plan"] = plan
             return json.dumps(config, indent=2, cls=abcs.JSONEncoder)
-
-    class config(abcs.Config):
-        """ """
-
-        priority = 1
-        config_key = "project"
-        # @property
-        # def src_root(self) -> str:
-        #     """ """
-        #     return self.subproject and pynchon["working_dir"]
-
-        @property
-        def name(self) -> str:
-            """ """
-            repo_name = config.git.get("repo_name")
-            return repo_name or os.path.split(os.getcwd())[-1]
-
-        @property
-        def root(self) -> str:
-            """ """
-            git = config.initialized["git"]
-            return os.environ.get("PYNCHON_ROOT") or \
-            (git and git.get("root")) or \
-            os.getcwd()
-
-        @property
-        def subproject(self) -> typing.Dict:
-            """ """
-            if os.environ.get("PYNCHON_ROOT"):
-                return {}
-            git = config.initialized["git"]
-            git_root = git["root"]
-            workdir = abcs.Path('.')
-            # workdir = pynchon["working_dir"]
-            r1 = workdir.absolute()
-            r2 = git_root and git_root.absolute()
-            if r2 and (r1 != r2):
-                self.logger.warning("subproject detected ({tmp}!=git[root])")
-                return dict(name=workdir.name, root=workdir.absolute())
-            return {}

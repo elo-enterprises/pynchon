@@ -5,11 +5,13 @@ from pynchon.abcs.plugin import Plugin
 
 from .dot import Dot  # noqa
 from .git import Git  # noqa
+from .base import Base  # noqa
 from .fixme import FixMe  # noqa
 from .jinja import Jinja  # noqa
 from .python import Python, PythonAPI, PythonCLI, PyPI  # noqa
 from .project import Project  # noqa
-from .scaffolding import Scaffolding # noqa
+from .scaffolding import Scaffolding  # noqa
+
 # from .jenkins import Jenkins  # noqa
 
 LOGGER = lme.get_logger(__name__)

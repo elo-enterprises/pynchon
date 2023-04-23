@@ -6,32 +6,31 @@ from pynchon.abcs.plugin import Plugin
 
 LOGGER = lme.get_logger(__name__)
 
+class JinjaConfig(abcs.Config):
+    """ """
+
+    config_key = "jinja"
+    defaults = dict()
+    # @property
+    # def _base(self) -> abcs.AttrDict:
+    #     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
+
+    # @property
+    # def includes(self) -> typing.List:
+    #     docs_root = initialized["pynchon"].get("docs_root", None)
+    #     docs_root = docs_root and abcs.Path(docs_root)
+    #     if docs_root:
+    #         extra = [abcs.Path(docs_root.joinpath("templates"))]
+    #     else:
+    #         LOGGER.warning("`docs_root` is not set; cannot guess `jinja.includes`")
+    #         extra = []
+    #     return extra + self._base.get("includes", [])
 
 class Jinja(Plugin):
     """ """
-
     name = "jinja"
     defaults = dict()
-
-    class config(abcs.Config):
-        """ """
-
-        config_key = "jinja"
-        defaults = dict()
-        # @property
-        # def _base(self) -> abcs.AttrDict:
-        #     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
-
-        # @property
-        # def includes(self) -> typing.List:
-        #     docs_root = initialized["pynchon"].get("docs_root", None)
-        #     docs_root = docs_root and abcs.Path(docs_root)
-        #     if docs_root:
-        #         extra = [abcs.Path(docs_root.joinpath("templates"))]
-        #     else:
-        #         LOGGER.warning("`docs_root` is not set; cannot guess `jinja.includes`")
-        #         extra = []
-        #     return extra + self._base.get("includes", [])
+    config_kls=JinjaConfig
 
     def plan(self, config) -> typing.List:
         plan = super(self.__class__, self).plan(config)
@@ -44,7 +43,8 @@ class Jinja(Plugin):
         templates = " ".join(templates)
         self.logger.warning(f"j2 templates: {templates}")
         # import IPython; IPython.embed()
-        from pynchon import abcs #config
+        from pynchon import abcs  # config
+
         # import IPython; IPython.embed()
         project = config.project.get("subproject", config.project)
         project_root = project.get("root", config.git["root"])

@@ -1,12 +1,13 @@
 """ pynchon.config
 """
 import os
+from types import MappingProxyType
 from collections import OrderedDict
+
+import pyjson5
 
 from pynchon import abcs
 from pynchon.util import lme
-from types import MappingProxyType
-import pyjson5
 
 # from memoized_property import memoized_property
 
@@ -82,6 +83,7 @@ raw = initialized['pynchon'] = pynchon
 pynchon['plugins'] = pynchon.plugins
 
 from pynchon.abcs.visitor import JinjaDict
+
 defaults = JinjaDict(raw.copy()).render(dict(pynchon=raw))
 
 # from pynchon.plugins import registry

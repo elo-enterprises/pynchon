@@ -9,6 +9,7 @@ from types import MappingProxyType
 
 def get_plugin(plugin_name: str) -> object:
     from pynchon.plugins import registry
+
     try:
         return registry[plugin_name]
     except KeyError:
@@ -16,15 +17,14 @@ def get_plugin(plugin_name: str) -> object:
         LOGGER.critical(f"available plugins: {registry.keys()}")
         raise
 
+
 def get_config() -> dict:
     """ """
     result = abcs.AttrDict(
         _=config.raw,
         pynchon=MappingProxyType(
-            dict([
-            [k, v] 
-            for k, v in config.raw.items() 
-            if not isinstance(v, (dict,))])),
+            dict([[k, v] for k, v in config.raw.items() if not isinstance(v, (dict,))])
+        ),
         git=config.git,
     )
     plugins = [get_plugin(p) for p in result.pynchon['plugins']]
@@ -32,8 +32,8 @@ def get_config() -> dict:
         if plugin_kls.name in 'git pynchon'.split():
             pass
         LOGGER.debug(f"plugin {plugin_kls.name}: {plugin_kls}")
-        LOGGER.debug(f"config {plugin_kls.name}: {plugin_kls.config}")
-        pconf_kls = plugin_kls.config
+        LOGGER.debug(f"config {plugin_kls.name}: {plugin_kls.config_kls}")
+        pconf_kls = plugin_kls.config_kls
         plugin_defaults = plugin_kls.defaults
         # NB: module access
         user_defaults = config.defaults.get(plugin_kls.name, {})
@@ -43,7 +43,7 @@ def get_config() -> dict:
                 **user_defaults,
             }
         )
-        setattr(config, plugin_kls.name.replace('-','_'), plugin_config)
+        setattr(config, plugin_kls.name.replace('-', '_'), plugin_config)
         result.update({plugin_kls.name: plugin_config})
         exec(f"{plugin_kls.name.replace('-','_')}=plugin_config")
     # pypi = PyPiConfig
@@ -65,6 +65,7 @@ def plan(config: dict = {}) -> dict:
     config = config or get_config()
     project = config.project
     from pynchon.plugins import registry
+
     for plugin_name in config.pynchon["plugins"]:
         assert plugin_name in registry, f"missing required plugin @ {plugin_name}"
         plugin_kls = registry[plugin_name]

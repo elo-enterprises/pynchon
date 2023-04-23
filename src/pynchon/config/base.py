@@ -4,10 +4,10 @@ import os
 
 from pynchon import __version__, abcs
 from pynchon.util import lme, typing
+
 from . import initialized
 
 LOGGER = lme.get_logger(__name__)
-
 
 
 class BaseConfig(abcs.Config):

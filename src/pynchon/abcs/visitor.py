@@ -91,7 +91,7 @@ def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):
 
 class TemplatedDict(dict):
     def __init__(self, dct):
-        super(TemplatedDict,self).__init__(dct.copy())
+        super(TemplatedDict, self).__init__(dct.copy())
 
     def get_path(self, path):
         return pydash.get(self, path)
@@ -120,7 +120,8 @@ class JinjaDict(TemplatedDict):
 
     def render(self, ctx={}):
         """ """
-        import copy 
+        import copy
+
         tmp = copy.deepcopy(self)
         while tmp.unresolved:
             templated = tmp.unresolved
@@ -146,6 +147,7 @@ class JinjaDict(TemplatedDict):
     def render_path(self, path, ctx={}, strict=False):
         """ """
         from pynchon.api import render
+
         strict and True
         value = self.get_path(path)
         resolved = render.j2_loads(
