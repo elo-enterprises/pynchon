@@ -1,5 +1,7 @@
 """ pynchon.abcs.visitor
 """
+from types import MappingProxyType
+
 import pydash
 
 from pynchon import abcs
@@ -117,31 +119,33 @@ class JinjaDict(TemplatedDict):
     """ """
 
     def render(self, ctx={}):
-        while self.unresolved:
-            templated = self.unresolved
+        """ """
+        import copy 
+        tmp = copy.deepcopy(self)
+        while tmp.unresolved:
+            templated = tmp.unresolved
             LOGGER.debug(f"resolving: {templated}")
             LOGGER.debug(f"remaining unresolved: {templated}")
             for i, path in enumerate(templated):
                 templated.pop(i)
                 val = self.get_path(path)
                 try:
-                    x = self.render_path(path, ctx=ctx)
+                    x = tmp.render_path(path, ctx=ctx)
                     LOGGER.debug(f"resolution for `{val}` @ {path} succeeded ({x})")
                 except (jinja2.exceptions.UndefinedError,) as exc:
                     LOGGER.debug(f"resolution for `{val}` @{path} failed ({exc})")
-                    LOGGER.debug(f"self: {self}")
+                    LOGGER.debug(f"self: {tmp}")
                     LOGGER.debug(f"ctx: {ctx}")
                     templated.append(path)
                 else:
                     break
             else:
                 break
-        return dict(self)
+        return MappingProxyType(tmp)
 
     def render_path(self, path, ctx={}, strict=False):
         """ """
         from pynchon.api import render
-
         strict and True
         value = self.get_path(path)
         resolved = render.j2_loads(

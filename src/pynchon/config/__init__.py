@@ -5,20 +5,20 @@ from collections import OrderedDict
 
 from pynchon import abcs
 from pynchon.util import lme
+from types import MappingProxyType
+import pyjson5
 
 # from memoized_property import memoized_property
 
 
 LOGGER = lme.get_logger(__name__)
 initialized = abcs.AttrDict()
-import pyjson5
-from frozendict import frozendict
 
 from pynchon.plugins.git import GitConfig  # noqa
 
 from .base import BaseConfig as PynchonConfig  # noqa
 
-git = initialized['git'] = frozendict(GitConfig())
+git = initialized['git'] = MappingProxyType(GitConfig())
 
 
 def config_folders():
@@ -73,16 +73,17 @@ def config_sources():
 _merged = {}
 for _, config in load_config().items():
     _merged = {**_merged, **config}
-from pynchon.abcs.visitor import JinjaDict
 
-pynchon = initialized['pynchon'] = PynchonConfig(**_merged)
+pynchon = PynchonConfig(**_merged)
+assert '{{' in pynchon['jinja']['includes'][0]
 # import IPython; IPython.embed()
+
+raw = initialized['pynchon'] = pynchon
 pynchon['plugins'] = pynchon.plugins
-# raw = frozendict(pynchon)
-from types import MappingProxyType
-raw=MappingProxyType(pynchon)
-# import IPython; IPython.embed()
+
+from pynchon.abcs.visitor import JinjaDict
 defaults = JinjaDict(raw.copy()).render(dict(pynchon=raw))
+
 # from pynchon.plugins import registry
 # for name,plugin_kls in registry:
 # config_classes = [eval(kls_name) for kls_name in dir()]
@@ -111,13 +112,13 @@ defaults = JinjaDict(raw.copy()).render(dict(pynchon=raw))
 #     initialized[kls.config_key] = kls(**final_defaults)
 #     if kls.config_key=='pynchon':
 #         LOGGER.critical('freezing pynchon')
-#         initialized[kls.config_key] = frozendict(initialized[kls.config_key])
+#         initialized[kls.config_key] = dict(initialized[kls.config_key])
 #
 #     # conf.logger.debug("initialized.")
 # for k in initialized:
 #     exec(f"{k} = initialized['{k}']")
-# initialized=frozendict(initialized)
-# # pynchon = frozendict(initialized['pynchon'])
+# initialized=dict(initialized)
+# # pynchon = dict(initialized['pynchon'])
 # from pynchon.abcs.visitor import JinjaDict
 # tmp = JinjaDict(**initialized)
 # tmp.render()

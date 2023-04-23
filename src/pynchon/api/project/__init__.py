@@ -1,11 +1,10 @@
 """ pynchon.api.project
 """
-from frozendict import frozendict
-
 from pynchon import abcs, config
 from pynchon.util import lme, text, typing
 
 LOGGER = lme.get_logger(__name__)
+from types import MappingProxyType
 
 
 def get_plugin(plugin_name: str) -> object:
@@ -21,9 +20,11 @@ def get_config() -> dict:
     """ """
     result = abcs.AttrDict(
         _=config.raw,
-        pynchon=frozendict(
-            [[k, v] for k, v in config.raw.items() if not isinstance(v, dict)]
-        ),
+        pynchon=MappingProxyType(
+            dict([
+            [k, v] 
+            for k, v in config.raw.items() 
+            if not isinstance(v, (dict,))])),
         git=config.git,
     )
     plugins = [get_plugin(p) for p in result.pynchon['plugins']]
@@ -53,7 +54,7 @@ def get_config() -> dict:
     # )
     # for k in dir(config):
     #     val = getattr(config, k)
-    #     if isinstance(val, (abcs.Config, frozendict)):
+    #     if isinstance(val, (abcs.Config, dict)):
     #         result[k]=getattr(config, k)
     return result
 

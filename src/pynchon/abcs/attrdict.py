@@ -1,6 +1,5 @@
 """ pynchon.abcs.attrdict
 """
-from frozendict import frozendict
 
 from pynchon.util import lme, typing
 
@@ -44,8 +43,4 @@ class AttrDictBase:
 
 
 class AttrDict(AttrDictBase, dict):
-    pass
-
-
-class fAttrDict(AttrDictBase, frozendict):
     pass
