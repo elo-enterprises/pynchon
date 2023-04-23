@@ -4,7 +4,7 @@ from pynchon import constants
 from pynchon.bin import groups, options, common
 from pynchon.util import files, lme, typing
 from pynchon.bin.common import kommand, groop
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 
 LOGGER = lme.get_logger(__name__)
 
@@ -29,7 +29,7 @@ class Base(Plugin):
     def gen_cli():
         """Generate CLI docs"""
 
-    @classmethod
+    @staticmethod
     def init_cli(kls):
         """pynchon.bin.gen:
         Option parsing for the `gen` subcommand

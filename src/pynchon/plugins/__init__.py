@@ -1,7 +1,7 @@
 """ pynchon.plugins
 """
 from pynchon.util import lme, typing
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 
 from .dot import Dot  # noqa
 from .git import Git  # noqa

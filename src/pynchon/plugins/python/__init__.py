@@ -6,7 +6,7 @@ import click
 from pynchon import constants, util
 from pynchon.bin import groups, options, common
 from pynchon.util import lme, typing
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 from pynchon.plugins.base import Base
 
 from .config import PythonConfig, PyPiConfig, PythonCliConfig
@@ -30,7 +30,7 @@ class PythonCLI(Plugin):
     defaults = dict()
     config_kls = PythonCliConfig
 
-    @classmethod
+    @staticmethod
     def init_cli(kls):
         """pynchon.bin.cli:
         Option parsing for the `cli` subcommand
@@ -65,7 +65,6 @@ class PythonCLI(Plugin):
         @common.kommand(
             name="all",
             parent=Base.gen_cli,
-            # formatters=dict(markdown=constants.T_DETAIL_CLI),
             options=[
                 options.file_setupcfg,
                 options.output_dir,
@@ -73,7 +72,6 @@ class PythonCLI(Plugin):
             ],
         )
         def _all(
-            # format,
             file,
             stdout,
             output_dir,
@@ -199,7 +197,7 @@ class PythonAPI(Plugin):
     config_kls = dict
     defaults = dict()
 
-    @classmethod
+    @staticmethod
     def init_cli(kls):
         """pynchon.bin.api"""
         import click

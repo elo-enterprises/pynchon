@@ -2,7 +2,7 @@
 """
 from pynchon import abcs
 from pynchon.util import files, lme, typing
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 
 LOGGER = lme.get_logger(__name__)
 

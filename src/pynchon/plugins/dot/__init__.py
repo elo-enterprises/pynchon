@@ -1,7 +1,7 @@
 """ pynchon.plugins.dot
 """
 from pynchon.util import files, lme, typing
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 
 LOGGER = lme.get_logger(__name__)
 
@@ -38,7 +38,7 @@ class Dot(Plugin):
         plan += [cmd]
         return plan
 
-    @classmethod
+    @staticmethod
     def init_cli(kls):
         """pynchon.bin.dot:
         Option parsing for the `dot` subcommands

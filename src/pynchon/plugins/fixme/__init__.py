@@ -4,7 +4,7 @@ import click
 
 from pynchon import constants
 from pynchon.bin import common, groups, options
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 
 
 class FixMe(Plugin):
@@ -19,7 +19,7 @@ class FixMe(Plugin):
         plan += [f"pynchon gen fixme --output {config.pynchon['docs_root']}/FIXME.md"]
         return plan
 
-    @classmethod
+    @staticmethod
     def init_cli(kls):
         """"""
 

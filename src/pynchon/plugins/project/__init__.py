@@ -6,7 +6,7 @@ from pynchon import abcs, config
 from pynchon.bin import groups, options, common
 from pynchon.util import lme, typing
 from pynchon.bin.entry import entry
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 
 LOGGER = lme.get_logger(__name__)
 
@@ -58,7 +58,7 @@ class Project(Plugin):
     defaults = dict()
     config_kls = ProjectConfig
 
-    @classmethod
+    @staticmethod
     def init_cli(kls):
         """pynchon.bin.project"""
         import json

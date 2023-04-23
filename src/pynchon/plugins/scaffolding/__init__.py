@@ -2,7 +2,7 @@
 """
 from pynchon import abcs
 from pynchon.util import lme, typing  # , files
-from pynchon.abcs.plugin import Plugin
+from pynchon.models import Plugin
 
 from .config import ScaffoldingConfig
 
@@ -17,7 +17,7 @@ class Scaffolding(Plugin):
     defaults = dict()
     config_kls = ScaffoldingConfig
 
-    @classmethod
+    @staticmethod
     def init_cli(kls):
         """pynchon.bin.scaffold:
         Option parsing for the `scaffold` subcommand
