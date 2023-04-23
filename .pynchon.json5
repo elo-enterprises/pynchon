@@ -9,7 +9,7 @@
   "pkg_name": "pynchon",
   "docs_root": "docs",
   "plugins":[
-    "project",
+    // "project",
     "dot","python-api",
     "python-cli", "fixme"],
   // begin globals

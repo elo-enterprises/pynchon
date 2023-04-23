@@ -82,6 +82,7 @@ class GitConfig(abcs.Config):
 
 
 class Git(Plugin):
+    """ """
     priority = 0
     name = 'git'
     defaults = dict()

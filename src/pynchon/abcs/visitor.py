@@ -88,6 +88,9 @@ def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):
 
 
 class TemplatedDict(dict):
+    def __init__(self, dct):
+        super(TemplatedDict,self).__init__(dct.copy())
+
     def get_path(self, path):
         return pydash.get(self, path)
 

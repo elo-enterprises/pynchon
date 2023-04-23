@@ -4,10 +4,10 @@ import os
 
 from pynchon import __version__, abcs
 from pynchon.util import lme, typing
+from . import initialized
 
 LOGGER = lme.get_logger(__name__)
 
-from . import initialized
 
 
 class BaseConfig(abcs.Config):
@@ -22,6 +22,7 @@ class BaseConfig(abcs.Config):
             "jinja",
             "project",
             "scaffolding",
+            'python',
         ],
     )
 
@@ -32,14 +33,14 @@ class BaseConfig(abcs.Config):
                 raise ValueError(f"Top-level keys should be simple strings! {k}")
             if isinstance(v, str) and '{{' in v:
                 raise ValueError(f"No templating in top level! {v}")
-            if isinstance(v, (dict, tuple, list)):
-                from pynchon.plugins import registry
-
-                if k in 'plugins globals'.split():
-                    continue
-                if k not in registry:
-                    err = f'top level keys with complex values should correspond to plugins! {k}'
-                    raise ValueError(err)
+            LOGGER.critical(f'skipping validation for {k},{v}')
+            # if isinstance(v, (dict, tuple, list)):
+            #     from pynchon.plugins import registry
+            #     if k in 'plugins globals'.split():
+            #         continue
+            #     if k not in registry:
+            #         err = f'top level keys with complex values should correspond to plugins! {k}'
+            #         raise ValueError(err)
         super(BaseConfig, self).__init__(**core_config)
 
     @property

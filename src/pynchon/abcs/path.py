@@ -20,10 +20,13 @@ class Path(type(BasePath())):
         return [x for x in os.listdir(str(self))]
 
 
+from types import MappingProxyType
 class JSONEncoder(json.JSONEncoder):
     """ """
 
     def default(self, obj):
         if isinstance(obj, Path):
             return str(obj)
+        if isinstance(obj,MappingProxyType):
+            return dict(obj)
         return json.JSONEncoder.default(self, obj)

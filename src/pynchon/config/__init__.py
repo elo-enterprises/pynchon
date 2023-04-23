@@ -78,8 +78,13 @@ from pynchon.abcs.visitor import JinjaDict
 pynchon = initialized['pynchon'] = PynchonConfig(**_merged)
 # import IPython; IPython.embed()
 pynchon['plugins'] = pynchon.plugins
-raw = frozendict(pynchon)
+# raw = frozendict(pynchon)
+from types import MappingProxyType
+raw=MappingProxyType(pynchon)
+# import IPython; IPython.embed()
 defaults = JinjaDict(raw.copy()).render(dict(pynchon=raw))
+# from pynchon.plugins import registry
+# for name,plugin_kls in registry:
 # config_classes = [eval(kls_name) for kls_name in dir()]
 # config_classes = [
 #     kls

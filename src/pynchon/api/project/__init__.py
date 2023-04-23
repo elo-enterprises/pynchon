@@ -10,9 +10,12 @@ LOGGER = lme.get_logger(__name__)
 
 def get_plugin(plugin_name: str) -> object:
     from pynchon.plugins import registry
-
-    return registry[plugin_name]
-
+    try:
+        return registry[plugin_name]
+    except KeyError:
+        LOGGER.critical(f"cannot find plugin named `{plugin_name}`")
+        LOGGER.critical(f"available plugins: {registry.keys()}")
+        raise
 
 def get_config() -> dict:
     """ """
@@ -25,6 +28,8 @@ def get_config() -> dict:
     )
     plugins = [get_plugin(p) for p in result.pynchon['plugins']]
     for plugin_kls in plugins:
+        if plugin_kls.name in 'git pynchon'.split():
+            pass
         LOGGER.debug(f"plugin {plugin_kls.name}: {plugin_kls}")
         LOGGER.debug(f"config {plugin_kls.name}: {plugin_kls.config}")
         pconf_kls = plugin_kls.config
@@ -37,6 +42,7 @@ def get_config() -> dict:
                 **user_defaults,
             }
         )
+        setattr(config, plugin_kls.name.replace('-','_'), plugin_config)
         result.update({plugin_kls.name: plugin_config})
         exec(f"{plugin_kls.name.replace('-','_')}=plugin_config")
     # pypi = PyPiConfig
@@ -58,11 +64,11 @@ def plan(config: dict = {}) -> dict:
     config = config or get_config()
     project = config.project
     from pynchon.plugins import registry
-
     for plugin_name in config.pynchon["plugins"]:
         assert plugin_name in registry, f"missing required plugin @ {plugin_name}"
-        plugin = registry[plugin_name]
-        # plugin.logger.debug(f"Planning..")
+        plugin_kls = registry[plugin_name]
+        plugin = plugin_kls()
+        plugin.logger.debug(f"Planning..")
         result = plugin.plan(config)
         msg = "Done planning.  "
         if result:

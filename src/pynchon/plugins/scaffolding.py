@@ -12,13 +12,53 @@ class Scaffolding(Plugin):
 
     priority = 0
     name = "scaffolding"
-    # config = ScaffoldConfig
     defaults = dict()
-
     class config(abcs.Config):
         """ """
+        config_key = "scaffolding"
 
-        config_key = "scaffold"
+        # def scaffolds(self):
+        #     return dict([
+        #         [scaffold_pattern,scaffold_meta]
+        #         for k,v in self.items()])
+    @classmethod
+    def init_cli(kls):
+        """ pynchon.bin.scaffold:
+            Option parsing for the `scaffold` subcommand
+        """
+        from pynchon.bin.common import groop
+        from pynchon.bin import groups
+
+        @groop("scaffold", parent=groups.entry)
+        def scaffold():
+            """
+            Scaffolding Automation
+            (Creates folder layouts and other boilerplate)
+            """
+
+        @scaffold.command("list")
+        def scaffold_list():
+            """list available scaffolds"""
+
+
+        @scaffold.command("stat")
+        def scaffold_stat():
+            """status of current scaffolding"""
+
+
+        @scaffold.command("diff")
+        def scaffold_diff():
+            """diff with known scaffolding"""
+
+
+        @scaffold.command("apply")
+        def scaffold_apply():
+            """apply results of scaffold-plan"""
+
+
+        @scaffold.command("plan")
+        def scaffold_plan():
+            """plan application of scaffolding"""
 
     def plan(self, config) -> typing.List[str]:
         """ """
