@@ -3,7 +3,9 @@
 from pynchon import abcs
 from pynchon.util import lme, typing  # , files
 from pynchon.abcs.plugin import Plugin
+
 from .config import ScaffoldingConfig
+
 LOGGER = lme.get_logger(__name__)
 
 
@@ -13,7 +15,8 @@ class Scaffolding(Plugin):
     priority = 0
     name = "scaffolding"
     defaults = dict()
-    config_kls=ScaffoldingConfig
+    config_kls = ScaffoldingConfig
+
     @classmethod
     def init_cli(kls):
         """pynchon.bin.scaffold:

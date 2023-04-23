@@ -1,25 +1,32 @@
 """
 """
 import platform
+
 from pynchon import abcs
 from pynchon.util import lme, typing, python
+
 LOGGER = lme.get_logger(__name__)
 from memoized_property import memoized_property
+
 from pynchon.util.os import invoke
+
 
 class PythonCliConfig(abcs.Config):
     @property
     def entrypoints(self) -> dict:
         """ """
+        import os
+        import glob
+
         from pynchon import config
-        import glob, os
+
         project, pynchon = config.project, config.pynchon
         src_root = project.get("src_root", pynchon.get("src_root"))
         if not src_root:
             msg = "`src_root` not set for pynchon or project config; cannot enumerate entrypoints"
             LOGGER.warning(msg)
             return []
-        pat = os.path.sep.join([src_root,"**","__main__.py"])
+        pat = os.path.sep.join([src_root, "**", "__main__.py"])
         matches = [[os.path.relpath(x), {}] for x in glob.glob(pat, recursive=True)]
         matches = dict(matches)
         pkg_name = config.python.package.get("name", "unknown")
@@ -29,6 +36,7 @@ class PythonCliConfig(abcs.Config):
             tmp = tmp[:-1] if tmp.endswith("/") else tmp
             matches[f] = {**matches[f], **dict(dotpath=".".join(tmp.split("/")))}
         return matches
+
 
 class PythonConfig(abcs.Config):
     """ """
@@ -63,6 +71,7 @@ class PyPiConfig(abcs.Config):
         docs_url="https://pypi.org/",
         base_url="https://pypi.org/project",
     )
+
 
 class PackageConfig(abcs.Config):
     parent = PythonConfig

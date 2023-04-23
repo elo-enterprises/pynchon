@@ -6,6 +6,7 @@ from pynchon.abcs.plugin import Plugin
 
 LOGGER = lme.get_logger(__name__)
 
+
 class JinjaConfig(abcs.Config):
     """ """
 
@@ -26,11 +27,13 @@ class JinjaConfig(abcs.Config):
     #         extra = []
     #     return extra + self._base.get("includes", [])
 
+
 class Jinja(Plugin):
     """ """
+
     name = "jinja"
     defaults = dict()
-    config_kls=JinjaConfig
+    config_kls = JinjaConfig
 
     def plan(self, config) -> typing.List:
         plan = super(self.__class__, self).plan(config)

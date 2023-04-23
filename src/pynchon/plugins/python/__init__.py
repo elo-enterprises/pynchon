@@ -1,17 +1,18 @@
 """ pynchon.config.python
 """
 import os
-import glob
-import platform
+import click
 
-from memoized_property import memoized_property
-
+from pynchon import constants, util
 from pynchon.bin import groups, options, common
-from pynchon.util import lme, python, typing
-from pynchon.util.os import invoke
+from pynchon.util import lme, typing
 from pynchon.abcs.plugin import Plugin
+from pynchon.plugins.base import Base
+
 from .config import PythonConfig, PyPiConfig, PythonCliConfig
+
 LOGGER = lme.get_logger(__name__)
+
 
 class Python(Plugin):
     """ """
@@ -21,8 +22,10 @@ class Python(Plugin):
     defaults = dict()
     config_kls = PythonConfig
 
+
 class PythonCLI(Plugin):
     """ """
+
     name = "python-cli"
     defaults = dict()
     config_kls = PythonCliConfig
@@ -32,13 +35,6 @@ class PythonCLI(Plugin):
         """pynchon.bin.cli:
         Option parsing for the `cli` subcommand
         """
-        import os
-
-        import click
-
-        from pynchon import constants, util
-        from pynchon.util.os import invoke
-        from pynchon.plugins.base import Base
 
         @common.kommand(
             name="toc",
@@ -274,5 +270,5 @@ class PyPI(Plugin):
     """ """
 
     name = "pypi"
-    config_kls =PyPiConfig
+    config_kls = PyPiConfig
     defaults = dict()
