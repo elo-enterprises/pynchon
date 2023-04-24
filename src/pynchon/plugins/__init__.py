@@ -36,10 +36,8 @@ def get_plugin_obj(plugin_name:str) -> object:
         LOGGER.critical(f"cannot retrieve object for {plugin_name}, is config finalized?")
         raise
 
+LOGGER.critical(f"Building plugin-registry..")
 registry = [eval(name) for name in dir()]
 registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
 registry = dict([plugin_kls.name, dict(kls=plugin_kls)] for plugin_kls in registry)
-# for plugin_name, plugin_meta in registry.items()
-# registry[plug]
-LOGGER.info(f"prioritized plugin-registry: {registry}")

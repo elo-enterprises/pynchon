@@ -51,6 +51,11 @@ def find_src(src_root: str, exclude_patterns=[]) -> list:
     ]
     return matches
 
+def find_globs(globs:typing.List[str]):
+    LOGGER.debug(f"matching globs: {globs}")
+    globs = [glob.glob(str(x), recursive=True) for x in globs]
+    matches = functools.reduce(lambda x, y: x + y, globs)
+    return matches
 
 def find_j2s(globs: typing.List[str]) -> list:
     """ """

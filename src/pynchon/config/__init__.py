@@ -34,7 +34,7 @@ def load_config_from_files():
     contents = OrderedDict()
     for src in get_config_files():
         if not src.exists():
-            LOGGER.warning("src@`{src}` doesn't exist")
+            LOGGER.warning(f"src@`{src}` doesn't exist, skipping it")
             continue
         if src.name.endswith('pyproject.toml'):
             LOGGER.debug(f"Loading from toml: {src}")
@@ -97,10 +97,6 @@ def finalize():
     )
     plugins = [get_plugin(pname) for pname in result.pynchon['plugins']]
     for plugin_kls in plugins:
-        # if plugin_kls.name in 'git pynchon'.split():
-        #     pass
-        LOGGER.debug(f"plugin {plugin_kls.name}: {plugin_kls}")
-        LOGGER.debug(f"config {plugin_kls.name}: {plugin_kls.config_kls}")
         pconf_kls = plugin_kls.config_kls
         plugin_defaults = plugin_kls.defaults
         # NB: module access

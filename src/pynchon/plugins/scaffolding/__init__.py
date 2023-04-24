@@ -6,6 +6,7 @@ from .config import ScaffoldingConfig
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon.util import files
 
 class Scaffolding(Plugin):
     """ """
@@ -16,22 +17,24 @@ class Scaffolding(Plugin):
     defaults = dict()
     config_kls = ScaffoldingConfig
 
+    def match(self):
+        """ returns files that match for all scaffolds """
+        result={}
+        for k in self.list():
+            result[k]=files.find_globs([k])
+        return result
+
     def list(self):
         """list available scaffolds"""
-        return self.config.items()
+        return list(self.get_current_config().keys())
 
     def stat(self):
         """status of current scaffolding"""
-
+        for pattern,file_list in self.match():
+            for fname in file_list:
+                return dict(NotImplementedError=True)
     def diff(self):
         """diff with known scaffolding"""
-
-    # @staticmethod
-    # def init_cli(kls):
-    #     """pynchon.bin.scaffold:
-    #     Option parsing for the `scaffold` subcommand
-    #     """
-    #     parent = Plugin.init_cli(kls)
 
     def plan(self, config) -> typing.List[str]:
         """ """

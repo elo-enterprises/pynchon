@@ -1,5 +1,7 @@
 """ pynchon.models
 """
+import json
+import functools
 from memoized_property import memoized_property
 
 from pynchon.util import typing, lme
@@ -56,23 +58,29 @@ class PynchonPlugin(BasePlugin):
             LOGGER.debug(f"config class: {kls.config_kls}")
             LOGGER.debug(f"current config:")
             result = kls.get_current_config()
-            import json
             print(json.dumps(result,indent=2))
-
         from pynchon.plugins import get_plugin_obj
         obj = get_plugin_obj(kls.name)
-        FORBIDDEN = 'defaults logger init_cli plan apply'.split()
+        FORBIDDEN = 'get_current_config defaults logger init_cli plan apply'.split()
         for method_name in dir(obj):
             if method_name.startswith('_') or method_name in FORBIDDEN:
                 continue
             fxn = getattr(obj, method_name)
-            if type(fxn).__name__!='method':
+            if fxn is None or type(fxn).__name__!='method':
                 continue
-            LOGGER.critical(f"wrapping {[method_name, type(fxn)]} for CLI..")
+            # LOGGER.critical(f"wrapping {[method_name, type(fxn)]} for CLI..")
+            def wrapper(*args, fxn=fxn,**kwargs):
+                LOGGER.debug(f"calling {fxn} from wrapper")
+                result = fxn(*args, **kwargs)
+                print(json.dumps(result, indent=2))
+                return result
+            # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
+            # wrapper.__name__=fxn.__name__
+            # wrapper.__doc__=fxn.__doc__
             tmp = common.kommand(
                 fxn.__name__,
                 parent=plugin_main,
-            )(fxn)
+            )(wrapper)
 
 
         return plugin_main
