@@ -11,17 +11,17 @@ LOGGER = lme.get_logger(__name__)
 class PynchonPlugin(BasePlugin):
     priority = 10
 
-    @memoized_property
-    def render_instructions(self):
-        result = self.state.pynchon.get("render", [])
-        # self.logger.debug(f"parsed render-instructions: {result}")
-        return result
-
-    @memoized_property
-    def gen_instructions(self):
-        result = self.state.pynchon.get("generate", [])
-        # self.logger.info(f"parsed generate-instructions: {result}")
-        return result
+    # @memoized_property
+    # def render_instructions(self):
+    #     result = self.state.pynchon.get("render", [])
+    #     # self.logger.debug(f"parsed render-instructions: {result}")
+    #     return result
+    #
+    # @memoized_property
+    # def gen_instructions(self):
+    #     result = self.state.pynchon.get("generate", [])
+    #     # self.logger.info(f"parsed generate-instructions: {result}")
+    #     return result
 
     @typing.classproperty
     def click_entry(kls):
@@ -37,7 +37,9 @@ class PynchonPlugin(BasePlugin):
             pass
 
         plugin_main.__doc__ = f"""subcommands for `{kls.name}` plugin"""
-        plugin_main = common.groop(kls.name, parent=kls.click_entry)(plugin_main)
+        plugin_main = common.groop(
+            getattr(kls,'cli_name', kls.name),
+            parent=kls.click_entry)(plugin_main)
 
         @common.kommand(name='config', parent=plugin_main)
         def config():

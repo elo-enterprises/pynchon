@@ -2,7 +2,6 @@
 """
 from pynchon.util import lme, typing  # , files
 from pynchon.models import Plugin
-
 from .config import ScaffoldingConfig
 
 LOGGER = lme.get_logger(__name__)
@@ -13,6 +12,7 @@ class Scaffolding(Plugin):
 
     priority = 0
     name = "scaffolding"
+    cli_name='scaffold'
     defaults = dict()
     config_kls = ScaffoldingConfig
 
@@ -31,26 +31,25 @@ class Scaffolding(Plugin):
         """pynchon.bin.scaffold:
         Option parsing for the `scaffold` subcommand
         """
-        scaffold = Plugin.init_cli(kls)
+        from pynchon.plugins import registry as plugins_registry
+        if 'obj' not in plugins_registry[kls.name]:
+            from pynchon.api import project
+            project.get_config()
+        obj = plugins_registry[kls.name]['obj']
         from pynchon.bin import common
-
-        for method_name in dir(kls):
-            fxn = getattr(kls, method_name)
-            FORBIDDEN = 'init_cli plan apply'.split()
-            test = hasattr(fxn, '__name__') and all(
-                [
-                    callable(fxn),
-                    not fxn.__name__.startswith('__'),
-                    type(fxn).__name__ == 'function',
-                    fxn.__name__ not in FORBIDDEN,
-                ]
-            )
-            if test:
-                LOGGER.debug(f"wrapping {fxn} for CLI..")
-                tmp = common.kommand(
-                    fxn.__name__,
-                    parent=scaffold,
-                )(fxn)
+        scaffold = Plugin.init_cli(kls)
+        FORBIDDEN = 'defaults logger init_cli plan apply'.split()
+        for method_name in dir(obj):
+            if method_name.startswith('_') or method_name in FORBIDDEN:
+                continue
+            fxn = getattr(obj, method_name)
+            if type(fxn).__name__!='method':
+                continue
+            LOGGER.critical(f"wrapping {[method_name, type(fxn)]} for CLI..")
+            tmp = common.kommand(
+                fxn.__name__,
+                parent=scaffold,
+            )(fxn)
 
     def plan(self, config) -> typing.List[str]:
         """ """
