@@ -71,26 +71,12 @@ def get_config_files():
     return result
 
 
-MERGED_CONFIG_FILES = {}
-for _, config in load_config_from_files().items():
-    MERGED_CONFIG_FILES = {**MERGED_CONFIG_FILES, **config}
-
-# NB: this content is potentially templated
-pynchon = PynchonConfig(**MERGED_CONFIG_FILES)
-RAW = initialized['pynchon'] = pynchon
-pynchon['plugins'] = pynchon.plugins
-
-from pynchon.abcs.visitor import JinjaDict
-
-USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))
-
-
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
     from pynchon.plugins import get_plugin
 
     result = abcs.AttrDict(
-        _=RAW,
+        # _=RAW,
         pynchon=MappingProxyType(
             dict([[k, v] for k, v in RAW.items() if not isinstance(v, (dict,))])
         ),
@@ -120,3 +106,17 @@ def finalize():
 
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     return result
+
+MERGED_CONFIG_FILES = {}
+for _, config in load_config_from_files().items():
+    MERGED_CONFIG_FILES = {**MERGED_CONFIG_FILES, **config}
+
+LOGGER.critical("Building plugins-list & raw-config..")
+
+# NB: this content is potentially templated
+pynchon = PynchonConfig(**MERGED_CONFIG_FILES)
+RAW = initialized['pynchon'] = pynchon
+PLUGINS = pynchon['plugins'] = pynchon.plugins
+from pynchon.abcs.visitor import JinjaDict
+
+USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))

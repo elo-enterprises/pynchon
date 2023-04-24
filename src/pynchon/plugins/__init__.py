@@ -40,9 +40,10 @@ def get_plugin_obj(plugin_name: str) -> object:
         )
         raise
 
-
+from pynchon import config
 LOGGER.critical(f"Building plugin-registry..")
-registry = [eval(name) for name in dir()]
+registry = [eval(name) for name in dir() if not name.startswith('_') ]
 registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
+registry = [kls for kls in registry if kls.name in config.PLUGINS]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
 registry = dict([plugin_kls.name, dict(kls=plugin_kls)] for plugin_kls in registry)
