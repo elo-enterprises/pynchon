@@ -23,7 +23,6 @@ class Scaffolding(Plugin):
     def stat(self):
         """status of current scaffolding"""
 
-
     def diff(self):
         """diff with known scaffolding"""
 
@@ -33,16 +32,19 @@ class Scaffolding(Plugin):
         Option parsing for the `scaffold` subcommand
         """
         scaffold = Plugin.init_cli(kls)
-        from pynchon.bin import groups, common
+        from pynchon.bin import common
+
         for method_name in dir(kls):
-            fxn = getattr(kls,method_name)
+            fxn = getattr(kls, method_name)
             FORBIDDEN = 'init_cli plan apply'.split()
-            test = hasattr(fxn,'__name__') and all([
-                callable(fxn),
-                not fxn.__name__.startswith('__'),
-                type(fxn).__name__=='function',
-                fxn.__name__ not in FORBIDDEN,
-            ])
+            test = hasattr(fxn, '__name__') and all(
+                [
+                    callable(fxn),
+                    not fxn.__name__.startswith('__'),
+                    type(fxn).__name__ == 'function',
+                    fxn.__name__ not in FORBIDDEN,
+                ]
+            )
             if test:
                 LOGGER.debug(f"wrapping {fxn} for CLI..")
                 tmp = common.kommand(

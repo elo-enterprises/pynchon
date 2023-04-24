@@ -3,7 +3,7 @@
 import os
 
 from pynchon import abcs, config
-from pynchon.bin import groups, common, options
+from pynchon.bin import common, options
 from pynchon.util import lme, typing
 from pynchon.models import Plugin
 

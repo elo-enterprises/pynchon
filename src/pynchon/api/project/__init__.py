@@ -42,7 +42,8 @@ def get_config() -> dict:
         # exec(f"{conf_key}=plugin_config")
         plugin_obj = plugin_kls(plugin_config)
         from pynchon.plugins import registry as plugins_registry
-        plugins_registry[plugin_kls.name]['obj']=plugin_obj
+
+        plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     # for k in dir(config):
     #     val = getattr(config, k)
     #     if isinstance(val, (abcs.Config, dict)):
@@ -61,7 +62,7 @@ def plan(config: dict = {}) -> dict:
         assert plugin_name in registry, f"missing required plugin @ {plugin_name}"
         plugin_kls = registry[plugin_name]['kls']
         plugin = plugin_kls()
-        plugin.logger.debug(f"Planning..")
+        plugin.logger.debug("Planning..")
         result = plugin.plan(config)
         msg = "Done planning.  "
         if result:

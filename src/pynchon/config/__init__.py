@@ -20,6 +20,7 @@ from pynchon.plugins.base.config import BaseConfig as PynchonConfig  # noqa
 
 git = initialized['git'] = MappingProxyType(GitConfig())
 
+
 def config_folders():
     folders = list(set(filter(None, [os.environ.get("PYNCHON_ROOT"), git["root"]])))
     return [abcs.Path(f) for f in folders]

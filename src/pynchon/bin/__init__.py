@@ -1,7 +1,7 @@
 """ pynchon.bin
 """
 from pynchon.bin import api, cli, parse, render  # noqa
-from pynchon.util import typing, lme
+from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
 
 LOGGER = lme.get_logger(__name__)
