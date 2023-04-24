@@ -119,6 +119,7 @@ class PythonCLI(Plugin):
             Autogenenerate docs for python modules using __main__
             """
             from pynchon.api import project
+            from pynchon.util.os import invoke
 
             config, plan = project.plan()
             for fname, metadata in config["python"]["entrypoints"].items():

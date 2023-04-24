@@ -1,9 +1,12 @@
 """ pynchon.models
 """
 from memoized_property import memoized_property
-from pynchon.util import typing,lme
+
+from pynchon.util import typing, lme
 from pynchon.abcs.plugin import Plugin as BasePlugin
+
 LOGGER = lme.get_logger(__name__)
+
 
 class PynchonPlugin(BasePlugin):
     priority = 10
@@ -23,17 +26,18 @@ class PynchonPlugin(BasePlugin):
     @typing.classproperty
     def click_entry(kls):
         from pynchon.bin import entry
+
         return entry.entry
 
     @staticmethod
     def init_cli(kls):
         from pynchon.bin import common
+
         def plugin_main():
             pass
+
         plugin_main.__doc__ = f"""subcommands for `{kls.name}` plugin"""
-        plugin_main = common.groop(
-            kls.name,
-            parent=kls.click_entry)(plugin_main)
+        plugin_main = common.groop(kls.name, parent=kls.click_entry)(plugin_main)
 
         @common.kommand(name='config', parent=plugin_main)
         def config():

@@ -13,7 +13,7 @@ class Git(Plugin):
 
     priority = 0
     name = 'git'
-    defaults:typing.Dict = dict()
+    defaults: typing.Dict = dict()
     config_kls = GitConfig
 
     # @staticmethod

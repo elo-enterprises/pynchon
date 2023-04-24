@@ -1,9 +1,8 @@
 """ pynchon.plugins.base
 """
-from pynchon.bin import groups
+from pynchon.bin import groups, common
 from pynchon.util import lme, typing
 from pynchon.models import Plugin
-from pynchon.bin.common import kommand, groop
 
 LOGGER = lme.get_logger(__name__)
 
@@ -18,13 +17,13 @@ class Base(Plugin):
     def plan(self, config) -> typing.List[str]:
         return []
 
-    @groop("api", parent=groups.gen)
+    @common.groop("api", parent=groups.gen)
     def gen_api() -> None:
         """
         Generate API docs from python modules, packages, etc
         """
 
-    @groop("cli", parent=groups.gen)
+    @common.groop("cli", parent=groups.gen)
     def gen_cli():
         """Generate CLI docs"""
 

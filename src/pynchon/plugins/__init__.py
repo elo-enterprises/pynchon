@@ -16,19 +16,24 @@ from .scaffolding import Scaffolding  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+
 def get_plugin(plugin_name: str) -> object:
     """ """
     from pynchon.plugins import registry
-
     try:
-        return registry[plugin_name]
+        return registry[plugin_name]['kls']
     except KeyError:
         LOGGER.critical(f"cannot find plugin named `{plugin_name}`")
         LOGGER.critical(f"available plugins: {registry.keys()}")
         raise
 
+
 registry = [eval(name) for name in dir()]
 registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
-registry = dict([plugin_kls.name, plugin_kls] for plugin_kls in registry)
+registry = dict([
+    plugin_kls.name,
+    dict(kls=plugin_kls)] for plugin_kls in registry)
+# for plugin_name, plugin_meta in registry.items()
+# registry[plug]
 LOGGER.info(f"prioritized plugin-registry: {registry}")

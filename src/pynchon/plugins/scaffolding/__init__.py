@@ -7,6 +7,7 @@ from .config import ScaffoldingConfig
 
 LOGGER = lme.get_logger(__name__)
 
+
 class Scaffolding(Plugin):
     """ """
 
@@ -15,41 +16,39 @@ class Scaffolding(Plugin):
     defaults = dict()
     config_kls = ScaffoldingConfig
 
+    def list(self):
+        """list available scaffolds"""
+        return self.config.items()
+
+    def stat(self):
+        """status of current scaffolding"""
+
+
+    def diff(self):
+        """diff with known scaffolding"""
+
     @staticmethod
     def init_cli(kls):
         """pynchon.bin.scaffold:
         Option parsing for the `scaffold` subcommand
         """
         scaffold = Plugin.init_cli(kls)
-        from pynchon.bin import groups
-        from pynchon.bin.common import groop
-
-        # @groop("scaffold", parent=groups.entry)
-        # def scaffold():
-        #     """
-        #     Scaffolding Automation
-        #     (Creates folder layouts and other boilerplate)
-        #     """
-
-        # @scaffold.command("list")
-        # def scaffold_list():
-        #     """list available scaffolds"""
-
-        @scaffold.command("stat")
-        def scaffold_stat():
-            """status of current scaffolding"""
-
-        @scaffold.command("diff")
-        def scaffold_diff():
-            """diff with known scaffolding"""
-
-        @scaffold.command("apply")
-        def scaffold_apply():
-            """apply results of scaffold-plan"""
-
-        @scaffold.command("plan")
-        def scaffold_plan():
-            """plan application of scaffolding"""
+        from pynchon.bin import groups, common
+        for method_name in dir(kls):
+            fxn = getattr(kls,method_name)
+            FORBIDDEN = 'init_cli plan apply'.split()
+            test = hasattr(fxn,'__name__') and all([
+                callable(fxn),
+                not fxn.__name__.startswith('__'),
+                type(fxn).__name__=='function',
+                fxn.__name__ not in FORBIDDEN,
+            ])
+            if test:
+                LOGGER.debug(f"wrapping {fxn} for CLI..")
+                tmp = common.kommand(
+                    fxn.__name__,
+                    parent=scaffold,
+                )(fxn)
 
     def plan(self, config) -> typing.List[str]:
         """ """
