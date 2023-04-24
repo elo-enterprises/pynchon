@@ -20,6 +20,7 @@ LOGGER = lme.get_logger(__name__)
 def get_plugin(plugin_name: str) -> object:
     """ """
     from pynchon.plugins import registry
+
     try:
         return registry[plugin_name]['kls']
     except KeyError:
@@ -27,14 +28,18 @@ def get_plugin(plugin_name: str) -> object:
         LOGGER.critical(f"available plugins: {registry.keys()}")
         raise
 
-def get_plugin_obj(plugin_name:str) -> object:
+
+def get_plugin_obj(plugin_name: str) -> object:
     """ """
     plugin_meta = registry[plugin_name]
     try:
         return plugin_meta['obj']
     except KeyError:
-        LOGGER.critical(f"cannot retrieve object for {plugin_name}, is config finalized?")
+        LOGGER.critical(
+            f"cannot retrieve object for {plugin_name}, is config finalized?"
+        )
         raise
+
 
 LOGGER.critical(f"Building plugin-registry..")
 registry = [eval(name) for name in dir()]

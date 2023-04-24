@@ -1,5 +1,6 @@
 """ pynchon.abcs.visitor
 """
+import copy
 from types import MappingProxyType
 
 import pydash
@@ -120,12 +121,9 @@ class JinjaDict(TemplatedDict):
 
     def render(self, ctx={}):
         """ """
-        import copy
-
         tmp = copy.deepcopy(self)
         while tmp.unresolved:
             templated = tmp.unresolved
-            LOGGER.debug(f"resolving: {templated}")
             LOGGER.debug(f"remaining unresolved: {templated}")
             for i, path in enumerate(templated):
                 templated.pop(i)
@@ -156,7 +154,6 @@ class JinjaDict(TemplatedDict):
             templates=[],
         )
         self.set_path(path, resolved)
-        LOGGER.debug(f"resolved `{value}`@`{path}` as {resolved}")
         return resolved
 
     def is_templated(self, v):

@@ -39,5 +39,7 @@ class Config(dict):
                 continue
             self[p] = getattr(self, p)
         if overridden:
-            msg = f"properties for {overridden} exist, but provided kwargs overrides them"
+            msg = (
+                f"properties for {overridden} exist, but provided kwargs overrides them"
+            )
             self.logger.info(msg)

@@ -136,7 +136,8 @@ def j2_loads(
         if not template_dir.exists:
             err = f"template directory @ `{template_dir}` does not exist"
             raise ValueError(err)
-    LOGGER.critical(f"Templates: {templates}")
+    if templates:
+        LOGGER.critical(f"Templates: {templates}")
     env = Environment(
         loader=FileSystemLoader([str(t) for t in templates]),
         undefined=StrictUndefined,

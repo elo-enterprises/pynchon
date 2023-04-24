@@ -2,11 +2,13 @@
 """
 from pynchon.util import lme, typing  # , files
 from pynchon.models import Plugin
+
 from .config import ScaffoldingConfig
 
 LOGGER = lme.get_logger(__name__)
 
 from pynchon.util import files
+
 
 class Scaffolding(Plugin):
     """ """
@@ -18,10 +20,10 @@ class Scaffolding(Plugin):
     config_kls = ScaffoldingConfig
 
     def match(self):
-        """ returns files that match for all scaffolds """
-        result={}
+        """returns files that match for all scaffolds"""
+        result = {}
         for k in self.list():
-            result[k]=files.find_globs([k])
+            result[k] = files.find_globs([k])
         return result
 
     def list(self):
@@ -30,9 +32,10 @@ class Scaffolding(Plugin):
 
     def stat(self):
         """status of current scaffolding"""
-        for pattern,file_list in self.match():
+        for pattern, file_list in self.match():
             for fname in file_list:
                 return dict(NotImplementedError=True)
+
     def diff(self):
         """diff with known scaffolding"""
 

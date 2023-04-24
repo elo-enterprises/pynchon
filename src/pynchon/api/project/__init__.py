@@ -10,7 +10,9 @@ from types import MappingProxyType
 def get_config() -> dict:
     """ """
     from pynchon.config import finalize
+
     return finalize()
+
 
 def plan(config: dict = {}) -> dict:
     """ """

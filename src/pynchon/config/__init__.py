@@ -19,7 +19,7 @@ initialized = abcs.AttrDict()
 from pynchon.plugins.git import GitConfig  # noqa
 from pynchon.plugins.base.config import BaseConfig as PynchonConfig  # noqa
 
-git =GIT= initialized['git'] = MappingProxyType(GitConfig())
+git = GIT = initialized['git'] = MappingProxyType(GitConfig())
 
 
 def config_folders():
@@ -88,6 +88,7 @@ USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
     from pynchon.plugins import get_plugin
+
     result = abcs.AttrDict(
         _=RAW,
         pynchon=MappingProxyType(
@@ -111,6 +112,7 @@ def finalize():
             plugin_kls.config_kls, 'config_key', plugin_kls.name.replace('-', '_')
         )
         from pynchon import config as THIS_MODULE
+
         setattr(THIS_MODULE, conf_key, plugin_config)
         result.update({conf_key: plugin_config})
         plugin_obj = plugin_kls(plugin_config)

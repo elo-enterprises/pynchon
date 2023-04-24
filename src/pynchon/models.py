@@ -2,11 +2,12 @@
 """
 import json
 import functools
+
 from memoized_property import memoized_property
 
+from pynchon.bin import common
 from pynchon.util import typing, lme
 from pynchon.abcs.plugin import Plugin as BasePlugin
-from pynchon.bin import common
 
 LOGGER = lme.get_logger(__name__)
 
@@ -30,6 +31,7 @@ class PynchonPlugin(BasePlugin):
     def get_current_config(kls):
         """ """
         from pynchon import config as config_mod
+
         result = getattr(config_mod, kls.config_kls.config_key)
         return result
 
@@ -42,6 +44,7 @@ class PynchonPlugin(BasePlugin):
     @staticmethod
     def init_cli(kls):
         from pynchon import config
+
         config.finalize()
 
         def plugin_main():
@@ -49,8 +52,8 @@ class PynchonPlugin(BasePlugin):
 
         plugin_main.__doc__ = f"""subcommands for `{kls.name}` plugin"""
         plugin_main = common.groop(
-            getattr(kls,'cli_name', kls.name),
-            parent=kls.click_entry)(plugin_main)
+            getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
+        )(plugin_main)
 
         @common.kommand(name='config', parent=plugin_main)
         def config():
@@ -58,22 +61,25 @@ class PynchonPlugin(BasePlugin):
             LOGGER.debug(f"config class: {kls.config_kls}")
             LOGGER.debug(f"current config:")
             result = kls.get_current_config()
-            print(json.dumps(result,indent=2))
+            print(json.dumps(result, indent=2))
+
         from pynchon.plugins import get_plugin_obj
+
         obj = get_plugin_obj(kls.name)
         FORBIDDEN = 'get_current_config defaults logger init_cli plan apply'.split()
         for method_name in dir(obj):
             if method_name.startswith('_') or method_name in FORBIDDEN:
                 continue
             fxn = getattr(obj, method_name)
-            if fxn is None or type(fxn).__name__!='method':
+            if fxn is None or type(fxn).__name__ != 'method':
                 continue
             # LOGGER.critical(f"wrapping {[method_name, type(fxn)]} for CLI..")
-            def wrapper(*args, fxn=fxn,**kwargs):
+            def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
                 result = fxn(*args, **kwargs)
                 print(json.dumps(result, indent=2))
                 return result
+
             # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
             # wrapper.__name__=fxn.__name__
             # wrapper.__doc__=fxn.__doc__
@@ -81,7 +87,6 @@ class PynchonPlugin(BasePlugin):
                 fxn.__name__,
                 parent=plugin_main,
             )(wrapper)
-
 
         return plugin_main
 
