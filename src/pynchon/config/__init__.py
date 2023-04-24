@@ -1,6 +1,7 @@
 """ pynchon.config
 """
 import os
+import functools
 from types import MappingProxyType
 from collections import OrderedDict
 
@@ -18,7 +19,7 @@ initialized = abcs.AttrDict()
 from pynchon.plugins.git import GitConfig  # noqa
 from pynchon.plugins.base.config import BaseConfig as PynchonConfig  # noqa
 
-git = initialized['git'] = MappingProxyType(GitConfig())
+git =GIT= initialized['git'] = MappingProxyType(GitConfig())
 
 
 def config_folders():
@@ -26,12 +27,12 @@ def config_folders():
     return [abcs.Path(f) for f in folders]
 
 
-def load_config():
+def load_config_from_files():
     """ """
     from pynchon.util import python
 
     contents = OrderedDict()
-    for src in config_sources():
+    for src in get_config_files():
         if not src.exists():
             LOGGER.warning("src@`{src}` doesn't exist")
             continue
@@ -48,7 +49,7 @@ def load_config():
     return contents
 
 
-def config_sources():
+def get_config_files():
     """ """
     if os.environ.get('PYNCHON_CONFIG', None):
         return [abcs.Path(os.environ['PYNCHON_CONFIG'])]
@@ -70,58 +71,54 @@ def config_sources():
     return result
 
 
-_merged = {}
-for _, config in load_config().items():
-    _merged = {**_merged, **config}
+MERGED_CONFIG_FILES = {}
+for _, config in load_config_from_files().items():
+    MERGED_CONFIG_FILES = {**MERGED_CONFIG_FILES, **config}
 
-pynchon = PynchonConfig(**_merged)
-assert '{{' in pynchon['jinja']['includes'][0]
-# import IPython; IPython.embed()
-
-raw = initialized['pynchon'] = pynchon
+# NB: this content is potentially templated
+pynchon = PynchonConfig(**MERGED_CONFIG_FILES)
+RAW = initialized['pynchon'] = pynchon
 pynchon['plugins'] = pynchon.plugins
 
 from pynchon.abcs.visitor import JinjaDict
 
-defaults = JinjaDict(raw.copy()).render(dict(pynchon=raw))
+USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))
 
-# from pynchon.plugins import registry
-# for name,plugin_kls in registry:
-# config_classes = [eval(kls_name) for kls_name in dir()]
-# config_classes = [
-#     kls
-#     for kls in config_classes
-#     if isinstance(kls, (typing.Type,)) and issubclass(kls, abcs.Config)
-# ]
-# config_classes = sorted(config_classes, key=lambda kls: kls.priority)
-# LOGGER.debug(f"config initialization order: {[k.__name__ for k in config_classes]}")
-# for kls in config_classes:
-#     parent = getattr(kls, "parent", None)
-#     if parent is not None:
-#         kls.logger.warning(f"skipping init because parent is set (parent={parent})")
-#         continue
-#     raw_defaults = initialized.get("pynchon", {}).get(kls.config_key, {})
-#     kls_defaults = getattr(kls, "defaults", {})
-#     # LOGGER.debug(f"defaults loaded from config: {raw_defaults}")
-#     # LOGGER.debug(f"defaults loaded from class: {kls_defaults}")
-#     final_defaults = {**kls_defaults, **raw_defaults}
-#     if final_defaults and kls.debug:
-#         msg = text.to_json(final_defaults)
-#         msg = f"using defaults:\n{msg}"
-#         kls.logger.info(msg)
-#     # conf = kls(**final_defaults)
-#     initialized[kls.config_key] = kls(**final_defaults)
-#     if kls.config_key=='pynchon':
-#         LOGGER.critical('freezing pynchon')
-#         initialized[kls.config_key] = dict(initialized[kls.config_key])
-#
-#     # conf.logger.debug("initialized.")
-# for k in initialized:
-#     exec(f"{k} = initialized['{k}']")
-# initialized=dict(initialized)
-# # pynchon = dict(initialized['pynchon'])
-# from pynchon.abcs.visitor import JinjaDict
-# tmp = JinjaDict(**initialized)
-# tmp.render()
-# tmp['pynchon'] = pynchon
-# initialized = tmp
+
+@functools.lru_cache(maxsize=100, typed=False)
+def finalize():
+    from pynchon.plugins import get_plugin
+    result = abcs.AttrDict(
+        _=RAW,
+        pynchon=MappingProxyType(
+            dict([[k, v] for k, v in RAW.items() if not isinstance(v, (dict,))])
+        ),
+        git=GIT,
+    )
+    plugins = [get_plugin(pname) for pname in result.pynchon['plugins']]
+    for plugin_kls in plugins:
+        # if plugin_kls.name in 'git pynchon'.split():
+        #     pass
+        LOGGER.debug(f"plugin {plugin_kls.name}: {plugin_kls}")
+        LOGGER.debug(f"config {plugin_kls.name}: {plugin_kls.config_kls}")
+        pconf_kls = plugin_kls.config_kls
+        plugin_defaults = plugin_kls.defaults
+        # NB: module access
+        user_defaults = USER_DEFAULTS.get(plugin_kls.name, {})
+        plugin_config = pconf_kls(
+            **{
+                **plugin_defaults,
+                **user_defaults,
+            }
+        )
+        conf_key = getattr(
+            plugin_kls.config_kls, 'config_key', plugin_kls.name.replace('-', '_')
+        )
+        from pynchon import config as THIS_MODULE
+        setattr(THIS_MODULE, conf_key, plugin_config)
+        result.update({conf_key: plugin_config})
+        plugin_obj = plugin_kls(plugin_config)
+        from pynchon.plugins import registry as plugins_registry
+
+        plugins_registry[plugin_kls.name]['obj'] = plugin_obj
+    return result
