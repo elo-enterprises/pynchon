@@ -145,10 +145,11 @@ def j2_loads(
 
     known_templates = map(abcs.Path, set(env.loader.list_templates()))
     known_templates = [str(p) for p in known_templates if dot not in p.parents]
-    msg = "Known templates: "
-    msg += "(excluding the ones under working-dir)"
-    msg += "\n{}".format(json.dumps(known_templates, indent=2))
-    LOGGER.warning(msg)
+    if known_templates:
+        msg = "Known templates: "
+        msg += "(excluding the ones under working-dir)"
+        msg += "\n{}".format(json.dumps(known_templates, indent=2))
+        LOGGER.warning(msg)
 
     template = env.from_string(text)
     context = {**dict(os.environ.items()), **context}

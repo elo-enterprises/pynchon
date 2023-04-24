@@ -16,8 +16,7 @@ LOGGER = lme.get_logger(__name__)
 initialized = abcs.AttrDict()
 
 from pynchon.plugins.git import GitConfig  # noqa
-
-from .base import BaseConfig as PynchonConfig  # noqa
+from pynchon.plugins.base.config import BaseConfig as PynchonConfig  # noqa
 
 git = initialized['git'] = MappingProxyType(GitConfig())
 

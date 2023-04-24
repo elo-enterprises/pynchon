@@ -1,7 +1,5 @@
 """ pynchon.abcs.config
 """
-# from memoized_property import memoized_property
-
 from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
@@ -34,10 +32,11 @@ class Config(dict):
                 ]
             )
         ]
+        overridden = []
         for p in props:
             if p in kwargs:
-                self.logger.warning(
-                    f"property '{p}' exists, but provided kwargs overrides it"
-                )
+                overridden.append(p)
                 continue
             self[p] = getattr(self, p)
+        msg=f"properties for {overridden} exist, but provided kwargs overrides them"
+        self.logger.info(msg)

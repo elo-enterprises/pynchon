@@ -1,10 +1,11 @@
 """ pynchon.config.python
 """
 import os
+
 import click
 
 from pynchon import constants, util
-from pynchon.bin import groups, options, common
+from pynchon.bin import options, common
 from pynchon.util import lme, typing
 from pynchon.models import Plugin
 from pynchon.plugins.base import Base

@@ -1,13 +1,11 @@
 """ pynchon.plugins.scaffolding
 """
-from pynchon import abcs
 from pynchon.util import lme, typing  # , files
 from pynchon.models import Plugin
 
 from .config import ScaffoldingConfig
 
 LOGGER = lme.get_logger(__name__)
-
 
 class Scaffolding(Plugin):
     """ """
@@ -22,19 +20,20 @@ class Scaffolding(Plugin):
         """pynchon.bin.scaffold:
         Option parsing for the `scaffold` subcommand
         """
+        scaffold = Plugin.init_cli(kls)
         from pynchon.bin import groups
         from pynchon.bin.common import groop
 
-        @groop("scaffold", parent=groups.entry)
-        def scaffold():
-            """
-            Scaffolding Automation
-            (Creates folder layouts and other boilerplate)
-            """
+        # @groop("scaffold", parent=groups.entry)
+        # def scaffold():
+        #     """
+        #     Scaffolding Automation
+        #     (Creates folder layouts and other boilerplate)
+        #     """
 
-        @scaffold.command("list")
-        def scaffold_list():
-            """list available scaffolds"""
+        # @scaffold.command("list")
+        # def scaffold_list():
+        #     """list available scaffolds"""
 
         @scaffold.command("stat")
         def scaffold_stat():

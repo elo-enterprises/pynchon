@@ -3,9 +3,8 @@
 import os
 
 from pynchon import abcs, config
-from pynchon.bin import groups, options, common
+from pynchon.bin import groups, common, options
 from pynchon.util import lme, typing
-from pynchon.bin.entry import entry
 from pynchon.models import Plugin
 
 LOGGER = lme.get_logger(__name__)
@@ -22,7 +21,7 @@ class ProjectConfig(abcs.Config):
     #     return self.subproject and pynchon["working_dir"]
 
     @property
-    def name(self) -> str:
+    def name(self) -> typing.StringMaybe:
         """ """
         repo_name = config.git.get("repo_name")
         return repo_name or os.path.split(os.getcwd())[-1]
@@ -61,6 +60,8 @@ class Project(Plugin):
     @staticmethod
     def init_cli(kls):
         """pynchon.bin.project"""
+        project_group = Plugin.init_cli(kls)
+
         import json
 
         from pynchon import abcs, constants, util
@@ -69,12 +70,6 @@ class Project(Plugin):
         from pynchon.util.os import invoke
 
         LOGGER = lme.get_logger(__name__)
-
-        @common.groop(f"{kls.name}", parent=entry)
-        def project_group():
-            """
-            Project Automation
-            """
 
         @common.kommand(
             name="entrypoints",

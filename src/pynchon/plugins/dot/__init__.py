@@ -40,25 +40,19 @@ class Dot(Plugin):
 
     @staticmethod
     def init_cli(kls):
-        """pynchon.bin.dot:
+        """
         Option parsing for the `dot` subcommands
         """
+        gen_dot = plugin_sub = Plugin.init_cli(kls)
+
         import os
 
         import click
 
-        from pynchon.bin import options, groups
+        from pynchon.bin import options
         from pynchon.util import lme
         from pynchon.util.os import invoke
-        from pynchon.bin.common import groop, kommand
-
-        # from pynchon.plugins.base import Base
-
-        @groop("dot", parent=groups.gen)
-        def gen_dot():
-            """
-            Generate .dot files
-            """
+        from pynchon.bin.common import kommand
 
         LOGGER = lme.get_logger(__name__)
         files_arg = click.argument("files", nargs=-1)

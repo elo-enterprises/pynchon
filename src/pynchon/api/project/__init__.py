@@ -7,19 +7,9 @@ LOGGER = lme.get_logger(__name__)
 from types import MappingProxyType
 
 
-def get_plugin(plugin_name: str) -> object:
-    from pynchon.plugins import registry
-
-    try:
-        return registry[plugin_name]
-    except KeyError:
-        LOGGER.critical(f"cannot find plugin named `{plugin_name}`")
-        LOGGER.critical(f"available plugins: {registry.keys()}")
-        raise
-
-
 def get_config() -> dict:
     """ """
+    from pynchon.plugins import get_plugin
     result = abcs.AttrDict(
         _=config.raw,
         pynchon=MappingProxyType(
@@ -29,29 +19,29 @@ def get_config() -> dict:
     )
     plugins = [get_plugin(p) for p in result.pynchon['plugins']]
     for plugin_kls in plugins:
-        if plugin_kls.name in 'git pynchon'.split():
-            pass
+        # if plugin_kls.name in 'git pynchon'.split():
+        #     pass
         LOGGER.debug(f"plugin {plugin_kls.name}: {plugin_kls}")
         LOGGER.debug(f"config {plugin_kls.name}: {plugin_kls.config_kls}")
         pconf_kls = plugin_kls.config_kls
         plugin_defaults = plugin_kls.defaults
         # NB: module access
-        user_defaults = config.defaults.get(plugin_kls.name, {})
+        user_defaults = config.defaults.get(
+            plugin_kls.name, {})
         plugin_config = pconf_kls(
             **{
                 **plugin_defaults,
                 **user_defaults,
             }
         )
-        setattr(config, plugin_kls.name.replace('-', '_'), plugin_config)
-        result.update({plugin_kls.name: plugin_config})
-        exec(f"{plugin_kls.name.replace('-','_')}=plugin_config")
-    # pypi = PyPiConfig
-
-    # result.update(
-    #     pypi=config.pypi,
-    #     jinja=config.jinja,
-    # )
+        conf_key = getattr(
+            plugin_kls.config_kls,
+            'config_key',
+            plugin_kls.name.replace('-','_'))
+        setattr(config,conf_key,plugin_config)
+        result.update({conf_key: plugin_config})
+        exec(f"{conf_key}=plugin_config")
+        plugin_kls(plugin_config)
     # for k in dir(config):
     #     val = getattr(config, k)
     #     if isinstance(val, (abcs.Config, dict)):

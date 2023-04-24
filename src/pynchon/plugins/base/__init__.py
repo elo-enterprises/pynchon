@@ -1,10 +1,9 @@
 """ pynchon.plugins.base
 """
-from pynchon import constants
-from pynchon.bin import groups, options, common
-from pynchon.util import files, lme, typing
-from pynchon.bin.common import kommand, groop
+from pynchon.bin import groups
+from pynchon.util import lme, typing
 from pynchon.models import Plugin
+from pynchon.bin.common import kommand, groop
 
 LOGGER = lme.get_logger(__name__)
 

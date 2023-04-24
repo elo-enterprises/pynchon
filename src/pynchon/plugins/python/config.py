@@ -1,4 +1,4 @@
-"""
+""" pynchon.config
 """
 import platform
 
@@ -12,6 +12,7 @@ from pynchon.util.os import invoke
 
 
 class PythonCliConfig(abcs.Config):
+    config_key = "python_cli"
     @property
     def entrypoints(self) -> dict:
         """ """
