@@ -6,6 +6,7 @@ from pynchon.plugins import registry as plugin_registry
 
 LOGGER = lme.get_logger(__name__)
 from pynchon import config
+
 LOGGER.critical('Building CLIs from plugins..')
 registry = cli_registry = {}
 for name, plugin_meta in plugin_registry.items():

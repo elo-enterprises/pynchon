@@ -29,15 +29,19 @@ def config() -> None:
     """
     invoke('pynchon project config', system=True)
 
+
 @entry.command("config-raw")
 def config_raw() -> None:
     """
     shows raw-config (no interpolation or templating)
     """
+    import json
+
     from pynchon import abcs
     from pynchon.config import RAW
-    import json
-    print(json.dumps(RAW,indent=2,cls=abcs.JSONEncoder))
+
+    print(json.dumps(RAW, indent=2, cls=abcs.JSONEncoder))
+
 
 @groop("render", parent=entry)
 def render():

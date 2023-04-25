@@ -1,13 +1,11 @@
 """ pynchon.plugins.scaffolding
 """
-from pynchon.util import lme, typing  # , files
+from pynchon.util import lme, typing, files  # , files
 from pynchon.models import Plugin
 
 from .config import ScaffoldingConfig
 
 LOGGER = lme.get_logger(__name__)
-
-from pynchon.util import files
 
 
 class Scaffolding(Plugin):
@@ -38,6 +36,7 @@ class Scaffolding(Plugin):
 
     def diff(self):
         """diff with known scaffolding"""
+        return dict(NotImplementedError=True)
 
     def plan(self, config) -> typing.List[str]:
         """ """

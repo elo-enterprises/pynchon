@@ -27,6 +27,11 @@ class PynchonPlugin(BasePlugin):
     #     # self.logger.info(f"parsed generate-instructions: {result}")
     #     return result
 
+    @typing.classproperty
+    def project_config(self):
+        from pynchon.api import project
+        return project.get_config()
+
     @classmethod
     def get_current_config(kls):
         """ """
@@ -66,7 +71,13 @@ class PynchonPlugin(BasePlugin):
         from pynchon.plugins import get_plugin_obj
 
         obj = get_plugin_obj(kls.name)
-        FORBIDDEN = 'get_current_config defaults logger init_cli plan apply'.split()
+        FORBIDDEN = [
+            'get_current_config',
+            'defaults',
+            'logger',
+            'init_cli',
+            # 'plan', 'apply'
+        ]
         for method_name in dir(obj):
             if method_name.startswith('_') or method_name in FORBIDDEN:
                 continue

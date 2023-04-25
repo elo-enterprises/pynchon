@@ -36,12 +36,6 @@ class BaseConfig(abcs.Config):
             LOGGER.warning('skipping plugin validation..')
         elif isinstance(v, (dict,)):
             raw_plugin_configs[k] = v
-            # from pynchon.plugins import registry
-            # if k in 'plugins globals'.split():
-            #     continue
-            # if k not in registry:
-            #     err = f'top level keys with complex values should correspond to plugins! {k}'
-            #     raise ValueError(err)
         else:
             LOGGER.info(f'skipping validation for top-level {k},{v}')
 

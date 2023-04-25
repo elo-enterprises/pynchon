@@ -107,6 +107,7 @@ def finalize():
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     return result
 
+
 MERGED_CONFIG_FILES = {}
 for _, config in load_config_from_files().items():
     MERGED_CONFIG_FILES = {**MERGED_CONFIG_FILES, **config}
