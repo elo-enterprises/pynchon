@@ -1,6 +1,5 @@
 """ pynchon.plugins.scaffolding
 """
-import difflib
 from pynchon.util.os import invoke
 from pynchon import abcs
 from pynchon.util import lme, typing, files  # , files
@@ -101,35 +100,18 @@ class Scaffolding(Plugin):
                     if diff.succeeded:
                         LOGGER.debug(f"no diff detected for {fname}")
                     else:
-                        with open(matched_scaffold.src, 'r') as src:
-                            with open(fname, 'r') as dest:
-                                src_l = src.readlines()
-                                dest_l = dest.readlines()
-                        xdiff = difflib.unified_diff(
-                            src_l, dest_l, lineterm='', n=0,)
-                        with open(matched_scaffold.src, 'r') as src:
-                            with open(fname, 'r') as dest:
-                                src_c = src.read()
-                                dest_c = dest.read()
-                        sm = difflib.SequenceMatcher(None, src_c, dest_c)
-                        this_diff=''.join(xdiff)
+                        this_diff=files.diff(matched_scaffold.src, fname)
+                        percent_diff=files.diff_percent(matched_scaffold.src, fname)
                         result['modified'].append(
                             dict(
                                 src=matched_scaffold.src,
                                 fname=fname,
-                                percent_diff=f'{100*(1.0-sm.ratio())}%',
+                                percent_diff=f'{percent_diff}%',
                                 # diff=this_diff,
                                 # diff=diff.stdout
                             )
                         )
-                        import pygments
-                        import pygments.lexers
-                        import pygments.formatters
-                        tmp=pygments.highlight(
-                            this_diff,
-                            lexer=pygments.lexers.get_lexer_by_name('udiff'),
-                            formatter=pygments.formatters.get_formatter_by_name('terminal16m'))
-                        LOGGER.debug(f"scaffold drift: \n\n{tmp}\n\n")
+                        files.diff_report(this_diff,logger=LOGGER.debug)
                 else:
                     result['errors'].append(fname)
         return result
