@@ -29,7 +29,7 @@ class ProjectConfig(abcs.Config):
     @property
     def root(self) -> str:
         """ """
-        git = config.initialized["git"]
+        git = config.GIT
         return (
             os.environ.get("PYNCHON_ROOT") or (git and git.get("root")) or os.getcwd()
         )
@@ -39,7 +39,7 @@ class ProjectConfig(abcs.Config):
         """ """
         if os.environ.get("PYNCHON_ROOT"):
             return {}
-        git = config.initialized["git"]
+        git = config.GIT
         git_root = git["root"]
         workdir = abcs.Path('.')
         # workdir = pynchon["working_dir"]

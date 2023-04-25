@@ -16,7 +16,6 @@ class Git(Plugin):
     defaults: typing.Dict = dict()
     config_kls = GitConfig
 
-    # @staticmethod
-    # def init_cli(kls):
-    #     """pynchon.bin.project"""
-    #     Plugin.init_cli(kls)
+    @staticmethod
+    def init_cli(kls):
+        pass

@@ -1,7 +1,6 @@
 """ pynchon.models
 """
 import json
-import functools
 
 from memoized_property import memoized_property
 
@@ -36,8 +35,9 @@ class PynchonPlugin(BasePlugin):
     def get_current_config(kls):
         """ """
         from pynchon import config as config_mod
-
-        result = getattr(config_mod, kls.config_kls.config_key)
+        result = getattr(
+            config_mod,
+            kls.config_kls.config_key)
         return result
 
     @typing.classproperty

@@ -5,8 +5,6 @@ import os
 from pynchon import __version__, abcs
 from pynchon.util import lme, typing
 
-from . import initialized
-
 LOGGER = lme.get_logger(__name__)
 
 
@@ -60,9 +58,10 @@ class BaseConfig(abcs.Config):
             * os-env
             * {{git.root}}
         """
+        from pynchon import config
         root = self.get("root")
         root = root or os.environ.get("PYNCHON_ROOT")
-        root = root or initialized["git"].get("root")
+        root = root or config.GIT.get("root")
         return root and abcs.Path(root)
 
     @property

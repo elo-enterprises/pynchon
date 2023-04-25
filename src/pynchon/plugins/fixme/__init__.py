@@ -14,6 +14,7 @@ LOGGER = lme.get_logger(__name__)
 
 T_FIXME = constants.ENV.get_template("FIXME.md.j2")
 
+
 class FixMeConfig(abcs.Config):
     config_key = 'fixme'
 
