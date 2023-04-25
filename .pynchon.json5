@@ -39,14 +39,18 @@
     "skip_private_methods": true,
     "skip_patterns": [],
   },
-  "scaffolding":
-    { "{{pynchon.src_root}}/**/tox.ini":
-        { "name":"{{pynchon.src_root}}",
-          "scope":"",
-          "config":{},
-        },
-    },
-  "jinja":{
+  "scaffolding":{
+    "exclude_patterns": [],
+    "scaffolds":[
+      {
+        "name": "subproject tox.ini's",
+        "pattern": "**/tox.ini",
+        "scope":"*",
+        "config":{},
+       },
+     ],
+   },
+   "jinja":{
     "includes": [
       "{{pynchon.docs_root}}/includes",
     ],

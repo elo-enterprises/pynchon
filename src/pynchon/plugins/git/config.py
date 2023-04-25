@@ -33,12 +33,12 @@ class GitConfig(abcs.Config):
         return tmp and tmp.parents[0]
 
     @memoized_property
-    def repo(self):
+    def repo(self) -> typing.StringMaybe:
         """ """
         cmd = invoke(
             f"cd {self.root} && git config --get remote.origin.url", log_command=False
         )
-        return cmd.stdout.strip() if cmd.succeeded else ""
+        return cmd.stdout.strip() if cmd.succeeded else None
 
     @property
     def is_github(self):
