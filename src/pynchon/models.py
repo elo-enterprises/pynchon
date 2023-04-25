@@ -5,7 +5,7 @@ import json
 from memoized_property import memoized_property
 
 from pynchon.bin import common
-from pynchon.util import typing, lme
+from pynchon.util import typing, lme, text
 from pynchon.abcs.plugin import Plugin as BasePlugin
 
 LOGGER = lme.get_logger(__name__)
@@ -25,6 +25,10 @@ class PynchonPlugin(BasePlugin):
     #     result = self.state.pynchon.get("generate", [])
     #     # self.logger.info(f"parsed generate-instructions: {result}")
     #     return result
+    @property
+    def plugin_config(self):
+        return self.get_current_config()
+
 
     @typing.classproperty
     def project_config(self):
@@ -37,7 +41,8 @@ class PynchonPlugin(BasePlugin):
         """ """
         from pynchon import config as config_mod
 
-        result = getattr(config_mod, kls.config_kls.config_key)
+        result = getattr(config_mod,
+            getattr(kls.config_kls,'config_key', kls.name))
         return result
 
     @typing.classproperty
@@ -88,7 +93,7 @@ class PynchonPlugin(BasePlugin):
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
                 result = fxn(*args, **kwargs)
-                print(json.dumps(result, indent=2))
+                print(text.to_json(result))
                 return result
 
             # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
@@ -100,6 +105,5 @@ class PynchonPlugin(BasePlugin):
             )(wrapper)
 
         return plugin_main
-
 
 Plugin = PynchonPlugin

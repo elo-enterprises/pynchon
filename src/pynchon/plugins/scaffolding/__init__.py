@@ -1,39 +1,14 @@
 """ pynchon.plugins.scaffolding
 """
+import os
 from pynchon import abcs
 from pynchon.util import lme, typing, files  # , files
 from pynchon.models import Plugin
 from pynchon.util.os import invoke
 
-from .config import ScaffoldingConfig
+from .config import ScaffoldingConfig, ScaffoldingItem
 
 LOGGER = lme.get_logger(__name__)
-
-
-class ScaffoldingItem(abcs.AttrDict):
-    warnings = []
-
-    @property
-    def exists(self):
-        import os
-
-        return os.path.exists(self.src)
-
-    def validate(self):
-        if not self.exists and self.src not in ScaffoldingItem.warnings:
-            LOGGER.critical(f"Scaffolding source @ {self.src} does not exist!")
-            ScaffoldingItem.warnings.append(self.src)
-
-    def __init__(
-        self, name='unnamed scaffold', scope='*', pattern=None, src=None, **kwargs
-    ):
-        assert pattern is not None
-        assert src is not None
-        super(ScaffoldingItem, self).__init__(
-            name=name, scope=scope, src=src, pattern=pattern, **kwargs
-        )
-        self.validate()
-
 
 class Scaffolding(Plugin):
     """ """
@@ -43,10 +18,6 @@ class Scaffolding(Plugin):
     cli_name = 'scaffold'
     defaults = dict()
     config_kls = ScaffoldingConfig
-
-    @property
-    def plugin_config(self):
-        return self.get_current_config()
 
     def match(self, pattern=None):
         """
@@ -79,6 +50,8 @@ class Scaffolding(Plugin):
             for s in diff['modified']
         ]
         return dict(errors=diff['errors'], modified=modified)
+    def st(self): return self.stat()
+    def status(self): return self.stat()
 
     @property
     def scaffolds(self):
@@ -116,9 +89,10 @@ class Scaffolding(Plugin):
                     result['errors'].append(fname)
         return result
 
-    def plan(self, config) -> typing.List[str]:
+    def plan(self, config=None) -> typing.List[str]:
         """ """
+        config or self.plugin_config
         plan = super(Scaffolding, self).plan(config)
-        for fname in self.diff():
-            plan += [f"echo {fname} different!"]
+        for delta in self.diff()['modified']:
+            plan += [f"cp {delta['src']} {delta['fname']}"]
         return plan

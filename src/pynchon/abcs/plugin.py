@@ -18,10 +18,11 @@ class Plugin(object):
     def logger(self):
         return lme.get_logger(f"<{self.__class__.__name__} Plugin>")
 
-    def plan(self, config) -> typing.List:
+    def plan(self, config=None) -> typing.List:
         self.state = config
         return []
 
-    def apply(self, config) -> None:
-        self.state = config
-        return []
+    def apply(self, config=None) -> None:
+        plan = self.plan(config=config)
+        from pynchon.util.os import invoke
+        return [invoke(p).succeeded for p in plan]
