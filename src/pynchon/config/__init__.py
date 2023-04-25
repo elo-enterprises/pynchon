@@ -27,9 +27,9 @@ for _, config in load_config_from_files().items():
 LOGGER.critical("Building plugins-list & raw-config..")
 
 # NB: this content is potentially templated
-pynchon = PynchonConfig(**MERGED_CONFIG_FILES)
-RAW = pynchon.copy()
-PLUGINS = pynchon['plugins'] = pynchon.plugins
+pynchon = PYNCHON = PynchonConfig(**MERGED_CONFIG_FILES)
+RAW = PYNCHON.copy()
+PLUGINS = list(set(PYNCHON.plugins + ['base']))
 from pynchon.abcs.visitor import JinjaDict
 
 USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))

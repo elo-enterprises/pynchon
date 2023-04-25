@@ -32,18 +32,19 @@ def get_plugin(plugin_name: str) -> object:
 def get_plugin_obj(plugin_name: str) -> object:
     """ """
     plugin_meta = registry[plugin_name]
+    plugin_kls = plugin_meta['kls']
     try:
         return plugin_meta['obj']
     except KeyError:
         LOGGER.critical(
-            f"cannot retrieve object for {plugin_name}, is config finalized?"
+            f"cannot retrieve ['obj'] for `{plugin_name}` from registry; is config finalized?"
         )
         raise
 
 
 from pynchon import config
 
-LOGGER.critical(f"Building plugin-registry..")
+LOGGER.critical(f"Building plugin registry..")
 registry = [
     eval(name)
     for name in dir()
@@ -53,3 +54,5 @@ registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
 registry = [kls for kls in registry if kls.name in config.PLUGINS]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
 registry = dict([plugin_kls.name, dict(kls=plugin_kls)] for plugin_kls in registry)
+# FIXME: why doesn't this happen already?
+registry[Base.name]=dict(kls=Base, obj=Base())

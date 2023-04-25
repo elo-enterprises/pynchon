@@ -22,25 +22,12 @@ def plan() -> None:
     invoke('pynchon project plan', system=True)
 
 
-@entry.command("config")
-def config() -> None:
-    """
-    shortcut for `pynchon project config`
-    """
-    invoke('pynchon project config', system=True)
-
-
-@entry.command("config-raw")
-def config_raw() -> None:
-    """
-    shows raw-config (no interpolation or templating)
-    """
-    import json
-
-    from pynchon import abcs
-    from pynchon.config import RAW
-
-    print(json.dumps(RAW, indent=2, cls=abcs.JSONEncoder))
+# @entry.command("config")
+# def config() -> None:
+#     """
+#     shortcut for `pynchon project config`
+#     """
+#     invoke('pynchon project config', system=True)
 
 
 @groop("render", parent=entry)

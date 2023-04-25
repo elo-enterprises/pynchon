@@ -52,44 +52,67 @@ class PynchonPlugin(BasePlugin):
         return entry.entry
 
     @staticmethod
-    def init_cli(kls):
-        from pynchon import config
-
-        config.finalize()
-
+    def init_cli_group(kls):
         def plugin_main():
             pass
-
         plugin_main.__doc__ = f"""subcommands for `{kls.name}` plugin"""
         plugin_main = common.groop(
             getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
         )(plugin_main)
+        return plugin_main
 
-        @common.kommand(name='config', parent=plugin_main)
-        def config():
-            """shows current config for this plugin"""
-            LOGGER.debug(f"config class: {kls.config_kls}")
-            LOGGER.debug(f"current config:")
-            result = kls.get_current_config()
-            print(json.dumps(result, indent=2))
-
+    @typing.classproperty
+    def instance(kls):
         from pynchon.plugins import get_plugin_obj
+        return get_plugin_obj(kls.name)
 
-        obj = get_plugin_obj(kls.name)
+    @typing.classproperty
+    def instance_methods(kls):
         FORBIDDEN = [
             'get_current_config',
             'defaults',
             'logger',
             'init_cli',
+            'instance',
+            'instance_methods',
             # 'plan', 'apply'
         ]
-        for method_name in dir(obj):
+        result = []
+        obj = kls.instance
+        for method_name in dir(kls):
             if method_name.startswith('_') or method_name in FORBIDDEN:
                 continue
+            # print(method_name)
+            # import IPython; IPython.embed()
             fxn = getattr(obj, method_name)
             if fxn is None or type(fxn).__name__ != 'method':
                 continue
+            result.append(method_name)
+        return result
+
+    @staticmethod
+    def init_cli(kls):
+        from pynchon import config
+        config.finalize()
+
+        plugin_main = kls.init_cli_group(kls)
+
+        if not callable(getattr(kls.instance,'config')):
+
+            @common.kommand(name='config', parent=plugin_main)
+            def config():
+                """shows current config for this plugin"""
+                LOGGER.debug(f"config class: {kls.config_kls}")
+                LOGGER.debug(f"current config:")
+                result = kls.get_current_config()
+                print(text.to_json(result))
+
+        obj = kls.instance
+        for method_name in kls.instance_methods:
             # LOGGER.critical(f"wrapping {[method_name, type(fxn)]} for CLI..")
+            fxn = getattr(obj, method_name)
+            import functools
+            # @functools.wraps(fxn)
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
                 result = fxn(*args, **kwargs)
@@ -98,9 +121,10 @@ class PynchonPlugin(BasePlugin):
 
             # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
             # wrapper.__name__=fxn.__name__
-            # wrapper.__doc__=fxn.__doc__
+            wrapper.__doc__=fxn.__doc__
             tmp = common.kommand(
-                fxn.__name__,
+                fxn.__name__.replace('_', '-'),
+                # help=fxn.__doc__,
                 parent=plugin_main,
             )(wrapper)
 

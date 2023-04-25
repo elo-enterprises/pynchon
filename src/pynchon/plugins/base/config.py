@@ -16,6 +16,7 @@ class BaseConfig(abcs.Config):
     defaults = dict(
         version=__version__,
         plugins=[
+            "base",
             "git",
             "jinja",
             "project",

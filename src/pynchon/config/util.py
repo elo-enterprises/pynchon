@@ -25,6 +25,7 @@ def finalize():
         git=config.GIT,
     )
     plugins = [get_plugin(pname) for pname in result.pynchon['plugins']]
+    # raise Exception(plugins)
     for plugin_kls in plugins:
         pconf_kls = plugin_kls.config_kls
         plugin_defaults = plugin_kls.defaults
@@ -45,7 +46,6 @@ def finalize():
         result.update({conf_key: plugin_config})
         plugin_obj = plugin_kls(plugin_config)
         from pynchon.plugins import registry as plugins_registry
-
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     return result
 

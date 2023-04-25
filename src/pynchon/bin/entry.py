@@ -1,4 +1,4 @@
-"""
+""" pynchon.bin.entry
 """
 import click
 
