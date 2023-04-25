@@ -12,6 +12,7 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
+
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
     from pynchon import config
@@ -48,6 +49,7 @@ def finalize():
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     return result
 
+
 def get_config_files():
     """ """
 
@@ -70,9 +72,13 @@ def get_config_files():
     # config_candidates = [p for p in config_candidates if p.exists()]
     return result
 
+
 def config_folders():
     from pynchon import config
-    folders = list(set(filter(None, [os.environ.get("PYNCHON_ROOT"), config.GIT["root"]])))
+
+    folders = list(
+        set(filter(None, [os.environ.get("PYNCHON_ROOT"), config.GIT["root"]]))
+    )
     return [abcs.Path(f) for f in folders]
 
 

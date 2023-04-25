@@ -14,10 +14,10 @@ LOGGER = lme.get_logger(__name__)
 
 from pynchon.plugins.git import GitConfig  # noqa
 from pynchon.plugins.base.config import BaseConfig as PynchonConfig  # noqa
+
 from .util import config_folders, load_config_from_files, get_config_files, finalize
 
 git = GIT = MappingProxyType(GitConfig())
-
 
 
 MERGED_CONFIG_FILES = {}

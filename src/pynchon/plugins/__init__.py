@@ -44,7 +44,11 @@ def get_plugin_obj(plugin_name: str) -> object:
 from pynchon import config
 
 LOGGER.critical(f"Building plugin-registry..")
-registry = [eval(name) for name in dir() if not name.startswith('_') and name not in 'git'.split()]
+registry = [
+    eval(name)
+    for name in dir()
+    if not name.startswith('_') and name not in 'git'.split()
+]
 registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
 registry = [kls for kls in registry if kls.name in config.PLUGINS]
 registry = sorted(registry, key=lambda plugin: plugin.priority)

@@ -32,8 +32,7 @@ def get_git_root(path: str = ".") -> typing.StringMaybe:
             LOGGER.critical("Could not find a git-root!")
 
 
-def find_src(src_root: str,
-    exclude_patterns=[]) -> list:
+def find_src(src_root: str, exclude_patterns=[]) -> list:
     """ """
     exclude_patterns = set(list(map(re.compile, exclude_patterns)))
     globs = [
@@ -53,7 +52,7 @@ def find_src(src_root: str,
     return matches
 
 
-def find_globs(globs: typing.List[str], quiet:bool=False):
+def find_globs(globs: typing.List[str], quiet: bool = False):
     quiet or LOGGER.debug(f"matching globs: {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)

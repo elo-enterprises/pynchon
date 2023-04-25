@@ -59,6 +59,7 @@ class BaseConfig(abcs.Config):
             * {{git.root}}
         """
         from pynchon import config
+
         root = self.get("root")
         root = root or os.environ.get("PYNCHON_ROOT")
         root = root or config.GIT.get("root")

@@ -46,7 +46,7 @@
         "name": "subproject tox.ini's",
         "pattern": "**/tox.ini",
         "scope":"*",
-        "src":"pyproject.tomlsadadsa",
+        "src":"pyproject.toml",
        },
      ],
    },
