@@ -2,8 +2,8 @@
 """
 import re
 import glob
-import functools
 import difflib
+import functools
 
 from pynchon.abcs import Path
 from pynchon.util.os import invoke
@@ -12,36 +12,43 @@ from . import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
+
 def diff_report(diff, logger=LOGGER.debug):
     """ """
     import pygments
     import pygments.lexers
     import pygments.formatters
+
     tmp = pygments.highlight(
         diff,
         lexer=pygments.lexers.get_lexer_by_name('udiff'),
-        formatter=pygments.formatters.get_formatter_by_name('terminal16m'))
+        formatter=pygments.formatters.get_formatter_by_name('terminal16m'),
+    )
     logger(f"scaffold drift: \n\n{tmp}\n\n")
 
-def diff_percent(f1,f2):
-    """
-    """
+
+def diff_percent(f1, f2):
+    """ """
     with open(f1, 'r') as src:
         with open(f2, 'r') as dest:
             src_c = src.read()
             dest_c = dest.read()
-    sm = difflib.SequenceMatcher(
-        None, src_c, dest_c)
-    return 100*(1.0-sm.ratio())
+    sm = difflib.SequenceMatcher(None, src_c, dest_c)
+    return 100 * (1.0 - sm.ratio())
 
-def diff(f1,f2):
+
+def diff(f1, f2):
     """ """
     with open(f1, 'r') as src:
         with open(f2, 'r') as dest:
             src_l = src.readlines()
             dest_l = dest.readlines()
     xdiff = difflib.unified_diff(
-        src_l, dest_l, lineterm='', n=0,)
+        src_l,
+        dest_l,
+        lineterm='',
+        n=0,
+    )
     return ''.join(xdiff)
 
 

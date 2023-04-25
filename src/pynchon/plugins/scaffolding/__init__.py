@@ -1,9 +1,9 @@
 """ pynchon.plugins.scaffolding
 """
-from pynchon.util.os import invoke
 from pynchon import abcs
 from pynchon.util import lme, typing, files  # , files
 from pynchon.models import Plugin
+from pynchon.util.os import invoke
 
 from .config import ScaffoldingConfig
 
@@ -90,7 +90,7 @@ class Scaffolding(Plugin):
         """list available scaffolds"""
         return self.scaffolds
 
-    def diff(self, quiet:bool=False):
+    def diff(self, quiet: bool = False):
         """diff with known scaffolding"""
         result = dict(errors=[], modified=[])
         for matched_scaffold in self.matches:
@@ -100,8 +100,8 @@ class Scaffolding(Plugin):
                     if diff.succeeded:
                         LOGGER.debug(f"no diff detected for {fname}")
                     else:
-                        this_diff=files.diff(matched_scaffold.src, fname)
-                        percent_diff=files.diff_percent(matched_scaffold.src, fname)
+                        this_diff = files.diff(matched_scaffold.src, fname)
+                        percent_diff = files.diff_percent(matched_scaffold.src, fname)
                         result['modified'].append(
                             dict(
                                 src=matched_scaffold.src,
@@ -111,7 +111,7 @@ class Scaffolding(Plugin):
                                 # diff=diff.stdout
                             )
                         )
-                        files.diff_report(this_diff,logger=LOGGER.debug)
+                        files.diff_report(this_diff, logger=LOGGER.debug)
                 else:
                     result['errors'].append(fname)
         return result
