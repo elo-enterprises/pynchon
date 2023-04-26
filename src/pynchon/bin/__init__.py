@@ -3,9 +3,9 @@
 from pynchon.bin import api, cli, parse, render  # noqa
 from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
+from pynchon import config
 
 LOGGER = lme.get_logger(__name__)
-from pynchon import config
 
 LOGGER.critical('Building CLIs from plugins..')
 registry = cli_registry = {}
@@ -14,7 +14,7 @@ for name, plugin_meta in plugin_registry.items():
         LOGGER.warning(f"skipping `{name}`")
         continue
     plugin_kls = plugin_meta['kls']
-    LOGGER.critical(f'{name}.init_cli: ')
+    # LOGGER.critical(f'{name}.init_cli: ')
     init_fxn = getattr(plugin_kls, 'init_cli', None)
     if init_fxn is not None:
         registry[name] = dict(plugin=plugin_kls, entry=init_fxn(plugin_kls))

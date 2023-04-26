@@ -62,6 +62,7 @@ class Scaffolding(Plugin):
         result = self.plugin_config.get('scaffolds', [])
         return [ScaffoldingItem(**x) for x in result]
 
+    @tags(click_aliases=['ls',])
     def list(self):
         """list available scaffolds"""
         return self.scaffolds
