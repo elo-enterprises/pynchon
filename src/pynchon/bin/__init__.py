@@ -3,9 +3,9 @@
 from pynchon.bin import cli, parse, render  # noqa
 from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
+from pynchon import config
 
 LOGGER = lme.get_logger(__name__)
-from pynchon import config
 
 LOGGER.critical('Building CLIs from plugins..')
 registry = cli_registry = {}
