@@ -29,13 +29,6 @@ skip-string-normalization = true
 #     class .*\bProtocol\):
 #     @(abc\.)?abstractmethod
 
-# https://github.com/PyCQA/isort
-# https://pycqa.github.io/isort/docs/configuration/profiles.html
-[tool.isort]
-profile = "black"
-length_sort=true
-no_inline_sort=true # changing import order here can introduce import-errors.
-
 [tool.mypy]
 disallow_untyped_defs = true
 show_error_codes = true
