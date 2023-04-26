@@ -8,7 +8,7 @@ from collections import OrderedDict
 import pyjson5
 
 from pynchon import abcs
-from pynchon.util import lme
+from pynchon.util import typing, lme
 
 LOGGER = lme.get_logger(__name__)
 
@@ -26,28 +26,34 @@ def finalize():
     )
     plugins = [get_plugin(pname) for pname in result.pynchon['plugins']]
     # raise Exception(plugins)
+    from pynchon import config as THIS_MODULE
+
     for plugin_kls in plugins:
         pconf_kls = plugin_kls.config_kls
         plugin_defaults = plugin_kls.defaults
         # NB: module access
         user_defaults = config.USER_DEFAULTS.get(plugin_kls.name, {})
-        plugin_config = pconf_kls(
-            **{
-                **plugin_defaults,
-                **user_defaults,
-            }
-        )
-        conf_key = getattr(
-            plugin_kls.config_kls, 'config_key', plugin_kls.name.replace('-', '_')
-        )
-        from pynchon import config as THIS_MODULE
+        if pconf_kls is None:
+            LOGGER.warning(f"{plugin_kls} does not define `config_kls`")
+            conf_key = None
+            plugin_config = {}
+        else:
+            conf_key = getattr(
+                pconf_kls,
+                'config_key',
+                plugin_kls.name.replace('-', '_')
+            )
+            plugin_config = pconf_kls(
+                **{
+                    **plugin_defaults,
+                    **user_defaults,
+                }
+            )
+            setattr(THIS_MODULE, conf_key, plugin_config)
+            result.update({conf_key: plugin_config})
 
-        setattr(THIS_MODULE, conf_key, plugin_config)
-        result.update({conf_key: plugin_config})
-        # plugin_obj = plugin_kls(plugin_config)
         plugin_obj = plugin_kls(final=plugin_config)
         from pynchon.plugins import registry as plugins_registry
-
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     return result
 
@@ -84,7 +90,7 @@ def config_folders():
     return [abcs.Path(f) for f in folders]
 
 
-def load_config_from_files():
+def load_config_from_files() -> typing.Dict[str,str]:
     """ """
     from pynchon.util import python
 

@@ -15,64 +15,87 @@ import inspect
 import functools
 
 from pynchon.util import typing, lme
-
+from collections import defaultdict
 LOGGER = lme.get_logger(__name__)
 
-
-def tag(tag_storage_var: str = '_tags', **tags: typing.OptionalAny) -> typing.Callable:
+#         # if inspect.iscoroutinefunction(func):
+#         #     @functools.wraps(func)
+#         #     async def async_wrapped(*args: Any, **kwargs: Any) -> Awaitable:
+#         #         return await func(*args, **kwargs)
+#         #     return async_wrapped
+#         # else:
+#         #     @functools.wraps(func)
+#         #     def sync_wrapped(*args: Any, **kwargs: Any) -> Any:
+#         #         return func(*args, **kwargs)
+#         #     return sync_wrapped
+#
+#     return decorator
+#
+#
+def tag_factory(tag_storage_key: typing.Any) -> typing.Any:
     """ """
-
-    def decorator(func: typing.Callable) -> typing.Callable:
-        merged = {**getattr(func, tag_storage_var, {}), **tags}
-        LOGGER.debug(f"tagging {func} with {merged}")
-        setattr(func, tag_storage_var, merged)
-        return func
-        # if inspect.iscoroutinefunction(func):
-        #     @functools.wraps(func)
-        #     async def async_wrapped(*args: Any, **kwargs: Any) -> Awaitable:
-        #         return await func(*args, **kwargs)
-        #     return async_wrapped
-        # else:
-        #     @functools.wraps(func)
-        #     def sync_wrapped(*args: Any, **kwargs: Any) -> Any:
-        #         return func(*args, **kwargs)
-        #     return sync_wrapped
-
-    return decorator
-
-
-def tag_factory(tag_storage_var: str) -> typing.Any:
-    """ """
-
     class tagger(dict):
-        tag = staticmethod(functools.partial(tag, tag_storage_var=tag_storage_var))
-        __call__ = tag
+        # def tag(self, **tags):
+        #     self.tags = tags
+        # tag = staticmethod(
+        #     functools.partial(
+        #         tag,
+        #         ))
+        # __call__ = tag
+        #
 
         def get_tags(self, obj: typing.Any) -> dict:
-            return getattr(obj, tag_storage_var, {})
+            return GLOBAL_TAG_REGISTRY[obj]
 
         def __getitem__(self, obj: typing.Any) -> dict:
             return self.get_tags(obj)
 
     return tagger()
+#
+#
+# class TaggerFactory(dict):
+#     """
+#     NB: not intended to be used directly- because this is
+#         effectively singleton you probably want to use
+#         `util.functools.taggers` directly
+#     """
+#
+#     registry: typing.Dict[str, typing.Any] = {}
+#
+#     def __getitem__(self, name: str) -> typing.Any:
+#         tmp = self.registry.get(name, tag_factory(name))
+#         self.registry[name] = tmp
+#         return tmp
+#
+#     def __getattr__(self, name: str) -> typing.Any:
+#         return self[name]
+#
+#
+# taggers = TAGGERS = TaggerFactory()
+GLOBAL_TAG_REGISTRY = defaultdict(dict)
+class tagsM():
+    GLOBAL_TAG_REGISTRY.__iter__
 
-
-class TaggerFactory(dict):
-    """
-    NB: not intended to be used directly- because this is
-        effectively singleton you probably want to use
-        `util.functools.taggers` directly
-    """
-
-    registry: typing.Dict[str, typing.Any] = {}
+    def __call__(self, **tags):
+        def decorator(func: typing.Callable) -> typing.Callable:
+            merged = {
+                **GLOBAL_TAG_REGISTRY.get(func, {}),
+                **tags}
+            LOGGER.debug(f"tagging {func} with {merged}")
+            GLOBAL_TAG_REGISTRY[func] = merged
+            return func
+        return decorator
 
     def __getitem__(self, name: str) -> typing.Any:
-        tmp = self.registry.get(name, tag_factory(name))
-        self.registry[name] = tmp
+        LOGGER.critical(f"requested {name}")
+        tmp = GLOBAL_TAG_REGISTRY.get(name)
+        tmp = tmp or tag_factory(name)
+        GLOBAL_TAG_REGISTRY[name] = tmp
         return tmp
 
     def __getattr__(self, name: str) -> typing.Any:
+        if name in 'get'.split():
+            return getattr(GLOBAL_TAG_REGISTRY,name)
         return self[name]
 
-
-taggers = TAGGERS = TaggerFactory()
+tags = tagsM()

@@ -7,10 +7,9 @@ from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
-
+from pynchon.util import tagging
 class BaseConfig(abcs.Config):
     """ """
-
     priority = 1
     config_key = "pynchon"
     defaults = dict(
@@ -22,6 +21,7 @@ class BaseConfig(abcs.Config):
             "project",
             "scaffolding",
             'python',
+            'gen',
         ],
     )
 
@@ -39,9 +39,9 @@ class BaseConfig(abcs.Config):
             LOGGER.info(f'skipping validation for top-level {k},{v}')
 
     def __init__(self, **core_config):
-        LOGGER.debug('validating..')
-        for k, v in core_config.items():
-            self.validate(k, v)
+        # LOGGER.debug('validating..')
+        # for k, v in core_config.items():
+        #     self.validate(k, v)
         super(BaseConfig, self).__init__(**core_config)
 
     @property
@@ -59,11 +59,14 @@ class BaseConfig(abcs.Config):
         root = root or config.GIT.get("root")
         return root and abcs.Path(root)
 
+    @tagging.tags(conflict_strategy='override')
     @property
     def plugins(self):
-        return sorted(
+        result = sorted(
             list(set(self.get('plugins', []) + self.__class__.defaults['plugins']))
         )
+        self['plugins']=result
+        return result
 
     @property
     def docs_root(self) -> typing.StringMaybe:

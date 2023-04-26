@@ -1,8 +1,9 @@
 """ pynchon.plugins
 """
 from pynchon.util import lme, typing
-from pynchon.models import Plugin
+from pynchon import models
 
+from .gen import Generators  # noqa
 from .dot import Dot  # noqa
 from .git import Git  # noqa
 from .base import Base  # noqa
@@ -13,34 +14,8 @@ from .project import Project  # noqa
 from .scaffolding import Scaffolding  # noqa
 
 # from .jenkins import Jenkins  # noqa
-
+from .util import get_plugin, get_plugin_obj
 LOGGER = lme.get_logger(__name__)
-
-
-def get_plugin(plugin_name: str) -> object:
-    """ """
-    from pynchon.plugins import registry
-
-    try:
-        return registry[plugin_name]['kls']
-    except KeyError:
-        LOGGER.critical(f"cannot find plugin named `{plugin_name}`")
-        LOGGER.critical(f"available plugins: {registry.keys()}")
-        raise
-
-
-def get_plugin_obj(plugin_name: str) -> object:
-    """ """
-    plugin_meta = registry[plugin_name]
-    plugin_kls = plugin_meta['kls']
-    try:
-        return plugin_meta['obj']
-    except KeyError:
-        LOGGER.critical(
-            f"cannot retrieve ['obj'] for `{plugin_name}` from registry; is config finalized?"
-        )
-        raise
-
 
 from pynchon import config
 
@@ -50,9 +25,12 @@ registry = [
     for name in dir()
     if not name.startswith('_') and name not in 'git'.split()
 ]
-registry = [kls for kls in registry if typing.is_subclass(kls, Plugin)]
+registry = [kls for kls in registry
+    if typing.is_subclass(kls, models.BasePlugin)]
 registry = [kls for kls in registry if kls.name in config.PLUGINS]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
-registry = dict([plugin_kls.name, dict(kls=plugin_kls)] for plugin_kls in registry)
+registry = dict(
+    [plugin_kls.name, dict(kls=plugin_kls)]
+    for plugin_kls in registry)
 # FIXME: why doesn't this happen already?
-registry[Base.name] = dict(kls=Base, obj=Base())
+# registry[Base.name] = dict(kls=Base, obj=Base())

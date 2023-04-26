@@ -4,13 +4,28 @@ from memoized_property import memoized_property
 
 from pynchon.bin import common
 from pynchon.util import typing, lme, text
-from pynchon.abcs.plugin import Plugin as BasePlugin
+from pynchon.abcs.plugin import Plugin as AbstractPlugin
 
 LOGGER = lme.get_logger(__name__)
+class BasePlugin(AbstractPlugin):
+    pass
 
+class ContextPlugin(BasePlugin):
+    pass
 
-class PynchonPlugin(BasePlugin):
+class PynchonPlugin(ContextPlugin):
     priority = 10
+    def plan(self, config=None) -> typing.List:
+        """create plan for this plugin"""
+        self.state = config
+        return []
+
+    def apply(self, config=None) -> None:
+        """executes the plan for this plugin"""
+        plan = self.plan(config=config)
+        from pynchon.util.os import invoke
+
+        return [invoke(p).succeeded for p in plan]
 
     # @memoized_property
     # def render_instructions(self):
@@ -79,13 +94,9 @@ class PynchonPlugin(BasePlugin):
     def init_cli(kls):
         """ """
         import functools
-
         from pynchon import config
-
         config.finalize()
-
         plugin_main = kls.init_cli_group(kls)
-
         obj = kls.instance
         for method_name in kls.__methods__:
             fxn = getattr(obj, method_name)
@@ -119,8 +130,4 @@ class PynchonPlugin(BasePlugin):
                 )(wrapper)
 
         return plugin_main
-
-
 Plugin = PynchonPlugin
-class ContextPlugin(Plugin):
-    pass

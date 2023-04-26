@@ -1,13 +1,12 @@
 """ pynchon.abcs.config
 """
-from pynchon.util import lme, typing
+from pynchon.util import typing, lme
 
 LOGGER = lme.get_logger(__name__)
 
 
 class Config(dict):
     """ """
-
     debug = False
     parent = None
     priority = 100
@@ -32,14 +31,24 @@ class Config(dict):
                 ]
             )
         ]
-        overridden = []
-        for p in props:
-            if p in kwargs:
-                overridden.append(p)
+        conflicts = []
+        for pname in props:
+            if pname in kwargs:
+                conflicts.append(pname)
                 continue
-            self[p] = getattr(self, p)
-        if overridden:
-            msg = (
-                f"properties for {overridden} exist, but provided kwargs overrides them"
-            )
-            self.logger.info(msg)
+            self[pname] = getattr(self, pname)
+        if conflicts:
+            from pynchon.util import tagging
+            LOGGER.debug("resolving conflicts..")
+            for pname in conflicts:
+                prop = getattr(self.__class__, pname)
+                strategy = tagging.tags.get(prop,{}).get('conflict_strategy','user_wins')
+                if strategy=='user_wins':
+                    self.logger.info(
+                        f"property for {pname} exists,"
+                        " but provided kwargs overrides them")
+                elif strategy=='override':
+                    self[pname] = getattr(self, pname)
+                else:
+                    LOGGER.critical('unsupported strategy!')
+                    raise SystemExit(1)

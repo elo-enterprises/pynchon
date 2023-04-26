@@ -1,4 +1,4 @@
-""" pynchon.config.base
+""" DEPRECATED
 """
 import os
 
@@ -9,22 +9,13 @@ from . import initialized
 
 LOGGER = lme.get_logger(__name__)
 
-
+from pynchon.plugins.base import BaseConfig as bonk
 class BaseConfig(abcs.Config):
     """ """
 
     priority = 1
     config_key = "pynchon"
-    defaults = dict(
-        version=__version__,
-        plugins=[
-            "git",
-            "jinja",
-            "project",
-            "scaffolding",
-            'python',
-        ],
-    )
+    defaults = bonk.defaults
 
     def validate(self, k, v):
         if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
@@ -47,6 +38,7 @@ class BaseConfig(abcs.Config):
             LOGGER.critical(f'skipping validation for {k},{v}')
 
     def __init__(self, **core_config):
+        raise Exception('deprecated')
         LOGGER.debug('validating..')
         for k, v in core_config.items():
             self.validate(k, v)

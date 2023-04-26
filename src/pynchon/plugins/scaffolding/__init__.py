@@ -11,17 +11,16 @@ from .config import ScaffoldingConfig, ScaffoldingItem
 
 LOGGER = lme.get_logger(__name__)
 from pynchon.util import tagging
-
+tags=tagging.tags
 
 class Scaffolding(Plugin):
     """ management tool for project boilerplate """
 
-    priority = 0
+    priority = 3
     name = "scaffolding"
     cli_name = 'scaffold'
     defaults = dict()
     config_kls = ScaffoldingConfig
-    tags = tagging.TAGGERS[__name__]
 
     def match(self, pattern=None):
         """
