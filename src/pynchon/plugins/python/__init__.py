@@ -7,7 +7,8 @@ import click
 from pynchon import constants, util
 from pynchon.bin import options, common
 from pynchon.util import lme, typing
-from pynchon.models import Plugin
+from pynchon import models
+# models import Plugin,ContextPlugin
 from pynchon.plugins.base import Base
 
 from .config import PythonConfig, PyPiConfig, PythonCliConfig
@@ -15,8 +16,8 @@ from .config import PythonConfig, PyPiConfig, PythonCliConfig
 LOGGER = lme.get_logger(__name__)
 
 
-class Python(Plugin):
-    """ """
+class Python(models.ContextPlugin):
+    """ context-provider: python-platform """
 
     priority = 2
     name = 'python'
@@ -24,9 +25,8 @@ class Python(Plugin):
     config_kls = PythonConfig
 
 
-class PythonCLI(Plugin):
-    """ """
-
+class PythonCLI(models.Plugin):
+    """ tools for generating CLI docs """
     name = "python-cli"
     defaults = dict()
     config_kls = PythonCliConfig
@@ -192,8 +192,8 @@ class PythonCLI(Plugin):
         return plan
 
 
-class PythonAPI(Plugin):
-    """ """
+class PythonAPI(models.Plugin):
+    """ tools for generating python-api docs """
 
     name = "python-api"
     config_kls = dict
@@ -265,10 +265,8 @@ class PythonAPI(Plugin):
         ]
         return plan
 
-
-class PyPI(Plugin):
-    """ """
-
+class PyPI(models.ContextPlugin):
+    """ pypi-defaults """
     name = "pypi"
     config_kls = PyPiConfig
     defaults = dict()

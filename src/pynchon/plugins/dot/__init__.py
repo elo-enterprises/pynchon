@@ -7,7 +7,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Dot(Plugin):
-    """ """
+    """ tools for rendering graphviz dot files """
 
     name = "dot"
     # config= DotConfig

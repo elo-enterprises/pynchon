@@ -8,7 +8,6 @@ LOGGER = lme.get_logger(__name__)
 
 
 class JinjaConfig(abcs.Config):
-    """ """
 
     config_key = "jinja"
     defaults = dict()
@@ -29,7 +28,7 @@ class JinjaConfig(abcs.Config):
 
 
 class Jinja(Plugin):
-    """ """
+    """ tools for rendering jinja2 files """
 
     name = "jinja"
     defaults = dict()

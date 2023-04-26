@@ -52,7 +52,8 @@ class PynchonPlugin(BasePlugin):
         def plugin_main():
             pass
 
-        plugin_main.__doc__ = f"""subcommands for `{kls.name}` plugin"""
+        plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
+        #f"""subcommands for `{kls.name}` plugin"""
         plugin_main = common.groop(
             getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
         )(plugin_main)
@@ -109,10 +110,6 @@ class PynchonPlugin(BasePlugin):
             tags = getattr(obj, 'tags', None)
             tags = tags.get_tags(fxn) if tags is not None else {}
             click_aliases = tags.get('click_aliases', []) if tags else []
-            if fxn.__name__ == 'stat':
-                import IPython
-
-                IPython.embed()
             for alias in click_aliases:
                 # LOGGER.critical(f"creating alias for {fxn} @ {alias}")
                 tmp = common.kommand(
@@ -125,3 +122,5 @@ class PynchonPlugin(BasePlugin):
 
 
 Plugin = PynchonPlugin
+class ContextPlugin(Plugin):
+    pass

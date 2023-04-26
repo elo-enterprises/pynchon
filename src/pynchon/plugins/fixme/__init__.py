@@ -20,7 +20,7 @@ class FixMeConfig(abcs.Config):
 
 
 class FixMe(Plugin):
-    """ """
+    """ aggregates project-wide FIXMEs into {docs_root}/FIXME.md"""
 
     name = "fixme"
     config_kls = FixMeConfig

@@ -11,7 +11,6 @@ LOGGER = lme.get_logger(__name__)
 
 
 class ProjectConfig(abcs.Config):
-    """ """
 
     priority = 1
     config_key = "project"
@@ -52,6 +51,7 @@ class ProjectConfig(abcs.Config):
 
 
 class Project(Plugin):
+    """ meta-tools for inspecting this project """
     name = 'project'
     priority = 2
     defaults = dict()

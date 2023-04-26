@@ -35,17 +35,3 @@ def render():
     """
     Misc. helpers for rendering text
     """
-
-
-@groop("parse", parent=entry)
-def parse():
-    """
-    Helpers for parsing output from other tools
-    """
-
-
-@groop("ast", parent=entry)
-def ast():
-    """
-    AST Inspector
-    """

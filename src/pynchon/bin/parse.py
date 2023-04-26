@@ -4,15 +4,19 @@ from pynchon import constants
 from pynchon.bin import groups
 from pynchon.util import lme
 
-from .common import kommand
-
+from .common import kommand, groop
+from .entry import entry
 LOGGER = lme.get_logger(__name__)
-PARENT = groups.parse
+@groop("parse", parent=entry)
+def parse():
+    """
+    Helpers for parsing output from other tools
+    """
 
 
 @kommand(
     name="pyright",
-    parent=PARENT,
+    parent=parse,
     formatters=dict(markdown=constants.T_TOC_CLI),
     options=[
         # options.file_setupcfg,

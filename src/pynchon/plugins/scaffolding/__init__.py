@@ -14,13 +14,14 @@ from pynchon.util import tagging
 
 
 class Scaffolding(Plugin):
-    """ """
+    """ management tool for project boilerplate """
 
     priority = 0
     name = "scaffolding"
     cli_name = 'scaffold'
     defaults = dict()
     config_kls = ScaffoldingConfig
+    tags = tagging.TAGGERS[__name__]
 
     def match(self, pattern=None):
         """
@@ -43,8 +44,6 @@ class Scaffolding(Plugin):
     @property
     def matches(self):
         return self.match()
-
-    tags = tagging.TAGGERS[__name__]
 
     @tags(click_aliases=['st', 'status'])
     def stat(self):
