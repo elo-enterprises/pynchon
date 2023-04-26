@@ -13,9 +13,10 @@ from __future__ import annotations
 
 import inspect
 import functools
+from collections import defaultdict
 
 from pynchon.util import typing, lme
-from collections import defaultdict
+
 LOGGER = lme.get_logger(__name__)
 
 #         # if inspect.iscoroutinefunction(func):
@@ -34,6 +35,7 @@ LOGGER = lme.get_logger(__name__)
 #
 def tag_factory(tag_storage_key: typing.Any) -> typing.Any:
     """ """
+
     class tagger(dict):
         # def tag(self, **tags):
         #     self.tags = tags
@@ -51,6 +53,8 @@ def tag_factory(tag_storage_key: typing.Any) -> typing.Any:
             return self.get_tags(obj)
 
     return tagger()
+
+
 #
 #
 # class TaggerFactory(dict):
@@ -73,17 +77,18 @@ def tag_factory(tag_storage_key: typing.Any) -> typing.Any:
 #
 # taggers = TAGGERS = TaggerFactory()
 GLOBAL_TAG_REGISTRY = defaultdict(dict)
-class tagsM():
+
+
+class tagsM:
     GLOBAL_TAG_REGISTRY.__iter__
 
     def __call__(self, **tags):
         def decorator(func: typing.Callable) -> typing.Callable:
-            merged = {
-                **GLOBAL_TAG_REGISTRY.get(func, {}),
-                **tags}
+            merged = {**GLOBAL_TAG_REGISTRY.get(func, {}), **tags}
             LOGGER.debug(f"tagging {func} with {merged}")
             GLOBAL_TAG_REGISTRY[func] = merged
             return func
+
         return decorator
 
     def __getitem__(self, name: str) -> typing.Any:
@@ -95,7 +100,8 @@ class tagsM():
 
     def __getattr__(self, name: str) -> typing.Any:
         if name in 'get'.split():
-            return getattr(GLOBAL_TAG_REGISTRY,name)
+            return getattr(GLOBAL_TAG_REGISTRY, name)
         return self[name]
+
 
 tags = tagsM()

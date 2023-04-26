@@ -8,8 +8,11 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 
 from pynchon.util import tagging
+
+
 class BaseConfig(abcs.Config):
     """ """
+
     priority = 1
     config_key = "pynchon"
     defaults = dict(
@@ -65,7 +68,7 @@ class BaseConfig(abcs.Config):
         result = sorted(
             list(set(self.get('plugins', []) + self.__class__.defaults['plugins']))
         )
-        self['plugins']=result
+        self['plugins'] = result
         return result
 
     @property

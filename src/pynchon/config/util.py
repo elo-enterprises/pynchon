@@ -39,9 +39,7 @@ def finalize():
             plugin_config = {}
         else:
             conf_key = getattr(
-                pconf_kls,
-                'config_key',
-                plugin_kls.name.replace('-', '_')
+                pconf_kls, 'config_key', plugin_kls.name.replace('-', '_')
             )
             plugin_config = pconf_kls(
                 **{
@@ -54,6 +52,7 @@ def finalize():
 
         plugin_obj = plugin_kls(final=plugin_config)
         from pynchon.plugins import registry as plugins_registry
+
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     return result
 
@@ -90,7 +89,7 @@ def config_folders():
     return [abcs.Path(f) for f in folders]
 
 
-def load_config_from_files() -> typing.Dict[str,str]:
+def load_config_from_files() -> typing.Dict[str, str]:
     """ """
     from pynchon.util import python
 

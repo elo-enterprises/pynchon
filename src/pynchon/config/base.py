@@ -10,6 +10,8 @@ from . import initialized
 LOGGER = lme.get_logger(__name__)
 
 from pynchon.plugins.base import BaseConfig as bonk
+
+
 class BaseConfig(abcs.Config):
     """ """
 

@@ -28,7 +28,7 @@ class JinjaConfig(abcs.Config):
 
 
 class Jinja(Plugin):
-    """ tools for rendering jinja2 files """
+    """tools for rendering jinja2 files"""
 
     name = "jinja"
     defaults = dict()

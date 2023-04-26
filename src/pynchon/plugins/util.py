@@ -1,16 +1,23 @@
 """
 """
 from pynchon.util import lme, typing
+
 LOGGER = lme.get_logger(__name__)
+
+
 class PluginNotInitialized(RuntimeError):
     pass
+
+
 def get_plugin_meta(plugin_name: str) -> object:
     from pynchon.plugins import registry
+
     try:
         return registry[plugin_name]
     except KeyError:
         LOGGER.critical(f"available plugins: {registry.keys()}")
         raise PluginNotRegistered(plugin_name)
+
 
 def get_plugin_class(plugin_name: str) -> object:
     """ """
@@ -20,7 +27,9 @@ def get_plugin_class(plugin_name: str) -> object:
     except KeyError:
         raise PluginNotRegistered(plugin_name)
 
+
 get_plugin = get_plugin_class
+
 
 def get_plugin_obj(plugin_name: str) -> object:
     """ """

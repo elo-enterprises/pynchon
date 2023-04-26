@@ -7,14 +7,19 @@ from pynchon.util import typing, lme, text
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 
 LOGGER = lme.get_logger(__name__)
+
+
 class BasePlugin(AbstractPlugin):
     pass
+
 
 class ContextPlugin(BasePlugin):
     pass
 
+
 class PynchonPlugin(ContextPlugin):
     priority = 10
+
     def plan(self, config=None) -> typing.List:
         """create plan for this plugin"""
         self.state = config
@@ -68,7 +73,7 @@ class PynchonPlugin(ContextPlugin):
             pass
 
         plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
-        #f"""subcommands for `{kls.name}` plugin"""
+        # f"""subcommands for `{kls.name}` plugin"""
         plugin_main = common.groop(
             getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
         )(plugin_main)
@@ -94,7 +99,9 @@ class PynchonPlugin(ContextPlugin):
     def init_cli(kls):
         """ """
         import functools
+
         from pynchon import config
+
         config.finalize()
         plugin_main = kls.init_cli_group(kls)
         obj = kls.instance
@@ -130,4 +137,6 @@ class PynchonPlugin(ContextPlugin):
                 )(wrapper)
 
         return plugin_main
+
+
 Plugin = PynchonPlugin

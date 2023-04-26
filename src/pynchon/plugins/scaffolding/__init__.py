@@ -11,10 +11,12 @@ from .config import ScaffoldingConfig, ScaffoldingItem
 
 LOGGER = lme.get_logger(__name__)
 from pynchon.util import tagging
-tags=tagging.tags
+
+tags = tagging.tags
+
 
 class Scaffolding(Plugin):
-    """ management tool for project boilerplate """
+    """management tool for project boilerplate"""
 
     priority = 3
     name = "scaffolding"
@@ -61,7 +63,11 @@ class Scaffolding(Plugin):
         result = self.plugin_config.get('scaffolds', [])
         return [ScaffoldingItem(**x) for x in result]
 
-    @tags(click_aliases=['ls',])
+    @tags(
+        click_aliases=[
+            'ls',
+        ]
+    )
     def list(self):
         """list available scaffolds"""
         return self.scaffolds

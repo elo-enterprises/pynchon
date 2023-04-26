@@ -3,7 +3,7 @@
 from pynchon.bin import cli, parse, render  # noqa
 from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
-from pynchon import config
+from pynchon import config # noqa (import must come last)
 
 LOGGER = lme.get_logger(__name__)
 
@@ -15,18 +15,13 @@ for name, plugin_meta in plugin_registry.items():
         continue
     plugin_kls = plugin_meta['kls']
     LOGGER.critical(f'{name}.init_cli: ')
-    init_fxn = getattr(
-        plugin_kls,
-        'init_cli',
-        lambda _kls: None)
+    init_fxn = getattr(plugin_kls, 'init_cli', lambda _kls: None)
     try:
-        p_entry=init_fxn(plugin_kls)
+        p_entry = init_fxn(plugin_kls)
     except (Exception,) as exc:
         LOGGER.critical(f"failed to initialize cli for {plugin_kls}")
         raise
-    registry[name] = dict(
-        plugin=plugin_kls,
-        entry=p_entry)
+    registry[name] = dict(plugin=plugin_kls, entry=p_entry)
 
 # LOGGER.info(f'cli_registry: {cli_registry}')
 from .entry import entry  # noqa

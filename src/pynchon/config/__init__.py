@@ -24,7 +24,7 @@ for cfg_src, config in load_config_from_files().items():
 LOGGER.critical("Building plugins-list & raw-config..")
 
 # NB: this content is potentially templated
-pynchon = PYNCHON = PynchonConfig(config_files=CONFIG_FILES,**MERGED_CONFIG_FILES)
+pynchon = PYNCHON = PynchonConfig(config_files=CONFIG_FILES, **MERGED_CONFIG_FILES)
 RAW = PYNCHON.copy()
 PLUGINS = PYNCHON['plugins'] = list(set(PYNCHON.plugins + ['base']))
 

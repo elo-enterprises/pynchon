@@ -2,8 +2,11 @@
 pynchon: a utility for docs generation and template-rendering
 """
 from gettext import gettext as _
+
 import click
+
 from pynchon import models
+
 
 class RootGroup(click.Group):
     def format_commands(
@@ -28,39 +31,40 @@ class RootGroup(click.Group):
         if len(commands):
             limit = formatter.width - 6 - max(len(cmd[0]) for cmd in commands)
             plugin_subs = dict(
-                [ [getattr(
-                    v['kls'],'cli_name',
-                    v['kls'].name), v ]
-                  for k,v in plugin_registry.items()])
+                [
+                    [getattr(v['kls'], 'cli_name', v['kls'].name), v]
+                    for k, v in plugin_registry.items()
+                ]
+            )
             rows_core = []
             rows_plugins = []
             for subcommand, cmd in commands:
                 help = cmd.get_short_help_str(limit)
                 is_plugin = subcommand in plugin_subs
-                label=''
+                label = ''
                 if is_plugin:
                     plugin_kls = plugin_subs[subcommand]['kls']
-                    if issubclass(plugin_kls,(models.ContextPlugin,)):
+                    if issubclass(plugin_kls, (models.ContextPlugin,)):
                         label = f'( context-provider )'
                     category = rows_plugins
                 else:
                     category = rows_core
                 category.append((f"{subcommand}", f"{label}{help}"))
             if rows_core:
-                search = lambda rows,term: [
-                    i for i,(subc,subh)
-                    in enumerate(rows)
-                    if subc==term][0]
-                order = ['plan','apply','config','config-raw']
+
+                def search(rows, term):
+                    return [i for i, (subc, subh) in enumerate(rows) if subc == term][0]
+
+                order = ['plan', 'apply', 'config', 'config-raw']
                 # rows_core = [
                 #     for name in
                 # ]
-                ordering=[]
+                ordering = []
                 for o in order:
-                    for subc,subh in rows_core:
-                        if subc==o:
-                            ordering.append((subc,subh))
-                            rows_core.remove((subc,subh))
+                    for subc, subh in rows_core:
+                        if subc == o:
+                            ordering.append((subc, subh))
+                            rows_core.remove((subc, subh))
                 rows_core = ordering + rows_core
                 with formatter.section(_("Core Subcommands")):
                     formatter.write_dl(rows_core)

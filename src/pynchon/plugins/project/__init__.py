@@ -51,7 +51,8 @@ class ProjectConfig(abcs.Config):
 
 
 class Project(Plugin):
-    """ meta-tools for inspecting this project """
+    """meta-tools for inspecting this project"""
+
     name = 'project'
     priority = 2
     defaults = dict()
