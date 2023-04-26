@@ -44,6 +44,7 @@ class PynchonPlugin(BasePlugin):
     @typing.classproperty
     def click_entry(kls):
         from pynchon.bin import entry
+
         return entry.entry
 
     @staticmethod
@@ -60,21 +61,24 @@ class PynchonPlugin(BasePlugin):
     @typing.classproperty
     def instance(kls):
         from pynchon.plugins import get_plugin_obj
+
         return get_plugin_obj(kls.name)
 
     def config(self):
         """shows current config for this plugin"""
-        kls=self.__class__
+        kls = self.__class__
         LOGGER.debug(f"config class: {kls.config_kls}")
         LOGGER.debug(f"current config:")
         result = kls.get_current_config()
+        return result
         # result = self.final
-        print(text.to_json(result))
+        # print(text.to_json(result))
 
     @staticmethod
     def init_cli(kls):
         """ """
         import functools
+
         from pynchon import config
 
         config.finalize()
@@ -94,11 +98,26 @@ class PynchonPlugin(BasePlugin):
             # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
             # wrapper.__name__=fxn.__name__
             wrapper.__doc__ = fxn.__doc__
+            from pynchon.util import tagging
+            # import IPython; IPython.embed()
+            # tags = tagging.TAGGERS[fxn.__qualname__]
             tmp = common.kommand(
                 fxn.__name__.replace('_', '-'),
-                # help=fxn.__doc__,
                 parent=plugin_main,
             )(wrapper)
+            tags = getattr(obj, 'tags', None)
+            tags = tags.get_tags(fxn) if tags is not None else {}
+            click_aliases = tags.get('click_aliases',[]) if tags else []
+            if fxn.__name__=='stat':
+                import IPython; IPython.embed()
+            for alias in click_aliases:
+                # LOGGER.critical(f"creating alias for {fxn} @ {alias}")
+                tmp = common.kommand(
+                    alias.replace('_', '-'),
+                    parent=plugin_main,
+                    help=f'alias for `{alias}`',
+                )(wrapper)
+
 
         return plugin_main
 

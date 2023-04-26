@@ -3,13 +3,17 @@ pynchon: a utility for docs generation and template-rendering
 """
 import click
 
+
 class RootGroup(click.Group):
-    def format_commands(self, ctx: click.Context, formatter: click.HelpFormatter) -> None:
+    def format_commands(
+        self, ctx: click.Context, formatter: click.HelpFormatter
+    ) -> None:
         """Extra format methods for multi methods that adds all the commands
         after the options.
         """
-        from pynchon.plugins import registry as plugin_registry
         from gettext import gettext as _
+
+        from pynchon.plugins import registry as plugin_registry
 
         commands = []
         for subcommand in self.list_commands(ctx):
@@ -40,25 +44,30 @@ class RootGroup(click.Group):
                 with formatter.section(_("Plugin-entrypoints")):
                     formatter.write_dl(rows_plugins)
 
-    def format_usage(self,ctx,formatter):
+    def format_usage(self, ctx, formatter):
         from pynchon.plugins.base import Base
-        core_cmds = " | ".join(
-            [m.replace('_','-') for m in Base.__methods__])
-        core_cmds = "{ "+core_cmds+" }"
+
+        core_cmds = " | ".join([m.replace('_', '-') for m in Base.__methods__])
+        core_cmds = "{ " + core_cmds + " }"
         plugin_cmds = ".."
-        cmd=ctx.command
+        cmd = ctx.command
         m_sub = cmd.subcommand_metavar
         m_op = cmd.options_metavar
         tmp = ' '.join(m_sub.split()[1:])
         formatter.write(
-            ''.join([
-                __doc__.lstrip(),
-                'Usage:\n',
-                f'\n\t{cmd.name} {m_op} {m_sub}',
-                f'\n\t{cmd.name} {m_op} {core_cmds} {tmp}',
-                f'\n\t{cmd.name} {m_op} PLUGIN_NAME {tmp}',
-            ]))
+            ''.join(
+                [
+                    __doc__.lstrip(),
+                    'Usage:\n',
+                    f'\n\t{cmd.name} {m_op} {m_sub}',
+                    f'\n\t{cmd.name} {m_op} {core_cmds} {tmp}',
+                    f'\n\t{cmd.name} {m_op} PLUGIN_NAME {tmp}',
+                ]
+            )
+        )
+
 
 @click.version_option()
 @click.group("pynchon", cls=RootGroup)
-def entry(): pass
+def entry():
+    pass

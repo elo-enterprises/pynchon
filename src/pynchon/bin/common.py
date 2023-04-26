@@ -1,10 +1,10 @@
 """ pynchon.bin.common:
     Common options/arguments and base classes for CLI
 """
+import io
 import sys
 import json
 import functools
-import io
 
 import click
 from rich.console import Console
@@ -24,6 +24,7 @@ LOGGER = lme.get_logger(__name__)
 #         super(BetterGroup,self).format_options(ctx,formatter)
 #     def format_help_text(self,ctx,formatter):
 #         super(BetterGroup,self).format_help_text(ctx,formatter)
+
 
 class handler(object):
     """ """
@@ -125,6 +126,7 @@ class kommand(object):
         handlers=[],
         formatters={},
         cls=None,
+        help=None,
     ):
         """ """
         self.name = name
@@ -149,6 +151,7 @@ class kommand(object):
         )
         click_kwargs = {}
         cls and click_kwargs.update(cls=cls)
+        help and click_kwargs.update(help=help)
         if not self.is_group:
             self.cmd = self.parent.command(self.name, **click_kwargs)
         else:

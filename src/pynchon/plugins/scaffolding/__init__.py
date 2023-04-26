@@ -10,7 +10,7 @@ from pynchon.util.os import invoke
 from .config import ScaffoldingConfig, ScaffoldingItem
 
 LOGGER = lme.get_logger(__name__)
-
+from pynchon.util import tagging
 
 class Scaffolding(Plugin):
     """ """
@@ -43,6 +43,8 @@ class Scaffolding(Plugin):
     def matches(self):
         return self.match()
 
+    tags = tagging.TAGGERS[__name__]
+    @tags(click_aliases=['st', 'status'])
     def stat(self):
         """status of current scaffolding"""
         ignore_keys = 'diff'.split()
@@ -52,12 +54,6 @@ class Scaffolding(Plugin):
             for s in diff['modified']
         ]
         return dict(errors=diff['errors'], modified=modified)
-
-    def st(self):
-        return self.stat()
-
-    def status(self):
-        return self.stat()
 
     @property
     def scaffolds(self):

@@ -8,13 +8,6 @@ from pynchon.util import lme, typing
 from . import initialized
 
 LOGGER = lme.get_logger(__name__)
-class RichGroup(click.group)
-     # format_usage, format_help_text, format_options, format_epilog
-    def format_help(self, ctx, formatter):
-        sio = io.StringIO()
-        console = rich.Console(file=sio, force_terminal=True)
-        console.print("Hello, [bold magenta]World[/bold magenta]!", ":vampire:")
-        formatter.write(sio.getvalue())
 
 
 class BaseConfig(abcs.Config):
@@ -32,16 +25,17 @@ class BaseConfig(abcs.Config):
             'python',
         ],
     )
-    def validate(self, k,v):
+
+    def validate(self, k, v):
         if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
             raise ValueError(f"Top-level keys should be simple strings! {k}")
         if isinstance(v, str) and '{{' in v:
             raise ValueError(f"No templating in top level! {v}")
 
         raw_plugin_configs = {}
-        if k=='plugins':
+        if k == 'plugins':
             LOGGER.critical('skipping plugin validation..')
-        elif isinstance(v,(dict,)):
+        elif isinstance(v, (dict,)):
             raw_plugin_configs[k] = v
             # from pynchon.plugins import registry
             # if k in 'plugins globals'.split():
@@ -55,7 +49,7 @@ class BaseConfig(abcs.Config):
     def __init__(self, **core_config):
         LOGGER.debug('validating..')
         for k, v in core_config.items():
-            self.validate(k,v)
+            self.validate(k, v)
         super(BaseConfig, self).__init__(**core_config)
 
     @property

@@ -6,11 +6,10 @@ one convenient namespace.
 """
 
 import typing
+from types import MappingProxyType  # noqa
+from types import FunctionType  # noqa
+from types import MethodType  # noqa
 from typing import *  # noqa
-from types import MappingProxyType # noqa
-from types import FunctionType # noqa
-from types import MethodType # noqa
-from types import MappingProxyType # noqa
 
 # from typing_extensions import Annotated
 

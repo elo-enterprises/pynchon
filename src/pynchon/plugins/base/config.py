@@ -30,7 +30,6 @@ class BaseConfig(abcs.Config):
             raise ValueError(f"Top-level keys should be simple strings! {k}")
         if isinstance(v, str) and '{{' in v:
             raise ValueError(f"No templating in top level! {v}")
-
         raw_plugin_configs = {}
         if k == 'plugins':
             LOGGER.warning('skipping plugin validation..')

@@ -15,6 +15,12 @@ class Base(Plugin):
     config_kls = BaseConfig
     defaults = dict()
 
+    @staticmethod
+    def init_cli_group(kls):
+        from pynchon.bin.entry import entry
+
+        return entry
+
     def plan(self, config=None) -> typing.List:
         """create a plan for all plugins"""
         self.state = config
@@ -27,18 +33,11 @@ class Base(Plugin):
 
         return [invoke(p).succeeded for p in plan]
 
-    @staticmethod
-    def init_cli_group(kls):
-        from pynchon.bin.entry import entry
+    def config(self):
+        """show project config"""
+        from pynchon.api import project
 
-        @entry.command('config')
-        def config():
-            """show project config"""
-            from pynchon.api import project
-
-            return project.get_config()
-
-        return entry
+        return project.get_config()
 
     @classmethod
     def get_current_config(kls):
