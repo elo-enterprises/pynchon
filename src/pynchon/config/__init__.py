@@ -5,11 +5,13 @@ import functools
 
 from pynchon import abcs
 from pynchon.util import lme, typing
-from pynchon.plugins.git import GitConfig  # noqa
 from pynchon.abcs.visitor import JinjaDict
-from pynchon.plugins.base.config import BaseConfig as PynchonConfig  # noqa
 
 from .util import config_folders, load_config_from_files, get_config_files, finalize
+
+from pynchon.plugins.git import GitConfig  # noqa
+from pynchon.plugins.base.config import BaseConfig as PynchonConfig  # noqa
+
 
 LOGGER = lme.get_logger(__name__)
 

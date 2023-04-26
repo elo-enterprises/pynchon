@@ -3,13 +3,14 @@
 from pynchon import models
 from pynchon.util import lme, typing
 
+# from .jenkins import Jenkins  # noqa
+from .util import get_plugin, get_plugin_obj
+
 from .dot import Dot  # noqa
 from .gen import Generators  # noqa
 from .git import Git  # noqa
 from .base import Base  # noqa
 
-# from .jenkins import Jenkins  # noqa
-from .util import get_plugin, get_plugin_obj
 from .fixme import FixMe  # noqa
 from .jinja import Jinja  # noqa
 from .python import Python, PythonAPI, PythonCLI, PyPI  # noqa

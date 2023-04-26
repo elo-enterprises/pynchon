@@ -1,9 +1,10 @@
 """ pynchon.bin
 """
-from pynchon.bin import cli, parse, render  # noqa
+from pynchon.bin import cli, parse, render
 from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
-from pynchon import config # noqa (import must come last)
+
+from pynchon import config  # isort: skip
 
 LOGGER = lme.get_logger(__name__)
 

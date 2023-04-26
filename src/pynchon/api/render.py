@@ -4,7 +4,6 @@ import os
 import sys
 import json
 
-import pyjson5
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 

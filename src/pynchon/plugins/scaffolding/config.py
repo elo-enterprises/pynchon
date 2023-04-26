@@ -12,7 +12,7 @@ class ScaffoldingItem(abcs.AttrDict):
     warnings = []
 
     @property
-    def exists(self):
+    def exists(self) -> typing.Bool:
         return os.path.exists(self.src)
 
     def validate(self):

@@ -6,6 +6,7 @@ one convenient namespace.
 """
 
 import typing
+
 from types import MappingProxyType  # noqa
 from types import FunctionType  # noqa
 from types import MethodType  # noqa
