@@ -44,7 +44,7 @@ class GitConfig(abcs.Config):
     def is_github(self):
         """ """
         tmp = "git@github https://github.com http://github.com".split()
-        return any([self.repo.startswith(x) for x in tmp])
+        return self.repo and any([self.repo.startswith(x) for x in tmp])
 
     @property
     def github_org(self):
@@ -71,6 +71,12 @@ class GitConfig(abcs.Config):
         """ """
         if all([self.github_org, self.repo_name]):
             return f"https://github.com/{self.github_org}/{self.repo_name}"
+
+    @property
+    def branch_name(self):
+        """ """
+        cmd = self._run("git rev-parse --abbrev-ref HEAD")
+        return cmd.succeeded and cmd.stdout.strip()
 
     @property
     def hash(self) -> str:

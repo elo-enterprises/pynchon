@@ -13,7 +13,7 @@ class RootGroup(click.Group):
         after the options.
         """
         from pynchon.plugins import registry as plugin_registry
-    
+
         commands = []
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
@@ -25,7 +25,7 @@ class RootGroup(click.Group):
 
             commands.append((subcommand, cmd))
         # allow for 3 times the default spacing
-        if len(self.commands):
+        if len(commands):
             limit = formatter.width - 6 - max(len(cmd[0]) for cmd in commands)
             plugin_subs = dict(
                 [ [getattr(
