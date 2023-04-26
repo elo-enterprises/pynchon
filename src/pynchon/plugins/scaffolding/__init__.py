@@ -12,6 +12,7 @@ from .config import ScaffoldingConfig, ScaffoldingItem
 LOGGER = lme.get_logger(__name__)
 from pynchon.util import tagging
 
+
 class Scaffolding(Plugin):
     """ """
 
@@ -44,6 +45,7 @@ class Scaffolding(Plugin):
         return self.match()
 
     tags = tagging.TAGGERS[__name__]
+
     @tags(click_aliases=['st', 'status'])
     def stat(self):
         """status of current scaffolding"""

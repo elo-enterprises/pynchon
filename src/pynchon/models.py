@@ -99,6 +99,7 @@ class PynchonPlugin(BasePlugin):
             # wrapper.__name__=fxn.__name__
             wrapper.__doc__ = fxn.__doc__
             from pynchon.util import tagging
+
             # import IPython; IPython.embed()
             # tags = tagging.TAGGERS[fxn.__qualname__]
             tmp = common.kommand(
@@ -107,9 +108,11 @@ class PynchonPlugin(BasePlugin):
             )(wrapper)
             tags = getattr(obj, 'tags', None)
             tags = tags.get_tags(fxn) if tags is not None else {}
-            click_aliases = tags.get('click_aliases',[]) if tags else []
-            if fxn.__name__=='stat':
-                import IPython; IPython.embed()
+            click_aliases = tags.get('click_aliases', []) if tags else []
+            if fxn.__name__ == 'stat':
+                import IPython
+
+                IPython.embed()
             for alias in click_aliases:
                 # LOGGER.critical(f"creating alias for {fxn} @ {alias}")
                 tmp = common.kommand(
@@ -117,7 +120,6 @@ class PynchonPlugin(BasePlugin):
                     parent=plugin_main,
                     help=f'alias for `{alias}`',
                 )(wrapper)
-
 
         return plugin_main
 
