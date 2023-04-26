@@ -1,7 +1,5 @@
 """ pynchon.models
 """
-import json
-
 from memoized_property import memoized_property
 
 from pynchon.bin import common
@@ -29,7 +27,6 @@ class PynchonPlugin(BasePlugin):
     def plugin_config(self):
         return self.get_current_config()
 
-
     @typing.classproperty
     def project_config(self):
         from pynchon.api import project
@@ -41,8 +38,7 @@ class PynchonPlugin(BasePlugin):
         """ """
         from pynchon import config as config_mod
 
-        result = getattr(config_mod,
-            getattr(kls.config_kls,'config_key', kls.name))
+        result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
         return result
 
     @typing.classproperty
@@ -55,6 +51,7 @@ class PynchonPlugin(BasePlugin):
     def init_cli_group(kls):
         def plugin_main():
             pass
+
         plugin_main.__doc__ = f"""subcommands for `{kls.name}` plugin"""
         plugin_main = common.groop(
             getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
@@ -64,6 +61,7 @@ class PynchonPlugin(BasePlugin):
     @typing.classproperty
     def instance(kls):
         from pynchon.plugins import get_plugin_obj
+
         return get_plugin_obj(kls.name)
 
     @typing.classproperty
@@ -93,11 +91,12 @@ class PynchonPlugin(BasePlugin):
     @staticmethod
     def init_cli(kls):
         from pynchon import config
+
         config.finalize()
 
         plugin_main = kls.init_cli_group(kls)
 
-        if not callable(getattr(kls.instance,'config')):
+        if not callable(getattr(kls.instance, 'config')):
 
             @common.kommand(name='config', parent=plugin_main)
             def config():
@@ -112,6 +111,7 @@ class PynchonPlugin(BasePlugin):
             # LOGGER.critical(f"wrapping {[method_name, type(fxn)]} for CLI..")
             fxn = getattr(obj, method_name)
             import functools
+
             # @functools.wraps(fxn)
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
@@ -121,7 +121,7 @@ class PynchonPlugin(BasePlugin):
 
             # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
             # wrapper.__name__=fxn.__name__
-            wrapper.__doc__=fxn.__doc__
+            wrapper.__doc__ = fxn.__doc__
             tmp = common.kommand(
                 fxn.__name__.replace('_', '-'),
                 # help=fxn.__doc__,
@@ -129,5 +129,6 @@ class PynchonPlugin(BasePlugin):
             )(wrapper)
 
         return plugin_main
+
 
 Plugin = PynchonPlugin

@@ -7,6 +7,7 @@ one convenient namespace.
 
 import typing
 from typing import *  # noqa
+from types import MappingProxyType # noqa
 
 # from typing_extensions import Annotated
 

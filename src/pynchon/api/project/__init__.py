@@ -1,10 +1,9 @@
 """ pynchon.api.project
 """
-from pynchon import abcs, config
+from pynchon import config
 from pynchon.util import lme, text, typing
 
 LOGGER = lme.get_logger(__name__)
-from types import MappingProxyType
 
 
 def get_config() -> dict:

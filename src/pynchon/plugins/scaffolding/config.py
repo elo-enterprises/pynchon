@@ -1,7 +1,12 @@
-"""
+""" pynchon.plugins.scaffolding
 """
 import os
+
 from pynchon import abcs
+from pynchon.util import typing, lme
+
+LOGGER = lme.get_logger(__name__)
+
 
 class ScaffoldingItem(abcs.AttrDict):
     warnings = []
@@ -21,10 +26,14 @@ class ScaffoldingItem(abcs.AttrDict):
         assert pattern is not None
         assert src is not None
         super(ScaffoldingItem, self).__init__(
-            name=name, scope=scope, src=abcs.Path(os.path.expanduser(src)),
-            pattern=pattern, **kwargs
+            name=name,
+            scope=scope,
+            src=abcs.Path(os.path.expanduser(src)),
+            pattern=pattern,
+            **kwargs,
         )
         self.validate()
+
 
 class ScaffoldingConfig(abcs.Config):
     """ """

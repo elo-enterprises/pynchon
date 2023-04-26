@@ -46,6 +46,7 @@ def finalize():
         result.update({conf_key: plugin_config})
         plugin_obj = plugin_kls(plugin_config)
         from pynchon.plugins import registry as plugins_registry
+
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
     return result
 

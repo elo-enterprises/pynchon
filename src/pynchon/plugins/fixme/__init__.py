@@ -26,7 +26,7 @@ class FixMe(Plugin):
     config_kls = FixMeConfig
     defaults = dict()
 
-    def plan(self, config: dict = None):
+    def plan(self, config: dict = None) -> typing.List:
         """ """
         from pynchon.config import pynchon
 

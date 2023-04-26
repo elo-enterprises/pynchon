@@ -7,6 +7,7 @@ from pynchon.models import Plugin
 LOGGER = lme.get_logger(__name__)
 from .config import BaseConfig
 
+
 class Base(Plugin):
     """ """
 
@@ -15,24 +16,28 @@ class Base(Plugin):
     defaults = dict()
 
     def plan(self, config=None) -> typing.List:
-        """ create a plan for all plugins """
+        """create a plan for all plugins"""
         self.state = config
         return []
 
     def apply(self, config=None) -> None:
-        """ execute the result returned by planner """
+        """execute the result returned by planner"""
         plan = self.plan(config=config)
         from pynchon.util.os import invoke
+
         return [invoke(p).succeeded for p in plan]
 
     @staticmethod
     def init_cli_group(kls):
         from pynchon.bin.entry import entry
+
         @entry.command('config')
         def config():
-            """ show project config """
+            """show project config"""
             from pynchon.api import project
+
             return project.get_config()
+
         return entry
 
     @classmethod
@@ -40,8 +45,7 @@ class Base(Plugin):
         """ """
         from pynchon import config as config_mod
 
-        result = getattr(config_mod,
-            getattr(kls.config_kls, 'config_key', kls.name))
+        result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
         return result
 
     # def plan(self, config) -> typing.List[str]:
@@ -62,4 +66,5 @@ class Base(Plugin):
         shows raw-config (no interpolation or templating)
         """
         from pynchon.config import RAW
+
         return RAW

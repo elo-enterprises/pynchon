@@ -28,24 +28,39 @@ def dot(file: str, output: str = "", in_place: bool = False, output_mode: str = 
     return dict(output=output)
 
 
-def j5(
-    file,
-    output="",
-    in_place=False,
-) -> typing.StringMaybe:
-    """renders json5 file"""
-    LOGGER.debug(f"Running with one file: {file}")
+# def j5(
+#     file,
+#     output="",
+#     in_place=False,
+# ) -> typing.StringMaybe:
+#     """renders json5 file"""
+#     LOGGER.debug(f"Running with one file: {file}")
+#     with open(file, "r") as fhandle:
+#         data = text.json5_loads(content=fhandle.read())
+#     if in_place:
+#         assert not output, "cannot use --in-place and --output at the same time"
+#         output = os.path.splitext(file)[0]
+#         output = f"{output}.json"
+#     if output:
+#         with open(output, "w") as fhandle:
+#             content = text.to_json(data)
+#             fhandle.write(f"{content}\n")
+#     return data
+
+
+def loads_j2_file(
+    file: str, ctx: dict = {}, templates: list = ["."], strict: bool = True
+) -> str:
+    """ """
+    LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
-        data = pyjson5.loads(fhandle.read())
-    if in_place:
-        assert not output, "cannot use --in-place and --output at the same time"
-        output = os.path.splitext(file)[0]
-        output = f"{output}.json"
-    if output:
-        with open(output, "w") as fhandle:
-            content = text.to_json(data)
-            fhandle.write(f"{content}\n")
-    return data
+        content = fhandle.read()
+
+    LOGGER.debug("render context: \n{}".format(text.to_json(final_ctx)))
+    tmp = list(ctx.keys())
+    LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
+    content = j2_loads(text=content, context=ctx, templates=templates)
+    return content
 
 
 def j2(
@@ -55,37 +70,39 @@ def j2(
     ctx: dict = {},
     templates: list = ["."],
     strict: bool = True,
-):
+) -> str:
     """
     render jinja2 file
     """
-    from pynchon.api import project
 
-    user_ctx = ctx
-    project_config = project.get_config()
-    if not isinstance(user_ctx, (dict,)):
-        ext = os.path.splitext(ctx)[-1]
-        if "{" in user_ctx:
-            LOGGER.debug(
-                "found bracket in context, assuming it is data instead of file."
-            )
-            ctx = json.loads(ctx)
-        elif ext in ["json"]:
-            LOGGER.debug(f"context is json file @ `{ctx}`")
-            with open(ctx, "r") as fhandle:
-                ctx = json.loads(fhandle.read())
-        else:
-            LOGGER.critical(f"unrecognized extension for context file: {ext}")
-            raise TypeError(ext)
+    def get_pynchon_ctx():
+        from pynchon.api import project
 
-    final_ctx = {
-        **ctx,
-        **project_config,
-    }
+        user_ctx = ctx
+        project_config = project.get_config()
+        if not isinstance(user_ctx, (dict,)):
+            ext = os.path.splitext(ctx)[-1]
+            if "{" in user_ctx:
+                LOGGER.debug(
+                    "found bracket in context, assuming it is data instead of file."
+                )
+                ctx = json.loads(ctx)
+            elif ext in ["json"]:
+                LOGGER.debug(f"context is json file @ `{ctx}`")
+                with open(ctx, "r") as fhandle:
+                    ctx = json.loads(fhandle.read())
+            else:
+                LOGGER.critical(f"unrecognized extension for context file: {ext}")
+                raise TypeError(ext)
 
-    LOGGER.debug(f"Running with one file: {file} (strict={strict})")
-    with open(file, "r") as fhandle:
-        content = fhandle.read()
+        return {
+            **ctx,
+            **project_config,
+        }
+
+    final_ctx = get_pynchon_ctx()
+
+    content = loads_j2_file(file=file, context=ctx, templates=templates, strict=strict)
 
     if in_place:
         assert not output, "cannot use --in-place and --output at the same time"
@@ -94,16 +111,13 @@ def j2(
             output = output[0]
         else:
             output = "".join(output)
-
-    LOGGER.debug("render context: \n{}".format(text.to_json(final_ctx)))
-    tmp = list(ctx.keys())
-    LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
-    content = j2_loads(text=content, context=final_ctx, templates=templates)
     LOGGER.warning("writing output to {}".format(output or sys.stdout.name))
-    before = None
-    if output and output not in ["/dev/stdout", "-"]:
+    test = all([output, output not in ["/dev/stdout", "-"]])
+    if test:
         with open(output, "r") as fhandle:
             before = fhandle.read()
+    else:
+        before = None
     fhandle = open(output, "w") if output else sys.stdout
     content = f"{content}\n"
     fhandle.write(content)

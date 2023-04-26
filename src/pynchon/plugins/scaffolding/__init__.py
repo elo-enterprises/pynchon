@@ -1,6 +1,7 @@
 """ pynchon.plugins.scaffolding
 """
 import os
+
 from pynchon import abcs
 from pynchon.util import lme, typing, files  # , files
 from pynchon.models import Plugin
@@ -9,6 +10,7 @@ from pynchon.util.os import invoke
 from .config import ScaffoldingConfig, ScaffoldingItem
 
 LOGGER = lme.get_logger(__name__)
+
 
 class Scaffolding(Plugin):
     """ """
@@ -50,8 +52,12 @@ class Scaffolding(Plugin):
             for s in diff['modified']
         ]
         return dict(errors=diff['errors'], modified=modified)
-    def st(self): return self.stat()
-    def status(self): return self.stat()
+
+    def st(self):
+        return self.stat()
+
+    def status(self):
+        return self.stat()
 
     @property
     def scaffolds(self):

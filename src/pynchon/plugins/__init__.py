@@ -55,4 +55,4 @@ registry = [kls for kls in registry if kls.name in config.PLUGINS]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
 registry = dict([plugin_kls.name, dict(kls=plugin_kls)] for plugin_kls in registry)
 # FIXME: why doesn't this happen already?
-registry[Base.name]=dict(kls=Base, obj=Base())
+registry[Base.name] = dict(kls=Base, obj=Base())
