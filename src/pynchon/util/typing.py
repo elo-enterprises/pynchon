@@ -8,6 +8,9 @@ one convenient namespace.
 import typing
 from typing import *  # noqa
 from types import MappingProxyType # noqa
+from types import FunctionType # noqa
+from types import MethodType # noqa
+from types import MappingProxyType # noqa
 
 # from typing_extensions import Annotated
 
@@ -37,8 +40,8 @@ def is_subclass(x, y, strict=True):
 class classproperty(object):
     """ """
 
-    def __init__(self, f):
-        self.f = f
+    def __init__(self, fxn):
+        self.fxn = fxn
 
     def __get__(self, obj, owner) -> OptionalAny:
-        return self.f(owner)
+        return self.fxn(owner)

@@ -4,13 +4,26 @@
 import sys
 import json
 import functools
+import io
 
 import click
+from rich.console import Console
 
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
+# class BetterGroup(click.Group):
+#     def format_usage(self,ctx,formatter):
+#         super(BetterGroup,self).format_usage(ctx,formatter)
+#     def format_epilog(self,ctx,formatter):
+#         return super(BetterGroup,self).format_epilog(ctx,formatter)
+#     def format_help(self, ctx, formatter):
+#         super(BetterGroup,self).format_help(ctx,formatter)
+#     def format_options(self,ctx,formatter):
+#         super(BetterGroup,self).format_options(ctx,formatter)
+#     def format_help_text(self,ctx,formatter):
+#         super(BetterGroup,self).format_help_text(ctx,formatter)
 
 class handler(object):
     """ """
@@ -111,6 +124,7 @@ class kommand(object):
         transformers=[],
         handlers=[],
         formatters={},
+        cls=None,
     ):
         """ """
         self.name = name
@@ -133,11 +147,12 @@ class kommand(object):
             ],
             key=lambda h: h.priority,
         )
-
+        click_kwargs = {}
+        cls and click_kwargs.update(cls=cls)
         if not self.is_group:
-            self.cmd = self.parent.command(self.name)
+            self.cmd = self.parent.command(self.name, **click_kwargs)
         else:
-            self.cmd = self.parent.group(self.name)
+            self.cmd = self.parent.group(self.name, **click_kwargs)
         self.logger = lme.get_logger(f"cmd[{name}]")
 
     def format_json(self, result):

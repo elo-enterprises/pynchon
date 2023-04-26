@@ -44,7 +44,6 @@ class PynchonPlugin(BasePlugin):
     @typing.classproperty
     def click_entry(kls):
         from pynchon.bin import entry
-
         return entry.entry
 
     @staticmethod
@@ -61,57 +60,30 @@ class PynchonPlugin(BasePlugin):
     @typing.classproperty
     def instance(kls):
         from pynchon.plugins import get_plugin_obj
-
         return get_plugin_obj(kls.name)
 
-    @typing.classproperty
-    def instance_methods(kls):
-        FORBIDDEN = [
-            'get_current_config',
-            'defaults',
-            'logger',
-            'init_cli',
-            'instance',
-            'instance_methods',
-            # 'plan', 'apply'
-        ]
-        result = []
-        obj = kls.instance
-        for method_name in dir(kls):
-            if method_name.startswith('_') or method_name in FORBIDDEN:
-                continue
-            # print(method_name)
-            # import IPython; IPython.embed()
-            fxn = getattr(obj, method_name)
-            if fxn is None or type(fxn).__name__ != 'method':
-                continue
-            result.append(method_name)
-        return result
+    def config(self):
+        """shows current config for this plugin"""
+        kls=self.__class__
+        LOGGER.debug(f"config class: {kls.config_kls}")
+        LOGGER.debug(f"current config:")
+        result = kls.get_current_config()
+        # result = self.final
+        print(text.to_json(result))
 
     @staticmethod
     def init_cli(kls):
+        """ """
+        import functools
         from pynchon import config
 
         config.finalize()
 
         plugin_main = kls.init_cli_group(kls)
 
-        if not callable(getattr(kls.instance, 'config')):
-
-            @common.kommand(name='config', parent=plugin_main)
-            def config():
-                """shows current config for this plugin"""
-                LOGGER.debug(f"config class: {kls.config_kls}")
-                LOGGER.debug(f"current config:")
-                result = kls.get_current_config()
-                print(text.to_json(result))
-
         obj = kls.instance
-        for method_name in kls.instance_methods:
-            # LOGGER.critical(f"wrapping {[method_name, type(fxn)]} for CLI..")
+        for method_name in kls.__methods__:
             fxn = getattr(obj, method_name)
-            import functools
-
             # @functools.wraps(fxn)
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
