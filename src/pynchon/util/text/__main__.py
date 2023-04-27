@@ -7,21 +7,8 @@ import click
 
 from pynchon.util import lme, text, typing
 from pynchon.util.os import invoke
-
+from pynchon.bin import options
 LOGGER = lme.get_logger(__name__)
-
-option_print = click.option(
-    '--print',
-    'should_print',
-    help='if set, displays result on stdout even when `--output <file>` is passed',
-    default=False,
-    is_flag=True,
-)
-option_output = click.option(
-    '--output',
-    help='when set, output will be written to this file',
-    default='/dev/stdout',
-)
 
 
 @click.group()
@@ -52,12 +39,16 @@ def j2() -> None:
 
 
 @j2.command('render')
-@option_output
-@option_print
+@options.option_output
+@options.option_print
 @click.option('--context', help='context file.  must be JSON')
 @click.argument("file", nargs=1)
 def j2_render(
-    output: str, should_print: bool, context: str, file: str, format: str = 'json'
+    output: str,
+    should_print: bool,
+    file: str,
+    context: str,
+    format: str = 'json'
 ) -> None:
     """
     renders the named file, using the given context-file.
@@ -106,8 +97,8 @@ def json_load(
     # var='WRAPPER_KEY',
     default='',
 )
-@option_print
-@option_output
+@options.option_output
+@options.option_print
 @click.option('--pull', help='when provided, this key will be output', default='')
 @click.option(
     '--push-data', help='(string) this raw data will be added to output', default=''
@@ -127,10 +118,9 @@ def json_load(
 )
 @click.option('--under-key', help='required with --push commands', default='')
 @click.argument("files", nargs=-1)
-def json5_load(
-    files: typing.List[str],
+def json5_load(output: str = '',
     should_print: bool = False,
-    output: str = '',
+    files: typing.List[str]=[],
     wrapper_key: str = '',
     pull: str = '',
     push_data: str = '',

@@ -28,7 +28,7 @@ class PythonCLI(models.Planner):
     name = "python-cli"
     config_kls = PythonCliConfig
 
-    @staticmethod
+    @classmethod
     def init_cli(kls):
         """pynchon.bin.cli:
         Option parsing for the `cli` subcommand
@@ -199,7 +199,7 @@ class PythonAPI(models.Planner):
     config_kls = dict
     defaults = dict()
 
-    @staticmethod
+    @classmethod
     def init_cli(kls):
         """pynchon.bin.api"""
         # import click

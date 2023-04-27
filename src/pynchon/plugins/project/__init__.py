@@ -57,10 +57,10 @@ class Project(models.Planner):
     defaults = dict()
     config_kls = ProjectConfig
 
-    @staticmethod
+    @classmethod
     def init_cli(kls):
         """pynchon.bin.project"""
-        project_group = models.Planner.init_cli(kls)
+        parent = kls.cli_group
 
         from pynchon import constants, util
         from pynchon.api import project
@@ -71,7 +71,7 @@ class Project(models.Planner):
 
         @common.kommand(
             name="entrypoints",
-            parent=project_group,
+            parent=parent,
             formatters=dict(markdown=constants.T_TOC_CLI),
             options=[
                 options.file_setupcfg,
@@ -93,7 +93,7 @@ class Project(models.Planner):
 
         @common.kommand(
             name="version",
-            parent=project_group,
+            parent=parent,
             formatters=dict(markdown=constants.T_VERSION_METADATA),
             options=[
                 # FIXME: options.output_with_default('docs/VERSION.md'),
@@ -116,9 +116,9 @@ class Project(models.Planner):
                 git_hash=git.hash,
             )
 
-        @project_group.command(
+        @parent.command(
             name="config",
-            # parent=project_group,
+            # parent=parent,
             # options=[],
         )
         def project_config(config=None) -> None:
@@ -130,7 +130,7 @@ class Project(models.Planner):
 
         @common.kommand(
             name="apply",
-            parent=project_group,
+            parent=parent,
             options=[],
         )
         def project_apply() -> None:
@@ -144,7 +144,7 @@ class Project(models.Planner):
 
         @common.kommand(
             name="plan",
-            parent=project_group,
+            parent=parent,
             options=[
                 options.stdout,
             ],

@@ -34,14 +34,14 @@ class FixMe(models.Planner):
         plan += [f"pynchon fixme gen --output {pynchon['docs_root']}/FIXME.md"]
         return plan
 
-    @staticmethod
+    @classmethod
     def init_cli(kls):
         """"""
-        plugin_main = models.CliPlugin.init_cli(kls)
+        parent = kls.cli_group
 
         @common.kommand(
             name="gen",
-            parent=plugin_main,
+            parent=parent,
             formatters=dict(markdown=T_FIXME),
             options=[
                 options.format_markdown,
@@ -81,7 +81,6 @@ class FixMe(models.Planner):
                     line_no = bits.pop(0)
                     items.append(dict(file=file, line=':'.join(bits), line_no=line_no))
             for g in skipped:
-                LOGGER.warning(
-                    f"exclude_pattern @ `{g}` skipped {len(skipped[g])} matches"
-                )
+                msg=f"exclude_pattern @ `{g}` skipped {len(skipped[g])} matches"
+                LOGGER.warning(msg)
             return dict(items=items)

@@ -16,6 +16,6 @@ class Git(models.ContextPlugin):
     defaults: typing.Dict = dict()
     config_kls = GitConfig
 
-    @staticmethod
-    def init_cli(kls):
-        pass
+    # @classmethod
+    # def init_cli(kls):
+    #     pass

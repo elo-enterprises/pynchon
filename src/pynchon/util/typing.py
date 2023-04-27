@@ -43,13 +43,19 @@ class classproperty(object):
     def __init__(self, fxn):
         self.fxn = fxn
 
+
     def __get__(self, obj, owner) -> OptionalAny:
         return self.fxn(owner)
 
+CLASSPROP_CACHES = {}
+
+class classproperty_cached(classproperty):
+    def __get__(self, obj, owner) -> OptionalAny:
+        result = CLASSPROP_CACHES.get(self.fxn, self.fxn(owner))
+        CLASSPROP_CACHES[self.fxn]=result
+        return CLASSPROP_CACHES[self.fxn]
 
 import importlib
-
-
 def lazy_import(
     importer_name,
 ):

@@ -82,10 +82,7 @@ def find_src(src_root: str, exclude_patterns=[]) -> list:
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)
     matches = [str(x.absolute()) for x in map(Path, matches) if not x.is_dir()]
-    LOGGER.debug(matches)
-    import IPython
-
-    IPython.embed()
+    # LOGGER.debug(matches)
     matches = [
         m for m in matches if not any([p.match(str(m)) for p in exclude_patterns])
     ]

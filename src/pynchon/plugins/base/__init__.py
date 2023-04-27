@@ -17,9 +17,10 @@ class Base(models.Planner):
     config_kls = BaseConfig
     contribute_plan_apply = False
 
-    @staticmethod
-    def init_cli_group(kls):
-        return entry.entry
+    @typing.classproperty
+    def cli_group(kls):
+        kls._finalized_cli_groups[kls] = entry.entry
+        return kls._finalized_cli_groups[kls]
 
     def plan(self, config=None) -> typing.List:
         """Creates a plan for all plugins"""

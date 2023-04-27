@@ -86,19 +86,18 @@ class Dot(models.Planner):
         plan += [cmd]
         return plan
 
-    @staticmethod
+    @classmethod
     def init_cli(kls):
         """
         Option parsing for the `dot` subcommands
         """
-        gen_dot = plugin_sub = models.CliPlugin.init_cli(kls)
-
+        parent = kls.cli_group
         LOGGER = lme.get_logger(__name__)
         files_arg = click.argument("files", nargs=-1)
 
         @kommand(
             name="files",
-            parent=gen_dot,
+            parent=parent,
             # formatters=dict(),
             options=[
                 # options.file,

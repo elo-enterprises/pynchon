@@ -9,6 +9,14 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
+option_print = click.option(
+    '--print',
+    'should_print',
+    help='if set, displays result on stdout even when `--output <file>` is passed',
+    default=False,
+    is_flag=True,
+)
+
 templates = click.option(
     "-t",
     "--templates",
@@ -27,8 +35,10 @@ name = click.option("--name", default="", help=("name to use"))
 stdout = click.option(
     "--stdout", is_flag=True, default=True, help=("whether to write to stdout.")
 )
-output = click.option(
-    "--output", "-o", default="", help=("output file to write.  (optional)")
+option_output = click.option(
+    '--output', "-o",
+    help='when set, output will be written to this file',
+    default='/dev/stdout',
 )
 output_dir = click.option(
     "--output-dir", default="docs/cli", help=("output directory (optional)")

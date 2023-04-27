@@ -58,9 +58,17 @@ class CliPlugin(PynchonPlugin):
         """ """
         return entry.entry
 
-    @staticmethod
-    def init_cli_group(kls):
+    _finalized_cli_groups = dict()
+
+    @typing.classproperty
+    def cli_group(kls):
         """ """
+        last_group = kls._finalized_cli_groups.get(
+            kls, None)
+
+        if last_group is not None:
+            return last_group
+
         def plugin_main():
             pass
 
@@ -69,9 +77,10 @@ class CliPlugin(PynchonPlugin):
         plugin_main = common.groop(
             getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
         )(plugin_main)
+        kls._finalized_cli_groups[kls]=plugin_main
         return plugin_main
 
-    @staticmethod
+    @classmethod
     def init_cli(kls):
         """ """
         from pynchon import config
@@ -80,7 +89,7 @@ class CliPlugin(PynchonPlugin):
         if kls != Base:
             config.finalize()
 
-        plugin_main = kls.init_cli_group(kls)
+        plugin_main = kls.cli_group
         obj = kls.instance
         for method_name in kls.__methods__:
             fxn = getattr(obj, method_name)
