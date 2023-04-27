@@ -73,7 +73,15 @@ class RootGroup(click.Group):
                 with formatter.section(_(f"{label.title()} Subcommands")):
                     formatter.write_dl(toplevel['plugins'][label])
 
-    # def format_usage(self, ctx, formatter):
+    def format_usage(self, ctx, formatter):
+        # terminal_width, _ = click.get_terminal_size()
+        terminal_width=30
+        click.echo('-'*terminal_width)
+        # import IPython; IPython.embed()
+        # with formatter.section(_("")):
+        #     formatter.write_dl(('',''))
+
+        super(RootGroup,self).format_usage(ctx,formatter)
     #     from pynchon.plugins.base import Base
     #     core_cmds = " | ".join([m.replace('_', '-') for m in Base.__methods__])
     #     core_cmds = "{ " + core_cmds + " }"

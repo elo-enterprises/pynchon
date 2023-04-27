@@ -9,12 +9,24 @@ LOGGER = lme.get_logger(__name__)
 
 LOGGER.critical('Building CLIs from plugins..')
 registry = cli_registry = {}
-for name, plugin_meta in plugin_registry.items():
+import click
+import tqdm
+# from tqdm import trange
+# from time import sleep
+# t = tqdm.trange(100, desc='Bar desc', leave=True)
+from tqdm.auto import tqdm
+
+# with click.progressbar(plugin_registry.items()) as bar:
+loop = plugin_registry.items()
+# loop = tqdm(loop)
+for name, plugin_meta in loop:
+    # loop.set_description(f'plugin {name}')
+    # loop.refresh()
     if name not in config.PLUGINS:
-        LOGGER.warning(f"skipping `{name}`")
+        # LOGGER.warning(f"skipping `{name}`")
         continue
     plugin_kls = plugin_meta['kls']
-    LOGGER.critical(f'{name}.init_cli: ')
+    # LOGGER.critical(f'{name}.init_cli: ')
     init_fxn = getattr(plugin_kls, 'init_cli', lambda _kls: None)
     try:
         p_entry = init_fxn(plugin_kls)

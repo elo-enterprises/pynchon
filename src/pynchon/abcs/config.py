@@ -3,10 +3,14 @@
 from pynchon.util import typing, lme
 from pynchon.util.tagging import tags
 
+from .meta import Meta
+
 LOGGER = lme.get_logger(__name__)
 
-
-class Config(dict):
+class Config(
+    dict,
+    metaclass=Meta,
+    ):
     """ """
 
     debug = False
@@ -19,12 +23,16 @@ class Config(dict):
         return repr(self)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}@{self.__class__.config_key}"
+        return self.__class__._logging_name
+
+    @typing.classproperty
+    def _logging_name(kls):
+        return f"{kls.__name__}@{kls.config_key}"
 
     @typing.classproperty
     def logger(kls):
         """ """
-        return lme.get_logger(f"Config['{kls.config_key}']")
+        return lme.get_logger(f"{kls._logging_name}")
 
     def resolve_conflicts(self, conflicts):
         conflicts and LOGGER.debug("resolving conflicts..")
@@ -46,24 +54,24 @@ class Config(dict):
 
     def __init__(self, **this_config):
         """ """
-
-        def get_props():
-            return [
-                pname
-                for pname in dir(self.__class__)
-                if all(
-                    [
-                        not pname.startswith("_"),
-                        isinstance(getattr(self.__class__, pname), property),
-                    ]
-                )
-            ]
+        LOGGER.critical(f"initializing {self}")
+        # def get_props():
+        #     return [
+        #         pname
+        #         for pname in dir(self.__class__)
+        #         if all(
+        #             [
+        #                 not pname.startswith("_"),
+        #                 isinstance(getattr(self.__class__, pname), property),
+        #             ]
+        #         )
+        #     ]
 
         called_defaults = this_config
         kls_defaults = getattr(self.__class__, 'defaults', {})
         super(Config, self).__init__(**{**kls_defaults, **called_defaults})
         conflicts = []
-        for pname in get_props():
+        for pname in self.__class__.__properties__:
             if pname in called_defaults or pname in kls_defaults:
                 conflicts.append(pname)
                 continue
