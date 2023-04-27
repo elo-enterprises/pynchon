@@ -9,8 +9,9 @@ LOGGER = lme.get_logger(__name__)
 
 LOGGER.critical('Building CLIs from plugins..')
 registry = cli_registry = {}
-import click
 import tqdm
+import click
+
 # from tqdm import trange
 # from time import sleep
 # t = tqdm.trange(100, desc='Bar desc', leave=True)

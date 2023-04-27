@@ -7,10 +7,11 @@ from .meta import Meta
 
 LOGGER = lme.get_logger(__name__)
 
+
 class Config(
     dict,
     metaclass=Meta,
-    ):
+):
     """ """
 
     debug = False

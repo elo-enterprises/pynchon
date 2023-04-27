@@ -200,3 +200,28 @@ class kommand(object):
 
 class groop(kommand):
     is_group = True
+
+
+import enlighten
+
+manager = enlighten.get_manager()
+import atexit
+
+status = manager.status_bar(
+    status_format=u'{app}{fill}{stage}{fill}{elapsed}',
+    color='bold_underline_bright_white_on_lightslategray',
+    justify=enlighten.Justify.CENTER,
+    app='Pynchon',
+    stage='...',
+    autorefresh=True,
+    min_delta=0.1,
+)
+atexit.register(lambda: [status.update(stage="\o/"), manager.stop()])
+
+# docs = manager.term.link(
+#     'https://python-enlighten.readthedocs.io/en/stable/examples.html',
+#     'Read the Docs')
+# manager.status_bar(
+#     'footer-pynchon',
+#     position=1, fill='-',
+#     justify=enlighten.Justify.CENTER)

@@ -7,7 +7,6 @@ from gettext import gettext as _
 import click
 
 from pynchon import abcs
-
 from pynchon.util import typing
 
 plugins = typing.lazy_import(
@@ -75,13 +74,14 @@ class RootGroup(click.Group):
 
     def format_usage(self, ctx, formatter):
         # terminal_width, _ = click.get_terminal_size()
-        terminal_width=30
-        click.echo('-'*terminal_width)
+        terminal_width = 30
+        click.echo('-' * terminal_width)
         # import IPython; IPython.embed()
         # with formatter.section(_("")):
         #     formatter.write_dl(('',''))
 
-        super(RootGroup,self).format_usage(ctx,formatter)
+        super(RootGroup, self).format_usage(ctx, formatter)
+
     #     from pynchon.plugins.base import Base
     #     core_cmds = " | ".join([m.replace('_', '-') for m in Base.__methods__])
     #     core_cmds = "{ " + core_cmds + " }"
@@ -107,5 +107,5 @@ class RootGroup(click.Group):
 @click.option('--plugins', help='shortcut for `--set plugins=...`')
 @click.option('--set', 'set_config', help='config overrides')
 @click.group("pynchon", cls=RootGroup)
-def entry(plugins:str='', set_config:str=''):
+def entry(plugins: str = '', set_config: str = ''):
     pass
