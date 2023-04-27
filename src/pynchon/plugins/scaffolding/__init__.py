@@ -13,7 +13,7 @@ from pynchon.util import tagging
 tags = tagging.tags
 
 
-class Scaffolding(models.Planner):
+class Scaffolding(models.ShyPlanner):
     """management tool for project boilerplate"""
 
     contribute_plan_apply = False

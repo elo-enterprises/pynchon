@@ -135,9 +135,9 @@ class BasePlugin(CliPlugin):
     #     return result
 
 
-class Planner(BasePlugin):
+class ShyPlanner(BasePlugin):
     cli_label = 'planner'
-    contribute_plan_apply = True
+    contribute_plan_apply = False
 
     def plan(self, config=None) -> typing.List:
         """create plan for this plugin"""
@@ -150,3 +150,8 @@ class Planner(BasePlugin):
         from pynchon.util.os import invoke
 
         return [invoke(p).succeeded for p in plan]
+
+
+class Planner(ShyPlanner):
+    cli_label = 'planner'
+    contribute_plan_apply = True
