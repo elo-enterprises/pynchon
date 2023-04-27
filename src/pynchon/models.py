@@ -51,15 +51,17 @@ class PynchonPlugin(AbstractPlugin):
         return result
 
 
+import click
+
+
 class CliPlugin(PynchonPlugin):
     cli_label = 'default'
+    _finalized_click_groups = dict()
 
     @typing.classproperty
     def click_entry(kls):
         """ """
         return entry.entry
-
-    _finalized_click_groups = dict()
 
     @typing.classproperty
     def click_group(kls):
@@ -81,6 +83,26 @@ class CliPlugin(PynchonPlugin):
         return plugin_main
 
     @classmethod
+    def click_acquire(kls, cmd_or_group: typing.Callable):
+        """ """
+        LOGGER.critical(f"acquiring object for CLI: {cmd_or_group}")
+        parent = kls.click_group
+        cmd = cmd_or_group if isinstance(cmd_or_group, click.Command) else None
+        grp = cmd_or_group if isinstance(cmd_or_group, click.Group) else None
+        if grp:
+            LOGGER.debug(f"acquiring: {grp}@{id(grp)} to {parent}@{id(parent)}")
+            # parent.add_group(fxn)
+            raise NotImplementedError("groups are not supported yet!")
+        elif cmd:
+            LOGGER.debug(f"acquiring: {cmd}@{id(cmd)} to {parent}@{id(parent)}")
+            parent.add_command(cmd)
+            return parent
+        else:
+            err = f'unrecognized type to acquire: {cmd_or_group}'
+            LOGGER.critical(err)
+            raise TypeError(err)
+
+    @classmethod
     def init_cli(kls):
         """ """
         from pynchon import config
@@ -89,10 +111,12 @@ class CliPlugin(PynchonPlugin):
         if kls != Base:
             config.finalize()
 
-        plugin_main = kls.click_group
         obj = kls.instance
         for method_name in kls.__methods__:
             fxn = getattr(obj, method_name)
+            tags = getattr(obj, 'tags', None)
+            tags = tags.get_tags(fxn) if tags is not None else {}
+            click_aliases = tags.get('click_aliases', []) if tags else []
             # @functools.wraps(fxn)
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
@@ -100,29 +124,32 @@ class CliPlugin(PynchonPlugin):
                 print(text.to_json(result))
                 return result
 
-            # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
-            # wrapper.__name__=fxn.__name__
-            wrapper.__doc__ = (fxn.__doc__ or "").lstrip()
-            # from pynchon.util import tagging
-
-            # import IPython; IPython.embed()
-            # tags = tagging.TAGGERS[fxn.__qualname__]
-            tmp = common.kommand(
-                fxn.__name__.replace('_', '-'),
-                parent=plugin_main,
-            )(wrapper)
-            tags = getattr(obj, 'tags', None)
-            tags = tags.get_tags(fxn) if tags is not None else {}
-            click_aliases = tags.get('click_aliases', []) if tags else []
+            kls.click_create_cmd(fxn)
             for alias in click_aliases:
-                # LOGGER.critical(f"creating alias for {fxn} @ {alias}")
-                tmp = common.kommand(
-                    alias.replace('_', '-'),
-                    parent=plugin_main,
-                    help=f'alias for `{alias}`',
-                )(wrapper)
+                kls.click_create_cmd(fxn, wrapper=wrapper, alias=alias)
 
-        return plugin_main
+        cli_includes = getattr(kls, 'cli_includes', [])
+        cli_includes and LOGGER.critical(f"loading cli_includes: {cli_includes}")
+        for fxn in cli_includes:
+            kls.click_acquire(fxn)
+
+        return kls.click_group
+
+    @classmethod
+    def click_create_cmd(kls, fxn, wrapper=None, alias: str = None):
+        """ """
+        name = alias or fxn.__name__
+        name = name.replace('_', '-')
+        help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
+        help = help.lstrip()
+        msg = f"creating command `{name}` for {fxn} {'alias' if alias else ''}"
+        LOGGER.critical(msg)
+        tmp = common.kommand(
+            name,
+            parent=kls.click_group,
+            help=help,
+        )(wrapper)
+        return tmp
 
 
 class ContextPlugin(CliPlugin):

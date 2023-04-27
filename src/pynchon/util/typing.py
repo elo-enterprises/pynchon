@@ -11,6 +11,7 @@ from types import MappingProxyType  # noqa
 from types import FunctionType  # noqa
 from types import MethodType  # noqa
 from typing import *  # noqa
+
 # from typing_extensions import Annotated
 
 Bool = bool

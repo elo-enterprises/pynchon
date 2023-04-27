@@ -6,6 +6,8 @@ from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon.util.text import __main__ as text_main
+
 
 class JinjaConfig(abcs.Config):
 
@@ -29,6 +31,9 @@ class Jinja(models.Planner):
     name = "jinja"
     defaults = dict()
     config_kls = JinjaConfig
+    cli_includes = [
+        text_main.j2cli,
+    ]
 
     def _get_exclude_patterns(self, config):
         """ """

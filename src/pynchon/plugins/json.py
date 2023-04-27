@@ -8,7 +8,6 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 # from pynchon.util import tagging
 
-from pynchon.util.text import __main__ as text_main
 
 # import yaml
 # import click
@@ -31,42 +30,14 @@ class Json(models.ToolPlugin):
     """
 
     priority = -1
-    name = cli_name = 'json'
-    defaults = dict()
+    name = 'json'
     config_kls = None
+    cli_name = name
+    from pynchon.util.text import __main__ as text_main
 
-    @classmethod
-    def click_merge(kls, fxn):
-        """ """
-        parent = kls.click_group
-        import click
-
-        if isinstance(fxn, click.Command):
-            cmd = fxn
-            LOGGER.debug(f"attaching command: {fxn}")
-            parent.add_command(cmd)
-            # LOGGER.debug(f"{parent.commands}")
-            return parent
-        if isinstance(fxn, click.Group):
-            LOGGER.debug(f"attaching group: {fxn}")
-            # parent.add_group(fxn)
-            raise NotImplementedError("groups are not supported yet")
-
-    @classmethod
-    def init_cli(kls) -> typing.NoneType:
-        """ """
-        fxns = [
-            # NB: these are groups
-            # text_main.json5,
-            # text_main.json,
-            # text_main.j2,
-            text_main.json5_load,
-            # text_main.json_load,
-            text_main.j2_render,
-        ]
-        for fxn in fxns:
-            parent = kls.click_merge(fxn)
-            LOGGER.debug(f"{parent.commands}")
+    cli_includes = [
+        text_main.json5_load,
+    ]
 
     # @tags(click_aliases=['loads',])
     # def json_loads(self):
