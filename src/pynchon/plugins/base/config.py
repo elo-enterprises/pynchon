@@ -17,12 +17,13 @@ class BaseConfig(abcs.Config):
     config_key = "pynchon"
     defaults = dict(
         version=__version__,
+        src_root=abcs.Path("."),
         plugins=[
             "base",
             "git",
             "jinja",
             "project",
-            "scaffolding",
+            # "scaffolding",
             'python',
             'gen',
         ],
