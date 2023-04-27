@@ -179,6 +179,7 @@ class PythonCLI(models.Planner):
 
     def plan(self, config=None):
         from pynchon.api import project
+
         config = config or project.get_config()
         plan = super(self.__class__, self).plan(config)
         droot = config.pynchon['docs_root']

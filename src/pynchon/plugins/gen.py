@@ -16,6 +16,7 @@ class Generators(models.ContextPlugin):
     """
     Collects various docs-generation commands from other plugins
     """
+
     cli_label = 'Aliased'
     name = cli_name = 'gen'
     defaults = dict()

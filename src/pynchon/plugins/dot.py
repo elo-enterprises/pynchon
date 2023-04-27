@@ -1,6 +1,6 @@
 """ pynchon.plugins.dot
 """
-from pynchon import abcs,models
+from pynchon import abcs, models
 from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
@@ -10,8 +10,10 @@ class Dot(models.Planner):
     """Tools for rendering graphviz dot files"""
 
     name = "dot"
+
     class config_kls(abcs.Config):
-        config_key='dot'
+        config_key = 'dot'
+
     defaults = dict()
 
     def plan(self, config) -> typing.List[str]:

@@ -7,11 +7,12 @@ import platform
 from memoized_property import memoized_property
 
 from pynchon import abcs
-from pynchon.util.os import invoke
-from pynchon.util import lme, typing, python
 from pynchon import config as config_mod
+from pynchon.util import lme, typing, python
+from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
+
 
 class PythonCliConfig(abcs.Config):
     config_key = "python-cli"
@@ -20,8 +21,8 @@ class PythonCliConfig(abcs.Config):
     def entrypoints(self) -> dict:
         """ """
         src_root = config_mod.project.get(
-            "src_root",
-            config_mod.pynchon.get("src_root"))
+            "src_root", config_mod.pynchon.get("src_root")
+        )
         if not src_root:
             msg = "`src_root` not set for pynchon or project config; cannot enumerate entrypoints"
             LOGGER.critical(msg)

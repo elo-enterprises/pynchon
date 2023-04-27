@@ -1,11 +1,10 @@
 """ pynchon.plugins.scaffolding
 """
 from pynchon import models
+from pynchon.util import lme, typing, files, tagging
 from pynchon.util.os import invoke
-from pynchon.util import lme, typing, files
 
 from .config import ScaffoldingConfig, ScaffoldingItem
-from pynchon.util import tagging
 
 tags = tagging.tags
 LOGGER = lme.get_logger(__name__)

@@ -62,7 +62,7 @@ class Project(models.Planner):
         """pynchon.bin.project"""
         project_group = models.Planner.init_cli(kls)
 
-        from pynchon import abcs, constants, util
+        from pynchon import constants, util
         from pynchon.api import project
         from pynchon.util import lme, text
         from pynchon.util.os import invoke
