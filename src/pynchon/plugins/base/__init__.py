@@ -2,15 +2,16 @@
 """
 from pynchon import models
 
-# from pynchon.bin import common
 from pynchon.util import lme, typing
-
-LOGGER = lme.get_logger(__name__)
+from pynchon.bin import entry
+from pynchon.api import project
 from .config import BaseConfig
 
+LOGGER = lme.get_logger(__name__)
 
-class Base(models.BasePlugin):
-    """ """
+
+class Base(models.Planner):
+    """ Core Plugin """
 
     name = "base"
     config_kls = BaseConfig
@@ -18,38 +19,26 @@ class Base(models.BasePlugin):
 
     @staticmethod
     def init_cli_group(kls):
-        from pynchon.bin.entry import entry
-
-        return entry
+        return entry.entry
 
     def plan(self, config=None) -> typing.List:
         """Creates a plan for all plugins"""
-        self.state = config
-        return []
+        raise NotImplementedError()
 
     def apply(self, config=None) -> None:
         """Executes the result returned by planner"""
-        plan = self.plan(config=config)
-        from pynchon.util.os import invoke
-
-        return [invoke(p).succeeded for p in plan]
+        raise NotImplementedError()
 
     def config(self):
         """Show current project config (with templating/interpolation)"""
-        from pynchon.api import project
-
         return project.get_config()
 
     @classmethod
     def get_current_config(kls):
         """ """
         from pynchon import config as config_mod
-
         result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
         return result
-
-    # def plan(self, config) -> typing.List[str]:
-    #     return []
 
     def raw(self) -> None:
         """

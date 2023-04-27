@@ -3,7 +3,15 @@
 import os
 
 import jinja2
-
+DEFAULT_PLUGINS = [
+    # WARNING: edit src/pynchon/plugins/__init__ to add import..
+    "base", "project",
+    "globals",
+    "git",
+    'python',
+    'gen', 'render',
+    "json", "jinja",
+]
 URL_BUILTINS = "https://docs.python.org/3/library/functions.html"
 TEMPLATE_DIR = os.environ.get(
     "PYNCHON_TEMPLATE_DIR",

@@ -1,31 +1,36 @@
-# @groop("render", parent=entry)
-# def render():
-#     """
-#     Misc. helpers for rendering text
-#     """
-# """ pynchon.bin.render:
-#
-#     Option parsing for the `render` subcommand
-# """
-# import json
-#
+""" pynchon.plugins.render
+"""
+from pynchon import models
+from pynchon.util import lme, typing
+# from pynchon.util.os import invoke
+
+LOGGER = lme.get_logger(__name__)
+# from pynchon.util import tagging
+
 # import yaml
 # import click
 # import pyjson5
-#
 # from pynchon import abcs
 # from pynchon.api import render
 # from pynchon.bin import groups, options
 # from pynchon.util import lme
 # from pynchon.util.os import invoke
-#
 # from .common import kommand
-#
 # LOGGER = lme.get_logger(__name__)
 # PARENT = groups.render
 # files_arg = click.argument("files", nargs=-1)
-#
-#
+
+class Renderers(models.CliAliases):
+    """
+    Namespace for rendering commands from other plugins
+    """
+    name = cli_name = 'render'
+    defaults = dict()
+    config_kls = None
+
+    def placeholder(self) -> typing.Dict:
+        return dict()
+
 # @kommand(
 #     name="json5",
 #     parent=PARENT,

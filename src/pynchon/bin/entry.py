@@ -47,9 +47,9 @@ class RootGroup(click.Group):
                     plugin_kls = plugin_subs[subcommand]['kls']
                     if issubclass(plugin_kls, (abcs.Plugin,)):
                         tmp = plugin_kls.cli_label
-                        toplevel['plugins'][tmp].append((subcommand, f"{cmd.help}"))
+                        toplevel['plugins'][tmp].append((f"{subcommand}:", f"{cmd.help}"))
                 else:
-                    toplevel['core'].append((f"{subcommand}", f"{cmd.help}"))
+                    toplevel['core'].append((f"{subcommand}:", f"{cmd.help}"))
                 # category.append((f"{subcommand}", f"{label}{help}"))
 
             if toplevel['core']:

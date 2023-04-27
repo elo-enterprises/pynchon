@@ -12,12 +12,11 @@ LOGGER = lme.get_logger(__name__)
 # from pynchon.util import tagging
 
 
-class Generators(models.ContextPlugin):
+class Generators(models.CliAliases):
     """
-    Namespace for various docs-generation commands
+    Namespace for rendering docs-generation commands from other plugins
     """
 
-    cli_label = 'Aliased'
     name = cli_name = 'gen'
     defaults = dict()
     priority = -1

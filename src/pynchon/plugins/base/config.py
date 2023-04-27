@@ -8,7 +8,7 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 
 from pynchon.util import tagging
-
+from pynchon import constants
 
 class BaseConfig(abcs.Config):
     """ """
@@ -18,15 +18,7 @@ class BaseConfig(abcs.Config):
     defaults = dict(
         version=__version__,
         src_root=abcs.Path("."),
-        plugins=[
-            "base",
-            "git",
-            "globals",
-            "jinja",
-            "project",
-            'python',
-            'gen',
-        ],
+        plugins=list(set(constants.DEFAULT_PLUGINS))
     )
 
     def validate(self, k, v):

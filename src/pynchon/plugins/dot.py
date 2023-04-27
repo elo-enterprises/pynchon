@@ -1,10 +1,56 @@
 """ pynchon.plugins.dot
 """
+import os
+
+import click
+
+from pynchon.bin import options
+from pynchon.util import lme
+from pynchon.util.os import invoke
+from pynchon.bin.common import kommand
+# @kommand(
+#     name="dot",
+#     parent=PARENT,
+#     options=[
+#         options.output,
+#         click.option(
+#             "--open",
+#             "open_after",
+#             is_flag=True,
+#             default=False,
+#             help=(f"if true, opens the created file using {DEFAULT_OPENER}"),
+#         ),
+#         click.option(
+#             "--in-place",
+#             is_flag=True,
+#             default=False,
+#             help=("if true, writes to {file}.png (dropping any other extensions)"),
+#         ),
+#     ],
+#     arguments=[files_arg],
+# )
+# def render_dot(files, output, in_place, open_after):
+#     """
+#     Render dot file (graphviz) -> PNG
+#     """
+#     assert files, "expected files would be provided"
+#     # if file:
+#     #     return render.j5(file, output=output, in_place=in_place)
+#     # elif files:
+#     # files = files.split(' ')
+#     LOGGER.debug(f"Running with many: {files}")
+#     file = files[0]
+#     files = files[1:]
+#     result = render.dot(file, output=output, in_place=in_place)
+#     output = result["output"]
+#     if open_after:
+#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
+#         invoke(f"{DEFAULT_OPENER} {output}")
+#
 from pynchon import abcs, models
 from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
-
 
 class Dot(models.Planner):
     """Tools for rendering graphviz dot files"""
@@ -46,15 +92,6 @@ class Dot(models.Planner):
         Option parsing for the `dot` subcommands
         """
         gen_dot = plugin_sub = models.CliPlugin.init_cli(kls)
-
-        import os
-
-        import click
-
-        from pynchon.bin import options
-        from pynchon.util import lme
-        from pynchon.util.os import invoke
-        from pynchon.bin.common import kommand
 
         LOGGER = lme.get_logger(__name__)
         files_arg = click.argument("files", nargs=-1)
