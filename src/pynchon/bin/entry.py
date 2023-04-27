@@ -45,7 +45,8 @@ class RootGroup(click.Group):
                 if is_plugin:
                     plugin_kls = plugin_subs[subcommand]['kls']
                     if issubclass(plugin_kls, (models.ContextPlugin,)):
-                        label = f'( context-provider )'
+                        tmp = plugin_kls.cli_label
+                        label = f'({tmp}) '
                     category = rows_plugins
                 else:
                     category = rows_core

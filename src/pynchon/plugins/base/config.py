@@ -12,7 +12,6 @@ from pynchon.util import tagging
 
 class BaseConfig(abcs.Config):
     """ """
-
     priority = 1
     config_key = "pynchon"
     defaults = dict(
@@ -27,6 +26,10 @@ class BaseConfig(abcs.Config):
             'gen',
         ],
     )
+    # @classproperty
+    # def defaults(kls):
+    #     from pynchon.config import RAW
+    #     return RAW
 
     def validate(self, k, v):
         if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
@@ -42,10 +45,15 @@ class BaseConfig(abcs.Config):
             LOGGER.info(f'skipping validation for top-level {k},{v}')
 
     def __init__(self, **core_config):
-        # LOGGER.debug('validating..')
-        # for k, v in core_config.items():
-        #     self.validate(k, v)
+        if not core_config:
+            self.logger.critical("core_config is empty!")
+        LOGGER.debug('validating..')
+        for k, v in core_config.items():
+            self.validate(k, v)
         super(BaseConfig, self).__init__(**core_config)
+        if 'src_root' not in self:
+            raise Exception([self, core_config])
+            # import IPython; IPython.embed()
 
     @property
     def root(self) -> str:

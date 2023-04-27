@@ -259,7 +259,7 @@ class PythonAPI(models.Plugin):
         plan += [f"mkdir -p {api_root}"]
         import IPython
 
-        IPython.embed()
+        # IPython.embed()
         tmp = config.python["package"]["name"]
         plan += [
             "pynchon gen api toc" f' --package {tmp}' f" --output {api_root}/README.md"

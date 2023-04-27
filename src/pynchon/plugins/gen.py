@@ -13,6 +13,7 @@ from pynchon.util import tagging
 
 
 class Generators(models.ContextPlugin):
+    cli_label = 'collector'
     name = cli_name = 'gen'
     defaults = dict()
     priority = -1

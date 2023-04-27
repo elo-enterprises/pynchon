@@ -8,6 +8,8 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Meta(type):
+    NAMES = []
+
     @staticmethod
     def aggr(
         attr,
@@ -20,6 +22,8 @@ class Meta(type):
         return class_props
 
     def __new__(mcls, clsname, bases, namespace):
+        this_name = namespace.get('name', None)
+        this_name and mcls.NAMES.append(this_name)
         class_props = Meta.aggr('__class_properties__', bases, namespace)
         class_props += [
             k for k, v in namespace.items() if isinstance(v, typing.classproperty)

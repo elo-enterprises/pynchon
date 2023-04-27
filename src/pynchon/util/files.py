@@ -99,19 +99,19 @@ def find_globs(globs: typing.List[str], quiet: bool = False):
     return matches
 
 
-def find_j2s(globs: typing.List[str]) -> list:
+def find_j2s(globs: typing.List[str],includes=[]) -> list:
     """ """
     from pynchon import abcs
     from pynchon.plugins import registry
 
-    obj = registry['jinja']['obj']
+    # obj = registry['jinja']['obj']
     # config import
     LOGGER.debug(f"finding .j2s under {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)
     includes = []
     for i, m in enumerate(matches):
-        for d in obj.includes:
+        for d in includes:
             if abcs.Path(d).has_file(m):
                 includes.append(m)
             # else:

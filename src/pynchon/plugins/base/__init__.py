@@ -13,7 +13,6 @@ class Base(Plugin):
 
     name = "base"
     config_kls = BaseConfig
-    defaults = dict()
 
     @staticmethod
     def init_cli_group(kls):

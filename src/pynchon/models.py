@@ -10,16 +10,17 @@ LOGGER = lme.get_logger(__name__)
 
 
 class BasePlugin(AbstractPlugin):
-    pass
+    cli_label = ''
 
 
 class ContextPlugin(BasePlugin):
-    pass
-
+    cli_label = 'context-only'
+    contribute_plan_apply = False
 
 class PynchonPlugin(ContextPlugin):
+    cli_label = 'planner'
     priority = 10
-
+    contribute_plan_apply = True
     def plan(self, config=None) -> typing.List:
         """create plan for this plugin"""
         self.state = config
@@ -82,7 +83,6 @@ class PynchonPlugin(ContextPlugin):
     @typing.classproperty
     def instance(kls):
         from pynchon.plugins import get_plugin_obj
-
         return get_plugin_obj(kls.name)
 
     def config(self):
@@ -99,10 +99,10 @@ class PynchonPlugin(ContextPlugin):
     def init_cli(kls):
         """ """
         import functools
-
+        from pynchon.plugins.base import Base
         from pynchon import config
+        if kls!=Base: config.finalize()
 
-        config.finalize()
         plugin_main = kls.init_cli_group(kls)
         obj = kls.instance
         for method_name in kls.__methods__:

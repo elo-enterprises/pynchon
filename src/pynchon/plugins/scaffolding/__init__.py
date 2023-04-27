@@ -17,7 +17,7 @@ tags = tagging.tags
 
 class Scaffolding(Plugin):
     """management tool for project boilerplate"""
-
+    contribute_plan_apply=False
     priority = 3
     name = "scaffolding"
     cli_name = 'scaffold'
