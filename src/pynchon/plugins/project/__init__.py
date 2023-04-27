@@ -2,10 +2,10 @@
 """
 import os
 
-from pynchon import abcs, config
+from pynchon import abcs, config, models
 from pynchon.bin import common, options
 from pynchon.util import lme, typing
-from pynchon import models
+
 LOGGER = lme.get_logger(__name__)
 
 

@@ -2,9 +2,8 @@
 """
 import os
 
-from pynchon import abcs
+from pynchon import abcs, models
 from pynchon.util import lme, typing, files  # , files
-from pynchon import models
 from pynchon.util.os import invoke
 
 from .config import ScaffoldingConfig, ScaffoldingItem

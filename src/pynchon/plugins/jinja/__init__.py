@@ -1,8 +1,7 @@
 """ pynchon.plugins.jinja
 """
-from pynchon import abcs
+from pynchon import abcs, models
 from pynchon.util import files, lme, typing
-from pynchon import models
 
 LOGGER = lme.get_logger(__name__)
 

@@ -7,7 +7,6 @@ import click
 from pynchon import constants, util, models
 from pynchon.bin import options, common
 from pynchon.util import lme, typing
-
 from pynchon.plugins.base import Base
 
 from .config import PythonConfig, PyPiConfig, PythonCliConfig

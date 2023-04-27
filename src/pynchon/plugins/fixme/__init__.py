@@ -4,10 +4,9 @@ from fnmatch import fnmatch
 
 import click
 
-from pynchon import constants, abcs
+from pynchon import constants, abcs, models
 from pynchon.bin import common, groups, options
 from pynchon.util import typing, lme
-from pynchon import models
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)

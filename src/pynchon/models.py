@@ -46,12 +46,14 @@ class PynchonPlugin(AbstractPlugin):
         # result = self.final
         # print(text.to_json(result))
 
+
 class CliPlugin(PynchonPlugin):
     cli_label = 'default'
 
     @typing.classproperty
     def click_entry(kls):
         from pynchon.bin import entry
+
         return entry.entry
 
     @staticmethod
@@ -112,6 +114,7 @@ class CliPlugin(PynchonPlugin):
 
         return plugin_main
 
+
 class ContextPlugin(CliPlugin):
     cli_label = 'provider'
     contribute_plan_apply = False
@@ -132,9 +135,11 @@ class BasePlugin(CliPlugin):
     #     # self.logger.info(f"parsed generate-instructions: {result}")
     #     return result
 
+
 class Planner(BasePlugin):
     cli_label = 'planner'
     contribute_plan_apply = True
+
     def plan(self, config=None) -> typing.List:
         """create plan for this plugin"""
         self.state = config

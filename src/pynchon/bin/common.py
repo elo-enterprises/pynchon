@@ -187,7 +187,7 @@ class kommand(object):
         self.fxn = fxn
         f = self.cmd(self.wrapper())
 
-        f.help=(f.help or fxn.__doc__ or "").lstrip()
+        f.help = (f.help or fxn.__doc__ or "").lstrip()
         for opt in self.options:
             f = opt(f)
         for arg in self.arguments:

@@ -1,22 +1,28 @@
 """
 pynchon: a utility for docs generation and template-rendering
 """
+import collections
+
+from pynchon import abcs
 from gettext import gettext as _
 
 import click
 
 from pynchon import models
 
+from lazy_imports import try_import
+
+from pynchon.util import typing
+plugins = typing.lazy_import('pynchon.plugins',)
 
 class RootGroup(click.Group):
     def format_commands(
         self, ctx: click.Context, formatter: click.HelpFormatter
     ) -> None:
-        """Extra format methods for multi methods that adds all the commands
-        after the options.
-        """
-        from pynchon.plugins import registry as plugin_registry
 
+        # with try_import() as registry_import:  # use try_import as a context manager
+        #     from pynchon.plugins import registry as plugin_registry
+        # registry_import.check()  # check if the import was ok or raise a meaningful exception
         commands = []
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
@@ -29,14 +35,11 @@ class RootGroup(click.Group):
             plugin_subs = dict(
                 [
                     [getattr(v['kls'], 'cli_name', v['kls'].name), v]
-                    for k, v in plugin_registry.items()
+                    for k, v in plugins.registry.items()
                 ]
             )
-            import collections
-            from pynchon import abcs
-            toplevel=dict(
-                core = [],
-                plugins=collections.defaultdict(list))
+
+            toplevel = dict(core=[], plugins=collections.defaultdict(list))
             for subcommand, cmd in commands:
                 help = cmd.get_short_help_str(limit)
                 is_plugin = subcommand in plugin_subs
@@ -45,15 +48,16 @@ class RootGroup(click.Group):
                     plugin_kls = plugin_subs[subcommand]['kls']
                     if issubclass(plugin_kls, (abcs.Plugin,)):
                         tmp = plugin_kls.cli_label
-                        toplevel['plugins'][tmp].append(
-                            (subcommand, f"{cmd.help}"))
+                        toplevel['plugins'][tmp].append((subcommand, f"{cmd.help}"))
                 else:
                     toplevel['core'].append((f"{subcommand}", f"{cmd.help}"))
                 # category.append((f"{subcommand}", f"{label}{help}"))
 
             if toplevel['core']:
+
                 def search(rows, term):
                     return [i for i, (subc, subh) in enumerate(rows) if subc == term][0]
+
                 order = ['plan', 'apply', 'config', 'config-raw']
                 ordering = []
                 for o in order:

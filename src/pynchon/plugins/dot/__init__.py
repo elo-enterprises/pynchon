@@ -1,7 +1,7 @@
 """ pynchon.plugins.dot
 """
-from pynchon.util import files, lme, typing
 from pynchon import models
+from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 

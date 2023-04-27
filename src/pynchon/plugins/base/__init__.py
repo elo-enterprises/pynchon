@@ -1,8 +1,8 @@
 """ pynchon.plugins.base
 """
+from pynchon import models
 from pynchon.bin import groups, common
 from pynchon.util import lme, typing
-from pynchon import models
 
 LOGGER = lme.get_logger(__name__)
 from .config import BaseConfig

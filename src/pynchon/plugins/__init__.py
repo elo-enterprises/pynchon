@@ -28,6 +28,7 @@ registry = [
     if not name.startswith('_') and name not in 'git'.split()
 ]
 from pynchon import abcs
+
 registry = [kls for kls in registry if typing.is_subclass(kls, abcs.Plugin)]
 registry = [kls for kls in registry if kls.name in config.PLUGINS]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
