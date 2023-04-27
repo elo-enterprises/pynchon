@@ -37,6 +37,7 @@ class ScaffoldingItem(abcs.AttrDict):
 
 class ScaffoldingConfig(abcs.Config):
     """ """
+
     config_key = "scaffolding"
 
     # def scaffolds(self):

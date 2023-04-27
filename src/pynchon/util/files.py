@@ -99,7 +99,7 @@ def find_globs(globs: typing.List[str], quiet: bool = False):
     return matches
 
 
-def find_j2s(globs: typing.List[str],includes=[]) -> list:
+def find_j2s(globs: typing.List[str], includes=[]) -> list:
     """ """
     from pynchon import abcs
     from pynchon.plugins import registry

@@ -5,6 +5,7 @@ from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
 
+
 class Config(dict):
     """ """
 
@@ -29,9 +30,7 @@ class Config(dict):
         conflicts and LOGGER.debug("resolving conflicts..")
         for pname in conflicts:
             prop = getattr(self.__class__, pname)
-            strategy = tags.get(prop, {}).get(
-                'conflict_strategy', 'user_wins'
-            )
+            strategy = tags.get(prop, {}).get('conflict_strategy', 'user_wins')
             if strategy == 'user_wins':
                 self.logger.info(
                     f"property for {pname} exists,"
@@ -47,21 +46,22 @@ class Config(dict):
 
     def __init__(self, **this_config):
         """ """
+
         def get_props():
             return [
-            pname
-            for pname in dir(self.__class__)
-            if all(
-                [
-                    not pname.startswith("_"),
-                    isinstance(getattr(self.__class__, pname), property),
-                ]
-            )
-        ]
+                pname
+                for pname in dir(self.__class__)
+                if all(
+                    [
+                        not pname.startswith("_"),
+                        isinstance(getattr(self.__class__, pname), property),
+                    ]
+                )
+            ]
+
         called_defaults = this_config
         kls_defaults = getattr(self.__class__, 'defaults', {})
-        super(Config, self).__init__(
-            **{**kls_defaults,**called_defaults})
+        super(Config, self).__init__(**{**kls_defaults, **called_defaults})
         conflicts = []
         for pname in get_props():
             if pname in called_defaults or pname in kls_defaults:

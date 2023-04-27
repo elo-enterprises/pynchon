@@ -35,7 +35,9 @@ def finalize():
         #     raise Exception(plugin_kls)
         # NB: module access
         user_defaults = config.USER_DEFAULTS.get(plugin_kls.name, {})
-        user_defaults = config.PYNCHON_CORE if plugin_kls.name=='base' else user_defaults
+        user_defaults = (
+            config.PYNCHON_CORE if plugin_kls.name == 'base' else user_defaults
+        )
         # user_defaults = user_defaults if not
         if pconf_kls is None:
             LOGGER.warning(f"{plugin_kls} does not define `config_kls`")

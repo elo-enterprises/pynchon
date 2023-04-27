@@ -12,6 +12,7 @@ from pynchon.util import tagging
 
 class BaseConfig(abcs.Config):
     """ """
+
     priority = 1
     config_key = "pynchon"
     defaults = dict(
