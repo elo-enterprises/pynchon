@@ -12,7 +12,6 @@ from pynchon.util import tagging
 
 class BaseConfig(abcs.Config):
     """ """
-
     priority = 1
     config_key = "pynchon"
     defaults = dict(
@@ -23,15 +22,10 @@ class BaseConfig(abcs.Config):
             "git",
             "jinja",
             "project",
-            # "scaffolding",
             'python',
             'gen',
         ],
     )
-    # @classproperty
-    # def defaults(kls):
-    #     from pynchon.config import RAW
-    #     return RAW
 
     def validate(self, k, v):
         if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):

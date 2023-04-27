@@ -49,19 +49,9 @@ class Base(Plugin):
     # def plan(self, config) -> typing.List[str]:
     #     return []
 
-    @common.groop("api", parent=groups.gen)
-    def gen_api() -> None:
-        """
-        Generate API docs from python modules, packages, etc
-        """
-
-    @common.groop("cli", parent=groups.gen)
-    def gen_cli():
-        """Generate CLI docs"""
-
     def config_raw(self) -> None:
         """
-        shows raw-config (no interpolation or templating)
+        Returns (almost) raw config, before templating
         """
         from pynchon.config import RAW
 

@@ -122,7 +122,7 @@ class PynchonPlugin(ContextPlugin):
 
             # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
             # wrapper.__name__=fxn.__name__
-            wrapper.__doc__ = fxn.__doc__
+            wrapper.__doc__ = (fxn.__doc__ or "").lstrip()
             from pynchon.util import tagging
 
             # import IPython; IPython.embed()

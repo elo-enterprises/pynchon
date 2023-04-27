@@ -18,3 +18,13 @@ class Generators(models.ContextPlugin):
     defaults = dict()
     priority = -1
     config_kls = None
+    # @common.groop("api", parent=groups.gen)
+    # def gen_api() -> None:
+    #     """
+    #     Generate API docs from python modules, packages, etc
+    #     """
+    #
+    # @common.groop("cli", parent=groups.gen)
+    # def gen_cli():
+    #     """Generate CLI docs"""
+    #

@@ -151,7 +151,7 @@ class kommand(object):
         )
         click_kwargs = {}
         cls and click_kwargs.update(cls=cls)
-        help and click_kwargs.update(help=help)
+        help and click_kwargs.update(help=help.lstrip())
         if not self.is_group:
             self.cmd = self.parent.command(self.name, **click_kwargs)
         else:
@@ -186,10 +186,13 @@ class kommand(object):
         """ """
         self.fxn = fxn
         f = self.cmd(self.wrapper())
+
+        f.help=(f.help or fxn.__doc__ or "").lstrip()
         for opt in self.options:
             f = opt(f)
         for arg in self.arguments:
             f = arg(f)
+
         return f
 
 

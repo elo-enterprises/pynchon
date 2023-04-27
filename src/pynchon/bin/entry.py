@@ -20,15 +20,11 @@ class RootGroup(click.Group):
         commands = []
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
-            # What is this, the tool lied about a command.  Ignore it
-            if cmd is None:
+            if cmd is None or cmd.hidden:
                 continue
-            if cmd.hidden:
-                continue
-
             commands.append((subcommand, cmd))
-        # allow for 3 times the default spacing
         if len(commands):
+            # allow for 3 times the default spacing
             limit = formatter.width - 6 - max(len(cmd[0]) for cmd in commands)
             plugin_subs = dict(
                 [
@@ -36,8 +32,10 @@ class RootGroup(click.Group):
                     for k, v in plugin_registry.items()
                 ]
             )
-            rows_core = []
-            rows_plugins = []
+            import collections
+            toplevel=dict(
+                core = [],
+                plugins=collections.defaultdict(list))
             for subcommand, cmd in commands:
                 help = cmd.get_short_help_str(limit)
                 is_plugin = subcommand in plugin_subs
@@ -46,32 +44,29 @@ class RootGroup(click.Group):
                     plugin_kls = plugin_subs[subcommand]['kls']
                     if issubclass(plugin_kls, (models.ContextPlugin,)):
                         tmp = plugin_kls.cli_label
-                        label = f'({tmp}) '
-                    category = rows_plugins
+                        toplevel['plugins'][tmp].append(
+                            (subcommand, f"{cmd.help}"))
                 else:
-                    category = rows_core
-                category.append((f"{subcommand}", f"{label}{help}"))
-            if rows_core:
+                    toplevel['core'].append((f"{subcommand}", f"{cmd.help}"))
+                # category.append((f"{subcommand}", f"{label}{help}"))
 
+            if toplevel['core']:
                 def search(rows, term):
                     return [i for i, (subc, subh) in enumerate(rows) if subc == term][0]
-
                 order = ['plan', 'apply', 'config', 'config-raw']
-                # rows_core = [
-                #     for name in
-                # ]
                 ordering = []
                 for o in order:
-                    for subc, subh in rows_core:
+                    for subc, subh in toplevel['core']:
                         if subc == o:
                             ordering.append((subc, subh))
-                            rows_core.remove((subc, subh))
-                rows_core = ordering + rows_core
+                            toplevel['core'].remove((subc, subh))
+                toplevel['core'] = ordering + toplevel['core']
                 with formatter.section(_("Core Subcommands")):
-                    formatter.write_dl(rows_core)
-            if rows_plugins:
-                with formatter.section(_("Plugin-entrypoints")):
-                    formatter.write_dl(rows_plugins)
+                    formatter.write_dl(toplevel['core'])
+
+            for label in toplevel['plugins']:
+                with formatter.section(_(f"{label.title()} Subcommands")):
+                    formatter.write_dl(toplevel['plugins'][label])
 
     # def format_usage(self, ctx, formatter):
     #     from pynchon.plugins.base import Base

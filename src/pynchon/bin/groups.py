@@ -7,31 +7,10 @@ from .entry import entry
 from .common import groop
 
 
-@groop("gen", parent=entry)
-def gen():
-    """
-    Generate docs
-    """
 
-
-@entry.command("plan")
-def plan() -> None:
-    """
-    shortcut for `pynchon project plan`
-    """
-    invoke('pynchon project plan', system=True)
-
-
-# @entry.command("config")
-# def config() -> None:
+# @entry.command("plan")
+# def plan() -> None:
 #     """
-#     shortcut for `pynchon project config`
+#     shortcut for `pynchon project plan`
 #     """
-#     invoke('pynchon project config', system=True)
-
-
-@groop("render", parent=entry)
-def render():
-    """
-    Misc. helpers for rendering text
-    """
+#     invoke('pynchon project plan', system=True)
