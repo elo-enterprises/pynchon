@@ -23,19 +23,19 @@ class Base(models.BasePlugin):
         return entry
 
     def plan(self, config=None) -> typing.List:
-        """create a plan for all plugins"""
+        """Creates a plan for all plugins"""
         self.state = config
         return []
 
     def apply(self, config=None) -> None:
-        """execute the result returned by planner"""
+        """Executes the result returned by planner"""
         plan = self.plan(config=config)
         from pynchon.util.os import invoke
 
         return [invoke(p).succeeded for p in plan]
 
     def config(self):
-        """show project config"""
+        """Show current project config (with templating/interpolation)"""
         from pynchon.api import project
 
         return project.get_config()
@@ -51,9 +51,10 @@ class Base(models.BasePlugin):
     # def plan(self, config) -> typing.List[str]:
     #     return []
 
-    def config_raw(self) -> None:
+    def raw(self) -> None:
         """
-        Returns (almost) raw config, before templating
+        Returns (almost) raw config,
+        before templating & interpolation
         """
         from pynchon.config import RAW
 

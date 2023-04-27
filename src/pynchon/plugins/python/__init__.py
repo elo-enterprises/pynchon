@@ -15,19 +15,17 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Python(models.ContextPlugin):
-    """context-provider: python-platform"""
+    """Context for python-platform"""
 
     priority = 2
     name = 'python'
-    defaults = dict()
     config_kls = PythonConfig
 
 
 class PythonCLI(models.Planner):
-    """tools for generating CLI docs"""
+    """Tools for generating CLI docs"""
 
     name = "python-cli"
-    defaults = dict()
     config_kls = PythonCliConfig
 
     @staticmethod
@@ -195,7 +193,7 @@ class PythonCLI(models.Planner):
 
 
 class PythonAPI(models.Planner):
-    """tools for generating python-api docs"""
+    """Tools for generating python-api docs"""
 
     name = "python-api"
     config_kls = dict
@@ -266,8 +264,7 @@ class PythonAPI(models.Planner):
 
 
 class PyPI(models.ContextPlugin):
-    """pypi-defaults"""
+    """Context for PyPI"""
 
     name = "pypi"
     config_kls = PyPiConfig
-    defaults = dict()

@@ -10,11 +10,9 @@ import click
 
 from pynchon.util import lme
 
-# from rich.console import Console
-
-
 LOGGER = lme.get_logger(__name__)
 
+# from rich.console import Console
 # class BetterGroup(click.Group):
 #     def format_usage(self,ctx,formatter):
 #         super(BetterGroup,self).format_usage(ctx,formatter)
@@ -189,7 +187,9 @@ class kommand(object):
         self.fxn = fxn
         f = self.cmd(self.wrapper())
 
-        f.help = (f.help or fxn.__doc__ or "").lstrip()
+        f.help = ' '.join(
+            [x.strip() for x in (f.help or fxn.__doc__ or "").split('\n')]
+        ).lstrip()
         for opt in self.options:
             f = opt(f)
         for arg in self.arguments:

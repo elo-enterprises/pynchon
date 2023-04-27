@@ -14,7 +14,7 @@ LOGGER = lme.get_logger(__name__)
 
 class Generators(models.ContextPlugin):
     """
-    Collects various docs-generation commands from other plugins
+    Namespace for various docs-generation commands
     """
 
     cli_label = 'Aliased'
