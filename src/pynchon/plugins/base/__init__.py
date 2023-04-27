@@ -14,7 +14,7 @@ class Base(models.BasePlugin):
 
     name = "base"
     config_kls = BaseConfig
-
+    contribute_plan_apply = False
     @staticmethod
     def init_cli_group(kls):
         from pynchon.bin.entry import entry

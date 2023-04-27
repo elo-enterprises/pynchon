@@ -60,9 +60,7 @@ class Project(models.Planner):
     @staticmethod
     def init_cli(kls):
         """pynchon.bin.project"""
-        project_group = models.CliPlugin.init_cli(kls)
-
-        import json
+        project_group = models.Planner.init_cli(kls)
 
         from pynchon import abcs, constants, util
         from pynchon.api import project
@@ -157,4 +155,4 @@ class Project(models.Planner):
             """
             config, plan = project.plan()
             config["plan"] = plan
-            return json.dumps(config, indent=2, cls=abcs.JSONEncoder)
+            return text.to_json(config)

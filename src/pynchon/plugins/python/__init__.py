@@ -177,7 +177,9 @@ class PythonCLI(models.Planner):
         #         commands=result,
         #     )
 
-    def plan(self, config):
+    def plan(self, config=None):
+        from pynchon.api import project
+        config = config or project.get_config()
         plan = super(self.__class__, self).plan(config)
         droot = config.pynchon['docs_root']
         cli_root = f"{droot}/cli"
@@ -186,7 +188,7 @@ class PythonCLI(models.Planner):
         plan += [f"pynchon gen cli all --output-dir {cli_root}"]
         plan += [
             f"pynchon gen cli main --file {fname} --output-dir {cli_root}"
-            for fname in config.python_cli.entrypoints
+            for fname in config['python-cli'].entrypoints
         ]
         return plan
 

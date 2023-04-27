@@ -1,17 +1,17 @@
 """ pynchon.plugins.dot
 """
-from pynchon import models
+from pynchon import abcs,models
 from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
 class Dot(models.Planner):
-    """tools for rendering graphviz dot files"""
+    """Tools for rendering graphviz dot files"""
 
     name = "dot"
-    # config= DotConfig
-    config_kls = dict
+    class config_kls(abcs.Config):
+        config_key='dot'
     defaults = dict()
 
     def plan(self, config) -> typing.List[str]:

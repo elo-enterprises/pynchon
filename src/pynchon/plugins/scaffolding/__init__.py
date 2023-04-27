@@ -1,20 +1,18 @@
 """ pynchon.plugins.scaffolding
 """
-# from pynchon import abcs
 from pynchon import models
-from pynchon.util import lme, typing, files  # , files
 from pynchon.util.os import invoke
+from pynchon.util import lme, typing, files
 
 from .config import ScaffoldingConfig, ScaffoldingItem
-
-LOGGER = lme.get_logger(__name__)
 from pynchon.util import tagging
 
 tags = tagging.tags
+LOGGER = lme.get_logger(__name__)
 
 
 class Scaffolding(models.ShyPlanner):
-    """management tool for project boilerplate"""
+    """Management tool for project boilerplate"""
 
     contribute_plan_apply = False
     priority = 3
