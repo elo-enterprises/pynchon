@@ -3,13 +3,7 @@
 from pynchon import models
 from pynchon.util import lme, typing
 
-# , files  # , files
-# from pynchon.util.os import invoke
-
-# from .config import ScaffoldingConfig, ScaffoldingItem
-
 LOGGER = lme.get_logger(__name__)
-# from pynchon.util import tagging
 
 
 class Generators(models.CliAliases):
@@ -21,9 +15,7 @@ class Generators(models.CliAliases):
     defaults = dict()
     priority = -1
     config_kls = None
-
-    def placeholder(self) -> typing.Dict:
-        return dict()
+    cli_includes: typing.List[typing.Callable] = []
 
     # @common.groop("api", parent=groups.gen)
     # def gen_api() -> None:

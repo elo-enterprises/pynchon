@@ -30,9 +30,7 @@ class Renderers(models.CliAliases):
     name = cli_name = 'render'
     defaults = dict()
     config_kls = None
-
-    def placeholder(self) -> typing.Dict:
-        return dict()
+    cli_includes: typing.List[typing.Callable] = []
 
 
 # @kommand(

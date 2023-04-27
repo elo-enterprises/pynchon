@@ -1,6 +1,6 @@
 """ pynchon.plugins.render
 """
-from pynchon import models
+from pynchon import models, abcs
 from pynchon.util import lme, typing
 
 # from pynchon.util.os import invoke
@@ -23,6 +23,8 @@ LOGGER = lme.get_logger(__name__)
 # files_arg = click.argument("files", nargs=-1)
 # from pynchon.util.tagging import tags
 
+from pynchon.util.text import __main__ as text_main
+
 
 class Json(models.ToolPlugin):
     """
@@ -33,11 +35,12 @@ class Json(models.ToolPlugin):
     name = 'json'
     config_kls = None
     cli_name = name
-    from pynchon.util.text import __main__ as text_main
-
-    cli_includes = [
+    cli_includes: typing.List[typing.Callable] = [
         text_main.json5_load,
     ]
+
+    class config_kls(abcs.Config):
+        config_key = 'json'
 
     # @tags(click_aliases=['loads',])
     # def json_loads(self):

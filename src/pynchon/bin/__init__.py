@@ -5,7 +5,7 @@ from pynchon.events import status
 from pynchon.plugins import registry as plugin_registry
 
 from pynchon import config  # isort: skip
-from .entry import entry  # isort: skip
+from .entry import entry  # noqa isort: skip
 
 LOGGER = lme.get_logger(__name__)
 

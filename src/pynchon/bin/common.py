@@ -8,7 +8,7 @@ import functools
 
 import click
 
-from pynchon.util import lme
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -165,6 +165,7 @@ class kommand(object):
 
     def wrapper(self, *args, **call_kwargs):
         """ """
+        assert self.fxn
 
         @functools.wraps(self.fxn)
         def newf(*args, **call_kwargs):
@@ -182,9 +183,10 @@ class kommand(object):
 
         return newf
 
-    def __call__(self, fxn):
+    def __call__(self, fxn: typing.Callable):
         """ """
         self.fxn = fxn
+        assert fxn, 'function cannot be None!'
         f = self.cmd(self.wrapper())
 
         f.help = ' '.join(

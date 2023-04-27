@@ -39,7 +39,10 @@ class PynchonPlugin(AbstractPlugin):
     @classmethod
     def get_current_config(kls):
         """class-method: get the current config for this plugin"""
-        result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
+        assert kls.config_kls
+        conf_key = getattr(kls.config_kls, 'config_key', kls.name)
+        assert conf_key
+        result = getattr(config_mod, conf_key)
         return result
 
     def config(self):
@@ -114,6 +117,7 @@ class CliPlugin(PynchonPlugin):
         obj = kls.instance
         for method_name in kls.__methods__:
             fxn = getattr(obj, method_name)
+            assert fxn, f'retrieved empty {method_name} from {obj}'
             tags = getattr(obj, 'tags', None)
             tags = tags.get_tags(fxn) if tags is not None else {}
             click_aliases = tags.get('click_aliases', []) if tags else []
@@ -124,7 +128,7 @@ class CliPlugin(PynchonPlugin):
                 print(text.to_json(result))
                 return result
 
-            kls.click_create_cmd(fxn)
+            kls.click_create_cmd(fxn, wrapper=wrapper)
             for alias in click_aliases:
                 kls.click_create_cmd(fxn, wrapper=wrapper, alias=alias)
 
@@ -136,8 +140,10 @@ class CliPlugin(PynchonPlugin):
         return kls.click_group
 
     @classmethod
-    def click_create_cmd(kls, fxn, wrapper=None, alias: str = None):
+    def click_create_cmd(kls, fxn: typing.Callable, wrapper=None, alias: str = None):
         """ """
+        assert fxn
+        assert wrapper
         name = alias or fxn.__name__
         name = name.replace('_', '-')
         help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
