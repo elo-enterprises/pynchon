@@ -8,11 +8,7 @@ import click
 
 from pynchon import abcs
 
-# , models
 from pynchon.util import typing
-
-# from lazy_imports import try_import
-
 
 plugins = typing.lazy_import(
     'pynchon.plugins',
@@ -100,6 +96,8 @@ class RootGroup(click.Group):
 
 
 @click.version_option()
+@click.option('--plugins', help='shortcut for `--set plugins=...`')
+@click.option('--set', 'set_config', help='config overrides')
 @click.group("pynchon", cls=RootGroup)
-def entry():
+def entry(plugins:str='', set_config:str=''):
     pass
