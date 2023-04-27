@@ -13,42 +13,6 @@ from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
-
-def dot(
-    file: str, output: str = "", in_place: bool = False, output_mode: str = "png"
-) -> typing.Dict:
-    """renders .dot file to png"""
-    if in_place:
-        assert not output
-        output = os.path.splitext(file)[0] + ".png"
-    # Using https://github.com/nickshine/dot
-    DOT_DOCKER_IMG = "nshine/dot"
-    invoke(
-        f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}"
-    )
-    return dict(output=output)
-
-
-# def j5(
-#     file,
-#     output="",
-#     in_place=False,
-# ) -> typing.StringMaybe:
-#     """renders json5 file"""
-#     LOGGER.debug(f"Running with one file: {file}")
-#     with open(file, "r") as fhandle:
-#         data = text.json5_loads(content=fhandle.read())
-#     if in_place:
-#         assert not output, "cannot use --in-place and --output at the same time"
-#         output = os.path.splitext(file)[0]
-#         output = f"{output}.json"
-#     if output:
-#         with open(output, "w") as fhandle:
-#             content = text.to_json(data)
-#             fhandle.write(f"{content}\n")
-#     return data
-
-
 def loads_j2_file(
     file: str, ctx: dict = {}, templates: list = ["."], strict: bool = True
 ) -> str:

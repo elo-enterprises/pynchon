@@ -4,9 +4,9 @@ pynchon: a utility for docs generation and template-rendering
 import collections
 from gettext import gettext as _
 
-import click
+# import click
 
-from pynchon import abcs
+from pynchon import abcs, click
 from pynchon.util import typing
 
 plugins = typing.lazy_import(
@@ -15,13 +15,11 @@ plugins = typing.lazy_import(
 
 
 class RootGroup(click.Group):
+    """ """
     def format_commands(
         self, ctx: click.Context, formatter: click.HelpFormatter
     ) -> None:
-
-        # with try_import() as registry_import:  # use try_import as a context manager
-        #     from pynchon.plugins import registry as plugin_registry
-        # registry_import.check()  # check if the import was ok or raise a meaningful exception
+        """ """
         commands = []
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
@@ -67,47 +65,29 @@ class RootGroup(click.Group):
                             ordering.append((subc, subh))
                             toplevel['core'].remove((subc, subh))
                 toplevel['core'] = ordering + toplevel['core']
-                with formatter.section(_("Core Subcommands")):
+                with formatter.section(_("Core COMMANDs")):
                     formatter.write_dl(toplevel['core'])
 
             for label in toplevel['plugins']:
-                with formatter.section(_(f"{label.title()} Subcommands")):
+                with formatter.section(_(f"{label.title()} COMMANDs")):
                     formatter.write_dl(toplevel['plugins'][label])
 
     def format_usage(self, ctx, formatter):
+        """ """
         # terminal_width, _ = click.get_terminal_size()
         terminal_width = 30
         click.echo('-' * terminal_width)
-        # import IPython; IPython.embed()
-        # with formatter.section(_("")):
-        #     formatter.write_dl(('',''))
-
         super(RootGroup, self).format_usage(ctx, formatter)
-
-    #     from pynchon.plugins.base import Base
-    #     core_cmds = " | ".join([m.replace('_', '-') for m in Base.__methods__])
-    #     core_cmds = "{ " + core_cmds + " }"
-    #     plugin_cmds = ".."
-    #     cmd = ctx.command
-    #     m_sub = cmd.subcommand_metavar
-    #     m_op = cmd.options_metavar
-    #     tmp = ' '.join(m_sub.split()[1:])
-    #     formatter.write(
-    #         ''.join(
-    #             [
-    #                 __doc__.lstrip(),
-    #                 'Usage:\n',
-    #                 f'\n\t{cmd.name} {m_op} {m_sub}',
-    #                 f'\n\t{cmd.name} {m_op} {core_cmds} {tmp}',
-    #                 f'\n\t{cmd.name} {m_op} PLUGIN_NAME {tmp}',
-    #             ]
-    #         )
-    #     )
 
 
 @click.version_option()
 @click.option('--plugins', help='shortcut for `--set plugins=...`')
 @click.option('--set', 'set_config', help='config overrides')
+@click.option('--get', 'get_config', help='config retrieval')
 @click.group("pynchon", cls=RootGroup)
-def entry(plugins: str = '', set_config: str = ''):
+def entry(
+    plugins: str = '',
+    set_config: str = '',
+    get_config: str = '',
+    ):
     pass

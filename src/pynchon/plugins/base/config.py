@@ -33,7 +33,8 @@ class BaseConfig(abcs.Config):
         elif isinstance(v, (dict,)):
             raw_plugin_configs[k] = v
         else:
-            LOGGER.info(f'skipping validation for top-level {k},{v}')
+            # LOGGER.info(f'skipping validation for top-level `{k}` @ {v}')
+            pass
 
     def __init__(self, **core_config):
         if not core_config:

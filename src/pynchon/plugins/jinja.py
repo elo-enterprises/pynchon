@@ -6,11 +6,17 @@ from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon.util.text import __main__ as text_main
+
 
 class JinjaConfig(abcs.Config):
 
     config_key = "jinja"
     defaults = dict()
+    # @property
+    # def _base(self) -> abcs.AttrDict:
+    #     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
+
     # @property
     # def includes(self) -> typing.List:
     #     docs_root = initialized["pynchon"].get("docs_root", None)
@@ -29,6 +35,9 @@ class Jinja(models.Planner):
     name = "jinja"
     defaults = dict()
     config_kls = JinjaConfig
+    cli_includes: typing.List[typing.Callable] = [
+        text_main.j2cli,
+    ]
 
     def _get_exclude_patterns(self, config):
         """ """

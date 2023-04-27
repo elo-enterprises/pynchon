@@ -83,14 +83,14 @@ class tagsM:
     def __call__(self, **tags):
         def decorator(func: typing.Callable) -> typing.Callable:
             merged = {**GLOBAL_TAG_REGISTRY.get(func, {}), **tags}
-            LOGGER.debug(f"tagging {func} with {merged}")
+            # LOGGER.debug(f"tagging {func} with {merged}")
             GLOBAL_TAG_REGISTRY[func] = merged
             return func
 
         return decorator
 
     def __getitem__(self, name: str) -> typing.Any:
-        LOGGER.critical(f"requested {name}")
+        # LOGGER.critical(f"requested {name}")
         tmp = GLOBAL_TAG_REGISTRY.get(name)
         tmp = tmp or tag_factory(name)
         GLOBAL_TAG_REGISTRY[name] = tmp

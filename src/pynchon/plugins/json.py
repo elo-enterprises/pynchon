@@ -1,6 +1,6 @@
 """ pynchon.plugins.render
 """
-from pynchon import models
+from pynchon import models, abcs
 from pynchon.util import lme, typing
 
 # from pynchon.util.os import invoke
@@ -8,7 +8,6 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 # from pynchon.util import tagging
 
-from pynchon.util.text import __main__ as text_main
 
 # import yaml
 # import click
@@ -24,6 +23,26 @@ from pynchon.util.text import __main__ as text_main
 # files_arg = click.argument("files", nargs=-1)
 # from pynchon.util.tagging import tags
 
+from pynchon.util.text import __main__ as text_main
+
+# def j5(
+#     file,
+#     output="",
+#     in_place=False,
+# ) -> typing.StringMaybe:
+#     """renders json5 file"""
+#     LOGGER.debug(f"Running with one file: {file}")
+#     with open(file, "r") as fhandle:
+#         data = text.json5_loads(content=fhandle.read())
+#     if in_place:
+#         assert not output, "cannot use --in-place and --output at the same time"
+#         output = os.path.splitext(file)[0]
+#         output = f"{output}.json"
+#     if output:
+#         with open(output, "w") as fhandle:
+#             content = text.to_json(data)
+#             fhandle.write(f"{content}\n")
+#     return data
 
 class Json(models.ToolPlugin):
     """
@@ -31,42 +50,15 @@ class Json(models.ToolPlugin):
     """
 
     priority = -1
-    name = cli_name = 'json'
-    defaults = dict()
+    name = 'json'
     config_kls = None
+    cli_name = name
+    cli_includes: typing.List[typing.Callable] = [
+        text_main.json5_load,
+    ]
 
-    @classmethod
-    def click_merge(kls, fxn):
-        """ """
-        parent = kls.click_group
-        import click
-
-        if isinstance(fxn, click.Command):
-            cmd = fxn
-            LOGGER.debug(f"attaching command: {fxn}")
-            parent.add_command(cmd)
-            # LOGGER.debug(f"{parent.commands}")
-            return parent
-        if isinstance(fxn, click.Group):
-            LOGGER.debug(f"attaching group: {fxn}")
-            # parent.add_group(fxn)
-            raise NotImplementedError("groups are not supported yet")
-
-    @classmethod
-    def init_cli(kls) -> typing.NoneType:
-        """ """
-        fxns = [
-            # NB: these are groups
-            # text_main.json5,
-            # text_main.json,
-            # text_main.j2,
-            text_main.json5_load,
-            # text_main.json_load,
-            text_main.j2_render,
-        ]
-        for fxn in fxns:
-            parent = kls.click_merge(fxn)
-            LOGGER.debug(f"{parent.commands}")
+    class config_kls(abcs.Config):
+        config_key = 'json'
 
     # @tags(click_aliases=['loads',])
     # def json_loads(self):

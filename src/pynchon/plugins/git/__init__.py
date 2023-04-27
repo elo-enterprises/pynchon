@@ -8,8 +8,8 @@ from .config import GitConfig
 LOGGER = lme.get_logger(__name__)
 
 
-class Git(models.ContextPlugin):
-    """ """
+class Git(models.Provider):
+    """ Context for git """
 
     priority = 0
     name = 'git'

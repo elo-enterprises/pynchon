@@ -39,16 +39,17 @@ def j2() -> None:
     """
 
 
-@j2.command('render')
+@j2.command('j2cli')
 @options.option_output
 @options.option_print
 @click.option('--context', help='context file.  must be JSON')
 @click.argument("file", nargs=1)
-def j2_render(
+def j2cli(
     output: str, should_print: bool, file: str, context: str, format: str = 'json'
 ) -> None:
     """
-    renders the named file, using the given context-file.
+    Renders the named file, using the given context-file.
+    This is a wrapper on `j2`, so j2cli must be installed.
     """
     cmd = f'j2 --format {format} {file} {context}'
     result = invoke(cmd)

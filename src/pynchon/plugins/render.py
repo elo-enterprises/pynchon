@@ -30,9 +30,7 @@ class Renderers(models.CliAliases):
     name = cli_name = 'render'
     defaults = dict()
     config_kls = None
-
-    def placeholder(self) -> typing.Dict:
-        return dict()
+    cli_includes: typing.List[typing.Callable] = []
 
 
 # @kommand(
@@ -92,24 +90,6 @@ class Renderers(models.CliAliases):
 #     ],
 #     arguments=[files_arg],
 # )
-# def render_dot(files, output, in_place, open_after):
-#     """
-#     Render dot file (graphviz) -> PNG
-#     """
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     result = render.dot(file, output=output, in_place=in_place)
-#     output = result["output"]
-#     if open_after:
-#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-#         invoke(f"{DEFAULT_OPENER} {output}")
-#
 #
 # @kommand(
 #     name="any",
