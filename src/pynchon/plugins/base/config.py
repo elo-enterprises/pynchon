@@ -21,6 +21,7 @@ class BaseConfig(abcs.Config):
         plugins=[
             "base",
             "git",
+            "globals",
             "jinja",
             "project",
             'python',

@@ -1,5 +1,6 @@
 """ pynchon.bin
 """
+import click
 from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
 
@@ -9,13 +10,6 @@ LOGGER = lme.get_logger(__name__)
 
 LOGGER.critical('Building CLIs from plugins..')
 registry = cli_registry = {}
-import tqdm
-import click
-
-# from tqdm import trange
-# from time import sleep
-# t = tqdm.trange(100, desc='Bar desc', leave=True)
-from tqdm.auto import tqdm
 
 # with click.progressbar(plugin_registry.items()) as bar:
 loop = plugin_registry.items()

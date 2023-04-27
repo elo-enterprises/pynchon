@@ -133,25 +133,27 @@ class BasePlugin(CliPlugin):
     #     result = self.state.pynchon.get("generate", [])
     #     # self.logger.info(f"parsed generate-instructions: {result}")
     #     return result
+from pynchon.events import status
 
-
-class ShyPlanner(BasePlugin):
+class AbstractPlanner(BasePlugin):
     cli_label = 'planner'
-    contribute_plan_apply = False
-
     def plan(self, config=None) -> typing.List:
         """create plan for this plugin"""
+        status.update(stage=f"planning for `{self.__class__.name}`")
         self.state = config
         return []
 
     def apply(self, config=None) -> None:
         """executes the plan for this plugin"""
+        status.update(stage=f"applying for `{self.__class__.name}`")
         plan = self.plan(config=config)
         from pynchon.util.os import invoke
 
         return [invoke(p).succeeded for p in plan]
 
+class ShyPlanner(AbstractPlanner):
+    contribute_plan_apply = False
+
 
 class Planner(ShyPlanner):
-    cli_label = 'planner'
     contribute_plan_apply = True

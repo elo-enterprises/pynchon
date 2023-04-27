@@ -23,13 +23,14 @@
   "globals": {
     "exclude_patterns": [
       ".*[.]pyc",
+      "**/build/lib/**",
     ],
   },
   // begin plugins-config
   "dot":{},
   "fixme":{
+    // will include `globals.exclude_patterns`
     "exclude_patterns": [
-      // "src/pynchon/templates/",
       "**/*.egg-info/**",
       "src/pynchon/plugins/fixme/**",
       "src/pynchon/templates/**",
@@ -51,6 +52,9 @@
      ],
    },
    "jinja":{
+    "exclude_patterns": [
+        "**/pynchon/templates/**",
+    ],
     "includes": [
       "{{pynchon.docs_root}}/includes",
     ],

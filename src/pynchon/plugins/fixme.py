@@ -72,6 +72,7 @@ class FixMe(models.Planner):
                     continue
                 bits = line.split(":")
                 file = bits.pop(0)
+                path = abcs.Path(file)
                 for g in exclude_patterns:
                     if fnmatch(file, g):
                         skipped[g] = skipped.get(g, []) + [file]

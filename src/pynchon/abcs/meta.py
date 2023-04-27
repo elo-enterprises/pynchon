@@ -49,5 +49,5 @@ class Meta(type):
         # namespace.update({'__class_tags__': .. })
         # namespace.update({'__static_methods__': .. })
         # namespace.update({'__properties__': .. })
-        LOGGER.debug(f'mcls for {clsname} returns')
+        # LOGGER.debug(f'mcls for {clsname} returns')
         return super().__new__(mcls, clsname, bases, namespace)

@@ -16,6 +16,8 @@ from .jinja import Jinja  # noqa
 from .python import Python, PythonAPI, PythonCLI, PyPI  # noqa
 from .project import Project  # noqa
 from .scaffolding import Scaffolding  # noqa
+from .globals import Globals
+# from .jenkins import Jenkins  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
