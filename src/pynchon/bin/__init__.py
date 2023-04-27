@@ -1,6 +1,5 @@
 """ pynchon.bin
 """
-from pynchon.bin import cli, parse, render
 from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
 

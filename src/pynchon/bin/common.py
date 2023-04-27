@@ -1,15 +1,17 @@
 """ pynchon.bin.common:
     Common options/arguments and base classes for CLI
 """
-import io
+# import io
 import sys
 import json
 import functools
 
 import click
-from rich.console import Console
 
 from pynchon.util import lme
+
+# from rich.console import Console
+
 
 LOGGER = lme.get_logger(__name__)
 

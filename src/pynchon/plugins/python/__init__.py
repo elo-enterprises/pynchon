@@ -1,15 +1,15 @@
 """ pynchon.config.python
 """
-import os
-
-import click
-
-from pynchon import constants, util, models
-from pynchon.bin import options, common
+from pynchon import models
 from pynchon.util import lme, typing
-from pynchon.plugins.base import Base
 
 from .config import PythonConfig, PyPiConfig, PythonCliConfig
+
+# import click
+# from pynchon import constants
+# from pynchon.bin import options, common
+# from pynchon.plugins.base import Base
+
 
 LOGGER = lme.get_logger(__name__)
 
@@ -201,12 +201,12 @@ class PythonAPI(models.Planner):
     @staticmethod
     def init_cli(kls):
         """pynchon.bin.api"""
-        import click
-
-        from pynchon import util
-        from pynchon.plugins.base import Base
-
-        LOGGER = lme.get_logger(__name__)
+        # import click
+        #
+        # from pynchon import util
+        # from pynchon.plugins.base import Base
+        #
+        # LOGGER = lme.get_logger(__name__)
 
         def markdown(**result):
             return result["header"] + "\n".join(result["blocks"])
@@ -255,9 +255,6 @@ class PythonAPI(models.Planner):
         # self.logger.debug("planning for API docs..")
         api_root = f"{config.pynchon['docs_root']}/api"
         plan += [f"mkdir -p {api_root}"]
-        import IPython
-
-        # IPython.embed()
         tmp = config.python["package"]["name"]
         plan += [
             "pynchon gen api toc" f' --package {tmp}' f" --output {api_root}/README.md"

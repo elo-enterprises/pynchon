@@ -14,7 +14,9 @@ from pynchon.util.os import invoke
 LOGGER = lme.get_logger(__name__)
 
 
-def dot(file: str, output: str = "", in_place: bool = False, output_mode: str = "png"):
+def dot(
+    file: str, output: str = "", in_place: bool = False, output_mode: str = "png"
+) -> typing.Dict:
     """renders .dot file to png"""
     if in_place:
         assert not output
@@ -55,7 +57,7 @@ def loads_j2_file(
     with open(file, "r") as fhandle:
         content = fhandle.read()
 
-    LOGGER.debug("render context: \n{}".format(text.to_json(final_ctx)))
+    LOGGER.debug("render context: \n{}".format(text.to_json(ctx)))
     tmp = list(ctx.keys())
     LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
     content = j2_loads(text=content, context=ctx, templates=templates)
@@ -85,7 +87,7 @@ def j2(
                 LOGGER.debug(
                     "found bracket in context, assuming it is data instead of file."
                 )
-                ctx = json.loads(ctx)
+                ctx = json.loads(ctx)  # noqa
             elif ext in ["json"]:
                 LOGGER.debug(f"context is json file @ `{ctx}`")
                 with open(ctx, "r") as fhandle:
@@ -175,7 +177,8 @@ def j2_loads(
         LOGGER.critical(known_templates)
         raise RuntimeError()
 
-        # raise
 
-
-__all__ = ["j5", "j2"]
+__all__ = [
+    # "j5",
+    "j2"
+]

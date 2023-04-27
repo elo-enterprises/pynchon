@@ -1,8 +1,7 @@
 """ pynchon.plugins.scaffolding
 """
-import os
-
-from pynchon import abcs, models
+# from pynchon import abcs
+from pynchon import models
 from pynchon.util import lme, typing, files  # , files
 from pynchon.util.os import invoke
 

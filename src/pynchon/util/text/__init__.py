@@ -2,7 +2,16 @@
     Utilities for parsing, generating or manipulating text
 """
 
+import os
+import re
 import json
+import pprint as _pprint
+
+import json5
+
+from pynchon.util import typing, lme
+
+LOGGER = lme.get_logger(__name__)
 
 
 def to_json(obj):
@@ -13,18 +22,6 @@ def to_json(obj):
 
 
 jsonify = to_json
-
-import os
-import re
-import json
-import pprint as _pprint
-import functools
-
-import json5
-
-from pynchon.util import typing, lme
-
-LOGGER = lme.get_logger(__name__)
 
 
 def load_json(file: str = '', content: str = '') -> dict:

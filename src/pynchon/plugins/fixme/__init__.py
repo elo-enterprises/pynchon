@@ -5,7 +5,7 @@ from fnmatch import fnmatch
 import click
 
 from pynchon import constants, abcs, models
-from pynchon.bin import common, groups, options
+from pynchon.bin import common, options
 from pynchon.util import typing, lme
 from pynchon.util.os import invoke
 

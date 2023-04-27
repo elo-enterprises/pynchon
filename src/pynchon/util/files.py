@@ -102,8 +102,8 @@ def find_globs(globs: typing.List[str], quiet: bool = False):
 def find_j2s(globs: typing.List[str], includes=[]) -> list:
     """ """
     from pynchon import abcs
-    from pynchon.plugins import registry
 
+    # from pynchon.plugins import registry
     # obj = registry['jinja']['obj']
     # config import
     LOGGER.debug(f"finding .j2s under {globs}")

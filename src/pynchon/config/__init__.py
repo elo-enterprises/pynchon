@@ -1,14 +1,14 @@
 """ pynchon.config
 """
-import os
-import functools
-
 from pynchon import abcs
-from pynchon.util import lme, typing
+from pynchon.util import lme  # typing
 from pynchon.abcs.visitor import JinjaDict
 from pynchon.plugins.base.config import BaseConfig
 
-from .util import config_folders, load_config_from_files, get_config_files, finalize
+from .util import config_folders  # noqa
+from .util import load_config_from_files  # noqa
+from .util import get_config_files  # noqa
+from .util import finalize  # noqa
 
 from pynchon.plugins.git import GitConfig  # noqa
 

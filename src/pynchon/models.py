@@ -1,6 +1,6 @@
 """ pynchon.models
 """
-from memoized_property import memoized_property
+# from memoized_property import memoized_property
 
 from pynchon.bin import common
 from pynchon.util import typing, lme, text
@@ -40,7 +40,7 @@ class PynchonPlugin(AbstractPlugin):
         """shows current config for this plugin"""
         kls = self.__class__
         LOGGER.debug(f"config class: {kls.config_kls}")
-        LOGGER.debug(f"current config:")
+        LOGGER.debug("current config:")
         result = kls.get_current_config()
         return result
         # result = self.final
@@ -71,8 +71,7 @@ class CliPlugin(PynchonPlugin):
     @staticmethod
     def init_cli(kls):
         """ """
-        import functools
-
+        # import functools
         from pynchon import config
         from pynchon.plugins.base import Base
 
@@ -93,7 +92,7 @@ class CliPlugin(PynchonPlugin):
             # wrapper = lambda *args, **kargs: print(json.dumps(fxn(*args,**kargs) or {}, indent=2))
             # wrapper.__name__=fxn.__name__
             wrapper.__doc__ = (fxn.__doc__ or "").lstrip()
-            from pynchon.util import tagging
+            # from pynchon.util import tagging
 
             # import IPython; IPython.embed()
             # tags = tagging.TAGGERS[fxn.__qualname__]

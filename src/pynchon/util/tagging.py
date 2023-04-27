@@ -11,8 +11,6 @@
 """
 from __future__ import annotations
 
-import inspect
-import functools
 from collections import defaultdict
 
 from pynchon.util import typing, lme
@@ -33,7 +31,7 @@ LOGGER = lme.get_logger(__name__)
 #     return decorator
 #
 #
-def tag_factory(tag_storage_key: typing.Any) -> typing.Any:
+def tag_factory(*args) -> typing.Any:
     """ """
 
     class tagger(dict):

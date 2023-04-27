@@ -1,10 +1,10 @@
 """ pynchon.plugins
 """
-from pynchon import models
+# from pynchon import models
 from pynchon.util import lme, typing
 
 # from .jenkins import Jenkins  # noqa
-from .util import get_plugin, get_plugin_obj
+from .util import get_plugin, get_plugin_obj  # noqa
 
 from .dot import Dot  # noqa
 from .gen import Generators  # noqa
@@ -21,7 +21,7 @@ LOGGER = lme.get_logger(__name__)
 
 from pynchon import config
 
-LOGGER.critical(f"Building plugin registry..")
+LOGGER.critical("Building plugin registry..")
 registry = [
     eval(name)
     for name in dir()

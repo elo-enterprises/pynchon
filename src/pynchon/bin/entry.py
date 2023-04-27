@@ -2,18 +2,22 @@
 pynchon: a utility for docs generation and template-rendering
 """
 import collections
-
-from pynchon import abcs
 from gettext import gettext as _
 
 import click
 
-from pynchon import models
+from pynchon import abcs
 
-from lazy_imports import try_import
-
+# , models
 from pynchon.util import typing
-plugins = typing.lazy_import('pynchon.plugins',)
+
+# from lazy_imports import try_import
+
+
+plugins = typing.lazy_import(
+    'pynchon.plugins',
+)
+
 
 class RootGroup(click.Group):
     def format_commands(

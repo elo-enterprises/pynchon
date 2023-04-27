@@ -1,15 +1,15 @@
 """ pynchon.plugins.gen
 """
-import os
+from pynchon import models
+from pynchon.util import lme, typing
 
-from pynchon import abcs, models
-from pynchon.util import lme, typing, files  # , files
-from pynchon.util.os import invoke
+# , files  # , files
+# from pynchon.util.os import invoke
 
 # from .config import ScaffoldingConfig, ScaffoldingItem
 
 LOGGER = lme.get_logger(__name__)
-from pynchon.util import tagging
+# from pynchon.util import tagging
 
 
 class Generators(models.ContextPlugin):
@@ -18,6 +18,10 @@ class Generators(models.ContextPlugin):
     defaults = dict()
     priority = -1
     config_kls = None
+
+    def placeholder(self) -> typing.Dict:
+        return dict()
+
     # @common.groop("api", parent=groups.gen)
     # def gen_api() -> None:
     #     """

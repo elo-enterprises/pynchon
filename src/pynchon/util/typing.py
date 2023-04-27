@@ -46,10 +46,13 @@ class classproperty(object):
     def __get__(self, obj, owner) -> OptionalAny:
         return self.fxn(owner)
 
+
 import importlib
 
 
-def lazy_import(importer_name,):
+def lazy_import(
+    importer_name,
+):
     """Return the importing module and a callable for lazy importing.
 
     The module named by importer_name represents the module performing the
@@ -63,12 +66,15 @@ def lazy_import(importer_name,):
     module for easy reference within itself. The second item is a callable to be
     set to `__getattr__`.
     """
-    class fakemod():
+
+    class fakemod:
         """ """
-        def __init__(self,name):
-            self.name=name
+
+        def __init__(self, name):
+            self.name = name
 
         def __getattr__(self, name):
             module = importlib.import_module(self.name)
-            return getattr(module,name)
+            return getattr(module, name)
+
     return fakemod(importer_name)

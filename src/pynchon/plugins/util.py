@@ -9,7 +9,11 @@ class PluginNotInitialized(RuntimeError):
     pass
 
 
-def get_plugin_meta(plugin_name: str) -> object:
+class PluginNotRegistered(RuntimeError):
+    pass
+
+
+def get_plugin_meta(plugin_name: str) -> typing.Dict:
     from pynchon.plugins import registry
 
     try:
@@ -19,7 +23,7 @@ def get_plugin_meta(plugin_name: str) -> object:
         raise PluginNotRegistered(plugin_name)
 
 
-def get_plugin_class(plugin_name: str) -> object:
+def get_plugin_class(plugin_name: str) -> typing.Type:
     """ """
     meta = get_plugin_meta(plugin_name)
     try:
