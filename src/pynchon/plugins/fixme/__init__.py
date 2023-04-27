@@ -7,7 +7,7 @@ import click
 from pynchon import constants, abcs
 from pynchon.bin import common, groups, options
 from pynchon.util import typing, lme
-from pynchon.models import Plugin
+from pynchon import models
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
@@ -19,7 +19,7 @@ class FixMeConfig(abcs.Config):
     config_key = 'fixme'
 
 
-class FixMe(Plugin):
+class FixMe(models.Planner):
     """aggregates project-wide FIXMEs into {docs_root}/FIXME.md"""
 
     name = "fixme"
@@ -38,7 +38,7 @@ class FixMe(Plugin):
     @staticmethod
     def init_cli(kls):
         """"""
-        plugin_main = Plugin.init_cli(kls)
+        plugin_main = models.CliPlugin.init_cli(kls)
 
         @common.kommand(
             name="gen",

@@ -4,7 +4,7 @@ import os
 
 from pynchon import abcs
 from pynchon.util import lme, typing, files  # , files
-from pynchon.models import Plugin
+from pynchon import models
 from pynchon.util.os import invoke
 
 from .config import ScaffoldingConfig, ScaffoldingItem
@@ -15,7 +15,7 @@ from pynchon.util import tagging
 tags = tagging.tags
 
 
-class Scaffolding(Plugin):
+class Scaffolding(models.Planner):
     """management tool for project boilerplate"""
 
     contribute_plan_apply = False

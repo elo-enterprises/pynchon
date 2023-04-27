@@ -33,6 +33,7 @@ class RootGroup(click.Group):
                 ]
             )
             import collections
+            from pynchon import abcs
             toplevel=dict(
                 core = [],
                 plugins=collections.defaultdict(list))
@@ -42,7 +43,7 @@ class RootGroup(click.Group):
                 label = ''
                 if is_plugin:
                     plugin_kls = plugin_subs[subcommand]['kls']
-                    if issubclass(plugin_kls, (models.ContextPlugin,)):
+                    if issubclass(plugin_kls, (abcs.Plugin,)):
                         tmp = plugin_kls.cli_label
                         toplevel['plugins'][tmp].append(
                             (subcommand, f"{cmd.help}"))

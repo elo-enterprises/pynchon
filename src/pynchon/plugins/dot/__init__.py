@@ -1,12 +1,12 @@
 """ pynchon.plugins.dot
 """
 from pynchon.util import files, lme, typing
-from pynchon.models import Plugin
+from pynchon import models
 
 LOGGER = lme.get_logger(__name__)
 
 
-class Dot(Plugin):
+class Dot(models.Planner):
     """tools for rendering graphviz dot files"""
 
     name = "dot"
@@ -43,7 +43,7 @@ class Dot(Plugin):
         """
         Option parsing for the `dot` subcommands
         """
-        gen_dot = plugin_sub = Plugin.init_cli(kls)
+        gen_dot = plugin_sub = models.CliPlugin.init_cli(kls)
 
         import os
 

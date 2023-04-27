@@ -2,13 +2,13 @@
 """
 from pynchon.bin import groups, common
 from pynchon.util import lme, typing
-from pynchon.models import Plugin
+from pynchon import models
 
 LOGGER = lme.get_logger(__name__)
 from .config import BaseConfig
 
 
-class Base(Plugin):
+class Base(models.BasePlugin):
     """ """
 
     name = "base"

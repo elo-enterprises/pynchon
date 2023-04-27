@@ -27,7 +27,8 @@ registry = [
     for name in dir()
     if not name.startswith('_') and name not in 'git'.split()
 ]
-registry = [kls for kls in registry if typing.is_subclass(kls, models.BasePlugin)]
+from pynchon import abcs
+registry = [kls for kls in registry if typing.is_subclass(kls, abcs.Plugin)]
 registry = [kls for kls in registry if kls.name in config.PLUGINS]
 registry = sorted(registry, key=lambda plugin: plugin.priority)
 registry = dict([plugin_kls.name, dict(kls=plugin_kls)] for plugin_kls in registry)

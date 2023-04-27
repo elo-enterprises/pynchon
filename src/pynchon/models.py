@@ -9,43 +9,9 @@ from pynchon.abcs.plugin import Plugin as AbstractPlugin
 LOGGER = lme.get_logger(__name__)
 
 
-class BasePlugin(AbstractPlugin):
-    cli_label = ''
+class PynchonPlugin(AbstractPlugin):
+    cli_label = 'abstract'
 
-
-class ContextPlugin(BasePlugin):
-    cli_label = 'context-only'
-    contribute_plan_apply = False
-
-
-class PynchonPlugin(ContextPlugin):
-    cli_label = 'planner'
-    priority = 10
-    contribute_plan_apply = True
-
-    def plan(self, config=None) -> typing.List:
-        """create plan for this plugin"""
-        self.state = config
-        return []
-
-    def apply(self, config=None) -> None:
-        """executes the plan for this plugin"""
-        plan = self.plan(config=config)
-        from pynchon.util.os import invoke
-
-        return [invoke(p).succeeded for p in plan]
-
-    # @memoized_property
-    # def render_instructions(self):
-    #     result = self.state.pynchon.get("render", [])
-    #     # self.logger.debug(f"parsed render-instructions: {result}")
-    #     return result
-    #
-    # @memoized_property
-    # def gen_instructions(self):
-    #     result = self.state.pynchon.get("generate", [])
-    #     # self.logger.info(f"parsed generate-instructions: {result}")
-    #     return result
     @property
     def plugin_config(self):
         return self.get_current_config()
@@ -65,24 +31,6 @@ class PynchonPlugin(ContextPlugin):
         return result
 
     @typing.classproperty
-    def click_entry(kls):
-        from pynchon.bin import entry
-
-        return entry.entry
-
-    @staticmethod
-    def init_cli_group(kls):
-        def plugin_main():
-            pass
-
-        plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
-        # f"""subcommands for `{kls.name}` plugin"""
-        plugin_main = common.groop(
-            getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
-        )(plugin_main)
-        return plugin_main
-
-    @typing.classproperty
     def instance(kls):
         from pynchon.plugins import get_plugin_obj
 
@@ -97,6 +45,26 @@ class PynchonPlugin(ContextPlugin):
         return result
         # result = self.final
         # print(text.to_json(result))
+
+class CliPlugin(PynchonPlugin):
+    cli_label = 'default'
+
+    @typing.classproperty
+    def click_entry(kls):
+        from pynchon.bin import entry
+        return entry.entry
+
+    @staticmethod
+    def init_cli_group(kls):
+        def plugin_main():
+            pass
+
+        plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
+        # f"""subcommands for `{kls.name}` plugin"""
+        plugin_main = common.groop(
+            getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
+        )(plugin_main)
+        return plugin_main
 
     @staticmethod
     def init_cli(kls):
@@ -144,5 +112,37 @@ class PynchonPlugin(ContextPlugin):
 
         return plugin_main
 
+class ContextPlugin(CliPlugin):
+    cli_label = 'provider'
+    contribute_plan_apply = False
 
-Plugin = PynchonPlugin
+
+class BasePlugin(CliPlugin):
+    priority = 10
+
+    # @memoized_property
+    # def render_instructions(self):
+    #     result = self.state.pynchon.get("render", [])
+    #     # self.logger.debug(f"parsed render-instructions: {result}")
+    #     return result
+    #
+    # @memoized_property
+    # def gen_instructions(self):
+    #     result = self.state.pynchon.get("generate", [])
+    #     # self.logger.info(f"parsed generate-instructions: {result}")
+    #     return result
+
+class Planner(BasePlugin):
+    cli_label = 'planner'
+    contribute_plan_apply = True
+    def plan(self, config=None) -> typing.List:
+        """create plan for this plugin"""
+        self.state = config
+        return []
+
+    def apply(self, config=None) -> None:
+        """executes the plan for this plugin"""
+        plan = self.plan(config=config)
+        from pynchon.util.os import invoke
+
+        return [invoke(p).succeeded for p in plan]

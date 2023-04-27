@@ -1,14 +1,14 @@
 """ pynchon.plugins.git
 """
 from pynchon.util import lme, typing
-from pynchon.models import Plugin
+from pynchon import models
 
 from .config import GitConfig
 
 LOGGER = lme.get_logger(__name__)
 
 
-class Git(Plugin):
+class Git(models.ContextPlugin):
     """ """
 
     priority = 0

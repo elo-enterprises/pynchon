@@ -2,7 +2,7 @@
 """
 from pynchon import abcs
 from pynchon.util import files, lme, typing
-from pynchon.models import Plugin
+from pynchon import models
 
 LOGGER = lme.get_logger(__name__)
 
@@ -27,7 +27,7 @@ class JinjaConfig(abcs.Config):
     #     return extra + self._base.get("includes", [])
 
 
-class Jinja(Plugin):
+class Jinja(models.Planner):
     """tools for rendering jinja2 files"""
 
     name = "jinja"

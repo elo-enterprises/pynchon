@@ -8,7 +8,6 @@ from pynchon import constants, util, models
 from pynchon.bin import options, common
 from pynchon.util import lme, typing
 
-# models import Plugin,ContextPlugin
 from pynchon.plugins.base import Base
 
 from .config import PythonConfig, PyPiConfig, PythonCliConfig
@@ -25,7 +24,7 @@ class Python(models.ContextPlugin):
     config_kls = PythonConfig
 
 
-class PythonCLI(models.Plugin):
+class PythonCLI(models.Planner):
     """tools for generating CLI docs"""
 
     name = "python-cli"
@@ -193,7 +192,7 @@ class PythonCLI(models.Plugin):
         return plan
 
 
-class PythonAPI(models.Plugin):
+class PythonAPI(models.Planner):
     """tools for generating python-api docs"""
 
     name = "python-api"

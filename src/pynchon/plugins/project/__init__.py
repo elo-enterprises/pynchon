@@ -5,8 +5,7 @@ import os
 from pynchon import abcs, config
 from pynchon.bin import common, options
 from pynchon.util import lme, typing
-from pynchon.models import Plugin
-
+from pynchon import models
 LOGGER = lme.get_logger(__name__)
 
 
@@ -50,7 +49,7 @@ class ProjectConfig(abcs.Config):
         return {}
 
 
-class Project(Plugin):
+class Project(models.Planner):
     """meta-tools for inspecting this project"""
 
     name = 'project'
@@ -61,7 +60,7 @@ class Project(Plugin):
     @staticmethod
     def init_cli(kls):
         """pynchon.bin.project"""
-        project_group = Plugin.init_cli(kls)
+        project_group = models.CliPlugin.init_cli(kls)
 
         import json
 
