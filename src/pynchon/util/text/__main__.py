@@ -5,9 +5,10 @@ import json
 
 import click
 
+from pynchon.bin import options
 from pynchon.util import lme, text, typing
 from pynchon.util.os import invoke
-from pynchon.bin import options
+
 LOGGER = lme.get_logger(__name__)
 
 
@@ -44,11 +45,7 @@ def j2() -> None:
 @click.option('--context', help='context file.  must be JSON')
 @click.argument("file", nargs=1)
 def j2_render(
-    output: str,
-    should_print: bool,
-    file: str,
-    context: str,
-    format: str = 'json'
+    output: str, should_print: bool, file: str, context: str, format: str = 'json'
 ) -> None:
     """
     renders the named file, using the given context-file.
@@ -118,9 +115,10 @@ def json_load(
 )
 @click.option('--under-key', help='required with --push commands', default='')
 @click.argument("files", nargs=-1)
-def json5_load(output: str = '',
+def json5_load(
+    output: str = '',
     should_print: bool = False,
-    files: typing.List[str]=[],
+    files: typing.List[str] = [],
     wrapper_key: str = '',
     pull: str = '',
     push_data: str = '',

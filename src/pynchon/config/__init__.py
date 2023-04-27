@@ -1,8 +1,6 @@
 """ pynchon.config
 """
-import time
-
-from pynchon import abcs
+# from pynchon import abcs
 from pynchon.util import lme  # typing
 from pynchon.bin.common import status
 from pynchon.abcs.plugin import Meta

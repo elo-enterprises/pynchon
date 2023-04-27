@@ -1,8 +1,8 @@
 """ pynchon.plugins.jinja
 """
 from pynchon import abcs, models
-from pynchon.util import files, lme, typing
 from pynchon.api import project
+from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -24,7 +24,7 @@ class JinjaConfig(abcs.Config):
 
 
 class Jinja(models.Planner):
-    """ tools for rendering jinja2 files """
+    """tools for rendering jinja2 files"""
 
     name = "jinja"
     defaults = dict()
@@ -32,9 +32,9 @@ class Jinja(models.Planner):
 
     def _get_exclude_patterns(self, config):
         """ """
-        return list(set(
-            config.jinja['exclude_patterns']
-            + config.globals['exclude_patterns']))
+        return list(
+            set(config.jinja['exclude_patterns'] + config.globals['exclude_patterns'])
+        )
 
     def _find_j2s(self, config):
         """ """
@@ -51,7 +51,7 @@ class Jinja(models.Planner):
         self.logger.debug(f"found {len(j2s)} j2 files (post-filter)")
         return j2s
 
-    def _get_templates(self,config):
+    def _get_templates(self, config):
         """ """
         templates = config.jinja['includes']
         templates = [t for t in templates]
@@ -61,19 +61,21 @@ class Jinja(models.Planner):
         return templates
 
     def plan(self, config=None) -> typing.List:
-        """ Creates a plan for this plugin """
+        """Creates a plan for this plugin"""
         config = config or project.get_config()
         plan = super(self.__class__, self).plan(config)
         templates = self._get_templates(config)
         j2s = self._find_j2s(config)
         if j2s:
             plan += [
-                f"python -mpynchon.util.text render jinja {templates} --in-place {fname} " for fname in j2s
+                f"python -mpynchon.util.text render jinja {templates} --in-place {fname} "
+                for fname in j2s
             ]
         else:
             err = "jinja-plugin is included in this config, but found no .j2 files!"
             self.logger.warning(err)
         return plan
+
 
 # @kommand(
 #     name="jinja",

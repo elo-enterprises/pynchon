@@ -1,11 +1,15 @@
 """ pynchon.plugins
 """
 # from pynchon import models
+# from .jenkins import Jenkins  # noqa
+from pynchon import config
 from pynchon.util import lme, typing
 
 # WARNING: edit src/pynchon/constants.py @ `DEFAULT_PLUGINS`
-
 # from .jenkins import Jenkins  # noqa
+
+from .json import Json  # noqa
+from .globals import Globals  # noqa
 from .util import get_plugin, get_plugin_obj  # noqa
 
 from .dot import Dot  # noqa
@@ -17,12 +21,8 @@ from .jinja import Jinja  # noqa
 from .python import Python, PythonAPI, PythonCLI, PyPI  # noqa
 from .project import Project  # noqa
 from .scaffolding import Scaffolding  # noqa
-from .globals import Globals
-from .json import Json
 from .gen import Generators  # noqa
-from .render import Renderers # noqa
-# from .jenkins import Jenkins  # noqa
-from pynchon import config
+from .render import Renderers  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

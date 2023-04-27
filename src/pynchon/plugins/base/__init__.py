@@ -1,26 +1,26 @@
 """ pynchon.plugins.base
 """
 from pynchon import models
-
-from pynchon.util import lme, typing
-from pynchon.bin import entry
 from pynchon.api import project
+from pynchon.bin import entry
+from pynchon.util import lme, typing
+
 from .config import BaseConfig
 
 LOGGER = lme.get_logger(__name__)
 
 
 class Base(models.Planner):
-    """ Core Plugin """
+    """Core Plugin"""
 
     name = "base"
     config_kls = BaseConfig
     contribute_plan_apply = False
 
     @typing.classproperty
-    def cli_group(kls):
-        kls._finalized_cli_groups[kls] = entry.entry
-        return kls._finalized_cli_groups[kls]
+    def click_group(kls):
+        kls._finalized_click_groups[kls] = entry.entry
+        return kls._finalized_click_groups[kls]
 
     def plan(self, config=None) -> typing.List:
         """Creates a plan for all plugins"""
@@ -38,6 +38,7 @@ class Base(models.Planner):
     def get_current_config(kls):
         """ """
         from pynchon import config as config_mod
+
         result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
         return result
 

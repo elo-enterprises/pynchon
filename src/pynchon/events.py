@@ -1,3 +1,3 @@
+""" pynchon.events
 """
-"""
-from pynchon.bin.common import status
+from pynchon.bin.common import status  # noqa

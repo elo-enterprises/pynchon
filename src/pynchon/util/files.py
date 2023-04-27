@@ -95,10 +95,14 @@ def find_globs(globs: typing.List[str], quiet: bool = False):
     matches = functools.reduce(lambda x, y: x + y, globs)
     return matches
 
+
 import pydantic
+
 from pynchon import abcs
+
+
 @pydantic.validate_arguments
-def find_j2s(globs: typing.List[abcs.Path], includes = []) -> list:
+def find_j2s(globs: typing.List[abcs.Path], includes=[]) -> list:
     """ """
     # from pynchon import abcs
     # from pynchon.plugins import registry

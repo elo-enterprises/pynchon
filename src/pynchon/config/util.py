@@ -45,12 +45,10 @@ def finalize():
             plugin_config = {}
         else:
             conf_key = getattr(
-                pconf_kls,
-                'config_key',
-                plugin_kls.name.replace('-', '_')
+                pconf_kls, 'config_key', plugin_kls.name.replace('-', '_')
             )
             if not conf_key:
-                msg=f'failed to determine conf-key for {pconf_kls}'
+                msg = f'failed to determine conf-key for {pconf_kls}'
                 LOGGER.critical(msg)
                 raise TypeError(msg)
             plugin_config = pconf_kls(

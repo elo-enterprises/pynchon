@@ -2,11 +2,11 @@
 """
 # from memoized_property import memoized_property
 
+from pynchon.api import project
 from pynchon.bin import common, entry
 from pynchon.util import typing, lme, text
-from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.events import status
-from pynchon.api import project
+from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 
 config_mod = typing.lazy_import(
@@ -17,7 +17,8 @@ LOGGER = lme.get_logger(__name__)
 
 
 class PynchonPlugin(AbstractPlugin):
-    """ Pynchon-specific plugin-functionality """
+    """Pynchon-specific plugin-functionality"""
+
     cli_label = 'abstract'
 
     @property
@@ -27,22 +28,22 @@ class PynchonPlugin(AbstractPlugin):
 
     @typing.classproperty
     def project_config(self):
-        """ class-property: finalized project-config """
+        """class-property: finalized project-config"""
         return project.get_config()
 
     @typing.classproperty
     def instance(kls):
-        """ class-property: the instance for this plugin """
+        """class-property: the instance for this plugin"""
         return get_plugin_obj(kls.name)
 
     @classmethod
     def get_current_config(kls):
-        """ class-method: get the current config for this plugin """
+        """class-method: get the current config for this plugin"""
         result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
         return result
 
     def config(self):
-        """ Shows current config for this plugin """
+        """Shows current config for this plugin"""
         kls = self.__class__
         LOGGER.debug(f"config class: {kls.config_kls}")
         LOGGER.debug("current config:")
@@ -58,13 +59,12 @@ class CliPlugin(PynchonPlugin):
         """ """
         return entry.entry
 
-    _finalized_cli_groups = dict()
+    _finalized_click_groups = dict()
 
     @typing.classproperty
-    def cli_group(kls):
+    def click_group(kls):
         """ """
-        last_group = kls._finalized_cli_groups.get(
-            kls, None)
+        last_group = kls._finalized_click_groups.get(kls, None)
 
         if last_group is not None:
             return last_group
@@ -77,7 +77,7 @@ class CliPlugin(PynchonPlugin):
         plugin_main = common.groop(
             getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
         )(plugin_main)
-        kls._finalized_cli_groups[kls]=plugin_main
+        kls._finalized_click_groups[kls] = plugin_main
         return plugin_main
 
     @classmethod
@@ -89,7 +89,7 @@ class CliPlugin(PynchonPlugin):
         if kls != Base:
             config.finalize()
 
-        plugin_main = kls.cli_group
+        plugin_main = kls.click_group
         obj = kls.instance
         for method_name in kls.__methods__:
             fxn = getattr(obj, method_name)
@@ -124,48 +124,60 @@ class CliPlugin(PynchonPlugin):
 
         return plugin_main
 
+
 class ContextPlugin(CliPlugin):
     """
     ProviderPlugin provides context-information, but little other functionality
     """
+
     cli_label = 'provider'
     contribute_plan_apply = False
+
+
 Provider = ContextPlugin
+
 
 class CliAliases(CliPlugin):
     """
     CliAliases collect functionality from elsewhere under a namespace
     """
+
     cli_label = 'Aliased'
     priority = -1
+
 
 class ToolPlugin(CliPlugin):
     """
     Tool plugins may have their own config, but generally should not need project-config.
     """
+
     cli_label = 'tool'
+
 
 class BasePlugin(CliPlugin):
     """
     The default plugin-type most new plugins will use
     """
+
     priority = 10
+
 
 class AbstractPlanner(BasePlugin):
     """
     AbstractPlanner is a plugin-type that provides plan/apply basics
     """
+
     cli_label = 'planner'
 
     def plan(self, config=None) -> typing.List:
-        """Creates a plan for this plugin """
+        """Creates a plan for this plugin"""
         # write status event (used by the app-console)
         status.update(stage=f"planning for `{self.__class__.name}`")
         self.state = config
         return []
 
     def apply(self, config=None) -> None:
-        """ Executes the plan for this plugin """
+        """Executes the plan for this plugin"""
         # write status event (used by the app-console)
         status.update(stage=f"applying for `{self.__class__.name}`")
         plan = self.plan(config=config)
@@ -173,12 +185,14 @@ class AbstractPlanner(BasePlugin):
 
         return [invoke(p).succeeded for p in plan]
 
+
 class ShyPlanner(AbstractPlanner):
     """
     ShyPlanner uses plan/apply workflows, but they must be
     executed directly.  ProjectPlugin (or any other parent plugins)
     won't include this as a sub-plan.
     """
+
     contribute_plan_apply = False
 
 
@@ -187,4 +201,5 @@ class Planner(ShyPlanner):
     Planner uses plan/apply workflows, and contributes it's plans
     to ProjectPlugin (or any other parent plugins).
     """
+
     contribute_plan_apply = True

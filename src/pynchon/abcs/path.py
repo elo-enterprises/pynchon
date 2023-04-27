@@ -2,9 +2,11 @@
 """
 import os
 import json
-from glob import glob
+
+# from glob import glob
 from fnmatch import fnmatch
 from pathlib import Path as BasePath
+
 from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
@@ -12,7 +14,8 @@ LOGGER = lme.get_logger(__name__)
 
 class Path(type(BasePath())):
     """ """
-    def match_any_glob(self, exclude_patterns:typing.List[str]):
+
+    def match_any_glob(self, exclude_patterns: typing.List[str]):
         for exclude in exclude_patterns:
             match = self.match_glob(exclude)
             if match:
@@ -20,8 +23,7 @@ class Path(type(BasePath())):
                 return match
 
     def match_glob(self, pattern):
-        """
-        """
+        """ """
         return fnmatch(str(self), str(pattern)) and pattern
 
     def has_file(self, fname) -> bool:

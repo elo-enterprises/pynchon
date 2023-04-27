@@ -36,7 +36,8 @@ stdout = click.option(
     "--stdout", is_flag=True, default=True, help=("whether to write to stdout.")
 )
 option_output = click.option(
-    '--output', "-o",
+    '--output',
+    "-o",
     help='when set, output will be written to this file',
     default='/dev/stdout',
 )

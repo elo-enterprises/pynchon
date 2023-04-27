@@ -37,7 +37,7 @@ class FixMe(models.Planner):
     @classmethod
     def init_cli(kls):
         """"""
-        parent = kls.cli_group
+        parent = kls.click_group
 
         @common.kommand(
             name="gen",
@@ -81,6 +81,6 @@ class FixMe(models.Planner):
                     line_no = bits.pop(0)
                     items.append(dict(file=file, line=':'.join(bits), line_no=line_no))
             for g in skipped:
-                msg=f"exclude_pattern @ `{g}` skipped {len(skipped[g])} matches"
+                msg = f"exclude_pattern @ `{g}` skipped {len(skipped[g])} matches"
                 LOGGER.warning(msg)
             return dict(items=items)

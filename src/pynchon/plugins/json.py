@@ -2,10 +2,13 @@
 """
 from pynchon import models
 from pynchon.util import lme, typing
+
 # from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 # from pynchon.util import tagging
+
+from pynchon.util.text import __main__ as text_main
 
 # import yaml
 # import click
@@ -19,26 +22,27 @@ LOGGER = lme.get_logger(__name__)
 # LOGGER = lme.get_logger(__name__)
 # PARENT = groups.render
 # files_arg = click.argument("files", nargs=-1)
-from pynchon.util.tagging import tags
-from pynchon.util.text import __main__ as text_main
+# from pynchon.util.tagging import tags
 
 
 class Json(models.ToolPlugin):
     """
     Tools for working with JSON & JSON5
     """
-    priority=-1
+
+    priority = -1
     name = cli_name = 'json'
     defaults = dict()
     config_kls = None
 
     @classmethod
-    def cli_merge(kls, fxn):
+    def click_merge(kls, fxn):
         """ """
-        parent = kls.cli_group
+        parent = kls.click_group
         import click
+
         if isinstance(fxn, click.Command):
-            cmd=fxn
+            cmd = fxn
             LOGGER.debug(f"attaching command: {fxn}")
             parent.add_command(cmd)
             # LOGGER.debug(f"{parent.commands}")
@@ -49,23 +53,21 @@ class Json(models.ToolPlugin):
             raise NotImplementedError("groups are not supported yet")
 
     @classmethod
-    def init_cli(kls):
-        """
-        """
-        import click
+    def init_cli(kls) -> typing.NoneType:
+        """ """
         fxns = [
             # NB: these are groups
             # text_main.json5,
             # text_main.json,
             # text_main.j2,
-
             text_main.json5_load,
             # text_main.json_load,
             text_main.j2_render,
         ]
         for fxn in fxns:
-            parent = kls.cli_merge(fxn)
+            parent = kls.click_merge(fxn)
             LOGGER.debug(f"{parent.commands}")
+
     # @tags(click_aliases=['loads',])
     # def json_loads(self):
     #     """ loads JSON from string-input (strict) """
@@ -82,6 +84,7 @@ class Json(models.ToolPlugin):
     # def loadf_json5(self):
     #     """ loads JSON-5 from file-input """
     #     pass
+
 
 # @kommand(
 #     name="json5",

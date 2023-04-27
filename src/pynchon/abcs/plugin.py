@@ -12,7 +12,7 @@ from .meta import Meta
 class Plugin(object, metaclass=Meta):
     priority = 0
 
-    def __init__(self, final=None):
+    def __init__(self, final=None) -> typing.NoneType:
         """ """
         self.final = final
         # self.config = config

@@ -11,10 +11,10 @@ from types import MappingProxyType  # noqa
 from types import FunctionType  # noqa
 from types import MethodType  # noqa
 from typing import *  # noqa
-
 # from typing_extensions import Annotated
 
 Bool = bool
+NoneType = type(None)
 StringMaybe = typing.Optional[str]
 CallableMaybe = typing.Optional[typing.Callable]
 DictMaybe = typing.Optional[typing.Dict]
@@ -43,19 +43,23 @@ class classproperty(object):
     def __init__(self, fxn):
         self.fxn = fxn
 
-
     def __get__(self, obj, owner) -> OptionalAny:
         return self.fxn(owner)
 
+
 CLASSPROP_CACHES = {}
+
 
 class classproperty_cached(classproperty):
     def __get__(self, obj, owner) -> OptionalAny:
         result = CLASSPROP_CACHES.get(self.fxn, self.fxn(owner))
-        CLASSPROP_CACHES[self.fxn]=result
+        CLASSPROP_CACHES[self.fxn] = result
         return CLASSPROP_CACHES[self.fxn]
 
+
 import importlib
+
+
 def lazy_import(
     importer_name,
 ):

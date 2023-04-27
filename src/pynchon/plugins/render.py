@@ -2,6 +2,7 @@
 """
 from pynchon import models
 from pynchon.util import lme, typing
+
 # from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
@@ -20,16 +21,19 @@ LOGGER = lme.get_logger(__name__)
 # PARENT = groups.render
 # files_arg = click.argument("files", nargs=-1)
 
+
 class Renderers(models.CliAliases):
     """
     Namespace for rendering commands from other plugins
     """
+
     name = cli_name = 'render'
     defaults = dict()
     config_kls = None
 
     def placeholder(self) -> typing.Dict:
         return dict()
+
 
 # @kommand(
 #     name="json5",

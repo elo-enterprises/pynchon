@@ -216,7 +216,7 @@ status = manager.status_bar(
     autorefresh=True,
     min_delta=0.1,
 )
-atexit.register(lambda: [status.update(stage="\o/"), manager.stop()])
+atexit.register(lambda: [status.update(stage="\o/"), manager.stop()])  # noqa: W605
 
 # docs = manager.term.link(
 #     'https://python-enlighten.readthedocs.io/en/stable/examples.html',

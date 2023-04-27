@@ -4,10 +4,26 @@ import os
 
 import click
 
+#     assert files, "expected files would be provided"
+#     # if file:
+#     #     return render.j5(file, output=output, in_place=in_place)
+#     # elif files:
+#     # files = files.split(' ')
+#     LOGGER.debug(f"Running with many: {files}")
+#     file = files[0]
+#     files = files[1:]
+#     result = render.dot(file, output=output, in_place=in_place)
+#     output = result["output"]
+#     if open_after:
+#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
+#         invoke(f"{DEFAULT_OPENER} {output}")
+#
+from pynchon import abcs, models
 from pynchon.bin import options
-from pynchon.util import lme
+from pynchon.util import lme, files, typing
 from pynchon.util.os import invoke
 from pynchon.bin.common import kommand
+
 # @kommand(
 #     name="dot",
 #     parent=PARENT,
@@ -33,24 +49,9 @@ from pynchon.bin.common import kommand
 #     """
 #     Render dot file (graphviz) -> PNG
 #     """
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     result = render.dot(file, output=output, in_place=in_place)
-#     output = result["output"]
-#     if open_after:
-#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-#         invoke(f"{DEFAULT_OPENER} {output}")
-#
-from pynchon import abcs, models
-from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
+
 
 class Dot(models.Planner):
     """Tools for rendering graphviz dot files"""
@@ -91,7 +92,7 @@ class Dot(models.Planner):
         """
         Option parsing for the `dot` subcommands
         """
-        parent = kls.cli_group
+        parent = kls.click_group
         LOGGER = lme.get_logger(__name__)
         files_arg = click.argument("files", nargs=-1)
 

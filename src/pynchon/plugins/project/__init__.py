@@ -60,7 +60,7 @@ class Project(models.Planner):
     @classmethod
     def init_cli(kls):
         """pynchon.bin.project"""
-        parent = kls.cli_group
+        parent = kls.click_group
 
         from pynchon import constants, util
         from pynchon.api import project
