@@ -23,6 +23,7 @@ from .project import Project  # noqa
 from .scaffolding import Scaffolding  # noqa
 from .gen import Generators  # noqa
 from .render import Renderers  # noqa
+from .globals import Globals # noqa
 
 LOGGER = lme.get_logger(__name__)
 

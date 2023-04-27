@@ -14,6 +14,10 @@ class JinjaConfig(abcs.Config):
     config_key = "jinja"
     defaults = dict()
     # @property
+    # def _base(self) -> abcs.AttrDict:
+    #     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
+
+    # @property
     # def includes(self) -> typing.List:
     #     docs_root = initialized["pynchon"].get("docs_root", None)
     #     docs_root = docs_root and abcs.Path(docs_root)
