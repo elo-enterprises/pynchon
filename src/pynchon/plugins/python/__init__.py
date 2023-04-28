@@ -23,7 +23,7 @@ from .models import *
 #
 #         # @common.kommand(
 #         #     name="toc",
-#         #     parent=Base.gen_cli,
+#         #     parent=Core.gen_cli,
 #         #     formatters=dict(markdown=constants.T_TOC_CLI),
 #         #     options=[
 #         #         options.file_setupcfg,
@@ -49,7 +49,7 @@ from .models import *
 #         #
 #         # @common.kommand(
 #         #     name="all",
-#         #     parent=Base.gen_cli,
+#         #     parent=Core.gen_cli,
 #         #     options=[
 #         #         options.file_setupcfg,
 #         #         options.output_dir,
@@ -86,7 +86,7 @@ from .models import *
 #         #
 #         # @common.kommand(
 #         #     name="main",
-#         #     parent=Base.gen_cli,
+#         #     parent=Core.gen_cli,
 #         #     formatters=dict(markdown=constants.T_CLI_MAIN_MODULE),
 #         #     options=[
 #         #         options.format_markdown,
@@ -119,7 +119,7 @@ from .models import *
 #         #
 #         # @common.kommand(
 #         #     name="entrypoint",
-#         #     parent=Base.gen_cli,
+#         #     parent=Core.gen_cli,
 #         #     formatters=dict(markdown=constants.T_DETAIL_CLI),
 #         #     options=[
 #         #         options.format_markdown,
@@ -192,7 +192,7 @@ from .models import *
 #         # import click
 #         #
 #         # from pynchon import util
-#         # from pynchon.plugins.base import Base
+#         # from pynchon.plugins.Core import Core
 #         #
 #         # LOGGER = lme.get_logger(__name__)
 #
@@ -201,7 +201,7 @@ from .models import *
 #
 #         # @common.kommand(
 #         #     name="toc",
-#         #     parent=Base.gen_api,
+#         #     parent=Core.gen_api,
 #         #     formatters=dict(markdown=markdown),
 #         #     options=[
 #         #         options.format_markdown,

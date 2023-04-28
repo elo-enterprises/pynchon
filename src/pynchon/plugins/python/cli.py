@@ -22,12 +22,12 @@ class PythonCliConfig(abcs.Config):
             msg = "`src_root` not set for pynchon or project config; cannot enumerate entrypoints"
             LOGGER.critical(msg)
             return []
-        pat = os.path.sep.join([src_root, "**", "__main__.py"])
+        pat = os.path.sep.join([str(src_root), "**", "__main__.py"])
         matches = [[os.path.relpath(x), {}] for x in glob.glob(pat, recursive=True)]
         matches = dict(matches)
         pkg_name = config_mod.python['package']["name"] or "unknown"
         for f, meta in matches.items():
-            tmp = f[len(src_root) : -len("__main__.py")]
+            tmp = f[len(str(src_root)) : -len("__main__.py")]
             tmp = tmp[1:] if tmp.startswith("/") else tmp
             tmp = tmp[:-1] if tmp.endswith("/") else tmp
             matches[f] = {**matches[f], **dict(dotpath=".".join(tmp.split("/")))}
@@ -47,7 +47,7 @@ class PythonCLI(models.Planner):
 
         # @common.kommand(
         #     name="toc",
-        #     parent=Base.gen_cli,
+        #     parent=Core.gen_cli,
         #     formatters=dict(markdown=constants.T_TOC_CLI),
         #     options=[
         #         options.file_setupcfg,
@@ -73,7 +73,7 @@ class PythonCLI(models.Planner):
         #
         # @common.kommand(
         #     name="all",
-        #     parent=Base.gen_cli,
+        #     parent=Core.gen_cli,
         #     options=[
         #         options.file_setupcfg,
         #         options.output_dir,
@@ -110,7 +110,7 @@ class PythonCLI(models.Planner):
         #
         # @common.kommand(
         #     name="main",
-        #     parent=Base.gen_cli,
+        #     parent=Core.gen_cli,
         #     formatters=dict(markdown=constants.T_CLI_MAIN_MODULE),
         #     options=[
         #         options.format_markdown,
@@ -143,7 +143,7 @@ class PythonCLI(models.Planner):
         #
         # @common.kommand(
         #     name="entrypoint",
-        #     parent=Base.gen_cli,
+        #     parent=Core.gen_cli,
         #     formatters=dict(markdown=constants.T_DETAIL_CLI),
         #     options=[
         #         options.format_markdown,

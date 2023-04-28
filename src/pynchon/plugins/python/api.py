@@ -19,7 +19,7 @@ class PythonAPI(models.Planner):
         # import click
         #
         # from pynchon import util
-        # from pynchon.plugins.base import Base
+        # from pynchon.plugins.Core import Core
         #
         # LOGGER = lme.get_logger(__name__)
 
@@ -28,7 +28,7 @@ class PythonAPI(models.Planner):
 
         # @common.kommand(
         #     name="toc",
-        #     parent=Base.gen_api,
+        #     parent=Core.gen_api,
         #     formatters=dict(markdown=markdown),
         #     options=[
         #         options.format_markdown,

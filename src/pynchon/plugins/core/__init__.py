@@ -1,20 +1,20 @@
-""" pynchon.plugins.base
+""" pynchon.plugins.Core
 """
 from pynchon import models
 from pynchon.api import project
 from pynchon.bin import entry
 from pynchon.util import lme, typing
 
-from .config import BaseConfig
+from .config import CoreConfig
 
 LOGGER = lme.get_logger(__name__)
 
 
-class Base(models.Planner):
+class Core(models.Planner):
     """Core Plugin"""
 
-    name = "base"
-    config_kls = BaseConfig
+    name = "core"
+    config_kls = CoreConfig
     contribute_plan_apply = False
 
     @typing.classproperty

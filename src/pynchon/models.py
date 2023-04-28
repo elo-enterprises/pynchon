@@ -109,9 +109,9 @@ class CliPlugin(PynchonPlugin):
     def init_cli(kls):
         """ """
         from pynchon import config
-        from pynchon.plugins.base import Base
+        from pynchon.plugins.core import Core
 
-        if kls != Base:
+        if kls != Core:
             config.finalize()
 
         obj = kls.instance

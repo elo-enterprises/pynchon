@@ -14,7 +14,7 @@ from .util import get_plugin, get_plugin_obj  # noqa
 
 from .dot import Dot  # noqa
 from .git import Git  # noqa
-from .base import Base  # noqa
+from .core import Core  # noqa
 
 from .fixme import FixMe  # noqa
 from .jinja import Jinja  # noqa
