@@ -11,7 +11,7 @@ class GlobalsConfig(abcs.Config):
 
 
 class Globals(models.ContextPlugin):
-    """context-provider: pynchon-globals"""
+    """ Context for pynchon globals """
 
     priority = 2
     name = 'globals'

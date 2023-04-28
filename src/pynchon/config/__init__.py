@@ -5,7 +5,7 @@ from pynchon.util import lme  # typing
 from pynchon.bin.common import status
 from pynchon.abcs.plugin import Meta
 from pynchon.abcs.visitor import JinjaDict
-from pynchon.plugins.base.config import BaseConfig
+from pynchon.plugins.core import CoreConfig
 
 from .util import config_folders  # noqa
 from .util import load_config_from_files  # noqa
@@ -36,10 +36,10 @@ msg = "Building plugins-list.."
 LOGGER.critical(msg)
 status.update(stage=msg)
 
-pynchon = PYNCHON = BaseConfig(config_files=CONFIG_FILES, **MERGED_CONFIG_FILES)
+pynchon = PYNCHON = CoreConfig(config_files=CONFIG_FILES, **MERGED_CONFIG_FILES)
 RAW = PYNCHON.copy()
 PLUGINS = PYNCHON['plugins'] = list(
-    set(PYNCHON['plugins'] + PYNCHON.plugins + ['base'])
+    set(PYNCHON['plugins'] + PYNCHON.plugins + ['core'])
 )
 
 _all_names = PLUGINS + Meta.NAMES
@@ -49,7 +49,7 @@ LOGGER.critical(msg)
 status.update(stage=msg)
 
 PYNCHON_CORE = dict([[x, PYNCHON[x]] for x in PYNCHON if x not in _all_names])
-PYNCHON_CORE = BaseConfig(**PYNCHON_CORE)
+PYNCHON_CORE = CoreConfig(**PYNCHON_CORE)
 
 msg = "Interpolating config.."
 LOGGER.critical(msg)
