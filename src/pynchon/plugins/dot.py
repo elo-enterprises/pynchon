@@ -19,7 +19,8 @@ import click
 #         invoke(f"{DEFAULT_OPENER} {output}")
 #
 from pynchon import abcs, models
-from pynchon.bin import options
+from pynchon.cli import options
+# from pynchon.bin import common
 from pynchon.util import lme, files, typing
 from pynchon.util.os import invoke
 from pynchon.bin.common import kommand
