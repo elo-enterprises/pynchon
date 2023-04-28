@@ -15,14 +15,18 @@ LOGGER = lme.get_logger(__name__)
 @click.group()
 def cli() -> None:
     """
-    CLI for interacting with pynchon.util.text
+    pynchon.util.text CLI
     """
+entry=cli
+from .render.__main__ import j2cli
 
+@cli.group('loads')
+def loads() -> None:
+    """ load string to ~JSON """
 
-@cli.group('json5')
-def json5() -> None:
-    """helpers for working with json5"""
-
+@cli.group('loadf')
+def loadf() -> None:
+    """ load file-content to ~JSON """
 
 @cli.group('json')
 def _json() -> None:
@@ -31,46 +35,14 @@ def _json() -> None:
     """
 
 
-@cli.group('j2')
-def j2() -> None:
-    """
-    helpers for interacting with `j2`.
-    assumes j2cli is installed already.
-    """
+# @cli.group('j2')
+# def j2() -> None:
+#     """
+#     helpers for interacting with `j2`.
+#     (assumes j2cli is installed already)
+#     """
 
 
-@j2.command('j2cli')
-@options.option_output
-@options.option_print
-@click.option('--context', help='context file.  must be JSON')
-@click.argument("file", nargs=1)
-def j2cli(
-    output: str, should_print: bool, file: str, context: str, format: str = 'json'
-) -> None:
-    """
-    Renders the named file, using the given context-file.
-    This is a wrapper on `j2`, so j2cli must be installed.
-    """
-    cmd = f'j2 --format {format} {file} {context}'
-    result = invoke(cmd)
-    if not result.succeeded:
-        LOGGER.critical(f'failed to execute: {cmd}')
-        raise SystemExit(1)
-    result = result.stdout
-    assert result
-    tmp = file.replace('.j2', '')
-    if tmp.endswith('.json') or tmp.endswith('.json5'):
-        LOGGER.debug(f"target @ {file} appears to be specifying json.")
-        LOGGER.debug("loading as if json5 before display..")
-        result = text.load_json5(content=result)
-        result = json.dumps(result, indent=2)
-    msg = result
-    print(msg, file=open(output, 'w'))
-    if should_print and output != '/dev/stdout':
-        print(msg)
-
-
-@_json.command('load')
 @click.argument("files", nargs=-1)
 def json_load(
     files: typing.List[str],
@@ -82,12 +54,11 @@ def json_load(
     """
     out: typing.Dict[str, typing.Any] = {}
     for file in files:
-        obj = text.load_json(file=file)
+        obj = text.loadf_json(file=file)
         out = {**out, **obj}
-    print(json.dumps(out, indent=2))
+    print(text.to_json(out))
+loadf.add_command(click.command('json')(json_load))
 
-
-@json5.command('load')
 @click.option(
     '--wrap-with-key',
     'wrapper_key',
@@ -133,56 +104,33 @@ def json5_load(
     if multiple files are provided, files will
     be merged with overwrites in the order provided
     """
-    out: typing.Dict[str, typing.Any] = {}
-    for file in files:
-        obj = text.load_json5(file=file)
-        out = {**out, **obj}
-
-    push_args = [push_data, push_file_data, push_json_data, push_command_output]
-    if any(push_args):
-        assert under_key
-        assert under_key not in out, f'content already has key@{under_key}!'
-        assert (
-            sum([1 for x in push_args if x]) == 1
-        ), 'only one --push arg can be provided!'
-        if push_data:
-            assert isinstance(push_data, (str,))
-            push = push_data
-        elif push_command_output:
-            cmd = invoke(push_command_output)
-            if cmd.succeeded:
-                push = cmd.stdout
-            else:
-                err = cmd.stderr
-                LOGGER.critical(err)
-                raise SystemExit(1)
-        elif push_json_data:
-            push = text.load_json5(content=push_json_data)
-        elif push_file_data:
-            err = f'file@{push_file_data} doesnt exist'
-            assert os.path.exists(push_file_data), err
-            with open(push_file_data, 'r') as fhandle:
-                push = fhandle.read()
-        out[under_key] = push
-
-    if wrapper_key:
-        # NB: must remain after push
-        out = {wrapper_key: out}
-
+    out = text.json5_loadc(
+        files=files,
+        wrapper_key=wrapper_key,
+        pull=pull,
+        push_data=push_data,
+        push_file_data=push_file_data,
+        push_json_data=push_json_data,
+        push_command_output=push_command_output,
+        under_key=under_key,
+    )
     if pull:
         out = out[pull]
         # similar to `jq -r`.
         # we don't want quoted strings, but
         # if the value is complex, we need json-encoding
         if not isinstance(out, (str,)):
-            msg = json.dumps(out, indent=2)
+            msg = text.to_json(out)
         else:
             msg = str(out)
     else:
-        msg = json.dumps(out, indent=2)
+        msg = text.to_json(out)
     print(msg, file=open(output, 'w'))
+
     if should_print and output != '/dev/stdout':
         print(msg)
+# entry.add_command(click.Command(json5_load, name='load-json5'))
+# loadf.add_command(click.command(json5_load, name='json5'))
 
 
 if __name__ == '__main__':

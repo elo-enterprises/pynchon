@@ -144,7 +144,8 @@ class JinjaDict(TemplatedDict):
 
     def render_path(self, path, ctx={}, strict=False):
         """ """
-        from pynchon.api import render
+        # from pynchon.api import render
+        from pynchon.util.text import render
 
         strict and True
         value = self.get_path(path)
