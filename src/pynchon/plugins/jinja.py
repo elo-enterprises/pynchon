@@ -31,13 +31,12 @@ class JinjaConfig(abcs.Config):
 
 class Jinja(models.Planner):
     """tools for rendering jinja2 files"""
-
     name = "jinja"
     defaults = dict()
     config_kls = JinjaConfig
     cli_includes: typing.List[typing.Callable] = [
         render_main.j2cli,
-        render_main.jinja,
+        render_main.jinja_file,
     ]
 
     def _get_exclude_patterns(self, config):
