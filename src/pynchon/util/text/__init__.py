@@ -72,12 +72,59 @@ def load_json5(file: str = '', content: str = '') -> dict:
         raise
     return data
 
+def json5_loadc(
+    output: str = '',
+    files: typing.List[str] = [],
+    wrapper_key: str = '',
+    pull: str = '',
+    push_data: str = '',
+    push_file_data: str = '',
+    push_json_data: str = '',
+    push_command_output: str = '',
+    under_key: str = '',
+) -> None:
+    """
+    loads json5 file(s) and outputs json.
+    if multiple files are provided, files will
+    be merged with overwrites in the order provided
+    """
+    out: typing.Dict[str, typing.Any] = {}
+    for file in files:
+        obj = text.loadf_json5(file=file)
+        out = {**out, **obj}
 
-def snake_case(name: str) -> str:
-    """ """
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    push_args = [push_data, push_file_data, push_json_data, push_command_output]
+    if any(push_args):
+        assert under_key
+        assert under_key not in out, f'content already has key@{under_key}!'
+        assert (
+            sum([1 for x in push_args if x]) == 1
+        ), 'only one --push arg can be provided!'
+        if push_data:
+            assert isinstance(push_data, (str,))
+            push = push_data
+        elif push_command_output:
+            cmd = invoke(push_command_output)
+            if cmd.succeeded:
+                push = cmd.stdout
+            else:
+                err = cmd.stderr
+                LOGGER.critical(err)
+                raise SystemExit(1)
+        elif push_json_data:
+            push = text.loads_json5(content=push_json_data)
+        elif push_file_data:
+            err = f'file@{push_file_data} doesnt exist'
+            assert os.path.exists(push_file_data), err
+            with open(push_file_data, 'r') as fhandle:
+                push = fhandle.read()
+        out[under_key] = push
 
+    if wrapper_key:
+        # NB: must remain after push
+        out = {wrapper_key: out}
+
+    return out
 
 def indent(txt: str, level: int = 2) -> str:
     """
@@ -86,25 +133,3 @@ def indent(txt: str, level: int = 2) -> str:
     if not isinstance(txt, (str, bytes)):
         txt = _pprint.pformat(txt)
     return '\n'.join([(' ' * level) + line for line in txt.split('\n') if line.strip()])
-
-
-DEFAULT_NORMALIZATION_RULES = {' ': '_', '/': '_', '-': '_'}
-
-
-def normalize(
-    txt: str = "",
-    post: typing.List[typing.Callable] = [
-        lambda _: _.lower(),
-        lambda _: re.sub('_+', '_', _),
-    ],
-    rules: typing.List[typing.Callable] = DEFAULT_NORMALIZATION_RULES,
-) -> str:
-    """
-    normalizes input text, with support for parametric rules/post-processing
-    """
-    tmp = txt
-    for k, v in rules.items():
-        tmp = tmp.replace(k, v)
-    for fxn in post:
-        tmp = fxn(tmp)
-    return tmp

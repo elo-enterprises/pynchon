@@ -1,12 +1,11 @@
 """ pynchon.click
 """
-from click import Group  # noqa
 from click import (  # noqa
     echo,
+    argument, option,
     version_option,
-    option,
-    command,
-    group,
+    command, Command,
+    group, Group,
     Context,
     HelpFormatter,  # noqa
 )  # noqa
