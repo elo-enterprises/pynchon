@@ -6,21 +6,28 @@ one convenient namespace.
 """
 
 import typing
+from pathlib import Path as BasePath
+
 from typing import *  # noqa
 
 from types import MappingProxyType  # noqa
 from types import FunctionType  # noqa
 from types import MethodType  # noqa
+
 # from typing_extensions import Annotated
 
-from pathlib import Path as BasePath
 
 try:
     import pydantic
+
     validate = pydantic.validate_arguments  # noqa
 except (ImportError,):
-    validate = lambda fxn: fxn
-validate_arguments=validate
+
+    def validate(fxn):
+        return fxn
+
+
+validate_arguments = validate
 
 
 Bool = bool
@@ -33,11 +40,12 @@ PathType = type(BasePath())
 
 Namespace = typing.Dict[str, typing.Any]
 CallableNamespace = typing.Dict[str, typing.Callable]
-
+TagDict = typing.Dict[str, str]
 # i.e. `obj,created = model.objects.get_or_create()`
 GetOrCreateResult = typing.Tuple[object, bool]
 
 # isort: off
-from .importing import * # noqa
-from .oop import * # noqa
+from .importing import *  # noqa
+from .oop import *  # noqa
+
 # isort: on

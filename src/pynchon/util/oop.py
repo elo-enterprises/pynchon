@@ -2,6 +2,7 @@
 """
 from . import typing
 
+
 @typing.validate_arguments
 def new_in_class(name: str, kls: typing.Type):
     """ """
@@ -16,8 +17,10 @@ def is_subclass(x, y, strict=True):
         return True
     return False
 
+
 class classproperty(object):
     """ """
+
     def __init__(self, fxn):
         self.fxn = fxn
 
@@ -25,10 +28,11 @@ class classproperty(object):
         return self.fxn(owner)
 
 
-
 class classproperty_cached(classproperty):
     """ """
+
     CLASSPROP_CACHES = {}
+
     def __get__(self, obj, owner) -> typing.OptionalAny:
         result = self.__class__.CLASSPROP_CACHES.get(self.fxn, self.fxn(owner))
         self.__class__.CLASSPROP_CACHES[self.fxn] = result

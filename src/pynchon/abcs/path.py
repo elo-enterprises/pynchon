@@ -3,12 +3,12 @@
 import os
 import json
 from types import MappingProxyType
-
 from fnmatch import fnmatch
 
 from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
+
 
 class Path(typing.PathType):
     """ """
