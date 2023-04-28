@@ -3,7 +3,8 @@
 import os
 
 from pynchon import abcs, config, models
-from pynchon.bin import common, options
+from pynchon.cli import options
+from pynchon.bin import common
 from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
