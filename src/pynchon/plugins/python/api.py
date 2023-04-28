@@ -1,8 +1,10 @@
 """ pynchon.plugins.python.api
 """
 from pynchon import abcs, models
-from pynchon.util import typing,lme
+from pynchon.util import typing, lme
+
 LOGGER = lme.get_logger(__name__)
+
 
 class PythonAPI(models.Planner):
     """Tools for generating python-api docs"""
@@ -11,7 +13,7 @@ class PythonAPI(models.Planner):
 
     class config_kls(abcs.Config):
         config_key = 'python-api'
-        defaults=dict()
+        defaults = dict()
 
     @classmethod
     def init_cli(kls):

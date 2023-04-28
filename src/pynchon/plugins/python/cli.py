@@ -1,11 +1,13 @@
 """ pynchon.plugins.python.cli
 """
 from pynchon import abcs, models
-from pynchon.util import typing,lme
+from pynchon.util import typing, lme
+
 config_mod = typing.lazy_import(
     'pynchon.config',
 )
 LOGGER = lme.get_logger(__name__)
+
 
 class PythonCliConfig(abcs.Config):
     config_key = "python-cli"
@@ -15,6 +17,7 @@ class PythonCliConfig(abcs.Config):
         """ """
         import os
         import glob
+
         src_root = config_mod.project.get(
             "src_root", config_mod.pynchon.get("src_root")
         )
@@ -32,6 +35,7 @@ class PythonCliConfig(abcs.Config):
             tmp = tmp[:-1] if tmp.endswith("/") else tmp
             matches[f] = {**matches[f], **dict(dotpath=".".join(tmp.split("/")))}
         return matches
+
 
 class PythonCLI(models.Planner):
     """Tools for generating CLI docs"""

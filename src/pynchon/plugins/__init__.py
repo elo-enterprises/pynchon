@@ -2,34 +2,41 @@
 """
 # from pynchon import models
 # from .jenkins import Jenkins  # noqa
-from pynchon import config, models
+from pynchon import config
 from pynchon.util import lme, typing
+from pynchon.events import status
 
 # WARNING: edit src/pynchon/constants.py @ `DEFAULT_PLUGINS`
-# from .jenkins import Jenkins  # noqa
 
-from .json import Json  # noqa
-from .globals import Globals  # noqa
 from .util import get_plugin, get_plugin_obj  # noqa
 
-from .dot import Dot  # noqa
-from .git import Git  # noqa
+# isort: off
 from .core import Core  # noqa
-
-from .fixme import FixMe  # noqa
-from .jinja import Jinja  # noqa
-from .python import PythonPlatform, PythonAPI, PythonCLI, PyPI  # noqa
+from .git import Git  # noqa
+from .globals import Globals  # noqa
+from .json import Json  # noqa
 from .project import Project  # noqa
-from .scaffolding import Scaffolding  # noqa
+
 from .gen import Generators  # noqa
 from .render import Renderers  # noqa
-from .globals import Globals #
-from .files import * # noqa
+
+from .files import *  # noqa
+from .fixme import FixMe  # noqa
+from .python import PythonPlatform, PythonAPI, PythonCLI, PyPI  # noqa
+
+from .dot import Dot  # noqa
+from .jinja import Jinja  # noqa
+from .scaffolding import Scaffolding  # noqa
+# from .jenkins import Jenkins  # noqa
+
+# isort: on
 
 LOGGER = lme.get_logger(__name__)
 
+msg = "Building plugin registry.."
+LOGGER.critical(msg)
+status.update(stage=msg)
 
-LOGGER.critical("Building plugin registry..")
 registry = [
     eval(name)
     for name in dir()

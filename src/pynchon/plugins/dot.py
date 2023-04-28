@@ -61,38 +61,38 @@ class Dot(models.Planner):
     class config_kls(abcs.Config):
         config_key = 'dot'
 
-# def render_dot(files, output, in_place, open_after):
-#     """
-#     Render dot file (graphviz) -> PNG
-#     """
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     result = render.dot(file, output=output, in_place=in_place)
-#     output = result["output"]
-#     if open_after:
-#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-#         invoke(f"{DEFAULT_OPENER} {output}")
-#
+    # def render_dot(files, output, in_place, open_after):
+    #     """
+    #     Render dot file (graphviz) -> PNG
+    #     """
+    #     assert files, "expected files would be provided"
+    #     # if file:
+    #     #     return render.j5(file, output=output, in_place=in_place)
+    #     # elif files:
+    #     # files = files.split(' ')
+    #     LOGGER.debug(f"Running with many: {files}")
+    #     file = files[0]
+    #     files = files[1:]
+    #     result = render.dot(file, output=output, in_place=in_place)
+    #     output = result["output"]
+    #     if open_after:
+    #         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
+    #         invoke(f"{DEFAULT_OPENER} {output}")
+    #
 
-# def dot(
-#     file: str, output: str = "", in_place: bool = False, output_mode: str = "png"
-# ) -> typing.Dict:
-#     """renders .dot file to png"""
-#     if in_place:
-#         assert not output
-#         output = os.path.splitext(file)[0] + ".png"
-#     # Using https://github.com/nickshine/dot
-#     DOT_DOCKER_IMG = "nshine/dot"
-#     invoke(
-#         f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}"
-#     )
-#     return dict(output=output)
+    # def dot(
+    #     file: str, output: str = "", in_place: bool = False, output_mode: str = "png"
+    # ) -> typing.Dict:
+    #     """renders .dot file to png"""
+    #     if in_place:
+    #         assert not output
+    #         output = os.path.splitext(file)[0] + ".png"
+    #     # Using https://github.com/nickshine/dot
+    #     DOT_DOCKER_IMG = "nshine/dot"
+    #     invoke(
+    #         f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}"
+    #     )
+    #     return dict(output=output)
     def plan(self, config) -> typing.List[str]:
         plan = super(self.__class__, self).plan(config)
         # render_instructions = self.render_instructions

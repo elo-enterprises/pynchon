@@ -9,7 +9,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Git(models.Provider):
-    """ Context for git """
+    """Context for git"""
 
     priority = 0
     name = 'git'

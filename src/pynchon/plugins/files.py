@@ -2,8 +2,9 @@
 """
 from pynchon import abcs, models
 
+
 class FileHeaders(models.Planner):
-    """ Adds a standard file-header to project source-files """
+    """Adds a standard file-header to project source-files"""
 
     name = 'file-headers'
 
