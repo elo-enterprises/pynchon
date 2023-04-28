@@ -12,11 +12,11 @@ LOGGER = lme.get_logger(__name__)
 
 
 def shell_helper(*args, **kwargs) -> typing.StringMaybe:
-    """
-    """
+    """ """
     out = invoke(*args, **kwargs)
     assert out.succeeded
     return out.stdout
+
 
 def j2_loads(
     text: str = "",

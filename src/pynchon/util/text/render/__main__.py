@@ -3,11 +3,13 @@
 from pynchon import click
 from pynchon.bin import options
 
+
 @click.group()
 def cli() -> None:
     """
     pynchon.util.text.render CLI
     """
+
 
 @cli.command('j2cli')
 @options.option_output

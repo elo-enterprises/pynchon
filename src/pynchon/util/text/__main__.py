@@ -17,16 +17,21 @@ def cli() -> None:
     """
     pynchon.util.text CLI
     """
-entry=cli
+
+
+entry = cli
 from .render.__main__ import j2cli
+
 
 @cli.group('loads')
 def loads() -> None:
-    """ load string to ~JSON """
+    """load string to ~JSON"""
+
 
 @cli.group('loadf')
 def loadf() -> None:
-    """ load file-content to ~JSON """
+    """load file-content to ~JSON"""
+
 
 @cli.group('json')
 def _json() -> None:
@@ -57,7 +62,10 @@ def json_load(
         obj = text.loadf_json(file=file)
         out = {**out, **obj}
     print(text.to_json(out))
+
+
 loadf.add_command(click.command('json')(json_load))
+
 
 @click.option(
     '--wrap-with-key',
@@ -129,6 +137,8 @@ def json5_load(
 
     if should_print and output != '/dev/stdout':
         print(msg)
+
+
 # entry.add_command(click.Command(json5_load, name='load-json5'))
 # loadf.add_command(click.command(json5_load, name='json5'))
 
