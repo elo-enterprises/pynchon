@@ -148,7 +148,7 @@ class CliPlugin(PynchonPlugin):
         help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
         help = help.lstrip()
         msg = f"creating command `{name}` for {fxn} {'alias' if alias else ''}"
-        if typing.new_in_class(fxn.__name__,kls):
+        if typing.new_in_class(fxn.__name__, kls):
             _logger = LOGGER.critical
         else:
             _logger = LOGGER.info

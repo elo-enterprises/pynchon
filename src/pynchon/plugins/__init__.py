@@ -27,6 +27,7 @@ from .python import PythonPlatform, PythonAPI, PythonCLI, PyPI  # noqa
 from .dot import Dot  # noqa
 from .jinja import Jinja  # noqa
 from .scaffolding import Scaffolding  # noqa
+
 # from .jenkins import Jenkins  # noqa
 
 # isort: on

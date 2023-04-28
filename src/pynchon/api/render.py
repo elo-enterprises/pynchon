@@ -4,6 +4,7 @@ import os
 import sys
 import json
 
+import jinja2
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
@@ -15,7 +16,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 def loads_j2_file(
-    file: str, ctx: dict = {}, templates: list = ["."], strict: bool = True
+    file: str, ctx: typing.Dict = {}, templates: list = ["."], strict: bool = True
 ) -> str:
     """ """
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
@@ -94,14 +95,9 @@ def j2(
 
 
 def shell_helper(*args, **kwargs) -> str:
-    from pynchon.util.os import invoke
-
     out = invoke(*args, **kwargs)
     assert out.succeeded
     return out.stdout
-
-
-import jinja2
 
 
 def j2_loads(
@@ -125,11 +121,13 @@ def j2_loads(
     env.globals.update(shell=shell_helper, env=os.getenv)
 
     known_templates = map(abcs.Path, set(env.loader.list_templates()))
-    known_templates = [str(p) for p in known_templates if dot not in p.parents]
+    # known_templates = [str(p) for p in known_templates if dot not in p.parents]
     if known_templates:
+        from pynchon.util import text as util_text
+
         msg = "Known templates: "
         msg += "(excluding the ones under working-dir)"
-        msg += "\n{}".format(json.dumps(known_templates, indent=2))
+        msg += "\n{}".format(util_text.to_json(known_templates))
         LOGGER.warning(msg)
 
     template = env.from_string(text)

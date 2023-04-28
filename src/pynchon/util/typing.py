@@ -6,6 +6,7 @@ one convenient namespace.
 """
 
 import typing
+
 import pydantic
 
 from types import MappingProxyType  # noqa
@@ -29,7 +30,8 @@ CallableNamespace = typing.Dict[str, typing.Callable]
 # i.e. `obj,created = model.objects.get_or_create()`
 GetOrCreateResult = typing.Tuple[object, bool]
 
-validate=pydantic.validate_arguments # noqa
+validate = pydantic.validate_arguments  # noqa
+
 
 def is_subclass(x, y, strict=True):
     """ """
@@ -59,11 +61,12 @@ class classproperty_cached(classproperty):
         CLASSPROP_CACHES[self.fxn] = result
         return CLASSPROP_CACHES[self.fxn]
 
+
 @pydantic.validate_arguments
-def new_in_class(name:str, kls:typing.Type):
-    """
-    """
+def new_in_class(name: str, kls: typing.Type):
+    """ """
     return name in dir(kls) and not any([name in dir(base) for base in kls.__bases__])
+
 
 import importlib
 

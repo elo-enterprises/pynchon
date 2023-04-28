@@ -45,4 +45,6 @@ class JSONEncoder(json.JSONEncoder):
             return str(obj)
         if isinstance(obj, MappingProxyType):
             return dict(obj)
+        if isinstance(obj, map):
+            return list(obj)
         return json.JSONEncoder.default(self, obj)
