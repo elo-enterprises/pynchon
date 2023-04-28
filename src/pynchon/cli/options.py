@@ -9,6 +9,13 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
+option_inplace = click.option(
+            "--in-place",
+            is_flag=True,
+            default=False,
+            help=("if true, writes to {file}.{ext} (dropping any other extensions)"),
+)
+
 option_print = click.option(
     '--print',
     'should_print',
@@ -17,14 +24,14 @@ option_print = click.option(
     is_flag=True,
 )
 
-templates = click.option(
+option_templates = click.option(
     "-t",
     "--templates",
     default=".",
     help=("path to use for template-root / includes"),
     # cls=OptionEatAll,
 )
-template = templates
+template = option_templates
 
 script = click.option("--script", default=None, help=("script to use"))
 ctx = click.option("--ctx", default="", help=("context to use"))

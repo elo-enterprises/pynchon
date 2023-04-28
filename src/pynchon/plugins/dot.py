@@ -37,13 +37,7 @@ from pynchon.bin.common import kommand
 #             is_flag=True,
 #             default=False,
 #             help=(f"if true, opens the created file using {DEFAULT_OPENER}"),
-#         ),
-#         click.option(
-#             "--in-place",
-#             is_flag=True,
-#             default=False,
-#             help=("if true, writes to {file}.png (dropping any other extensions)"),
-#         ),
+#         ), options.option_inplace
 #     ],
 #     arguments=[files_arg],
 # )
@@ -136,7 +130,7 @@ class Dot(models.Planner):
                 # options.file,
                 # options.stdout,
                 options.script,
-                options.templates,
+                options.option_templates,
                 click.option(
                     "--script",
                     default=None,
