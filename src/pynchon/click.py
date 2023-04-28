@@ -13,10 +13,11 @@ from click import (  # noqa
     HelpFormatter,  # noqa
 )  # noqa
 
-def group_copy(g1:Group, g2:Group):
+def group_merge(g1:Group, g2:Group):
     """ """
     def fxn(): pass
     fxn.__doc__ = g1.help
     tmp = g2.group(g1.name)(fxn)
     for cmd in g1.commands.values():
         tmp.add_command(cmd)
+group_copy=group_merge

@@ -17,15 +17,17 @@ def shell_helper(*args, **kwargs) -> typing.StringMaybe:
     assert out.succeeded
     return out.stdout
 
+import os
 
-def j2_loads(
+def jinja(
     text: str = "",
     context: dict = {},
     templates=["."],
     strict: bool = True,
 ):
-    """ """
-    import os
+    """
+    Renders jinja-templates (with support for includes)
+    """
 
     templates = [abcs.Path(t) for t in templates]
     for template_dir in templates:
@@ -59,3 +61,4 @@ def j2_loads(
         LOGGER.critical(exc)
         LOGGER.critical(known_templates)
         raise RuntimeError()
+j2_loads=jinja
