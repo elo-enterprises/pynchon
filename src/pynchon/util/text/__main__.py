@@ -3,9 +3,8 @@
 import os
 import json
 
-import click
-
-from pynchon.bin import options
+from pynchon import click
+from pynchon.cli import options
 from pynchon.util import lme, text, typing
 from pynchon.util.os import invoke
 
@@ -13,27 +12,25 @@ LOGGER = lme.get_logger(__name__)
 
 
 @click.group()
-def cli() -> None:
+def entry() -> None:
     """
     pynchon.util.text CLI
     """
 
-
-entry = cli
-from .render.__main__ import j2cli
+from .render.__main__ import entry as render
 
 
-@cli.group('loads')
+@entry.group('loads')
 def loads() -> None:
     """load string to ~JSON"""
 
 
-@cli.group('loadf')
+@entry.group('loadf')
 def loadf() -> None:
     """load file-content to ~JSON"""
 
 
-@cli.group('json')
+@entry.group('json')
 def _json() -> None:
     """
     helpers for working with json
@@ -62,8 +59,6 @@ def json_load(
         obj = text.loadf_json(file=file)
         out = {**out, **obj}
     print(text.to_json(out))
-
-
 loadf.add_command(click.command('json')(json_load))
 
 
@@ -142,6 +137,8 @@ def json5_load(
 # entry.add_command(click.Command(json5_load, name='load-json5'))
 # loadf.add_command(click.command(json5_load, name='json5'))
 
+# @typing.validate_arguments(arbitrary_types_allowed)
 
 if __name__ == '__main__':
-    cli()
+    click.group_copy(render, entry)
+    entry()
