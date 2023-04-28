@@ -2,12 +2,21 @@
 """
 from pynchon import click
 from pynchon.cli import options
+from pynchon.util import text, typing, lme
+
+LOGGER = lme.get_logger(__name__)
+from pynchon.util.os import invoke
 
 from . import jinja
 
+
 @click.group('render')
-def entry() -> None: pass
-entry.__doc__=(__doc__ or "")
+def entry() -> typing.NoneType:
+    pass
+
+
+entry.__doc__ = __doc__ or ""
+
 
 @options.option_output
 @options.option_print
@@ -40,10 +49,11 @@ def j2cli(
     if should_print and output != '/dev/stdout':
         print(msg)
 
+
 entry.command()(j2cli)
 entry.command('j2')(j2cli)
 entry.command()(jinja)
 entry.command('j')(jinja)
 
-if __name__=='__main__':
+if __name__ == '__main__':
     entry()

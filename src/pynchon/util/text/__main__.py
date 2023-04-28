@@ -1,8 +1,5 @@
 """ pynchon.util.text CLI
 """
-import os
-import json
-
 from pynchon import click
 from pynchon.cli import options
 from pynchon.util import lme, text, typing
@@ -16,6 +13,7 @@ def entry() -> None:
     """
     pynchon.util.text CLI
     """
+
 
 from .render.__main__ import entry as render
 
@@ -59,6 +57,8 @@ def json_load(
         obj = text.loadf_json(file=file)
         out = {**out, **obj}
     print(text.to_json(out))
+
+
 loadf.add_command(click.command('json')(json_load))
 
 

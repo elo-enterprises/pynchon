@@ -17,7 +17,9 @@ def shell_helper(*args, **kwargs) -> typing.StringMaybe:
     assert out.succeeded
     return out.stdout
 
+
 import os
+
 
 def jinja(
     text: str = "",
@@ -61,4 +63,6 @@ def jinja(
         LOGGER.critical(exc)
         LOGGER.critical(known_templates)
         raise RuntimeError()
-j2_loads=jinja
+
+
+j2_loads = jinja
