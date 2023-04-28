@@ -2,11 +2,11 @@
     Common options/arguments and base classes for CLI
 """
 # import io
-import sys
 import json
 import functools
 
 import click
+from rich import print_json
 
 from pynchon.util import lme, typing
 
@@ -55,7 +55,8 @@ class stdout_handler(handler):
 
     def handle(self, result, **call_kwargs):
         """ """
-        print(result, file=sys.stdout)
+        print_json(result)
+        # print(result, file=sys.stdout)
 
 
 class output_handler(handler):
@@ -202,28 +203,3 @@ class kommand(object):
 
 class groop(kommand):
     is_group = True
-
-
-import enlighten
-
-manager = enlighten.get_manager()
-import atexit
-
-status = manager.status_bar(
-    status_format=u'{app}{fill}{stage}{fill}{elapsed}',
-    color='bold_underline_bright_white_on_lightslategray',
-    justify=enlighten.Justify.CENTER,
-    app='Pynchon',
-    stage='...',
-    autorefresh=True,
-    min_delta=0.1,
-)
-atexit.register(lambda: [status.update(stage="\o/"), manager.stop()])  # noqa: W605
-
-# docs = manager.term.link(
-#     'https://python-enlighten.readthedocs.io/en/stable/examples.html',
-#     'Read the Docs')
-# manager.status_bar(
-#     'footer-pynchon',
-#     position=1, fill='-',
-#     justify=enlighten.Justify.CENTER)

@@ -1,8 +1,8 @@
 """ pynchon.config
 """
 # from pynchon import abcs
+from pynchon.app import events
 from pynchon.util import lme  # typing
-from pynchon.bin.common import status
 from pynchon.abcs.plugin import Meta
 from pynchon.abcs.visitor import JinjaDict
 from pynchon.plugins.core import CoreConfig
@@ -18,12 +18,12 @@ LOGGER = lme.get_logger(__name__)
 
 msg = "Loading raw-config from OS.."
 LOGGER.critical(msg)
-status.update(stage=msg)
+events.status.update(stage=msg)
 
 git = GIT = GitConfig()
 msg = "Building raw-config from files.."
 LOGGER.critical(msg)
-status.update(stage=msg)
+events.status.update(stage=msg)
 
 CONFIG_FILES = []
 MERGED_CONFIG_FILES = {}
@@ -34,7 +34,7 @@ for cfg_src, config in load_config_from_files().items():
 # NB: this content is potentially templated
 msg = "Building plugins-list.."
 LOGGER.critical(msg)
-status.update(stage=msg)
+events.status.update(stage=msg)
 
 pynchon = PYNCHON = CoreConfig(config_files=CONFIG_FILES, **MERGED_CONFIG_FILES)
 RAW = PYNCHON.copy()
@@ -46,13 +46,12 @@ _all_names = PLUGINS + Meta.NAMES
 
 msg = "Splitting core config.."
 LOGGER.critical(msg)
-status.update(stage=msg)
-
+events.status.update(stage=msg)
 PYNCHON_CORE = dict([[x, PYNCHON[x]] for x in PYNCHON if x not in _all_names])
 PYNCHON_CORE = CoreConfig(**PYNCHON_CORE)
 
 msg = "Interpolating config.."
 LOGGER.critical(msg)
-status.update(stage=msg)
+events.status.update(stage=msg)
 
 USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))

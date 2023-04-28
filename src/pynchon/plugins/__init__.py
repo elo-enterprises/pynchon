@@ -3,8 +3,8 @@
 # from pynchon import models
 # from .jenkins import Jenkins  # noqa
 from pynchon import config
+from pynchon.app import events
 from pynchon.util import lme, typing
-from pynchon.events import status
 
 # WARNING: edit src/pynchon/constants.py @ `DEFAULT_PLUGINS`
 
@@ -36,7 +36,7 @@ LOGGER = lme.get_logger(__name__)
 
 msg = "Building plugin registry.."
 LOGGER.critical(msg)
-status.update(stage=msg)
+events.status.update(stage=msg)
 
 registry = [
     eval(name)

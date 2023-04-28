@@ -24,25 +24,7 @@ def to_json(obj):
 
 jsonify = to_json
 
-
-def load_json(file: str = '', content: str = '') -> dict:
-    """
-    loads json to python dictionary from given file or string
-    """
-    if file:
-        assert not content
-        if not os.path.exists(file):
-            raise ValueError(f'file @ {file} is missing!')
-        with open(file, 'r') as fhandle:
-            content = fhandle.read()
-    try:
-        data = json.loads(content)
-        # data = pyjson5.loads(content)
-    # except (pyjson5.Json5EOF,) as exc:
-    except (ValueError,) as exc:
-        LOGGER.critical(f"Cannot parse json from {file}!")
-        raise
-    return data
+from .loadf import load_json
 
 
 def load_json5(file: str = '', content: str = '') -> dict:
@@ -92,7 +74,7 @@ def json5_loadc(
     """
     out: typing.Dict[str, typing.Any] = {}
     for file in files:
-        obj = text.loadf_json5(file=file)
+        obj = loadf_json5(file=file)
         out = {**out, **obj}
 
     push_args = [push_data, push_file_data, push_json_data, push_command_output]
@@ -114,7 +96,7 @@ def json5_loadc(
                 LOGGER.critical(err)
                 raise SystemExit(1)
         elif push_json_data:
-            push = text.loads_json5(content=push_json_data)
+            push = loads_json5(content=push_json_data)
         elif push_file_data:
             err = f'file@{push_file_data} doesnt exist'
             assert os.path.exists(push_file_data), err

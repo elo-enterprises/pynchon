@@ -10,10 +10,10 @@ from pynchon.util import lme
 LOGGER = lme.get_logger(__name__)
 
 option_inplace = click.option(
-            "--in-place",
-            is_flag=True,
-            default=False,
-            help=("if true, writes to {file}.{ext} (dropping any other extensions)"),
+    "--in-place",
+    is_flag=True,
+    default=False,
+    help=("if true, writes to {file}.{ext} (dropping any other extensions)"),
 )
 
 option_print = click.option(

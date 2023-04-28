@@ -1,6 +1,8 @@
 """ pynchon.util.text.render CLI
 """
 import os
+import sys
+
 from pynchon import click, abcs
 from pynchon.cli import options
 from pynchon.util import text, typing, lme
@@ -8,12 +10,13 @@ from pynchon.util import text, typing, lme
 LOGGER = lme.get_logger(__name__)
 from pynchon.util.os import invoke
 
-@click.group('render')
+
 def entry() -> typing.NoneType:
     pass
 
 
 entry.__doc__ = __doc__ or ""
+
 
 @options.option_output
 @options.option_print
@@ -24,7 +27,7 @@ entry.__doc__ = __doc__ or ""
 def jinja_file(
     file: str,
     output: str = "",
-    should_print:bool=False,
+    should_print: bool = False,
     in_place: bool = False,
     context: dict = {},
     templates: typing.List[str] = ["."],
@@ -58,14 +61,13 @@ def jinja_file(
     #         **project_config,
     #     }
 
-    ctx=final_ctx = context
+    ctx = final_ctx = context
 
     from . import loads_j2_file
+
     content = loads_j2_file(
-        file=file,
-        context=context or {},
-        templates=[templates],
-        strict=strict)
+        file=file, context=context or {}, templates=[templates], strict=strict
+    )
 
     if in_place:
         # assert not output, "cannot use --in-place and --output at the same time"
@@ -88,6 +90,7 @@ def jinja_file(
     if before and content == before:
         LOGGER.critical(f"content in {output} did not change")
     return content
+
 
 @options.option_output
 @options.option_print
@@ -120,6 +123,7 @@ def j2cli(
     if should_print and output != '/dev/stdout':
         print(msg)
 
+entry = click.group('render')(entry)
 
 entry.command('j2cli')(j2cli)
 entry.command('j2')(j2cli)
