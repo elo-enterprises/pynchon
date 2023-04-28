@@ -11,3 +11,5 @@ plugin makefile
 trap exceptions, send event to statusbar
 trap SystemExit, send event to statusbar
 abstract mcls into interface
+pynchon proj alias
+pynchon proj clean

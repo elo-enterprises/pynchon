@@ -3,9 +3,9 @@
 # from memoized_property import memoized_property
 
 from pynchon.api import project
+from pynchon.app import events
 from pynchon.bin import common, entry
 from pynchon.util import typing, lme, text
-from pynchon.events import status
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 
@@ -132,7 +132,9 @@ class CliPlugin(PynchonPlugin):
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
                 result = fxn(*args, **kwargs)
-                print(text.to_json(result))
+                from rich import print_json
+
+                print_json(text.to_json(result))
                 return result
 
             kls.click_create_cmd(fxn, wrapper=wrapper)
@@ -186,6 +188,7 @@ class CliAliases(CliPlugin):
     CliAliases collect functionality from elsewhere under a namespace
     """
 
+    contribute_plan_apply = False
     cli_label = 'Aliased'
     priority = -1
 
@@ -195,6 +198,7 @@ class ToolPlugin(CliPlugin):
     Tool plugins may have their own config, but generally should not need project-config.
     """
 
+    contribute_plan_apply = False
     cli_label = 'tool'
 
 
@@ -216,14 +220,14 @@ class AbstractPlanner(BasePlugin):
     def plan(self, config=None) -> typing.List:
         """Creates a plan for this plugin"""
         # write status event (used by the app-console)
-        status.update(stage=f"planning for `{self.__class__.name}`")
+        events.status.update(stage=f"planning for `{self.__class__.name}`")
         self.state = config
         return []
 
     def apply(self, config=None) -> None:
         """Executes the plan for this plugin"""
         # write status event (used by the app-console)
-        status.update(stage=f"applying for `{self.__class__.name}`")
+        events.status.update(stage=f"applying for `{self.__class__.name}`")
         plan = self.plan(config=config)
         from pynchon.util.os import invoke
 

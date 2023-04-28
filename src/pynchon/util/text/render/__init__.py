@@ -7,7 +7,7 @@ from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
 from pynchon import abcs
-from pynchon.util import typing, lme
+from pynchon.util import typing, lme, text
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
@@ -19,20 +19,13 @@ def shell_helper(*args, **kwargs) -> typing.StringMaybe:
     assert out.succeeded
     return out.stdout
 
-import os
-import sys
-import json
-
-from pynchon import abcs
-from pynchon.util import lme, text, typing
-
-LOGGER = lme.get_logger(__name__)
-
 
 @typing.validate_arguments
 def loads_j2_file(
-    file: str, context: typing.Dict = {},
-        templates: typing.List[str] = ["."],strict: bool = True
+    file: str,
+    context: typing.Dict = {},
+    templates: typing.List[str] = ["."],
+    strict: bool = True,
 ) -> str:
     """ """
     # from pynchon.util.text.render import j2_loads
@@ -46,11 +39,12 @@ def loads_j2_file(
     content = j2_loads(text=content, context=context, templates=templates)
     return content
 
+
 @typing.validate_arguments
 def jinja(
     text: str = "",
     context: dict = {},
-    templates:typing.List[abcs.Path]=[abcs.Path(".")],
+    templates: typing.List[abcs.Path] = [abcs.Path(".")],
     strict: bool = True,
 ):
     """
@@ -89,5 +83,6 @@ def jinja(
         LOGGER.critical(exc)
         LOGGER.critical(known_templates)
         raise RuntimeError()
+
 
 j2_loads = jinja
