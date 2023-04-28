@@ -1,17 +1,15 @@
 """ pynchon.util.text.render CLI
 """
 from pynchon import click
-from pynchon.bin import options
+from pynchon.cli import options
 
 
-@click.group()
-def cli() -> None:
+@click.group('render')
+def entry() -> None:
     """
     pynchon.util.text.render CLI
     """
 
-
-@cli.command('j2cli')
 @options.option_output
 @options.option_print
 @click.option('--context', help='context file.  must be JSON')
@@ -35,8 +33,14 @@ def j2cli(
         LOGGER.debug(f"target @ {file} appears to be specifying json.")
         LOGGER.debug("loading as if json5 before display..")
         result = text.load_json5(content=result)
-        result = json.dumps(result, indent=2)
+        result = text.to_json(result)
     msg = result
     print(msg, file=open(output, 'w'))
     if should_print and output != '/dev/stdout':
         print(msg)
+
+entry.command()(j2cli)
+entry.command('j2')(j2cli)
+
+if __name__=='__main__':
+    entry()

@@ -109,7 +109,6 @@ class CliPlugin(PynchonPlugin):
             parent.add_command(
                 click.command(
                     f'{fxn.__name__}'.replace('_','-'))(fxn))
-            import IPython; IPython.embed()
         else:
             err = f'{kls} unrecognized type to acquire: {cmd_or_group}'
             LOGGER.critical(err)
