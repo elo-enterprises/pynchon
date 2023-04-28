@@ -44,6 +44,7 @@ from pynchon.util.text import __main__ as text_main
 #             fhandle.write(f"{content}\n")
 #     return data
 
+
 class Json(models.ToolPlugin):
     """
     Tools for working with JSON & JSON5

@@ -88,20 +88,19 @@ class CliPlugin(PynchonPlugin):
     @classmethod
     def click_acquire(kls, cmd_or_group: typing.Callable):
         """ """
-        LOGGER.critical(f"acquiring object for CLI: {cmd_or_group}")
         parent = kls.click_group
         cmd = cmd_or_group if isinstance(cmd_or_group, click.Command) else None
         grp = cmd_or_group if isinstance(cmd_or_group, click.Group) else None
         if grp:
-            LOGGER.debug(f"acquiring: {grp}@{id(grp)} to {parent}@{id(parent)}")
+            LOGGER.critical(f"{kls} acquires {grp} to: {parent}")
             # parent.add_group(fxn)
             raise NotImplementedError("groups are not supported yet!")
         elif cmd:
-            LOGGER.debug(f"acquiring: {cmd}@{id(cmd)} to {parent}@{id(parent)}")
+            LOGGER.info(f"{kls} acquires {cmd} to: {parent}")
             parent.add_command(cmd)
             return parent
         else:
-            err = f'unrecognized type to acquire: {cmd_or_group}'
+            err = f'{kls} unrecognized type to acquire: {cmd_or_group}'
             LOGGER.critical(err)
             raise TypeError(err)
 
@@ -133,7 +132,7 @@ class CliPlugin(PynchonPlugin):
                 kls.click_create_cmd(fxn, wrapper=wrapper, alias=alias)
 
         cli_includes = getattr(kls, 'cli_includes', [])
-        cli_includes and LOGGER.critical(f"loading cli_includes: {cli_includes}")
+        cli_includes and LOGGER.debug(f"{kls} honoring `cli_includes`: {cli_includes}")
         for fxn in cli_includes:
             kls.click_acquire(fxn)
 
@@ -149,7 +148,11 @@ class CliPlugin(PynchonPlugin):
         help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
         help = help.lstrip()
         msg = f"creating command `{name}` for {fxn} {'alias' if alias else ''}"
-        LOGGER.critical(msg)
+        if typing.new_in_class(fxn.__name__,kls):
+            _logger = LOGGER.critical
+        else:
+            _logger = LOGGER.info
+        _logger(msg)
         tmp = common.kommand(
             name,
             parent=kls.click_group,

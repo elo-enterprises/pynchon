@@ -1,11 +1,15 @@
 """ pynchon.plugins.python.platform
 """
 import platform as stdlib_platform
-from pynchon import abcs, models
-from pynchon.util import typing,lme
+
 from memoized_property import memoized_property
+
+from pynchon import abcs, models
+from pynchon.util import typing, lme
 from pynchon.util.os import invoke
+
 LOGGER = lme.get_logger(__name__)
+
 
 class PythonPlatform(models.Provider):
     """Context for python-platform"""
@@ -42,6 +46,7 @@ class PackageConfig(abcs.Config):
     def name(self) -> str:
         """ """
         from pynchon.util import python
+
         return python.load_setupcfg().get("metadata", {}).get("name")
 
     @memoized_property

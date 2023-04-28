@@ -4,10 +4,11 @@ pynchon: a utility for docs generation and template-rendering
 import collections
 from gettext import gettext as _
 
-# import click
-
 from pynchon import abcs, click
 from pynchon.util import typing
+
+# import click
+
 
 plugins = typing.lazy_import(
     'pynchon.plugins',
@@ -16,6 +17,7 @@ plugins = typing.lazy_import(
 
 class RootGroup(click.Group):
     """ """
+
     def format_commands(
         self, ctx: click.Context, formatter: click.HelpFormatter
     ) -> None:
@@ -89,5 +91,5 @@ def entry(
     plugins: str = '',
     set_config: str = '',
     get_config: str = '',
-    ):
+):
     pass

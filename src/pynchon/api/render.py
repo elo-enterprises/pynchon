@@ -13,6 +13,7 @@ from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
+
 def loads_j2_file(
     file: str, ctx: dict = {}, templates: list = ["."], strict: bool = True
 ) -> str:
