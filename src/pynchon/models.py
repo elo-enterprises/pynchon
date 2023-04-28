@@ -91,6 +91,7 @@ class CliPlugin(PynchonPlugin):
         parent = kls.click_group
         cmd = cmd_or_group if isinstance(cmd_or_group, click.Command) else None
         grp = cmd_or_group if isinstance(cmd_or_group, click.Group) else None
+        fxn = cmd_or_group if isinstance(cmd_or_group,typing.FunctionType) else None
         if grp:
             LOGGER.critical(f"{kls} acquires {grp} to: {parent}")
             # parent.add_group(fxn)
@@ -99,6 +100,16 @@ class CliPlugin(PynchonPlugin):
             LOGGER.info(f"{kls} acquires {cmd} to: {parent}")
             parent.add_command(cmd)
             return parent
+        elif fxn:
+            msg = f'{kls} acquires naked fxn: {fxn}'
+            LOGGER.critical(msg)
+            assert fxn.__annotations__
+            # for k,v in fxn.__annotations__.items()
+            #     click.option('--output',)
+            parent.add_command(
+                click.command(
+                    f'{fxn.__name__}'.replace('_','-'))(fxn))
+            import IPython; IPython.embed()
         else:
             err = f'{kls} unrecognized type to acquire: {cmd_or_group}'
             LOGGER.critical(err)
