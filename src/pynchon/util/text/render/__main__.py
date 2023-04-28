@@ -3,12 +3,11 @@
 from pynchon import click
 from pynchon.cli import options
 
+from . import jinja
 
 @click.group('render')
-def entry() -> None:
-    """
-    pynchon.util.text.render CLI
-    """
+def entry() -> None: pass
+entry.__doc__=(__doc__ or "")
 
 @options.option_output
 @options.option_print
@@ -18,8 +17,10 @@ def j2cli(
     output: str, should_print: bool, file: str, context: str, format: str = 'json'
 ) -> None:
     """
+    A wrapper on the `j2` command (j2cli must be installed)
     Renders the named file, using the given context-file.
-    This is a wrapper on `j2`, so j2cli must be installed.
+
+    NB: No support for jinja-includes or custom filters.
     """
     cmd = f'j2 --format {format} {file} {context}'
     result = invoke(cmd)
@@ -41,6 +42,8 @@ def j2cli(
 
 entry.command()(j2cli)
 entry.command('j2')(j2cli)
+entry.command()(jinja)
+entry.command('j')(jinja)
 
 if __name__=='__main__':
     entry()
