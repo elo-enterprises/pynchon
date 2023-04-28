@@ -89,7 +89,7 @@ class RootGroup(click.Group):
 @click.group("pynchon", cls=RootGroup)
 def entry(
     plugins: str = '',
-    set_config: str = '',
+    set_config: str = '',  # noqa
     get_config: str = '',
 ):
     pass
