@@ -10,6 +10,7 @@ import pprint as _pprint
 import json5
 
 from pynchon.util import typing, lme
+from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
