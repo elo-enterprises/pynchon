@@ -72,6 +72,7 @@ def load_json5(file: str = '', content: str = '') -> dict:
         raise
     return data
 
+
 def json5_loadc(
     output: str = '',
     files: typing.List[str] = [],
@@ -125,6 +126,7 @@ def json5_loadc(
         out = {wrapper_key: out}
 
     return out
+
 
 def indent(txt: str, level: int = 2) -> str:
     """
