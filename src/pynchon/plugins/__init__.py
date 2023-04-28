@@ -2,7 +2,7 @@
 """
 # from pynchon import models
 # from .jenkins import Jenkins  # noqa
-from pynchon import config
+from pynchon import config, models
 from pynchon.util import lme, typing
 
 # WARNING: edit src/pynchon/constants.py @ `DEFAULT_PLUGINS`
@@ -18,12 +18,13 @@ from .base import Base  # noqa
 
 from .fixme import FixMe  # noqa
 from .jinja import Jinja  # noqa
-from .python import Python, PythonAPI, PythonCLI, PyPI  # noqa
+from .python import PythonPlatform, PythonAPI, PythonCLI, PyPI  # noqa
 from .project import Project  # noqa
 from .scaffolding import Scaffolding  # noqa
 from .gen import Generators  # noqa
 from .render import Renderers  # noqa
-from .globals import Globals # noqa
+from .globals import Globals #
+from .files import * # noqa
 
 LOGGER = lme.get_logger(__name__)
 

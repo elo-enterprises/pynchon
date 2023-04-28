@@ -25,6 +25,24 @@ LOGGER = lme.get_logger(__name__)
 
 from pynchon.util.text import __main__ as text_main
 
+# def j5(
+#     file,
+#     output="",
+#     in_place=False,
+# ) -> typing.StringMaybe:
+#     """renders json5 file"""
+#     LOGGER.debug(f"Running with one file: {file}")
+#     with open(file, "r") as fhandle:
+#         data = text.json5_loads(content=fhandle.read())
+#     if in_place:
+#         assert not output, "cannot use --in-place and --output at the same time"
+#         output = os.path.splitext(file)[0]
+#         output = f"{output}.json"
+#     if output:
+#         with open(output, "w") as fhandle:
+#             content = text.to_json(data)
+#             fhandle.write(f"{content}\n")
+#     return data
 
 class Json(models.ToolPlugin):
     """

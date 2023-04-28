@@ -9,15 +9,29 @@
   "pkg_name": "pynchon",
   "docs_root": "docs",
   "plugins":[
-    "project",
-    "dot",
-    "python",
-    "python-api",
-    "pypi",
-    "python-cli",
-    "fixme",
-    "scaffolding",
-    "jinja",
+    // defaults by type; these dont have to be explicit
+    //   ( provider-defaults )
+    //      * python
+    //      * project
+    //      * git
+    //   ( namespace-defaults )
+    //      * gen
+    //      * render
+    //   ( tool-defaults )
+    //      * json
+
+    // recommended for projects with source-code
+    "fixme", "file-headers",
+
+    // standard when there's a python-project
+    "pypi", "python-api", "python-cli",
+
+    // for projects with intermediate representations
+    "dot",   // graphviz dot-files
+    "jinja", // projects with templated docs
+
+    // for projects management & grooming
+    "scaffolding", // boilerplate-manager
   ],
   // begin globals
   "globals": {
