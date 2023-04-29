@@ -15,14 +15,3 @@ class Generators(models.NameSpace):
     priority = -1
     config_kls = None
     cli_includes: typing.List[typing.Callable] = []
-
-    # @common.groop("api", parent=groups.gen)
-    # def gen_api() -> None:
-    #     """
-    #     Generate API docs from python modules, packages, etc
-    #     """
-    #
-    # @common.groop("cli", parent=groups.gen)
-    # def gen_cli():
-    #     """Generate CLI docs"""
-    #

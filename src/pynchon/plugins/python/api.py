@@ -5,9 +5,14 @@ from pynchon.util import typing, lme
 
 LOGGER = lme.get_logger(__name__)
 
-
 class PythonAPI(models.Planner):
     """Tools for generating python-api docs"""
+
+    # @common.groop("api", parent=groups.gen)
+    # def gen_api() -> None:
+    #     """
+    #     Generate API docs from python modules, packages, etc
+    #     """
 
     name = "python-api"
 
