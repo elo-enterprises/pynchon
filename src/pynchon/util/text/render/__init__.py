@@ -1,4 +1,6 @@
 """ pynchon.util.text.render
+
+    Helpers for rendering content
 """
 import os
 
@@ -9,6 +11,7 @@ from jinja2 import FileSystemLoader, StrictUndefined
 from pynchon import abcs
 from pynchon.util import typing, lme, text
 from pynchon.util.os import invoke
+from pynchon.util.text import loadf, loads
 
 LOGGER = lme.get_logger(__name__)
 
@@ -20,8 +23,63 @@ def shell_helper(*args, **kwargs) -> typing.StringMaybe:
     return out.stdout
 
 
+def json5_loadc(
+    output: str = '',
+    files: typing.List[str] = [],
+    wrapper_key: str = '',
+    pull: str = '',
+    push_data: str = '',
+    push_file_data: str = '',
+    push_json_data: str = '',
+    push_command_output: str = '',
+    under_key: str = '',
+) -> None:
+    """
+    loads json5 file(s) and outputs json.
+    if multiple files are provided, files will
+    be merged with overwrites in the order provided
+    """
+    out: typing.Dict[str, typing.Any] = {}
+    for file in files:
+        obj = loadf.json5(file=file)
+        out = {**out, **obj}
+
+    push_args = [push_data, push_file_data, push_json_data, push_command_output]
+    if any(push_args):
+        assert under_key
+        assert under_key not in out, f'content already has key@{under_key}!'
+        assert (
+            sum([1 for x in push_args if x]) == 1
+        ), 'only one --push arg can be provided!'
+        if push_data:
+            assert isinstance(push_data, (str,))
+            push = push_data
+        elif push_command_output:
+            cmd = invoke(push_command_output)
+            if cmd.succeeded:
+                push = cmd.stdout
+            else:
+                err = cmd.stderr
+                LOGGER.critical(err)
+                raise SystemExit(1)
+        elif push_json_data:
+            push = loads.json5(content=push_json_data)
+        elif push_file_data:
+            err = f'file@{push_file_data} doesnt exist'
+            assert os.path.exists(push_file_data), err
+            with open(push_file_data, 'r') as fhandle:
+                push = fhandle.read()
+        out[under_key] = push
+
+    if wrapper_key:
+        # NB: must remain after push
+        out = {wrapper_key: out}
+
+    return out
+
+
 @typing.validate_arguments
-def loads_j2_file(
+def loadf_jinja(
     file: str,
     context: typing.Dict = {},
     templates: typing.List[str] = ["."],

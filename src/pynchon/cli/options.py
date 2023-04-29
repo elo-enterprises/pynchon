@@ -9,14 +9,21 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
-option_inplace = click.option(
+strict = click.option(
+    "--strict",
+    is_flag=True,
+    default=False,
+    help=("if true, runs in strict mode"),
+)
+
+inplace = in_place = click.option(
     "--in-place",
     is_flag=True,
     default=False,
     help=("if true, writes to {file}.{ext} (dropping any other extensions)"),
 )
-
-option_print = click.option(
+option_inplace = inplace
+should_print = click.option(
     '--print',
     'should_print',
     help='if set, displays result on stdout even when `--output <file>` is passed',
@@ -42,7 +49,7 @@ name = click.option("--name", default="", help=("name to use"))
 stdout = click.option(
     "--stdout", is_flag=True, default=True, help=("whether to write to stdout.")
 )
-option_output = click.option(
+output = click.option(
     '--output',
     "-o",
     help='when set, output will be written to this file',

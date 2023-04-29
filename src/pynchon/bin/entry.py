@@ -5,12 +5,12 @@ import collections
 from gettext import gettext as _
 
 from pynchon import abcs, click
-from pynchon.util import typing
+from pynchon.util import typing, importing
 
 # import click
 
 
-plugins = typing.lazy_import(
+plugins = importing.lazy_import(
     'pynchon.plugins',
 )
 

@@ -45,7 +45,7 @@ TagDict = typing.Dict[str, str]
 GetOrCreateResult = typing.Tuple[object, bool]
 
 # isort: off
-from .importing import *  # noqa
+# from .importing import *  # noqa
 from .oop import *  # noqa
 
 # isort: on

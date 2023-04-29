@@ -3,12 +3,13 @@
 import os
 import sys
 
-from pynchon import click, abcs
+from pynchon import click
 from pynchon.cli import options
 from pynchon.util import text, typing, lme
 
 LOGGER = lme.get_logger(__name__)
-from pynchon.util.os import invoke
+
+from pynchon.util.text import render as THIS
 
 
 def entry() -> typing.NoneType:
@@ -18,8 +19,8 @@ def entry() -> typing.NoneType:
 entry.__doc__ = __doc__ or ""
 
 
-@options.option_output
-@options.option_print
+@options.output
+@options.should_print
 @options.option_inplace
 @options.option_templates
 @click.option('--context', help='context file.  must be JSON')
@@ -63,9 +64,7 @@ def jinja_file(
 
     ctx = final_ctx = context
 
-    from . import loads_j2_file
-
-    content = loads_j2_file(
+    content = THIS.loadf_jinja(
         file=file, context=context or {}, templates=[templates], strict=strict
     )
 
@@ -92,8 +91,8 @@ def jinja_file(
     return content
 
 
-@options.option_output
-@options.option_print
+@options.output
+@options.should_print
 @click.option('--context', help='context file.  must be JSON')
 @click.argument("file", nargs=1)
 def j2cli(
@@ -105,6 +104,8 @@ def j2cli(
 
     NB: No support for jinja-includes or custom filters.
     """
+    from pynchon.util.os import invoke
+
     cmd = f'j2 --format {format} {file} {context}'
     result = invoke(cmd)
     if not result.succeeded:
@@ -116,7 +117,7 @@ def j2cli(
     if tmp.endswith('.json') or tmp.endswith('.json5'):
         LOGGER.debug(f"target @ {file} appears to be specifying json.")
         LOGGER.debug("loading as if json5 before display..")
-        result = text.load_json5(content=result)
+        result = text.loads.json5(content=result)
         result = text.to_json(result)
     msg = result
     print(msg, file=open(output, 'w'))
