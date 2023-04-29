@@ -3,19 +3,18 @@
 """
 
 import json
-import pprint as _pprint
+
+from pynchon.abcs import JSONEncoder
+
+from . import loadf, loads  # noqa
+
+# from . import dumpf, dumps # noqa
 
 # from pynchon.util import typing, lme
-from pynchon.abcs import JSONEncoder
-from pynchon.util.importing import module_builder
-
-module_builder(
-    __name__,
-    import_mods=[
-        '.loadf',
-        '.loads',
-    ],
-)
+# from pynchon.util.importing import module_builder
+# module_builder(
+#     __name__,
+#     import_mods=['.loadf', '.loads',])
 
 
 def to_json(obj, cls=JSONEncoder) -> str:
@@ -30,6 +29,8 @@ def indent(txt: str, level: int = 2) -> str:
     """
     indents text, or if given an object, stringifies and then indents
     """
+    import pprint
+
     if not isinstance(txt, (str, bytes)):
-        txt = _pprint.pformat(txt)
+        txt = pprint.pformat(txt)
     return '\n'.join([(' ' * level) + line for line in txt.split('\n') if line.strip()])
