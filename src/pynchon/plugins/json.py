@@ -55,7 +55,7 @@ class Json(models.ToolPlugin):
     priority = -1
     config_class = None
     cli_name = name
-    cli_includes: typing.List[typing.Callable] = [
+    cli_subsumes: typing.List[typing.Callable] = [
         loadf_main.json5,
         loadf_main.json,
         loadf_main.j5,

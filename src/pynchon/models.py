@@ -55,6 +55,9 @@ class PynchonPlugin(AbstractPlugin):
 
 
 import click
+from multipledispatch import dispatch
+
+from pynchon.util import oop
 
 
 class CliPlugin(PynchonPlugin):
@@ -86,31 +89,44 @@ class CliPlugin(PynchonPlugin):
         return plugin_main
 
     @classmethod
+    @dispatch(type(PynchonPlugin), click.Group)
+    def click_acquire(kls, grp: click.Group):
+        """ """
+        LOGGER.critical(f"{kls} acquires {grp} to: {parent}")
+        raise NotImplementedError("groups are not supported yet!")
+
+    @classmethod
+    @dispatch(type(PynchonPlugin), typing.FunctionType)
+    def click_acquire(kls, fxn: typing.FunctionType):
+        """ """
+        msg = f'{kls} acquires naked fxn: {fxn}'
+        # LOGGER.critical(msg)
+        assert fxn.__annotations__
+        # for k,v in fxn.__annotations__.items()
+        #     click.option('--output',)
+        kls.click_group.add_command(
+            click.command(f'{fxn.__name__}'.replace('_', '-'))(fxn)
+        )
+
+    # default
+    # @classmethod
+    # @dispatch(type(PynchonPlugin), typing.FunctionType)
+    # def click_acquire(kls,
+    #     cmd_or_group: typing.Callable):
+    #     """ """
+    #     err = f'{kls} unrecognized type to acquire: {cmd_or_group}'
+    #     LOGGER.critical(err)
+    #     raise TypeError(err)
+
+    @classmethod
+    @dispatch(type(PynchonPlugin), click.Command)
     def click_acquire(kls, cmd_or_group: typing.Callable):
         """ """
         parent = kls.click_group
         cmd = cmd_or_group if isinstance(cmd_or_group, click.Command) else None
-        grp = cmd_or_group if isinstance(cmd_or_group, click.Group) else None
-        fxn = cmd_or_group if isinstance(cmd_or_group, typing.FunctionType) else None
-        if grp:
-            LOGGER.critical(f"{kls} acquires {grp} to: {parent}")
-            # parent.add_group(fxn)
-            raise NotImplementedError("groups are not supported yet!")
-        elif cmd:
-            LOGGER.info(f"{kls} acquires {cmd} to: {parent}")
-            parent.add_command(cmd)
-            return parent
-        elif fxn:
-            msg = f'{kls} acquires naked fxn: {fxn}'
-            LOGGER.critical(msg)
-            assert fxn.__annotations__
-            # for k,v in fxn.__annotations__.items()
-            #     click.option('--output',)
-            parent.add_command(click.command(f'{fxn.__name__}'.replace('_', '-'))(fxn))
-        else:
-            err = f'{kls} unrecognized type to acquire: {cmd_or_group}'
-            LOGGER.critical(err)
-            raise TypeError(err)
+        LOGGER.info(f"{kls} acquires {cmd} to: {parent}")
+        parent.add_command(cmd)
+        return parent
 
     @classmethod
     def init_cli(kls):
@@ -140,13 +156,16 @@ class CliPlugin(PynchonPlugin):
             kls.click_create_cmd(fxn, wrapper=wrapper)
             for alias in click_aliases:
                 kls.click_create_cmd(fxn, wrapper=wrapper, alias=alias)
-
-        cli_includes = getattr(kls, 'cli_includes', [])
-        cli_includes and LOGGER.debug(f"{kls} honoring `cli_includes`: {cli_includes}")
-        for fxn in cli_includes:
-            kls.click_acquire(fxn)
-
+        kls.init_cli_children()
         return kls.click_group
+
+    @classmethod
+    def init_cli_children(kls):
+        """ """
+        cli_subsumes = getattr(kls, 'cli_subsumes', [])
+        cli_subsumes and LOGGER.debug(f"{kls} honoring `cli_subsumes`: {cli_subsumes}")
+        for fxn in cli_subsumes:
+            kls.click_acquire(fxn)
 
     @classmethod
     def click_create_cmd(kls, fxn: typing.Callable, wrapper=None, alias: str = None):
