@@ -18,19 +18,19 @@ class JinjaConfig(abcs.Config):
     #     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
 
     # @property
-    # def includes(self) -> typing.List:
+    # def template_includes(self) -> typing.List:
     #     docs_root = initialized["pynchon"].get("docs_root", None)
     #     docs_root = docs_root and abcs.Path(docs_root)
     #     if docs_root:
     #         extra = [abcs.Path(docs_root.joinpath("templates"))]
     #     else:
-    #         LOGGER.warning("`docs_root` is not set; cannot guess `jinja.includes`")
+    #         LOGGER.warning("`docs_root` is not set; cannot guess `jinja.template_includes`")
     #         extra = []
-    #     return extra + self._base.get("includes", [])
+    #     return extra + self._base.get("template_includes", [])
 
 
 class Jinja(models.Planner):
-    """Renders files with {jinja.includes}"""
+    """Renders files with {jinja.template_includes}"""
 
     name = "jinja"
     defaults = dict()
@@ -63,7 +63,7 @@ class Jinja(models.Planner):
 
     def _get_templates(self, config):
         """ """
-        templates = config.jinja['includes']
+        templates = config.jinja['template_includes']
         templates = [t for t in templates]
         templates = [f"--templates {t}" for t in templates]
         templates = " ".join(templates)
@@ -116,7 +116,7 @@ class Jinja(models.Planner):
 #     # assert (file or files) and not (file and files), 'expected files would be provided'
 #     from pynchon import config
 #
-#     templates = templates + config.jinja.includes
+#     templates = templates + config.jinja.template_includes
 #     if ctx:
 #         if "{" in ctx:
 #             LOGGER.debug("context is inlined JSON")
