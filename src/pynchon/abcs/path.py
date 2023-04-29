@@ -13,6 +13,9 @@ LOGGER = lme.get_logger(__name__)
 class Path(typing.PathType):
     """ """
 
+    def siblings(self):
+        return self.parents[0].list()
+
     def match_any_glob(self, exclude_patterns: typing.List[str]):
         for exclude in exclude_patterns:
             match = self.match_glob(exclude)

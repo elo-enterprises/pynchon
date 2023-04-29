@@ -9,8 +9,33 @@ from rich.console import Console, Theme
 from memoized_property import memoized_property
 
 import enlighten
+from pynchon.util import lme
 
-from .events import events
+LOGGER = lme.get_logger(__name__)
+
+
+class Events:
+    E_LIFECYCLE = 'lifecyle'
+
+    def __init__(
+        self,
+    ):
+        """ """
+
+    def push(self, _type, *args, **kwargs):
+        """ """
+
+    def lifecycle(self, *msg, logger=None):
+        """ """
+        logger = logger or LOGGER.debug
+        logger(msg)
+
+    def bootstrap(self, *msg):
+        """ """
+        return self.lifecycle(*msg, logger=LOGGER.critical)
+
+
+events = Events()
 
 
 class AppConsole(object):
@@ -57,6 +82,7 @@ class AppExitHooks(object):
 
     # def uninstall(self):
     def install(self):
+        self.app.events.status.update(stage='Installing exit handlers')
         self._orig_exit = sys.exit
         self._orig_exc_handler = self.exc_handler
         sys.exit = self.exit
@@ -74,9 +100,11 @@ class AppExitHooks(object):
     def exit_handler(self):
         """ """
         if self.exit_code is not None and not self.exit_code == 0:
+            # FIXME: fire event
             self.app.events.status.update(stage=f"death by sys.exit({self.exit_code})")
 
         elif self.exception is not None:
+            # FIXME: fire event
             text = f"death by exception: {self.exception}"
             text = self.app.Text(text)
             text.stylize('bold red', 0, 6)
@@ -94,11 +122,11 @@ class App(
     AppConsole,
 ):
     def __init__(self):
-        self.exit_hooks = AppExitHooks(app=self)
-        self.exit_hooks.install()
         self.console = Console()
         self.events = events
-        events.status = self.status_bar
+        self.events.status = self.status_bar
+        self.exit_hooks = AppExitHooks(app=self)
+        self.exit_hooks.install()
         # self.logger = ..
 
 
