@@ -19,7 +19,7 @@ LOGGER = lme.get_logger(__name__)
 class PynchonPlugin(AbstractPlugin):
     """Pynchon-specific plugin-functionality"""
 
-    cli_label = 'abstract'
+    cli_label = '<<Abstract>>'
 
     @property
     def plugin_config(self):
@@ -58,7 +58,7 @@ import click
 
 
 class CliPlugin(PynchonPlugin):
-    cli_label = 'default'
+    cli_label = '<<Default>>'
     _finalized_click_groups = dict()
 
     @typing.classproperty
@@ -171,25 +171,23 @@ class CliPlugin(PynchonPlugin):
         return tmp
 
 
-class ContextPlugin(CliPlugin):
+class Provider(CliPlugin):
     """
     ProviderPlugin provides context-information, but little other functionality
     """
 
-    cli_label = 'provider'
+    cli_label = 'Provider'
     contribute_plan_apply = False
 
 
-Provider = ContextPlugin
-
-
-class CliAliases(CliPlugin):
+class NameSpace(CliPlugin):
     """
-    CliAliases collect functionality from elsewhere under a namespace
+    `CliNamespace` collects functionality
+    from elsewhere under a single namespace
     """
 
+    cli_label = 'NameSpace'
     contribute_plan_apply = False
-    cli_label = 'Aliased'
     priority = -1
 
 
@@ -198,8 +196,8 @@ class ToolPlugin(CliPlugin):
     Tool plugins may have their own config, but generally should not need project-config.
     """
 
+    cli_label = 'Tool'
     contribute_plan_apply = False
-    cli_label = 'tool'
 
 
 class BasePlugin(CliPlugin):
@@ -215,7 +213,7 @@ class AbstractPlanner(BasePlugin):
     AbstractPlanner is a plugin-type that provides plan/apply basics
     """
 
-    cli_label = 'planner'
+    cli_label = 'Planner'
 
     def plan(self, config=None) -> typing.List:
         """Creates a plan for this plugin"""
@@ -242,6 +240,10 @@ class ShyPlanner(AbstractPlanner):
     """
 
     contribute_plan_apply = False
+
+
+class Manager(ShyPlanner):
+    cli_label = 'Manager'
 
 
 class Planner(ShyPlanner):

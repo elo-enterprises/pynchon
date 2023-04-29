@@ -22,15 +22,18 @@ LOGGER = lme.get_logger(__name__)
 # files_arg = click.argument("files", nargs=-1)
 
 
-class Renderers(models.CliAliases):
+class Renderers(models.NameSpace):
     """
-    Namespace for rendering commands from other plugins
+    Collects `render` commands from other plugins
     """
 
     name = cli_name = 'render'
     defaults = dict()
     config_kls = None
-    cli_includes: typing.List[typing.Callable] = []
+    # cli_includes: typing.List[typing.Callable] = []
+    cli_subsumes: typing.List[str] = [
+        'pynchon.util.text.render.__main__',
+    ]
 
 
 # @kommand(

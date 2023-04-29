@@ -9,10 +9,16 @@ from pynchon.util import text, typing, lme
 
 LOGGER = lme.get_logger(__name__)
 from pynchon.util.os import invoke
+
 from . import json5_load
 
-def entry() -> None: pass
-entry.__doc__ = (__doc__ or "")
+
+def entry() -> None:
+    pass
+
+
+entry.__doc__ = __doc__ or ""
+
 
 @click.argument("files", nargs=-1)
 def json_load(
@@ -28,6 +34,7 @@ def json_load(
         obj = text.loadf_json(file=file)
         out = {**out, **obj}
     print(text.to_json(out))
+
 
 entry = click.group('loadf')(entry)
 entry.command('json')(json_load)

@@ -30,7 +30,7 @@ class JinjaConfig(abcs.Config):
 
 
 class Jinja(models.Planner):
-    """tools for rendering jinja2 files"""
+    """Renders files with {jinja.includes}"""
 
     name = "jinja"
     defaults = dict()

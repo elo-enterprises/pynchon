@@ -1,12 +1,13 @@
 """ pynchon.util.text.render
 """
 import os
-from pynchon.cli import click, options
+
 import jinja2
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
 from pynchon import abcs
+from pynchon.cli import click, options
 from pynchon.util import typing, lme, text
 from pynchon.util.os import invoke
 
@@ -18,6 +19,8 @@ def shell_helper(*args, **kwargs) -> typing.StringMaybe:
     out = invoke(*args, **kwargs)
     assert out.succeeded
     return out.stdout
+
+
 @click.option(
     '--wrap-with-key',
     'wrapper_key',
@@ -90,7 +93,6 @@ def json5_load(
         print(msg)
 
 
-
 def load_json(file: str = '', content: str = '') -> dict:
     """
     loads json to python dictionary from given file or string
@@ -109,6 +111,7 @@ def load_json(file: str = '', content: str = '') -> dict:
         LOGGER.critical(f"Cannot parse json from {file}!")
         raise
     return data
+
 
 @typing.validate_arguments
 def loads_j2_file(

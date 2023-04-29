@@ -20,7 +20,7 @@ class FixMeConfig(abcs.Config):
 
 
 class FixMe(models.Planner):
-    """Aggregates project-wide FIXMEs into {docs_root}/FIXME.md"""
+    """Generates {docs_root}/FIXME.md from source"""
 
     name = "fixme"
     config_kls = FixMeConfig

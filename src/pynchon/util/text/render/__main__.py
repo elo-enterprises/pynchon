@@ -123,6 +123,7 @@ def j2cli(
     if should_print and output != '/dev/stdout':
         print(msg)
 
+
 entry = click.group('render')(entry)
 
 entry.command('j2cli')(j2cli)

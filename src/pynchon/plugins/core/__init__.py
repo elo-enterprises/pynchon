@@ -45,7 +45,7 @@ class Core(models.Planner):
     def raw(self) -> None:
         """
         Returns (almost) raw config,
-        before templating & interpolation
+        without interpolation
         """
         from pynchon.config import RAW
 

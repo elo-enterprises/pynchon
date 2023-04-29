@@ -11,6 +11,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class ProjectConfig(abcs.Config):
+    """ """
 
     priority = 1
     config_key = "project"
@@ -50,8 +51,8 @@ class ProjectConfig(abcs.Config):
         return {}
 
 
-class Project(models.Planner):
-    """meta-tools for inspecting this project"""
+class Project(models.Manager):
+    """Macros for plan/applies across plugins"""
 
     name = 'project'
     priority = 2

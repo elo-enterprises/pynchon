@@ -50,7 +50,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Dot(models.Planner):
-    """Tools for rendering graphviz dot files"""
+    """Finds / Renders (graphviz) dot files for this project"""
 
     name = "dot"
 
