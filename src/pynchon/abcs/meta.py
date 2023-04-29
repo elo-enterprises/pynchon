@@ -24,35 +24,35 @@ class Meta(type):
     @staticmethod
     def aggregate_across_bases(
         var: str = '',
-        tspec:type_spec=None,
+        tspec: type_spec = None,
     ):
         """
         aggregates values at `var` across all bases
         """
         tracked = tspec.namespace.get(var, [])
         for b in tspec.bases:
-            bval=getattr(b, var, [])
-            assert isinstance(bval,list),bval
+            bval = getattr(b, var, [])
+            assert isinstance(bval, list), bval
             tracked += bval
         return tracked
 
     @classmethod
     def register(
         mcls: type,
-        tspec:type_spec=None,
+        tspec: type_spec = None,
     ) -> None:
         """ """
-        name,bases,namespace=tspec.name, tspec.bases, tspec.namespace
+        name, bases, namespace = tspec.name, tspec.bases, tspec.namespace
         this_name = namespace.get('name', None)
         this_name and Meta.NAMES.append(this_name)
 
     @classmethod
     def annotate(
         mcls: type,
-        tspec:type_spec=None,
+        tspec: type_spec = None,
     ) -> typing.Dict:
         """ """
-        name,bases,namespace=tspec.name, tspec.bases, tspec.namespace
+        name, bases, namespace = tspec.name, tspec.bases, tspec.namespace
         class_props = mcls.aggregate_across_bases(
             var='__class_properties__',
             tspec=tspec,
@@ -62,9 +62,7 @@ class Meta(type):
         ]
         class_props = list(set(class_props))
         namespace.update({'__class_properties__': class_props})
-        instance_methods = mcls.aggregate_across_bases(
-            var='__methods__', tspec=tspec
-        )
+        instance_methods = mcls.aggregate_across_bases(var='__methods__', tspec=tspec)
         instance_methods += [
             k
             for k, v in namespace.items()
@@ -73,7 +71,8 @@ class Meta(type):
         instance_methods = list(set(instance_methods))
         namespace.update({'__methods__': instance_methods})
         instance_properties = mcls.aggregate_across_bases(
-            var='__properties__',  tspec=tspec,
+            var='__properties__',
+            tspec=tspec,
         )
         instance_properties += [
             k
