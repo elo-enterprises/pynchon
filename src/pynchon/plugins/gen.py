@@ -13,5 +13,5 @@ class Generators(models.NameSpace):
 
     name = cli_name = 'gen'
     priority = -1
-    config_kls = None
+    config_class = None
     cli_includes: typing.List[typing.Callable] = []

@@ -23,7 +23,7 @@ class FixMe(models.Planner):
     """Generates {docs_root}/FIXME.md from source"""
 
     name = "fixme"
-    config_kls = FixMeConfig
+    config_class = FixMeConfig
     defaults = dict()
 
     def plan(self, config: dict = None) -> typing.List:

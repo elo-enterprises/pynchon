@@ -16,11 +16,14 @@ from pynchon.plugins.git import GitConfig  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon import app
+
+# FIXME: abstract into phases inside pynchon.app
 msg = "Loading raw-config from OS.."
 LOGGER.critical(msg)
 events.status.update(stage=msg)
-
 git = GIT = GitConfig()
+
 msg = "Building raw-config from files.."
 LOGGER.critical(msg)
 events.status.update(stage=msg)
@@ -42,6 +45,7 @@ PLUGINS = PYNCHON['plugins'] = list(
     set(PYNCHON['plugins'] + PYNCHON.plugins + ['core'])
 )
 
+# FIXME: get from registry
 _all_names = PLUGINS + Meta.NAMES
 
 msg = "Splitting core config.."

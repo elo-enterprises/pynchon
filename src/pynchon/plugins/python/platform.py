@@ -17,7 +17,7 @@ class PythonPlatform(models.Provider):
     priority = 2
     name = 'python'
 
-    class config_kls(abcs.Config):
+    class config_class(abcs.Config):
         config_key = "python"
         defaults = dict(
             version=stdlib_platform.python_version(),
@@ -39,7 +39,7 @@ class PythonPlatform(models.Provider):
 
 
 class PackageConfig(abcs.Config):
-    parent = PythonPlatform.config_kls
+    parent = PythonPlatform.config_class
     config_key = "package"
 
     @property

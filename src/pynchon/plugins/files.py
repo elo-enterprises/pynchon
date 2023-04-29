@@ -9,7 +9,7 @@ class SrcHeaders(models.Planner):
     name = 'src-headers'
     cli_name = 'src-file'
 
-    class config_kls(abcs.Config):
+    class config_class(abcs.Config):
         config_key = 'src-headers'
 
 

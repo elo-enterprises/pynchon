@@ -46,7 +46,7 @@ class PythonCLI(models.Planner):
     """Tools for generating CLI docs"""
 
     name = "python-cli"
-    config_kls = PythonCliConfig
+    config_class = PythonCliConfig
 
     @classmethod
     def init_cli(kls):

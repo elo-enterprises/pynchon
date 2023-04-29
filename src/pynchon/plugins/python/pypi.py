@@ -19,4 +19,4 @@ class PyPI(models.Provider):
     """Context for PyPI"""
 
     name = "pypi"
-    config_kls = PyPiConfig
+    config_class = PyPiConfig

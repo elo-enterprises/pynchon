@@ -57,7 +57,7 @@ class Project(models.Manager):
     name = 'project'
     priority = 2
     defaults = dict()
-    config_kls = ProjectConfig
+    config_class = ProjectConfig
 
     @classmethod
     def init_cli(kls):

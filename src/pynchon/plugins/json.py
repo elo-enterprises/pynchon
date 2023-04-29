@@ -53,13 +53,13 @@ class Json(models.ToolPlugin):
 
     name = 'json'
     priority = -1
-    config_kls = None
+    config_class = None
     cli_name = name
     # cli_includes: typing.List[typing.Callable] = [
     #     render_main.jinja_file,
     # ]
 
-    class config_kls(abcs.Config):
+    class config_class(abcs.Config):
         config_key = 'json'
 
     # @tags(click_aliases=['loads',])
