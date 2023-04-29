@@ -52,24 +52,22 @@ MODULE_REGISTRY = dict()
 from pynchon.abcs.attrdict import AttrDict
 
 
-class ModuleNamespace(AttrDict):
-    """ """
+def get_namespace(name):
+    class ModuleNamespace(AttrDict):
+        """ """
 
-    def __init__(self, name: str = '', **kwargs):
-        assert name
-        assert 'namespace' not in kwargs
-        self.namespace = {}
-        super().__init__(name=name, **kwargs)
+        def __str__(self):
+            return f'<{self.__class__.__name__}[{self.__class__.name}]>'
 
-    def __str__(self):
-        return f'<{self.__class__.__name__}[{self["name"]}]>'
+        __repr__ = __str__
 
-    __repr__ = __str__
+        @property
+        def module(self):
+            result = importlib.import_module(self.__class__.name)
+            return result
 
-    @property
-    def module(self):
-        result = importlib.import_module(self.name)
-        return result
+    ModuleNamespace.name = name
+    return ModuleNamespace()
 
 
 class ModuleBuilderError(ImportError):
@@ -81,7 +79,7 @@ import_spec = collections.namedtuple(
 )
 
 
-class ModuleBuilder(collections.UserDict):
+class ModuleBuilder(object):
     def normalize_import(self, name):
         """ """
         # .pkg.mod.name as bar
@@ -135,8 +133,7 @@ class ModuleBuilder(collections.UserDict):
         ] + name_validators
         self.val_validators = val_validators
         # assert 'namespace' not in kwargs
-        self.namespace = ModuleNamespace(name)
-        super().__init__(name=name)
+        self.namespace = get_namespace(name)
 
     def __str__(self):
         return f'<{self.__class__.__name__}[{self["name"]}]>'
@@ -212,13 +209,19 @@ class ModuleBuilder(collections.UserDict):
         LOGGER.debug(f"imported {len(self.namespace)} items to {self.name}")
 
 
-def module_builder(name: str, **kwargs) -> None:
+def module_builder(
+    name: str,
+    return_objects=False,
+    **kwargs,
+) -> None:
     """ """
     if name not in MODULE_REGISTRY:
         MODULE_REGISTRY[name] = ModuleBuilder(name=name, **kwargs)
     builder = MODULE_REGISTRY[name]
     builder.initialize()
-    return builder.namespace
+    result = builder.namespace
+    result = result.values() if return_objects else result
+    return result
 
 
 def lazy_import(

@@ -13,3 +13,4 @@ trap SystemExit, send event to statusbar
 abstract mcls into interface
 pynchon proj alias
 pynchon proj clean
+py protocols; typing.runtime_checkable
