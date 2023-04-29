@@ -10,13 +10,23 @@ from .meta import Meta
 
 
 class Plugin(object, metaclass=Meta):
+    """ """
+
     priority = 0
+
+    @classmethod
+    def classmethod_dispatch(kls, *args):
+        """ """
+        from multipledispatch import dispatch
+
+        def dec(fxn):
+            return classmethod(dispatch(type(kls), *args)(fxn))
+
+        return dec
 
     def __init__(self, final=None) -> typing.NoneType:
         """ """
         self.final = final
-        # self.config = config
-        # self.state = None
 
     @memoized_property
     def logger(self):

@@ -5,6 +5,7 @@
 from pynchon.api import project
 from pynchon.app import events
 from pynchon.bin import common, entry
+from pynchon.cli import click
 from pynchon.util import typing, importing, lme, text
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
@@ -17,7 +18,9 @@ LOGGER = lme.get_logger(__name__)
 
 
 class PynchonPlugin(AbstractPlugin):
-    """Pynchon-specific plugin-functionality"""
+    """
+    Pynchon-specific plugin-functionality
+    """
 
     cli_label = '<<Abstract>>'
 
@@ -54,12 +57,6 @@ class PynchonPlugin(AbstractPlugin):
         return result
 
 
-import click
-from multipledispatch import dispatch
-
-from pynchon.util import oop
-
-
 class CliPlugin(PynchonPlugin):
     cli_label = '<<Default>>'
     _finalized_click_groups = dict()
@@ -72,58 +69,39 @@ class CliPlugin(PynchonPlugin):
     @typing.classproperty
     def click_group(kls):
         """ """
-        last_group = kls._finalized_click_groups.get(kls, None)
+        cached = kls._finalized_click_groups.get(kls, None)
 
-        if last_group is not None:
-            return last_group
+        if cached is not None:
+            return cached
 
         def plugin_main():
             pass
 
         plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
-        # f"""subcommands for `{kls.name}` plugin"""
-        plugin_main = common.groop(
-            getattr(kls, 'cli_name', kls.name), parent=kls.click_entry
-        )(plugin_main)
+        gname = getattr(kls, 'cli_name', kls.name)
+        groop = common.groop(gname, parent=kls.click_entry)
+        plugin_main = groop(plugin_main)
         kls._finalized_click_groups[kls] = plugin_main
         return plugin_main
 
-    @classmethod
-    @dispatch(type(PynchonPlugin), click.Group)
+    @PynchonPlugin.classmethod_dispatch(click.Group)
     def click_acquire(kls, grp: click.Group):
         """ """
         LOGGER.critical(f"{kls} acquires {grp} to: {parent}")
         raise NotImplementedError("groups are not supported yet!")
 
-    @classmethod
-    @dispatch(type(PynchonPlugin), typing.FunctionType)
+    @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
     def click_acquire(kls, fxn: typing.FunctionType):
         """ """
         msg = f'{kls} acquires naked fxn: {fxn}'
-        # LOGGER.critical(msg)
         assert fxn.__annotations__
-        # for k,v in fxn.__annotations__.items()
-        #     click.option('--output',)
-        kls.click_group.add_command(
-            click.command(f'{fxn.__name__}'.replace('_', '-'))(fxn)
-        )
+        cmd_name = f'{fxn.__name__}'.replace('_', '-')
+        kls.click_group.add_command(click.command(cmd_name)(fxn))
 
-    # default
-    # @classmethod
-    # @dispatch(type(PynchonPlugin), typing.FunctionType)
-    # def click_acquire(kls,
-    #     cmd_or_group: typing.Callable):
-    #     """ """
-    #     err = f'{kls} unrecognized type to acquire: {cmd_or_group}'
-    #     LOGGER.critical(err)
-    #     raise TypeError(err)
-
-    @classmethod
-    @dispatch(type(PynchonPlugin), click.Command)
-    def click_acquire(kls, cmd_or_group: typing.Callable):
+    @PynchonPlugin.classmethod_dispatch(click.Command)
+    def click_acquire(kls, cmd: click.Command):
         """ """
         parent = kls.click_group
-        cmd = cmd_or_group if isinstance(cmd_or_group, click.Command) else None
         LOGGER.info(f"{kls} acquires {cmd} to: {parent}")
         parent.add_command(cmd)
         return parent
@@ -131,11 +109,11 @@ class CliPlugin(PynchonPlugin):
     @classmethod
     def init_cli(kls):
         """ """
-        from pynchon import config
+        # from pynchon import config
         from pynchon.plugins.core import Core
 
         if kls != Core:
-            config.finalize()
+            config_mod.finalize()
 
         obj = kls.instance
         for method_name in kls.__methods__:
@@ -240,11 +218,11 @@ class AbstractPlanner(BasePlugin):
 
     def apply(self, config=None) -> None:
         """Executes the plan for this plugin"""
+        from pynchon.util.os import invoke
+
         # write status event (used by the app-console)
         events.status.update(stage=f"applying for `{self.__class__.name}`")
         plan = self.plan(config=config)
-        from pynchon.util.os import invoke
-
         return [invoke(p).succeeded for p in plan]
 
 
