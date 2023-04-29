@@ -39,8 +39,8 @@ class PynchonPlugin(AbstractPlugin):
     @classmethod
     def get_current_config(kls):
         """class-method: get the current config for this plugin"""
-        assert kls.config_kls
-        conf_key = getattr(kls.config_kls, 'config_key', kls.name)
+        assert kls.config_class
+        conf_key = getattr(kls.config_class, 'config_key', kls.name)
         assert conf_key
         result = getattr(config_mod, conf_key)
         return result
@@ -48,7 +48,7 @@ class PynchonPlugin(AbstractPlugin):
     def config(self):
         """Shows current config for this plugin"""
         kls = self.__class__
-        LOGGER.debug(f"config class: {kls.config_kls}")
+        LOGGER.debug(f"config class: {kls.config_class}")
         LOGGER.debug("current config:")
         result = kls.get_current_config()
         return result

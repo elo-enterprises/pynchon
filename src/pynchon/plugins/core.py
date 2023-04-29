@@ -13,7 +13,7 @@ class Core(models.Planner):
     """Core Plugin"""
 
     name = "core"
-    config_kls = CoreConfig
+    config_class = CoreConfig
     contribute_plan_apply = False
 
     @typing.classproperty
@@ -38,7 +38,7 @@ class Core(models.Planner):
         """ """
         from pynchon import config as config_mod
 
-        result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
+        result = getattr(config_mod, getattr(kls.config_class, 'config_key', kls.name))
         return result
 
     @cli.options.strict

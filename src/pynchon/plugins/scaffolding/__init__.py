@@ -18,7 +18,7 @@ class Scaffolding(models.Manager):
     name = "scaffolding"
     cli_name = 'scaffold'
     defaults = dict()
-    config_kls = ScaffoldingConfig
+    config_class = ScaffoldingConfig
 
     def match(self, pattern=None):
         """

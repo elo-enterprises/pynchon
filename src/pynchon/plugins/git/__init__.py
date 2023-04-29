@@ -14,7 +14,7 @@ class Git(models.Provider):
     priority = 0
     name = 'git'
     defaults: typing.Dict = dict()
-    config_kls = GitConfig
+    config_class = GitConfig
 
     # @classmethod
     # def init_cli(kls):

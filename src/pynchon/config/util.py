@@ -29,7 +29,7 @@ def finalize():
     from pynchon import config as THIS_MODULE
 
     for plugin_kls in plugins:
-        pconf_kls = plugin_kls.config_kls
+        pconf_kls = plugin_kls.config_class
         # plugin_defaults = getattr(plugin_kls,'defaults',None)
         # if plugin_defaults is not None:
         #     raise Exception(plugin_kls)
@@ -40,7 +40,7 @@ def finalize():
         )
         # user_defaults = user_defaults if not
         if pconf_kls is None:
-            LOGGER.warning(f"{plugin_kls} does not define `config_kls`")
+            LOGGER.warning(f"{plugin_kls} does not define `config_class`")
             conf_key = None
             plugin_config = {}
         else:

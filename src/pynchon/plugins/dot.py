@@ -54,7 +54,7 @@ class Dot(models.Planner):
 
     name = "dot"
 
-    class config_kls(abcs.Config):
+    class config_class(abcs.Config):
         config_key = 'dot'
 
     # def render_dot(files, output, in_place, open_after):

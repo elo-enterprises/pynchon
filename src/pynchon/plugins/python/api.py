@@ -17,7 +17,7 @@ class PythonAPI(models.Planner):
 
     name = "python-api"
 
-    class config_kls(abcs.Config):
+    class config_class(abcs.Config):
         config_key = 'python-api'
         defaults = dict()
 

@@ -16,4 +16,4 @@ class Globals(models.Provider):
     priority = 2
     name = 'globals'
     defaults = dict()
-    config_kls = GlobalsConfig
+    config_class = GlobalsConfig

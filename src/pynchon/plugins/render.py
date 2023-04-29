@@ -29,7 +29,7 @@ class Renderers(models.NameSpace):
 
     name = cli_name = 'render'
     defaults = dict()
-    config_kls = None
+    config_class = None
     # cli_includes: typing.List[typing.Callable] = []
     cli_subsumes: typing.List[str] = [
         'pynchon.util.text.render.__main__',
