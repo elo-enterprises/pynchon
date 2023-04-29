@@ -35,7 +35,7 @@ class Jinja(models.Planner):
     name = "jinja"
     defaults = dict()
     config_class = JinjaConfig
-    cli_includes: typing.List[typing.Callable] = [
+    cli_subsumes: typing.List[typing.Callable] = [
         render_main.j2cli,
         render_main.jinja_file,
     ]
