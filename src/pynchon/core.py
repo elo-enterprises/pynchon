@@ -1,4 +1,4 @@
-""" pynchon.config.Core
+""" pynchon.core
 """
 import os
 
@@ -11,7 +11,7 @@ from pynchon import constants
 from pynchon.util import tagging
 
 
-class CoreConfig(abcs.Config):
+class Config(abcs.Config):
     """ """
 
     priority = 1
@@ -42,7 +42,7 @@ class CoreConfig(abcs.Config):
         LOGGER.debug('validating..')
         for k, v in core_config.items():
             self.validate(k, v)
-        super(CoreConfig, self).__init__(**core_config)
+        super(Config, self).__init__(**core_config)
         if 'src_root' not in self:
             raise Exception([self, core_config])
             # import IPython; IPython.embed()
