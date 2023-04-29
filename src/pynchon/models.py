@@ -159,10 +159,7 @@ class CliPlugin(PynchonPlugin):
         help = help.lstrip()
         msg = f"creating command `{name}` for {fxn} {'alias' if alias else ''}"
         if typing.new_in_class(fxn.__name__, kls):
-            _logger = LOGGER.critical
-        else:
-            _logger = LOGGER.info
-        _logger(msg)
+            LOGGER.info(msg)
         tmp = common.kommand(
             name,
             parent=kls.click_group,

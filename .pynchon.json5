@@ -5,45 +5,54 @@
 //  any direct invocations of the `pynchon` CLI
 //  tool, sometimes via `make docs` (which drives the CLI)
 {
+  // BEGIN: top-level config
+  // Everything here is optional.
+  // Literals only; no templating please!
   "src_root": "src",
+
   "src_patterns": [
     "*.py",
   ],
+
   "pkg_name": "pynchon",
+
   "docs_root": "docs",
-  "plugins":[
-    // defaults by type; these dont have to be explicit
-    //   ( provider-defaults )
-    //      * python
-    //      * project
-    //      * git
-    //   ( namespace-defaults )
-    //      * gen
-    //      * render
-    //   ( tool-defaults )
-    //      * json
 
-    // recommended for projects with source-code
-    "fixme", "src-headers",
+  "plugins": [
+    // Plugins that are loaded.
+    // Some things are here implicitly,
+    // since default plugins are added
+    // regardless.  Default providers:
+    // `python`, `project`, `git`.  Default
+    // namespaces: `gen`, `render`.  Default
+    // tools: `json`.
 
-    // standard when there's a python-project
+    // Recommended for projects with source-code
+    "fixme", "todo", "headers",
+
+    // Standard if there's a python-project
     "pypi", "python-api", "python-cli",
 
-    // for projects with intermediate representations
+    // For projects with intermediate representations
     "dot",   // graphviz dot-files
     "jinja", // projects with templated docs
 
-    // for projects management & grooming
-    "scaffolding", // boilerplate-manager
+    // For projects management & grooming
+    "scaffolding", // a boilerplate-manager
   ],
-  // begin globals
+
+
   "globals": {
+    // Global-config.
+    // Well-behaved plugins will honor values here
     "exclude_patterns": [
       ".*[.]pyc",
       "**/build/lib/**",
     ],
-  }, // begin plugins-config
 
+  }, // END top-level config.
+
+  // BEGIN plugins-config
   // Hooks plugin customization.
   "hooks":{},
 

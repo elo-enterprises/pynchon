@@ -24,7 +24,18 @@ def finalize():
         ),
         git=config.GIT,
     )
-    plugins = [get_plugin(pname) for pname in result.pynchon['plugins']]
+    plugins = []
+    from pynchon.plugins.util import PluginNotRegistered
+
+    pnames = result.pynchon['plugins']
+    for pname in pnames:
+        try:
+            tmp = get_plugin(pname)
+        except (PluginNotRegistered,) as exc:
+            LOGGER.critical(exc)
+            continue
+        else:
+            plugins.append(tmp)
     # raise Exception(plugins)
     from pynchon import config as THIS_MODULE
 

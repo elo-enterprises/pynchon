@@ -43,7 +43,7 @@ LOGGER = lme.get_logger(__name__)
 #             fhandle.write(f"{content}\n")
 #     return data
 
-from pynchon.util.text.render import __main__ as render_main
+from pynchon.util.text.loadf import __main__ as loadf_main
 
 
 class Json(models.ToolPlugin):
@@ -55,9 +55,12 @@ class Json(models.ToolPlugin):
     priority = -1
     config_class = None
     cli_name = name
-    # cli_includes: typing.List[typing.Callable] = [
-    #     render_main.jinja_file,
-    # ]
+    cli_includes: typing.List[typing.Callable] = [
+        loadf_main.json5,
+        loadf_main.json,
+        loadf_main.j5,
+        # loadf_main.json,
+    ]
 
     class config_class(abcs.Config):
         config_key = 'json'
