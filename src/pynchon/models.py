@@ -5,11 +5,11 @@
 from pynchon.api import project
 from pynchon.app import events
 from pynchon.bin import common, entry
-from pynchon.util import typing, lme, text
+from pynchon.util import typing, importing, lme, text
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 
-config_mod = typing.lazy_import(
+config_mod = importing.lazy_import(
     'pynchon.config',
 )
 

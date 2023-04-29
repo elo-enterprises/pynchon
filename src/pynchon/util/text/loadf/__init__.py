@@ -1,5 +1,24 @@
-""" pynchon.util.text.render
+""" pynchon.util.text.loadf
+
+    Helpers for loading data structures from files
 """
+from pynchon.util.text import loads
+
+
+def json5(file: str = '', content: str = '') -> dict:
+    """
+    loads json5 from file
+    """
+    if file:
+        assert not content
+        if not os.path.exists(file):
+            raise ValueError(f'file @ {file} is missing!')
+        with open(file, 'r') as fhandle:
+            content = fhandle.read()
+    data = loads.json5(content)
+    return data
+
+
 import os
 
 import jinja2
@@ -28,8 +47,8 @@ def shell_helper(*args, **kwargs) -> typing.StringMaybe:
     # var='WRAPPER_KEY',
     default='',
 )
-@options.option_output
-@options.option_print
+@options.output
+@options.should_print
 @click.option('--pull', help='when provided, this key will be output', default='')
 @click.option(
     '--push-data', help='(string) this raw data will be added to output', default=''
@@ -88,12 +107,11 @@ def json5_load(
     else:
         msg = text.to_json(out)
     print(msg, file=open(output, 'w'))
-
     if should_print and output != '/dev/stdout':
         print(msg)
 
 
-def load_json(file: str = '', content: str = '') -> dict:
+def json(file: str = '', content: str = '') -> dict:
     """
     loads json to python dictionary from given file or string
     """
@@ -104,7 +122,7 @@ def load_json(file: str = '', content: str = '') -> dict:
         with open(file, 'r') as fhandle:
             content = fhandle.read()
     try:
-        data = json.loads(content)
+        data = loads.json(content)
         # data = pyjson5.loads(content)
     # except (pyjson5.Json5EOF,) as exc:
     except (ValueError,) as exc:

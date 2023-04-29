@@ -13,6 +13,7 @@ LOGGER = lme.get_logger(__name__)
 
 mregistry = module_builder(
     __name__,
+    events=events,
     import_children=True,
     name_validators=[
         lambda n: not n.startswith('_'),
@@ -22,9 +23,6 @@ mregistry = module_builder(
         lambda val: typing.is_subclass(val, abcs.Plugin),
         lambda val: val.name in config.PLUGINS,
     ],
-)
-mregistry.initialize(
-    events=events,
 )
 
 
