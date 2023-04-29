@@ -1,12 +1,21 @@
-"""
+""" pynchon.plugins.files
 """
 from pynchon import abcs, models
 
 
-class FileHeaders(models.Planner):
-    """Mutates {src} files to add header"""
+class SrcHeaders(models.Planner):
+    """Plans changes for files under {src_root}"""
 
-    name = 'file-headers'
+    name = 'src-headers'
+    cli_name = 'src-file'
 
     class config_kls(abcs.Config):
-        config_key = 'file-headers'
+        config_key = 'src-headers'
+
+
+# # -*- coding: utf-8 -*-
+#
+# """Module documentation goes here
+#    and here
+#    and ...
+# """

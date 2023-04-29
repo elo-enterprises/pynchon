@@ -2,10 +2,10 @@
 """
 # from pynchon import abcs
 from pynchon.app import events
+from pynchon.core import Config as CoreConfig
 from pynchon.util import lme  # typing
 from pynchon.abcs.plugin import Meta
 from pynchon.abcs.visitor import JinjaDict
-from pynchon.plugins.core import CoreConfig
 
 from .util import config_folders  # noqa
 from .util import load_config_from_files  # noqa

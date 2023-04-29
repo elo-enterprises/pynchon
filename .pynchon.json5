@@ -21,7 +21,7 @@
     //      * json
 
     // recommended for projects with source-code
-    "fixme", "file-headers",
+    "fixme", "src-headers",
 
     // standard when there's a python-project
     "pypi", "python-api", "python-cli",

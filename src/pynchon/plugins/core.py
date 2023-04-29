@@ -1,11 +1,10 @@
 """ pynchon.plugins.Core
 """
-from pynchon import models
+from pynchon import models, cli
 from pynchon.api import project
 from pynchon.bin import entry
+from pynchon.core import Config as CoreConfig
 from pynchon.util import lme, typing
-
-from .config import CoreConfig
 
 LOGGER = lme.get_logger(__name__)
 
@@ -41,6 +40,15 @@ class Core(models.Planner):
 
         result = getattr(config_mod, getattr(kls.config_kls, 'config_key', kls.name))
         return result
+
+    @cli.options.strict
+    def bootstrap(self, strict: bool = False) -> None:
+        """
+        bootstrappery
+        """
+        import IPython
+
+        IPython.embed()
 
     def raw(self) -> None:
         """
