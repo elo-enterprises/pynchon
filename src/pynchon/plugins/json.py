@@ -23,7 +23,6 @@ LOGGER = lme.get_logger(__name__)
 # files_arg = click.argument("files", nargs=-1)
 # from pynchon.util.tagging import tags
 
-from pynchon.util.text import __main__ as text_main
 
 # def j5(
 #     file,
@@ -44,19 +43,21 @@ from pynchon.util.text import __main__ as text_main
 #             fhandle.write(f"{content}\n")
 #     return data
 
+from pynchon.util.text.render import __main__ as render_main
+
 
 class Json(models.ToolPlugin):
     """
     Tools for working with JSON & JSON5
     """
 
-    priority = -1
     name = 'json'
+    priority = -1
     config_kls = None
     cli_name = name
-    cli_includes: typing.List[typing.Callable] = [
-        text_main.json5_load,
-    ]
+    # cli_includes: typing.List[typing.Callable] = [
+    #     render_main.jinja_file,
+    # ]
 
     class config_kls(abcs.Config):
         config_key = 'json'

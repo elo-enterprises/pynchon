@@ -4,7 +4,7 @@ from pynchon import abcs, models
 
 
 class FileHeaders(models.Planner):
-    """Adds a standard file-header to project source-files"""
+    """Mutates {src} files to add header"""
 
     name = 'file-headers'
 

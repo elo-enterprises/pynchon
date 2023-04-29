@@ -10,7 +10,7 @@ tags = tagging.tags
 LOGGER = lme.get_logger(__name__)
 
 
-class Scaffolding(models.ShyPlanner):
+class Scaffolding(models.Manager):
     """Management tool for project boilerplate"""
 
     contribute_plan_apply = False

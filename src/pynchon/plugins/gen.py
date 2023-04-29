@@ -6,13 +6,12 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 
 
-class Generators(models.CliAliases):
+class Generators(models.NameSpace):
     """
-    Namespace for rendering docs-generation commands from other plugins
+    Collects `gen` commands from other plugins
     """
 
     name = cli_name = 'gen'
-    defaults = dict()
     priority = -1
     config_kls = None
     cli_includes: typing.List[typing.Callable] = []

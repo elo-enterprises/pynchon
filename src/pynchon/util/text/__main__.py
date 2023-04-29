@@ -8,12 +8,15 @@ from pynchon.util.os import invoke
 LOGGER = lme.get_logger(__name__)
 
 
-def entry() -> None: pass
-entry.__doc__ = (__doc__ or "")
+def entry() -> None:
+    pass
 
 
-from .render.__main__ import entry as render
+entry.__doc__ = __doc__ or ""
+
+
 from .loadf.__main__ import entry as loadf
+from .render.__main__ import entry as render
 
 #
 # @entry.group('loads')
@@ -39,7 +42,6 @@ from .loadf.__main__ import entry as loadf
 #     helpers for interacting with `j2`.
 #     (assumes j2cli is installed already)
 #     """
-
 
 
 # entry.add_command(click.Command(json5_load, name='load-json5'))
