@@ -7,6 +7,7 @@ import jinja2
 DEFAULT_PLUGINS = [
     # WARNING: edit src/pynchon/plugins/__init__ to add import..
     "core",
+    "plugins",
     "project",
     "globals",
     "git",

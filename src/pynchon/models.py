@@ -87,13 +87,13 @@ class CliPlugin(PynchonPlugin):
     @PynchonPlugin.classmethod_dispatch(click.Group)
     def click_acquire(kls, grp: click.Group):
         """ """
-        LOGGER.critical(f"{kls} acquires {grp} to: {parent}")
+        LOGGER.critical(f"{kls.__name__} acquires group@`{grp.name}` to: parent@`{parent.name}`")
         raise NotImplementedError("groups are not supported yet!")
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
     def click_acquire(kls, fxn: typing.FunctionType):
         """ """
-        msg = f'{kls} acquires naked fxn: {fxn}'
+        msg = f'{kls.__name__} acquires naked fxn: {fxn.__name__}'
         assert fxn.__annotations__
         cmd_name = f'{fxn.__name__}'.replace('_', '-')
         kls.click_group.add_command(click.command(cmd_name)(fxn))
@@ -102,27 +102,36 @@ class CliPlugin(PynchonPlugin):
     def click_acquire(kls, cmd: click.Command):
         """ """
         parent = kls.click_group
-        LOGGER.info(f"{kls} acquires {cmd} to: {parent}")
+        LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")
         parent.add_command(cmd)
         return parent
 
     @classmethod
     def init_cli(kls):
         """ """
-        # from pynchon import config
+        LOGGER.info(f"{kls.__name__}.init_cli:")
         from pynchon.plugins.core import Core
 
         if kls != Core:
             config_mod.finalize()
 
         obj = kls.instance
+        if obj is None:
+            err=f"{kls.__name__}.`instance` is not ready?"
+            LOGGER.critical(err)
+            raise ValueError(err)
         for method_name in kls.__methods__:
-            fxn = getattr(obj, method_name)
-            assert fxn, f'retrieved empty {method_name} from {obj}'
+            # LOGGER.info(f"  {kls.__name__}.init_cli: {method_name}")
+            fxn = obj and getattr(obj, method_name,None)
+            if fxn is None:
+                msg = f'    retrieved empty `{method_name}` from {obj}!'
+                LOGGER.critical(msg)
+                raise TypeError(msg)
+
             tags = getattr(obj, 'tags', None)
             tags = tags.get_tags(fxn) if tags is not None else {}
             click_aliases = tags.get('click_aliases', []) if tags else []
-            # @functools.wraps(fxn)
+
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
                 result = fxn(*args, **kwargs)
@@ -141,7 +150,7 @@ class CliPlugin(PynchonPlugin):
     def init_cli_children(kls):
         """ """
         cli_subsumes = getattr(kls, 'cli_subsumes', [])
-        cli_subsumes and LOGGER.debug(f"{kls} honoring `cli_subsumes`: {cli_subsumes}")
+        cli_subsumes and LOGGER.info(f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}")
         for fxn in cli_subsumes:
             kls.click_acquire(fxn)
 
@@ -154,7 +163,7 @@ class CliPlugin(PynchonPlugin):
         name = name.replace('_', '-')
         help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
         help = help.lstrip()
-        msg = f"creating command `{name}` for {fxn} {'alias' if alias else ''}"
+        msg = f"    click_create_cmd `{name}` for {fxn.__name__} {'(alias)' if alias else ''}"
         if typing.new_in_class(fxn.__name__, kls):
             LOGGER.info(msg)
         tmp = common.kommand(

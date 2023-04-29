@@ -20,11 +20,10 @@ class PluginNotConfigured(RuntimeError):
 
 def get_plugin_meta(plugin_name: str) -> typing.Dict:
     from pynchon.plugins import registry
-
     try:
         return registry[plugin_name]
     except KeyError:
-        LOGGER.critical(f"available plugins: {registry.keys()}")
+        # LOGGER.critical(f"available plugins: {registry.keys()}")
         raise PluginNotRegistered(plugin_name)
 
 

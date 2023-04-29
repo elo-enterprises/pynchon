@@ -39,6 +39,7 @@
 
     // For projects management & grooming
     "scaffolding", // a boilerplate-manager
+    "cookie-cutter", // helpers for cookie-cutter
   ],
 
 

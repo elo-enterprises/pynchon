@@ -40,7 +40,10 @@ def finalize():
     from pynchon import config as THIS_MODULE
 
     for plugin_kls in plugins:
-        pconf_kls = plugin_kls.config_class
+        pconf_kls = getattr(plugin_kls, 'config_class', None)
+        if pconf_kls is None:
+            LOGGER.critical(f"{plugin_kls.__name__}.`config_class` not set!")
+            continue
         # plugin_defaults = getattr(plugin_kls,'defaults',None)
         # if plugin_defaults is not None:
         #     raise Exception(plugin_kls)

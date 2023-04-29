@@ -225,7 +225,7 @@ class ModuleBuilder(object):
                         self.namespace[assignment] = val
                         if self.assign_objects:
                             getattr(module, assignment, val)
-        LOGGER.debug(f"imported {len(self.namespace)} items to {self.name}")
+        LOGGER.info(f"imported {len(self.namespace)} items to {self.name}")
 
     def validate_assignment(self, assignment):
         """ """
@@ -254,8 +254,7 @@ def module_builder(
 
 
 def registry_builder(name, itemizer=None, **kargs):
-    """
-    """
+    """ """
     built = module_builder(name, **kargs)
     return dict(itemizer(obj) for obj in built)
 

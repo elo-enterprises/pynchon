@@ -11,9 +11,8 @@ LOGGER = lme.get_logger(__name__)
 
 registry = importing.registry_builder(
     __name__,
-
     # kwargs for reg-builder
-    itemizer = lambda plugin_kls: [plugin_kls.name, dict(obj=None, kls=plugin_kls)],
+    itemizer=lambda plugin_kls: [plugin_kls.name, dict(obj=None, kls=plugin_kls)],
     # kwargs for mod-builder
     return_objects=True,
     assign_objects=True,
@@ -22,9 +21,7 @@ registry = importing.registry_builder(
     ),
     import_children=True,
     exclude_names='git'.split(),  # FIXME: hack
-    init_hooks=[
-        lambda msg: [LOGGER.critical(msg), events.status.update(stage=msg)]
-    ],
+    init_hooks=[lambda msg: [LOGGER.critical(msg), events.status.update(stage=msg)]],
     filter_types=[abcs.Plugin],
     fitler_vals=[
         lambda val: val.name in config.PLUGINS,
