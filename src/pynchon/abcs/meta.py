@@ -27,11 +27,13 @@ class Meta(type):
         tspec:type_spec=None,
     ):
         """
-        aggregate_across_basesegates values at `var` across all bases
+        aggregates values at `var` across all bases
         """
         tracked = tspec.namespace.get(var, [])
         for b in tspec.bases:
-            tracked += getattr(b, var, [])
+            bval=getattr(b, var, [])
+            assert isinstance(bval,list),bval
+            tracked += bval
         return tracked
 
     @classmethod

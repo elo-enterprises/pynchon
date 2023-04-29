@@ -4,11 +4,14 @@ reimpl
   plugin/python-cli/config.`entrypoints` (fix dotpath resolution)
 
 impl
+  app model
+  colorize help output
+  sort help output
+  @click.guess_options_from_fxn()
   p --get --set --plugins
   alias config to cfg
   sys alias pynchon p
   pynchon proj alias
-  app model
   plugin/proj/clean
   plugin/planner/jinja/tpl
   plugin/planner/jinja/list
