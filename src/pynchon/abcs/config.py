@@ -51,13 +51,13 @@ class Config(
 
     def resolve_conflicts(self, conflicts):
         """ """
-        conflicts and LOGGER.debug("resolving conflicts..")
+        conflicts and LOGGER.info(f"'{self.config_key}' is resolving conflicts..")
         for pname in conflicts:
             prop = getattr(self.__class__, pname)
             strategy = tags.get(prop, {}).get('conflict_strategy', 'user_wins')
             if strategy == 'user_wins':
                 self.logger.info(
-                    f"property for {pname} exists,"
+                    f"'{self.config_key}.{pname}' has prop-def,"
                     " but provided kwargs overrides them"
                 )
             elif strategy == 'override':

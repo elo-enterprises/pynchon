@@ -107,7 +107,7 @@ class ModuleBuilder(object):
             package=package,
             relative=relative,
         )
-        LOGGER.critical(result)
+        # LOGGER.critical(result)
         return result
 
     def __init__(

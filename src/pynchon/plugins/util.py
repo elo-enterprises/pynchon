@@ -13,6 +13,10 @@ class PluginNotRegistered(RuntimeError):
     pass
 
 
+class PluginNotConfigured(RuntimeError):
+    pass
+
+
 def get_plugin_meta(plugin_name: str) -> typing.Dict:
     from pynchon.plugins import registry
 

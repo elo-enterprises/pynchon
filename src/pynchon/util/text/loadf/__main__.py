@@ -34,9 +34,9 @@ def json_load(
 
 
 entry = click.group('loadf')(entry)
-entry.command('json')(json_load)
-entry.command('json5')(THIS.json5)
-entry.command('j5')(THIS.json5)
+json = entry.command('json')(json_load)
+json5 = entry.command('json5')(THIS.json5)
+j5 = entry.command('j5')(THIS.json5)
 
 if __name__ == '__main__':
     entry()
