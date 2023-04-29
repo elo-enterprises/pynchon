@@ -6,6 +6,9 @@
 //  tool, sometimes via `make docs` (which drives the CLI)
 {
   "src_root": "src",
+  "src_patterns": [
+    "*.py",
+  ],
   "pkg_name": "pynchon",
   "docs_root": "docs",
   "plugins":[
@@ -39,24 +42,38 @@
       ".*[.]pyc",
       "**/build/lib/**",
     ],
-  },
-  // begin plugins-config
+  }, // begin plugins-config
+
+  // Hooks plugin customization.
+  "hooks":{},
+
+  // Dot (graphviz) plugin customization.
   "dot":{},
-  "fixme":{
-    // will include `globals.exclude_patterns`
+
+  // FixMe plugin customization.
+  "fixme": {
     "exclude_patterns": [
+       // allows {paths|globs|tmpl}
+      // will include `globals.exclude_patterns`
       "**/*.egg-info/**",
       "src/pynchon/plugins/fixme/**",
       "src/pynchon/templates/**",
     ],
   },
+
+  // PythonAPI plugin customization.
   "python-api":{
     "skip_private_methods": true,
     "skip_patterns": [],
   },
+
+  // Scaffolding plugin customization.
   "scaffolding":{
-    "exclude_patterns": [],
+    "exclude_patterns": [
+      // includes globals
+    ],
     "scaffolds":[
+      // list of Scaffolds-objects
       {
         "name": "subproject tox.ini's",
         "pattern": "**/tox.ini",
@@ -65,14 +82,33 @@
        },
      ],
    },
+
+   // Scaffolding plugin customization.
    "jinja":{
+     "context_vars": {
+        // allows {tpls|json}
+       // extra context-vars passed for renders
+      },
+
+     "filter_includes": [
+       // allows {tpls|paths|globs}
+      // where to load jinja filters from
+     ],
+
     "exclude_patterns": [
-        "**/pynchon/templates/**",
+       // allows {tpls|paths|globs}
+      // files that shouldn't show up in plans
+      "{{pynchon.src_root}}/pynchon/templates/**",
     ],
-    "includes": [
+
+    "template_includes": [
+       // allows {tpls|paths|globs}
+      // paths to load templates from
       "{{pynchon.docs_root}}/includes",
     ],
   },
+
+  // Scaffolding plugin customization.
   "pypi": {
     "name":"THE public PyPI"
   }
