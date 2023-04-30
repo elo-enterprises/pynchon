@@ -37,7 +37,7 @@ class ModuleBuilder(models.ModulesWrapper):
 
     def filter(self, **filter):
         """ """
-        models.ModulesWrapper.filter(self,**filter)
+        models.ModulesWrapper.filter(self, **filter)
         self.logger.info(f"imported {len(self.namespace)} items to {self.name}")
 
 
@@ -63,18 +63,13 @@ builder = module_builder
 build = builder
 
 
-def wrap(
-    name,
-    **kwargs
-):
+def wrap(name, **kwargs):
     # from types import ModuleType
     if isinstance(name, (typing.ModuleType)):
         mod = name
         name = mod.__name__
         # kwargs['import_mods'] = list(set(kwargs.pop('import_mods',[])+[name]))
-    result = models.ModulesWrapper(
-        name,
-        import_names=[f'{name}.*'],**kwargs)
+    result = models.ModulesWrapper(name, import_names=[f'{name}.*'], **kwargs)
     return result
 
 
@@ -83,7 +78,9 @@ wrapper = wrap
 
 def registry_builder(name, itemizer=None, **kargs):
     """ """
-    wrapped = wrap(name,)
+    wrapped = wrap(
+        name,
+    )
     return wrapped
     # return dict(itemizer(obj) for obj in built)
 

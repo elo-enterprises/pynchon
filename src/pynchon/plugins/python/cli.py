@@ -3,7 +3,6 @@
 from pynchon import shimport, abcs, models
 from pynchon.util import typing, lme
 
-
 config_mod = shimport.lazy(
     'pynchon.config',
 )

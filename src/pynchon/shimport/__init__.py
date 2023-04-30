@@ -7,4 +7,4 @@ from .module import *
 
 module = mod_module.wrapper
 lazy = lazy_import
-registry =registry_builder
+registry = registry_builder

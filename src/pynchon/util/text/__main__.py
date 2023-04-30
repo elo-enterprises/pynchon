@@ -21,9 +21,8 @@ for ch in subs:
     setattr(
         THIS,
         ch.name.replace('.__main__', '').split('.')[-1],
-
-        #FIXME: why, access should be safe based on filter
-        getattr(ch.module, 'entry', None)
+        # FIXME: why, access should be safe based on filter
+        getattr(ch.module, 'entry', None),
     )
 
 if __name__ == '__main__':

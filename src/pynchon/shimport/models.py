@@ -33,7 +33,9 @@ def get_namespace(name):
     ModuleNamespace.name = name
     return ModuleNamespace()
 
+
 import logging
+
 
 class ModulesWrapper(object):
     class Error(ImportError):
@@ -102,21 +104,23 @@ class ModulesWrapper(object):
     def do_import(self, package):
         """ """
         return importlib.import_module(package)
+
     @property
     def parent_folder(self):
         return Path(self.module.__file__).parents[0]
 
     @property
     def parent(self):
-        return self.__class__(
-            name='.'.join(
-            self.name.split('.')[:-1]))
+        return self.__class__(name='.'.join(self.name.split('.')[:-1]))
 
     def select(self, **filter_kwargs):
-        tmp = list(self.filter(
-            # return_values=True,
-            **filter_kwargs))
-        assert len(tmp)==1
+        tmp = list(
+            self.filter(
+                # return_values=True,
+                **filter_kwargs
+            )
+        )
+        assert len(tmp) == 1
         return tmp[0]
 
     def validate_assignment(self, assignment):
@@ -135,20 +139,22 @@ class ModulesWrapper(object):
     def prune(self, **filters):
         self.namespace = self.filter(**filters)
         return self
+
     def filter_folder(
         self,
-        include_main:str=True,
+        include_main: str = True,
         exclude_private=True,
-        filter:typing.Dict={},
-        select:typing.Dict={},
+        filter: typing.Dict = {},
+        select: typing.Dict = {},
         merge_filters=False,
         # rekey=None,
         # return_values=None,
     ):
-        """
-        """
-        import glob, os
-        p = self.parent_folder/'**/*.py'
+        """ """
+        import os
+        import glob
+
+        p = self.parent_folder / '**/*.py'
         result = glob.glob(str(p))
         result = [Path(x) for x in result]
         main = [x for x in result if x.stem == '__main__']
@@ -159,25 +165,25 @@ class ModulesWrapper(object):
         children = []
         for p in result:
             rel = p.relative_to(self.parent_folder)
-            rel = rel.parents[0]/rel.stem
+            rel = rel.parents[0] / rel.stem
             rel = str(rel).replace(os.path.sep, '.')
             dotpath = f"{self.name}.{rel}"
-            child = ModulesWrapper(
-                name=dotpath,
-                import_mods=[dotpath])
+            child = ModulesWrapper(name=dotpath, import_mods=[dotpath])
             children.append(child)
         if not (filter or select):
             return children
         else:
             result = []
-            assert bool(filter)^bool(select)
+            assert bool(filter) ^ bool(select)
             filter_results = []
             for child in children:
                 fxn = child.filter if filter else child.select
                 kwargs = filter if filter else select
                 matches = fxn(**kwargs)
                 if matches:
-                    import IPython; IPython.embed()
+                    import IPython
+
+                    IPython.embed()
                     filter_results.append([child, matches])
                     result.append(child)
             if not merge_filters:
@@ -235,7 +241,7 @@ class ModulesWrapper(object):
             filter_vals=filter_vals,
             filter_names=filter_names,
             # return_values=return_values,
-            **kwargs
+            **kwargs,
         )
 
     def run_filter(self, validator, arg):
@@ -253,7 +259,9 @@ class ModulesWrapper(object):
     def namespace_modified_hook(self, assignment, val):
         """ """
 
-    def import_side_effects(self,):
+    def import_side_effects(
+        self,
+    ):
         import_statements = []
         for name in self.import_mods:
             spec = self.normalize_import(name)
@@ -312,7 +320,7 @@ class ModulesWrapper(object):
                         namespace[assignment] = val
                         self.namespace_modified_hook(assignment, val)
         if rekey:
-            return dict([ rekey(v) for v in namespace.values()])
+            return dict([rekey(v) for v in namespace.values()])
         return namespace
 
 

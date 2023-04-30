@@ -12,18 +12,18 @@ from .util import get_plugin, get_plugin_obj  # noqa
 
 events = blinker.signal(f'lifecycle-{__name__}')
 LOGGER = lme.get_logger(__name__)
-registry = shimport.wrap(
-    __name__, import_children=True).prune(
+registry = (
+    shimport.wrap(__name__, import_children=True)
+    .prune(
         exclude_names='git'.split(),  # FIXME: hack
         filter_types=[abcs.Plugin],
         filter_vals=[
             lambda val: val.name in config.PLUGINS,
         ],
-        rekey=lambda plugin_kls: [
-            plugin_kls.name,
-            dict(obj=None, kls=plugin_kls)
-        ],
-    ).namespace #.assign_back()
+        rekey=lambda plugin_kls: [plugin_kls.name, dict(obj=None, kls=plugin_kls)],
+    )
+    .namespace
+)  # .assign_back()
 
 # import IPython; IPython.embed()
 # registry.assign_back()
