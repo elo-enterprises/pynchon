@@ -55,12 +55,12 @@ class Json(models.ToolPlugin):
     priority = -1
     config_class = None
     cli_name = name
-    cli_subsumes: typing.List[typing.Callable] = [
-        loadf_main.json5,
-        loadf_main.json,
-        loadf_main.j5,
-        # loadf_main.json,
-    ]
+    # cli_subsumes: typing.List[typing.Callable] = [
+    #     loadf_main.json5,
+    #     loadf_main.json,
+    #     loadf_main.j5,
+    #     # loadf_main.json,
+    # ]
 
     class config_class(abcs.Config):
         config_key = 'json'

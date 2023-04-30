@@ -1,4 +1,4 @@
-""" pynchon.bin.common:
+""" pynchon.cli.common:
     Common options/arguments and base classes for CLI
 """
 # import io
@@ -112,6 +112,23 @@ class format_handler(handler):
         return msg
 
 
+def entry_for(
+    name,
+):
+    # from pynchon import shimport
+    import importlib
+
+    unf = importlib.import_module(name)
+    mdoc = unf.__doc__
+
+    def entry() -> typing.NoneType:
+        pass
+
+    entry.__doc__ = (mdoc or "").lstrip()
+    entry = click.group(name.split('.')[-1])(entry)
+    return entry
+
+
 class kommand(object):
     """ """
 
@@ -197,7 +214,10 @@ class kommand(object):
             f = opt(f)
         for arg in self.arguments:
             f = arg(f)
-
+        click_params = getattr(fxn, '__click_params__', [])
+        # import IPython; IPython.embed()
+        # for opt_or_arg in click_params:
+        #     f=opt_or_arg(f)
         return f
 
 

@@ -1,35 +1,30 @@
 """ pynchon.util.text CLI
 """
 from pynchon import shimport
-from pynchon.cli import click
-from pynchon.util import text as THIS
+from pynchon.cli import click, common
 from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
+entry = common.entry_for(__name__)
 
+from pynchon.util import text as THIS
 
-def entry() -> typing.NoneType:
-    pass
-
-
-entry.__doc__ = __doc__ or ""
-
-# FIXM: use THIS = importing.cli_builder(..)
-THIS = shimport.module.builder(
-    __name__,
-    assign_objects=True,
-    # import_main_entry = [
-    #     f'{THIS.__name__}.loadf',
-    # ],
-    import_names=[
-        # FIXME:
-        # f'.loadf.__main__.entry as loadf',
-        f'{THIS.__name__}.loadf.__main__.entry as loadf',
-        f'{THIS.__name__}.render.__main__.entry as render',
-    ],
+subs = shimport.module(THIS).filter_folder(
+    include_main=True,
+    merge_filters=True,
+    select=dict(
+        name_is='entry',  # default
+    ),
 )
+raise Exception(subs)
+for ch in subs:
+    setattr(
+        THIS,
+        ch.name.replace('.__main__', '').split('.')[-1],
 
-entry = click.group()(entry)
+        #FIXME: why, access should be safe based on filter
+        getattr(ch.module, 'entry', None)
+    )
 
 if __name__ == '__main__':
     click.group_copy(THIS.render, entry)

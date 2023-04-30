@@ -2,137 +2,49 @@
 """
 import importlib
 
-from pynchon.util import lme, typing
+from pynchon.util import typing
 from pynchon.abcs.path import Path
 
 from . import models
 
-LOGGER = lme.get_logger(__name__)
-
 MODULE_REGISTRY = dict()
 
-class ModuleBuilder(models.ModuleWrapper):
+
+class ModuleBuilder(models.ModulesWrapper):
     @typing.validate_arguments
     def __init__(
         self,
         name: str = '',
         init_hooks: typing.List = [],
-        import_children: bool = False,
         assign_objects: bool = True,
-        filter_failure_raises: bool = True,
-        exclude_private: bool = True,
-        name_filters: typing.List[typing.Callable] = [],
-        fitler_vals: typing.List[typing.Callable] = [],
-        import_mods: typing.List[str] = [],
-        import_names: typing.List[str] = [],
-        import_subs: typing.List[str] = [],
-        filter_types: typing.List[type(type)] = [],
-        exclude_names: typing.List[str] = [],
+        **kwargs,
     ):
-        models.ModuleWrapper.__init__(self, name=name)
+        models.ModulesWrapper.__init__(self, name=name, **kwargs)
         self.init_hooks = init_hooks
-        self.import_mods = import_mods
-        self.import_names = import_names
-        self.import_subs = import_subs
-        self.import_children = import_children
-        self.filter_failure_raises = filter_failure_raises
-        self.exclude_private = exclude_private
-        self.exclude_names = exclude_names
-        self.filter_types = filter_types
-        if self.exclude_private:
-            self.name_filters = [lambda name: not name.startswith('__')] + name_filters
-        if self.exclude_names:
-            self.name_filters = [
-                lambda n: n not in self.exclude_names,
-            ] + name_filters
-
-        self.fitler_vals = fitler_vals
-        if self.filter_types:
-            self.fitler_vals = [
-                lambda val: any(
-                    [typing.is_subclass(val, ty) for ty in self.filter_types]
-                )
-            ] + fitler_vals
-        self.namespace = models.get_namespace(name)
         self.assign_objects = assign_objects
 
-    def run_filter(self, validator, arg):
-        """
-        wrapper to honor `filter_failure_raises`
-        """
-        test = False
-        try:
-            test = validator(arg)
-        except:
-            if self.filter_failure_raises:
-                raise
-        return test
-
-    def initialize(self):
+    def initialize(self, **filters):
         """ """
         # FIXME: leaky abstraction
         msg = f"Building module-registry for {self.name}.."
         [h(msg) for h in self.init_hooks]
+        return self.filter(**filters)
 
-        module = self.module
-        import_statements = []
-        for name in self.import_mods:
-            spec = self.normalize_import(name)
-            assignment = spec.assignment or spec.var
-            submod = importlib.import_module(spec.package)
-            self.namespace[assignment] = submod
-            if self.assign_objects:
-                setattr(module, assignment, submod)
+    def namespace_modified_hook(self, assignment, val):
+        if self.assign_objects:
+            self.validate_assignment(assignment)
+            setattr(self.module, assignment, val)
 
-        for name in self.import_names:
-            import_statements.append(self.normalize_import(name))
-
-        if self.import_children:
-            mod_file = self.module.__file__
-            children = []
-            for child in Path(mod_file).siblings():
-                child = Path(child).stem
-                if not child.startswith('__'):
-                    self.import_subs.append(child)
-
-        for name in self.import_subs:
-            import_statements.append(self.normalize_import(f".{name}.*"))
-
-        import_statements = list(set(import_statements))
-
-        for st in import_statements:
-            submod = self.do_import(st.package)
-            vars = dir(submod) if st.star else [st.var]
-            for var in vars:
-                assert isinstance(var, str), var
-                for validator in self.name_filters:
-                    if not self.run_filter(validator, var):
-                        break
-                else:  # name is ok
-                    val = getattr(submod, var)
-                    for validator in self.fitler_vals:
-                        if not self.run_filter(validator, val):
-                            break
-                    else:  # name/val is ok
-                        assignment = st.assignment or var
-                        self.validate_assignment(assignment)
-                        self.namespace[assignment] = val
-                        if self.assign_objects:
-                            getattr(module, assignment, val)
-        LOGGER.info(f"imported {len(self.namespace)} items to {self.name}")
-
-    def validate_assignment(self, assignment):
+    def filter(self, **filter):
         """ """
-        if assignment in dir(self.module):
-            msg = f'refusing to override existing value in target module: {assignment}'
-            LOGGER.critical(msg)
-            err = f'cannot assign name `{assignment}` to {self.module}; already exists!'
-            raise ModuleBuilder.Error(err)
+        models.ModulesWrapper.filter(self,**filter)
+        self.logger.info(f"imported {len(self.namespace)} items to {self.name}")
 
 
 def module_builder(
     name: str,
     return_objects=False,
+    assign_objects: bool = True,
     sort_objects: typing.Dict = {},
     **kwargs,
 ) -> None:
@@ -147,13 +59,37 @@ def module_builder(
     return result
 
 
+builder = module_builder
+build = builder
+
+
+def wrap(
+    name,
+    **kwargs
+):
+    # from types import ModuleType
+    if isinstance(name, (typing.ModuleType)):
+        mod = name
+        name = mod.__name__
+        # kwargs['import_mods'] = list(set(kwargs.pop('import_mods',[])+[name]))
+    result = models.ModulesWrapper(
+        name,
+        import_names=[f'{name}.*'],**kwargs)
+    return result
+
+
+wrapper = wrap
+
+
 def registry_builder(name, itemizer=None, **kargs):
     """ """
-    built = module_builder(name, **kargs)
-    return dict(itemizer(obj) for obj in built)
+    wrapped = wrap(name,)
+    return wrapped
+    # return dict(itemizer(obj) for obj in built)
 
 
 registry = registry_builder
+build_registry = registry_builder
 
 
 def lazy_import(

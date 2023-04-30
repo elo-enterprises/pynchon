@@ -12,7 +12,7 @@ from pynchon.util import lme, typing  # noqa
 # import click
 
 
-plugins = shimport.module.lazy_import(
+plugins = shimport.lazy(
     'pynchon.plugins',
 )
 

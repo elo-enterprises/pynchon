@@ -5,15 +5,15 @@
 from pynchon import shimport
 from pynchon.api import project
 from pynchon.app import app
-from pynchon.bin import common, entry
-from pynchon.cli import click
+from pynchon.bin import entry
+from pynchon.cli import click, common, options
 from pynchon.util import typing, lme, text
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 
 from pynchon.util import lme, typing  # noqa
 
-config_mod = shimport.module.lazy_import(
+config_mod = shimport.lazy(
     'pynchon.config',
 )
 

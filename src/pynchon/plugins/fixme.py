@@ -2,11 +2,8 @@
 """
 from fnmatch import fnmatch
 
-import click
-
 from pynchon import constants, abcs, models
-from pynchon.bin import common
-from pynchon.cli import options
+from pynchon.cli import click, options, common
 from pynchon.util import typing, lme
 from pynchon.util.os import invoke
 

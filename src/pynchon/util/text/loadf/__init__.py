@@ -2,23 +2,6 @@
 
     Helpers for loading data structures from files
 """
-from pynchon.util.text import loads
-
-
-def json5(file: str = '', content: str = '') -> dict:
-    """
-    loads json5 from file
-    """
-    if file:
-        assert not content
-        if not os.path.exists(file):
-            raise ValueError(f'file @ {file} is missing!')
-        with open(file, 'r') as fhandle:
-            content = fhandle.read()
-    data = loads.json5(content)
-    return data
-
-
 import os
 
 import jinja2
@@ -29,8 +12,23 @@ from pynchon import abcs
 from pynchon.cli import click, options
 from pynchon.util import typing, lme, text
 from pynchon.util.os import invoke
+from pynchon.util.text import loads
 
 LOGGER = lme.get_logger(__name__)
+
+
+@click.argument("file", nargs=1)
+def json5(file: str = '') -> dict:
+    """
+    loads json5 from filezzz
+    """
+    assert file
+    if not os.path.exists(file):
+        raise ValueError(f'file @ {file} is missing!')
+    with open(file, 'r') as fhandle:
+        content = fhandle.read()
+    data = loads.json5(content)
+    return data
 
 
 def shell_helper(*args, **kwargs) -> typing.StringMaybe:
