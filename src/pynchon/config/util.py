@@ -123,12 +123,12 @@ def load_config_from_files() -> typing.Dict[str, str]:
             LOGGER.warning(f"src@`{src}` doesn't exist, skipping it")
             continue
         if src.name.endswith('pyproject.toml'):
-            LOGGER.debug(f"Loading from toml: {src}")
+            LOGGER.info(f"Loading from toml: {src}")
             tmp = python.load_pyprojecttoml(path=src)
             tmp = tmp.get("tool", {}).get("pynchon", {})
             contents[src] = tmp
         elif src.name.endswith('.json5'):
-            LOGGER.debug(f"Loading from json5: {src}")
+            LOGGER.info(f"Loading from json5: {src}")
             with open(src.absolute(), "r") as fhandle:
                 # contents.append()
                 contents[src] = pyjson5.loads(fhandle.read())

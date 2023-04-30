@@ -15,7 +15,8 @@ config_mod = importing.lazy_import(
 )
 
 LOGGER = lme.get_logger(__name__)
-events=app.events
+events = app.events
+
 
 class PynchonPlugin(AbstractPlugin):
     """
@@ -225,7 +226,7 @@ class AbstractPlanner(BasePlugin):
     def plan(self, config=None) -> typing.List:
         """Creates a plan for this plugin"""
         # write status event (used by the app-console)
-        events.status.update(stage=f"planning for `{self.__class__.name}`")
+        events.lifecycle.send(stage=f"planning for `{self.__class__.name}`")
         self.state = config
         return []
 
@@ -234,7 +235,7 @@ class AbstractPlanner(BasePlugin):
         from pynchon.util.os import invoke
 
         # write status event (used by the app-console)
-        events.status.update(stage=f"applying for `{self.__class__.name}`")
+        events.lifecycle.send(stage=f"applying for `{self.__class__.name}`")
         plan = self.plan(config=config)
         return [invoke(p).succeeded for p in plan]
 

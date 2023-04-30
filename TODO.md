@@ -50,3 +50,4 @@ impl:
   flecks
   fleqs
   reflecks
+  shimport- module_builder + imphook

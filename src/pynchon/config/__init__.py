@@ -15,17 +15,21 @@ from .util import finalize  # noqa
 from pynchon.plugins.git import GitConfig  # noqa
 
 LOGGER = lme.get_logger(__name__)
-events=app.events
+events = app.events
 
 # FIXME: abstract into phases inside pynchon.app
 msg = "Loading raw-config from OS.."
-LOGGER.critical(msg)
-events.status.update(stage=msg)
+# LOGGER.critical(msg)
+events.lifecycle.send(__name__, stage=msg)
 git = GIT = GitConfig()
 
 msg = "Building raw-config from files.."
-LOGGER.critical(msg)
-events.status.update(stage=msg)
+# LOGGER.critical(msg)
+events.lifecycle.send(
+    __name__,
+    msg=msg,
+    stage=msg,
+)
 
 CONFIG_FILES = []
 MERGED_CONFIG_FILES = {}
@@ -35,8 +39,12 @@ for cfg_src, config in load_config_from_files().items():
 
 # NB: this content is potentially templated
 msg = "Building plugins-list.."
-LOGGER.critical(msg)
-events.status.update(stage=msg)
+# LOGGER.critical(msg)
+events.lifecycle.send(
+    __name__,
+    msg=msg,
+    stage=msg,
+)
 
 pynchon = PYNCHON = CoreConfig(config_files=CONFIG_FILES, **MERGED_CONFIG_FILES)
 RAW = PYNCHON.copy()
@@ -48,13 +56,21 @@ PLUGINS = PYNCHON['plugins'] = list(
 _all_names = PLUGINS + Meta.NAMES
 
 msg = "Splitting core config.."
-LOGGER.critical(msg)
-events.status.update(stage=msg)
+# LOGGER.critical(msg)
+events.lifecycle.send(
+    __name__,
+    msg=msg,
+    stage=msg,
+)
 PYNCHON_CORE = dict([[x, PYNCHON[x]] for x in PYNCHON if x not in _all_names])
 PYNCHON_CORE = CoreConfig(**PYNCHON_CORE)
 
 msg = "Interpolating config.."
 LOGGER.critical(msg)
-events.status.update(stage=msg)
+events.lifecycle.send(
+    __name__,
+    msg=msg,
+    stage=msg,
+)
 
 USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))

@@ -54,6 +54,7 @@ def get_namespace(name):
     """
     FIXME: use FakeModule?
     """
+
     class ModuleNamespace(AttrDict):
         """ """
 

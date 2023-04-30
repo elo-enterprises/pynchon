@@ -8,10 +8,8 @@ from pynchon import config  # isort: skip
 from .entry import entry  # noqa isort: skip
 
 LOGGER = lme.get_logger(__name__)
-events=app.events
-msg = 'Building CLIs from plugins..'
-events.status.update(stage=msg)
-LOGGER.critical(msg)
+events = app.events
+events.lifecycle.send(__name__, stage='Building CLIs from plugins..')
 registry = click_registry = {}
 loop = plugin_registry.items()
 for name, plugin_meta in loop:

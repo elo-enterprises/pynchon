@@ -8,7 +8,7 @@ from pynchon.util import lme, typing, importing
 from .util import get_plugin, get_plugin_obj  # noqa
 
 LOGGER = lme.get_logger(__name__)
-events=app.events
+events = app.events
 registry = importing.registry_builder(
     __name__,
     # kwargs for reg-builder
@@ -21,7 +21,7 @@ registry = importing.registry_builder(
     ),
     import_children=True,
     exclude_names='git'.split(),  # FIXME: hack
-    init_hooks=[lambda msg: [LOGGER.critical(msg), events.status.update(stage=msg)]],
+    init_hooks=[lambda msg: [LOGGER.critical(msg), events.lifecycle.send(stage=msg)]],
     filter_types=[abcs.Plugin],
     fitler_vals=[
         lambda val: val.name in config.PLUGINS,
