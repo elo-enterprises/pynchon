@@ -1,6 +1,8 @@
 """ pynchon.plugins.util
 """
-from pynchon.util import lme, typing, importing
+from pynchon.util import lme, typing  # noqa
+
+# , importing
 
 # from .exceptions import * # noqa
 LOGGER = lme.get_logger(__name__)

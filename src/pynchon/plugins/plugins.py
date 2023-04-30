@@ -1,12 +1,12 @@
 """ pynchon.plugins.plugins
 """
 from pynchon import abcs, models
-from pynchon.api import project
-from pynchon.util import files, lme, typing
+
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon.util.text.render import __main__ as render_main
+# from pynchon.util.text.render import __main__ as render_main
 
 # class PluginsConfig(abcs.Config):
 #

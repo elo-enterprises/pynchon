@@ -4,11 +4,11 @@
 import sys
 import atexit
 
+import enlighten
 from rich.text import Text
 from rich.console import Console, Theme
 from memoized_property import memoized_property
 
-import enlighten
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)

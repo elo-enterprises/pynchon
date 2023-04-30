@@ -1,8 +1,9 @@
 """ pynchon.util.text CLI
 """
+from pynchon import shimport
 from pynchon.cli import click
 from pynchon.util import text as THIS
-from pynchon.util import lme, typing, importing
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -14,7 +15,7 @@ def entry() -> typing.NoneType:
 entry.__doc__ = __doc__ or ""
 
 # FIXM: use THIS = importing.cli_builder(..)
-THIS = importing.module_builder(
+THIS = shimport.module.builder(
     __name__,
     assign_objects=True,
     # import_main_entry = [

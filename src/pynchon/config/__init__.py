@@ -39,7 +39,6 @@ for cfg_src, config in load_config_from_files().items():
 
 # NB: this content is potentially templated
 msg = "Building plugins-list.."
-# LOGGER.critical(msg)
 events.lifecycle.send(
     __name__,
     msg=msg,
@@ -56,7 +55,6 @@ PLUGINS = PYNCHON['plugins'] = list(
 _all_names = PLUGINS + Meta.NAMES
 
 msg = "Splitting core config.."
-# LOGGER.critical(msg)
 events.lifecycle.send(
     __name__,
     msg=msg,
@@ -66,7 +64,6 @@ PYNCHON_CORE = dict([[x, PYNCHON[x]] for x in PYNCHON if x not in _all_names])
 PYNCHON_CORE = CoreConfig(**PYNCHON_CORE)
 
 msg = "Interpolating config.."
-LOGGER.critical(msg)
 events.lifecycle.send(
     __name__,
     msg=msg,

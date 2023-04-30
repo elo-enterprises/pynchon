@@ -1,9 +1,9 @@
 """ pynchon.plugins.python.cli
 """
-from pynchon import abcs, models
-from pynchon.util import typing, importing, lme
+from pynchon import shimport, abcs, models
+from pynchon.util import typing, lme
 
-config_mod = importing.lazy_import(
+config_mod = shimport.module.lazy_import(
     'pynchon.config',
 )
 LOGGER = lme.get_logger(__name__)

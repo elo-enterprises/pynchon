@@ -1,25 +1,10 @@
 """ pynchon.plugins.render
 """
 from pynchon import models
-from pynchon.util import lme, typing
 
-# from pynchon.util.os import invoke
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-# from pynchon.util import tagging
-
-# import yaml
-# import click
-# import pyjson5
-# from pynchon import abcs
-# from pynchon.api import render
-# from pynchon.bin import groups, options
-# from pynchon.util import lme
-# from pynchon.util.os import invoke
-# from .common import kommand
-# LOGGER = lme.get_logger(__name__)
-# PARENT = groups.render
-# files_arg = click.argument("files", nargs=-1)
 
 
 class Renderers(models.NameSpace):

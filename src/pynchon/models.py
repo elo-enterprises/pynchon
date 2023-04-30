@@ -2,15 +2,18 @@
 """
 # from memoized_property import memoized_property
 
+from pynchon import shimport
 from pynchon.api import project
 from pynchon.app import app
 from pynchon.bin import common, entry
 from pynchon.cli import click
-from pynchon.util import typing, importing, lme, text
+from pynchon.util import typing, lme, text
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 
-config_mod = importing.lazy_import(
+from pynchon.util import lme, typing  # noqa
+
+config_mod = shimport.module.lazy_import(
     'pynchon.config',
 )
 
@@ -86,15 +89,16 @@ class CliPlugin(PynchonPlugin):
         return plugin_main
 
     @PynchonPlugin.classmethod_dispatch(click.Group)
-    def click_acquire(kls, grp: click.Group):
+    def click_acquire(kls, grp: click.Group):  # noqa F811
         """ """
+        parent = kls.click_group
         LOGGER.critical(
             f"{kls.__name__} acquires group@`{grp.name}` to: parent@`{parent.name}`"
         )
         raise NotImplementedError("groups are not supported yet!")
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
-    def click_acquire(kls, fxn: typing.FunctionType):
+    def click_acquire(kls, fxn: typing.FunctionType):  # noqa F811
         """ """
         msg = f'{kls.__name__} acquires naked fxn: {fxn.__name__}'
         assert fxn.__annotations__
@@ -102,7 +106,7 @@ class CliPlugin(PynchonPlugin):
         kls.click_group.add_command(click.command(cmd_name)(fxn))
 
     @PynchonPlugin.classmethod_dispatch(click.Command)
-    def click_acquire(kls, cmd: click.Command):
+    def click_acquire(kls, cmd: click.Command):  # noqa F811
         """ """
         parent = kls.click_group
         LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")
@@ -186,6 +190,8 @@ class Provider(CliPlugin):
 
     cli_label = 'Provider'
     contribute_plan_apply = False
+    # class config_class(abcs.Config):
+    #     config_key = None
 
 
 class NameSpace(CliPlugin):

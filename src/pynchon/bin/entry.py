@@ -4,13 +4,15 @@ pynchon: a utility for docs generation and template-rendering
 import collections
 from gettext import gettext as _
 
-from pynchon import abcs, click
-from pynchon.util import typing, importing
+from pynchon import abcs, click, shimport
+
+from pynchon.util import lme, typing  # noqa
+
 
 # import click
 
 
-plugins = importing.lazy_import(
+plugins = shimport.module.lazy_import(
     'pynchon.plugins',
 )
 
