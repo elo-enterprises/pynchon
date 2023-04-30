@@ -32,6 +32,56 @@ def get_namespace(name):
     return ModuleNamespace()
 
 
+class ModuleWrapper(object):
+    class Error(ImportError):
+        pass
+
+    def __str__(self):
+        return f'<{self.__class__.__name__}[{self["name"]}]>'
+
+    __repr__ = __str__
+
+    def normalize_import(self, name):
+        """ """
+        assignment = None
+        if ' as ' in name:
+            name, assignment = name.split(' as ')
+        relative = name.startswith('.')
+        name = name if not relative else name[1:]
+        bits = name.split(".")
+        if len(bits) == 1:
+            package = var = bits.pop(0)
+        else:
+            var = bits.pop(-1)
+            package = '.'.join(bits)
+        if relative:
+            package = f"{self.name}.{package}"
+        result = import_spec(
+            assignment=assignment,
+            var=var,
+            star='*' in var,
+            package=package,
+            relative=relative,
+        )
+        return result
+
+    def __init__(
+        self,
+        name: str = '',
+    ):
+        assert name
+        self.name = name
+
+    @property
+    def module(self):
+        result = importlib.import_module(self.name)
+        return result
+
+    def do_import(self, package):
+        """ """
+        return importlib.import_module(package)
+
+
 class LazyModule:
     """ """
 

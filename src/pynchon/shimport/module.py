@@ -11,40 +11,7 @@ LOGGER = lme.get_logger(__name__)
 
 MODULE_REGISTRY = dict()
 
-
-class ModuleBuilder(object):
-    class Error(ImportError):
-        pass
-
-    def __str__(self):
-        return f'<{self.__class__.__name__}[{self["name"]}]>'
-
-    __repr__ = __str__
-
-    def normalize_import(self, name):
-        """ """
-        assignment = None
-        if ' as ' in name:
-            name, assignment = name.split(' as ')
-        relative = name.startswith('.')
-        name = name if not relative else name[1:]
-        bits = name.split(".")
-        if len(bits) == 1:
-            package = var = bits.pop(0)
-        else:
-            var = bits.pop(-1)
-            package = '.'.join(bits)
-        if relative:
-            package = f"{self.name}.{package}"
-        result = models.import_spec(
-            assignment=assignment,
-            var=var,
-            star='*' in var,
-            package=package,
-            relative=relative,
-        )
-        return result
-
+class ModuleBuilder(models.ModuleWrapper):
     @typing.validate_arguments
     def __init__(
         self,
@@ -62,8 +29,7 @@ class ModuleBuilder(object):
         filter_types: typing.List[type(type)] = [],
         exclude_names: typing.List[str] = [],
     ):
-        assert name
-        self.name = name
+        models.ModuleWrapper.__init__(self, name=name)
         self.init_hooks = init_hooks
         self.import_mods = import_mods
         self.import_names = import_names
@@ -90,11 +56,6 @@ class ModuleBuilder(object):
         self.namespace = models.get_namespace(name)
         self.assign_objects = assign_objects
 
-    @property
-    def module(self):
-        result = importlib.import_module(self.name)
-        return result
-
     def run_filter(self, validator, arg):
         """
         wrapper to honor `filter_failure_raises`
@@ -107,12 +68,8 @@ class ModuleBuilder(object):
                 raise
         return test
 
-    def do_import(self, package):
-        """ """
-        return importlib.import_module(package)
-
     def initialize(self):
-
+        """ """
         # FIXME: leaky abstraction
         msg = f"Building module-registry for {self.name}.."
         [h(msg) for h in self.init_hooks]
@@ -201,7 +158,6 @@ registry = registry_builder
 
 def lazy_import(
     module_name: str,
-    # var:str=None,
 ) -> models.LazyModule:
     """ """
     assert module_name

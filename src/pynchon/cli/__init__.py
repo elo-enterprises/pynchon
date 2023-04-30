@@ -1,3 +1,3 @@
 """ pynchon.cli
 """
-from pynchon import click # noqa
+from pynchon import click  # noqa
