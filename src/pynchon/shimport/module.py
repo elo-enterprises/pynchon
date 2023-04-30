@@ -1,44 +1,15 @@
-"""
+""" shimport.module
 """
 import importlib
 
 from pynchon.util import lme, typing
-
-LOGGER = lme.get_logger(__name__)
-#####
-import collections
-
 from pynchon.abcs.path import Path
 
+from . import models
+
+LOGGER = lme.get_logger(__name__)
+
 MODULE_REGISTRY = dict()
-from pynchon.abcs.attrdict import AttrDict
-
-
-def get_namespace(name):
-    """
-    FIXME: use FakeModule?
-    """
-
-    class ModuleNamespace(AttrDict):
-        """ """
-
-        def __str__(self):
-            return f'<{self.__class__.__name__}[{self.__class__.name}]>'
-
-        __repr__ = __str__
-
-        @property
-        def module(self):
-            result = importlib.import_module(self.__class__.name)
-            return result
-
-    ModuleNamespace.name = name
-    return ModuleNamespace()
-
-
-import_spec = collections.namedtuple(
-    'importSpec', 'assignment var star package relative'
-)
 
 
 class ModuleBuilder(object):
@@ -65,7 +36,7 @@ class ModuleBuilder(object):
             package = '.'.join(bits)
         if relative:
             package = f"{self.name}.{package}"
-        result = import_spec(
+        result = models.import_spec(
             assignment=assignment,
             var=var,
             star='*' in var,
@@ -116,7 +87,7 @@ class ModuleBuilder(object):
                     [typing.is_subclass(val, ty) for ty in self.filter_types]
                 )
             ] + fitler_vals
-        self.namespace = get_namespace(name)
+        self.namespace = models.get_namespace(name)
         self.assign_objects = assign_objects
 
     @property
@@ -228,44 +199,10 @@ def registry_builder(name, itemizer=None, **kargs):
 registry = registry_builder
 
 
-class LazyModule:
-    """ """
-
-    class LazyImportError(ImportError):
-        pass
-
-    class LazyResolutionError(LazyImportError):
-        pass
-
-    def __init__(self, module_name: str = ''):
-        """ """
-        assert module_name
-        self.module_name = module_name
-        self.module = None
-
-    def resolve(self):
-        """ """
-        if self.module is None:
-            try:
-                self.module = importlib.import_module(self.module_name)
-            except (ImportError,) as exc:
-                raise LazyModule.LazyResolutionError(exc)
-
-    def __repr__(self):
-        return f"<LazyModule[{self.module_name}]>"
-
-    __str__ = __repr__
-
-    def __getattr__(self, var_name):
-        """ """
-        self.resolve()
-        return getattr(self.module, var_name)
-
-
 def lazy_import(
     module_name: str,
     # var:str=None,
-) -> LazyModule:
+) -> models.LazyModule:
     """ """
     assert module_name
-    return LazyModule(module_name)
+    return models.LazyModule(module_name)

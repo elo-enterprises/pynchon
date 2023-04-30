@@ -6,8 +6,6 @@ from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-# from pynchon.util.text.render import __main__ as render_main
-
 # class PluginsConfig(abcs.Config):
 #
 #     config_key = "plugins"
@@ -32,13 +30,7 @@ class PluginsMan(models.Provider):
     """meta-plugin for managing plugins"""
 
     name = "plugins"
-    cli_name = 'cut'
-    defaults = dict()
-    # config_class = PluginsConfig
-    cli_subsumes: typing.List[typing.Callable] = [
-        # render_main.j2cli,
-        # render_main.jinja_file,
-    ]
+    cli_name = 'plugins'
 
     # def plan(self, config=None) -> typing.List:
     #     """Creates a plan for this plugin"""
