@@ -3,7 +3,7 @@
 # from memoized_property import memoized_property
 
 from pynchon.api import project
-from pynchon.app import events
+from pynchon.app import app
 from pynchon.bin import common, entry
 from pynchon.cli import click
 from pynchon.util import typing, importing, lme, text
@@ -15,7 +15,7 @@ config_mod = importing.lazy_import(
 )
 
 LOGGER = lme.get_logger(__name__)
-
+events=app.events
 
 class PynchonPlugin(AbstractPlugin):
     """
@@ -87,7 +87,9 @@ class CliPlugin(PynchonPlugin):
     @PynchonPlugin.classmethod_dispatch(click.Group)
     def click_acquire(kls, grp: click.Group):
         """ """
-        LOGGER.critical(f"{kls.__name__} acquires group@`{grp.name}` to: parent@`{parent.name}`")
+        LOGGER.critical(
+            f"{kls.__name__} acquires group@`{grp.name}` to: parent@`{parent.name}`"
+        )
         raise NotImplementedError("groups are not supported yet!")
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
@@ -117,12 +119,12 @@ class CliPlugin(PynchonPlugin):
 
         obj = kls.instance
         if obj is None:
-            err=f"{kls.__name__}.`instance` is not ready?"
+            err = f"{kls.__name__}.`instance` is not ready?"
             LOGGER.critical(err)
             raise ValueError(err)
         for method_name in kls.__methods__:
             # LOGGER.info(f"  {kls.__name__}.init_cli: {method_name}")
-            fxn = obj and getattr(obj, method_name,None)
+            fxn = obj and getattr(obj, method_name, None)
             if fxn is None:
                 msg = f'    retrieved empty `{method_name}` from {obj}!'
                 LOGGER.critical(msg)
@@ -150,7 +152,9 @@ class CliPlugin(PynchonPlugin):
     def init_cli_children(kls):
         """ """
         cli_subsumes = getattr(kls, 'cli_subsumes', [])
-        cli_subsumes and LOGGER.info(f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}")
+        cli_subsumes and LOGGER.info(
+            f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}"
+        )
         for fxn in cli_subsumes:
             kls.click_acquire(fxn)
 

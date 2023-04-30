@@ -2,13 +2,13 @@
 """
 # from .jenkins import Jenkins  # noqa
 from pynchon import config, abcs
-from pynchon.app import events
+from pynchon.app import app
 from pynchon.util import lme, typing, importing
 
 from .util import get_plugin, get_plugin_obj  # noqa
 
 LOGGER = lme.get_logger(__name__)
-
+events=app.events
 registry = importing.registry_builder(
     __name__,
     # kwargs for reg-builder

@@ -7,16 +7,14 @@ from . import lme, typing
 LOGGER = lme.get_logger(__name__)
 
 
-class LazyImportError(ImportError):
-    pass
-
-
-class LazyResolutionError(LazyImportError):
-    pass
-
-
 class LazyModule:
     """ """
+
+    class LazyImportError(ImportError):
+        pass
+
+    class LazyResolutionError(LazyImportError):
+        pass
 
     def __init__(self, module_name: str = ''):
         """ """
@@ -53,6 +51,9 @@ from pynchon.abcs.attrdict import AttrDict
 
 
 def get_namespace(name):
+    """
+    FIXME: use FakeModule?
+    """
     class ModuleNamespace(AttrDict):
         """ """
 

@@ -1,7 +1,7 @@
 """ pynchon.config
 """
 # from pynchon import abcs
-from pynchon.app import events
+from pynchon.app import app
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme  # typing
 from pynchon.abcs.plugin import Meta
@@ -15,8 +15,7 @@ from .util import finalize  # noqa
 from pynchon.plugins.git import GitConfig  # noqa
 
 LOGGER = lme.get_logger(__name__)
-
-from pynchon import app
+events=app.events
 
 # FIXME: abstract into phases inside pynchon.app
 msg = "Loading raw-config from OS.."

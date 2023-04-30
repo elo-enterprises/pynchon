@@ -34,10 +34,6 @@ class Events:
         """ """
         return self.lifecycle(*msg, logger=LOGGER.critical)
 
-
-events = Events()
-
-
 class AppConsole(object):
     Text = Text
     Theme = Theme
@@ -123,7 +119,7 @@ class App(
 ):
     def __init__(self):
         self.console = Console()
-        self.events = events
+        self.events = Events()
         self.events.status = self.status_bar
         self.exit_hooks = AppExitHooks(app=self)
         self.exit_hooks.install()

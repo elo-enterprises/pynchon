@@ -1,6 +1,6 @@
 """ pynchon.bin
 """
-from pynchon.app import events
+from pynchon.app import app
 from pynchon.util import lme
 from pynchon.plugins import registry as plugin_registry
 
@@ -8,7 +8,7 @@ from pynchon import config  # isort: skip
 from .entry import entry  # noqa isort: skip
 
 LOGGER = lme.get_logger(__name__)
-
+events=app.events
 msg = 'Building CLIs from plugins..'
 events.status.update(stage=msg)
 LOGGER.critical(msg)
