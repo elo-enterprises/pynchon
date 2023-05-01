@@ -21,11 +21,59 @@ LOGGER = lme.get_logger(__name__)
 from pynchon.util.text import loadf, loads
 
 
+def _get_jinja_env(templates):
+    """ """
+
+    def _get_jinja_globals():
+        """ """
+
+        def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
+            """
+            A jinja filter/extension
+            """
+            out = invoke(*args, **kwargs)
+            assert out.succeeded
+            return out.stdout
+
+        return dict(invoke=invoke_helper, env=os.getenv)
+
+    import pynchon
+
+    ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates'
+    templates += [ptemp]
+    templates = [abcs.Path(t) for t in templates]
+
+    for template_dir in templates:
+        if not template_dir.exists:
+            err = f"template directory @ `{template_dir}` does not exist"
+            raise ValueError(err)
+    if templates:
+        LOGGER.warning(f"Templates: {templates}")
+    env = Environment(
+        loader=FileSystemLoader([str(t) for t in templates]),
+        undefined=StrictUndefined,
+    )
+
+    env.globals.update(**_get_jinja_globals())
+
+    known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
+    # known_templates = [str(p) for p in known_templates if dot not in p.parents]
+
+    if known_templates:
+        from pynchon.util import text as util_text
+
+        msg = "Known templates: "
+        msg += "(excluding the ones under working-dir)"
+        msg += "\n{}".format(util_text.to_json(known_templates))
+        LOGGER.warning(msg)
+    return env
+
+
 @typing.validate_arguments
 def jinja_loadf(
     file: str,
     context: typing.Dict = {},
-    templates: typing.List[str] = ["."],
+    templates: typing.List[str] = [],
     strict: bool = True,
     quiet: bool = False,
 ) -> str:
@@ -52,47 +100,27 @@ def jinja(
     """
     Renders jinja-templates (with support for includes)
     """
-
-    def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
-        """
-        A jinja filter/extension
-        """
-        out = invoke(*args, **kwargs)
-        assert out.succeeded
-        return out.stdout
-
-    templates = [abcs.Path(t) for t in templates]
-    for template_dir in templates:
-        if not template_dir.exists:
-            err = f"template directory @ `{template_dir}` does not exist"
-            raise ValueError(err)
-    if templates:
-        LOGGER.warning(f"Templates: {templates}")
-    env = Environment(
-        loader=FileSystemLoader([str(t) for t in templates]),
-        undefined=StrictUndefined,
-    )
-    env.globals.update(invoke=invoke_helper, env=os.getenv)
-
-    known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
-    # known_templates = [str(p) for p in known_templates if dot not in p.parents]
-    if known_templates:
-        from pynchon.util import text as util_text
-
-        msg = "Known templates: "
-        msg += "(excluding the ones under working-dir)"
-        msg += "\n{}".format(util_text.to_json(known_templates))
-        LOGGER.warning(msg)
-
+    env = _get_jinja_env(templates)
     template = env.from_string(text)
-    context = {**dict(os.environ.items()), **context}
+    context = {
+        # FIXME: try to santize this
+        **dict(os.environ.items()),
+        **context,
+    }
 
     try:
         return template.render(**context)
+    except (jinja2.exceptions.UndefinedError,) as exc:
+        LOGGER.critical(f"Undefined exception: {exc}")
+        LOGGER.critical(f"Jinja context: {list(context.keys())}")
+        # import IPython; IPython.embed()
+        raise
     except (jinja2.exceptions.TemplateNotFound,) as exc:
-        LOGGER.critical(exc)
-        LOGGER.critical(known_templates)
-        raise RuntimeError()
+        LOGGER.critical(f"Template exception: {exc}")
+        LOGGER.critical(f"User-provided templates: {templates}")
+        err = getattr(exc, 'templates', exc.message)
+        LOGGER.critical(f"Problem template: {err}")
+        raise
 
 
 @options.output

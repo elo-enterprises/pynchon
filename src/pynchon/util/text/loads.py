@@ -11,13 +11,41 @@ from pynchon.util import typing, lme
 LOGGER = lme.get_logger(__name__)
 
 
-def json(content='') -> typing.StringMaybe:
-    """ """
+def ini(content: str) -> typing.StringMaybe:
+    """
+    Parses `content` as ini-file.
+    """
+    raise NotImplementedError()
+
+
+def yaml(content: str) -> typing.StringMaybe:
+    """
+    Parses `content` as yaml.
+    """
+    raise NotImplementedError()
+
+
+def toml(content: str) -> typing.StringMaybe:
+    """
+    Parses `content` as toml.
+    """
+    raise NotImplementedError()
+
+
+def json(content: str = '') -> typing.StringMaybe:
+    """
+    Parses `content` as JSON (strict).
+    For most things, you're better using `loads.json5()`,
+    since that's just a JSON superset with a more relaxed parser.
+    """
     return json_mod.loads(content)
 
 
-def json5(content='', quiet=True) -> typing.StringMaybe:
-    """ """
+def json5(content: str = '', quiet=True) -> typing.StringMaybe:
+    """
+    Parses `content` as JSON5.
+    This tries to give a better error message than defaults.
+    """
     try:
         return json5_mod.loads(content)
     except (ValueError,) as exc:

@@ -15,11 +15,24 @@ tmp = (
     shimport.wrapper('pynchon.util.text.render')
     .prune(
         filter_instances=typing.FunctionType,
+        filter_module_origin='pynchon.util.text.render',
     )
     .map_ns(
         lambda _name, fxn: [fxn, tags[fxn].get('click_aliases', []) + [fxn.__name__]]
     )
-    .starmap(lambda fxn, aliases: [entry.command(alias)(fxn) for alias in aliases])
+    .starmap(
+        lambda fxn, aliases: [
+            entry.command(
+                name=alias.replace('_', '-'),
+                help=(
+                    fxn.__doc__
+                    if alias == fxn.__name__
+                    else f'alias for `{fxn.__name__}`'
+                ),
+            )(fxn)
+            for alias in aliases
+        ]
+    )
 )
 
 if __name__ == '__main__':

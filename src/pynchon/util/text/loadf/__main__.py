@@ -23,11 +23,13 @@ tmp = (
     .starmap(
         lambda fxn, aliases: [
             common.kommand(
-                name=alias,
+                name=alias.replace('_', '-'),
                 parent=entry,
-                help=fxn.__doc__
-                if alias == fxn.__name__
-                else f'alias for {fxn.__name__}',
+                help=(
+                    fxn.__doc__
+                    if alias == fxn.__name__
+                    else f'alias for `{fxn.__name__}`'
+                ),
             )(fxn)
             for alias in aliases
         ],

@@ -1,7 +1,7 @@
 <table>
   <tr>
     <td colspan=2><strong>
-      pynchon
+    pynchon
       </strong>&nbsp;&nbsp;&nbsp;&nbsp;
       <small><small>
       </small></small>
@@ -10,7 +10,7 @@
   <tr>
     <td width=15%><img src=img/icon.png style="width:150px"></td>
     <td>
-    Autodocs for python projects
+    pynchon
     </td>
   </tr>
 </table>
@@ -33,27 +33,21 @@ But.. *pynchon is not a build tool, it's a project tool.*  The approach is spiri
 
 Management / generation tasks in source-repositories are usually ongoing iterative processes.  For this kind of work, pynchon's interface choices are heavily influenced by the design of [terraform](#): most things are using a plan/apply workflow, where context information is arrived at via optional "providers".  A plugin/config system then allows for easy expansion on the basic model.
 
-## Features
+## Overview
 
-A primary use-case for `pynchon` is generating API / CLI documentation that lives alongside the code, inside github repos.
+Pynchon is a library, tool, and extensible framework for project management.  It's useful in general, but also specializes in autogenerating documentation for python projects.
 
-(Using github-repos is optional, but by default `pynchon` writes  relative-links that assume github-compatible anchors, etc.)
+## Motivation & Design
 
-* **Pure markdown output for docs,** in github flavored markdown.
-* **API documentation for python-packages**
-  * Top-level index/outline for included modules, classes, functions. ([example](#))
-  * (Detail views coming soon but not implemented yet)
-* **CLI documentation for package entry-points**
-  * Top-level overview of all commands defined in setup.cfg ([example](#))
-  * Detail view for individual scripts ([example](#))
-    * (Currently only available for projects using `click`)
-* **Test-discovery and links to related code:**
-  * (Basic heuristics at this time, more sophisticated ones soon)
-* **Admonitions / badges:**
-  * 🐉: Complexity dragon for [cyclomatic-complexity](https://en.wikipedia.org/wiki/Cyclomatic_complexity)
-  * 🚩 Red flags for code docs or comments that include `FIXME`s
-  * 🟡 Yellow indicators for code docs or comments that include `WARNING`s
-* **Self-hosted:** For concrete examples, see the pynchon-generated [API docs](docs/api) and [CLI docs][docs/cli].  You can also view the [config files that the pynchon-project uses to run pynchon on itself](.pynchon.json5).
+This project exists because frameworks like [sphinx](#), [pydoc](#), and [mkdocs](#) do a lot, but require quite a bit of opionated/fragile setup, and in the end it's pretty hard to do basic stuff.
+
+See for example [this stack overflow question](https://stackoverflow.com/questions/36237477/python-docstrings-to-github-readme-md).
+
+Popular docs-frameworks also stop short of managing things *besides* docs, although code-gen or code-annotation is a pretty similar task.  After you start thinking about stuff like this, API-docs generation probably can't succeed anyway as long as you have syntax errors, so why not lint files while you're scanning them, and make sure the spec for each is using the *source tree* DRY-ly?
+
+But.. *pynchon is not a build tool, it's a project tool.*  The approach is spiritually related to things like [tox](#), [cog](#), [make](#), [helm](#), [jinja](#), and [cookie-cutter](#).  But it's more likely to orchestrate *across* these things than try to replace them.
+
+Management / generation tasks in source-repositories are usually ongoing iterative processes.  For this kind of work, pynchon's interface choices are heavily influenced by the design of [terraform](#): most things are using a plan/apply workflow, where context information is arrived at via optional "providers".  A plugin/config system then allows for easy expansion on the basic model.
 
 ## Quick Start
 
@@ -69,6 +63,7 @@ Or, for developers:
 git clone ..FIXME..
 pip install -e .
 ```
+
 ---------------------------------------------------------------------------------
 
 ## Pynchon as a Library
@@ -102,6 +97,7 @@ pynchon gen api detail
 ---------------------------------------------------------------------------------
 
 ## Implementation Notes
+
 
 ### Python Plugins
 
