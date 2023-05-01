@@ -3,6 +3,7 @@
 import os
 import sys
 
+from pynchon import shimport
 from pynchon.cli import click, common, options
 from pynchon.util import text, typing, lme
 from pynchon.util.text import render as THIS
@@ -12,7 +13,6 @@ LOGGER = lme.get_logger(__name__)
 
 entry = common.entry_for(__name__)
 
-from pynchon import shimport
 
 tmp = (
     shimport.wrapper('pynchon.util.text.render')

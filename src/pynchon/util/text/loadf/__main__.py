@@ -4,20 +4,33 @@ from pynchon import shimport
 from pynchon.cli import click, common, options
 from pynchon.util import text, typing, lme
 from pynchon.util.text import loadf as THIS
+from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
 
 entry = common.entry_for(__name__)
 
 
-# fxns = shimport.wrap(THIS.__name__,).filter(
-#     exclude_private=True,  # default
-#     filter_instances=typing.FunctionType,
-#     filter_module_origin=THIS.__name__,
-#     # return_values=True,
-# ).values()
-# for fxn in fxns:
-#     common.kommand(fxn.__name__, parent=entry)(fxn)
+tmp = (
+    shimport.wrapper('pynchon.util.text.loadf')
+    .prune(
+        filter_instances=typing.FunctionType,
+        filter_module_origin='pynchon.util.text.loadf',
+    )
+    .map_ns(
+        lambda _name, fxn: [fxn, tags[fxn].get('click_aliases', []) + [fxn.__name__]]
+    )
+    .starmap(
+        lambda fxn, aliases: [
+            common.kommand(
+                name=alias,
+                parent=entry,
+            )(fxn)
+            for alias in aliases
+        ]
+    )
+)
+LOGGER.debug(tmp)
 
 if __name__ == '__main__':
     entry()

@@ -20,7 +20,7 @@ LOGGER = lme.get_logger(__name__)
 @click.argument("file", nargs=1)
 def json5(file: str = '') -> dict:
     """
-    loads json5 from filezzz
+    loads json5 from filezz
     """
     assert file
     if not os.path.exists(file):
@@ -109,6 +109,7 @@ def json5_load(
         print(msg)
 
 
+@click.argument("file", nargs=1)
 def json(file: str = '', content: str = '') -> dict:
     """
     loads json to python dictionary from given file or string

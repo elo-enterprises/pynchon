@@ -214,13 +214,17 @@ class kommand(object):
             self.logger.debug(f"Invoking {self.parent.name}.{self.name}")
             self.logger.debug(f" with: {call_kwargs}")
             result = self.fxn(*args, **call_kwargs)
-            for tformer in self.transformers:
-                if tformer.match(call_kwargs):
-                    result = tformer.transform(result, **call_kwargs)
-            for handler in self.handlers:
-                if handler.match(call_kwargs):
-                    self.logger.debug(f"Handling with `{handler.__class__.__name__}`")
-                    handler.handle(result, **call_kwargs)
+
+            # for tformer in self.transformers:
+            #     if tformer.match(call_kwargs):
+            #         result = tformer.transform(result, **call_kwargs)
+            # for handler in self.handlers:
+            #     if handler.match(call_kwargs):
+            #         self.logger.debug(f"Handling with `{handler.__class__.__name__}`")
+            #         handler.handle(result, **call_kwargs)
+            from pynchon.util.text import to_json
+
+            print(to_json(result))
             return result
 
         return newf

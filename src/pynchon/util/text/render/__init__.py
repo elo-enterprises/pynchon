@@ -9,12 +9,12 @@ from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
 from pynchon import abcs
+from pynchon.cli import click, common, options
 from pynchon.util import typing, lme, text
 from pynchon.util.os import invoke
-from pynchon.util.text import loadf, loads
-
+from pynchon.util.text import loadf
 from pynchon.util.text import loadf as _sibling
-from pynchon.cli import click, common, options
+from pynchon.util.text import loads
 from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
@@ -151,7 +151,6 @@ def jinja(
 j2_loads = jinja
 
 _sibling.jinja = jinja
-
 
 
 @options.output
