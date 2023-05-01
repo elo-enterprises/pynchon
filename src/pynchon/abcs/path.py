@@ -16,11 +16,11 @@ class Path(typing.PathType):
     def siblings(self):
         return self.parents[0].list()
 
-    def match_any_glob(self, exclude_patterns: typing.List[str]):
+    def match_any_glob(self, exclude_patterns: typing.List[str], quiet: bool = True):
         for exclude in exclude_patterns:
             match = self.match_glob(exclude)
             if match:
-                LOGGER.debug(f"{self} matches exclude @{match}")
+                quiet or LOGGER.info(f"{self} matches exclude @{match}")
                 return match
 
     def match_glob(self, pattern):

@@ -8,7 +8,7 @@ import functools
 from pynchon.abcs import Path
 from pynchon.util.os import invoke
 
-from . import lme, typing
+from . import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -72,13 +72,17 @@ def get_git_root(path: str = ".") -> typing.StringMaybe:
             LOGGER.critical("Could not find a git-root!")
 
 
-def find_src(src_root: str, exclude_patterns=[]) -> list:
+def find_src(
+    src_root: str,
+    exclude_patterns=[],
+    quiet: bool = False,
+) -> list:
     """ """
     exclude_patterns = set(list(map(re.compile, exclude_patterns)))
     globs = [
         Path(src_root).joinpath("**/*"),
     ]
-    LOGGER.debug(f"finding src under {globs}")
+    quiet or LOGGER.info(f"finding src under {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)
     matches = [str(x.absolute()) for x in map(Path, matches) if not x.is_dir()]
@@ -89,7 +93,10 @@ def find_src(src_root: str, exclude_patterns=[]) -> list:
     return matches
 
 
-def find_globs(globs: typing.List[str], quiet: bool = False):
+def find_globs(
+    globs: typing.List[str],
+    quiet: bool = False,
+) -> typing.List[str]:
     quiet or LOGGER.debug(f"matching globs: {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)
@@ -102,14 +109,18 @@ from pynchon import abcs
 
 
 @pydantic.validate_arguments
-def find_j2s(globs: typing.List[abcs.Path], includes=[]) -> list:
+def find_j2s(
+    globs: typing.List[abcs.Path],
+    includes=[],
+    quiet: bool = False,
+) -> typing.List[str]:
     """ """
     # from pynchon import abcs
     # from pynchon.plugins import registry
     #
     # obj = registry['jinja']['obj']
     # config import
-    LOGGER.debug(f"finding .j2s under {globs}")
+    quiet or LOGGER.info(f"finding .j2s under {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)
 

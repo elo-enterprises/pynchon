@@ -85,6 +85,7 @@ class ModulesWrapper(Base):
         logger=None,
         **kwargs,
     ):
+        """ """
         assert name
         self.name = name
         self.import_mods = import_mods
@@ -99,6 +100,7 @@ class ModulesWrapper(Base):
 
     @property
     def module(self):
+        """ """
         result = importlib.import_module(self.name)
         return result
 
@@ -108,13 +110,16 @@ class ModulesWrapper(Base):
 
     @property
     def parent_folder(self):
+        """ """
         return Path(self.module.__file__).parents[0]
 
     @property
     def parent(self):
+        """ """
         return self.__class__(name='.'.join(self.name.split('.')[:-1]))
 
     def select(self, **filter_kwargs):
+        """ """
         tmp = list(self.filter(**filter_kwargs))
         assert len(tmp) == 1
         return tmp[0]
@@ -128,12 +133,14 @@ class ModulesWrapper(Base):
             raise ModulesWrapper.Error(err)
 
     def assign_back(self):
+        """ """
         for assignment in self.namespace:
             self.validate_assignment(assignment)
             setattr(self.module, assignment, self.namespace[assignment])
 
     def prune(self, **filters):
-        self.logger.critical(f"prune: {filters}")
+        """ """
+        # self.logger.critical(f"prune: {filters}")
         self.namespace = self.filter(**filters)
         return self if self.namespace else None
 
@@ -142,6 +149,7 @@ class ModulesWrapper(Base):
         include_main: str = True,
         exclude_private=True,
     ):
+        """ """
         import os
         import glob
 
@@ -176,7 +184,7 @@ class ModulesWrapper(Base):
         **kwargs,
     ):
         """ """
-        self.logger.critical(f"filter_folder: {locals()}")
+        # self.logger.critical(f"filter_folder: {locals()}")
         children = FilterResult(self.get_folder_children(**kwargs))
         if sum([1 for choice in map(bool, [filter, select, prune]) if choice]) == 0:
             return children
@@ -221,6 +229,7 @@ class ModulesWrapper(Base):
         return FilterResult(result)
 
     def __items__(self):
+        """ """
         return self.namespace.__items__()
 
     def filter(
@@ -234,7 +243,8 @@ class ModulesWrapper(Base):
         filter_instances: typing.List[type(type)] = [],
         exclude_names: typing.List[str] = [],
         **kwargs,
-    ):
+    ) -> typing.Dict:
+        """ """
         if name_is:
             filter_names = [lambda name: name == name_is] + filter_names
         if exclude_private:
@@ -263,7 +273,7 @@ class ModulesWrapper(Base):
             **kwargs,
         )
 
-    def run_filter(self, validator, arg):
+    def run_filter(self, validator, arg) -> typing.BoolMaybe:
         """
         wrapper to honor `filter_failure_raises`
         """
@@ -275,10 +285,10 @@ class ModulesWrapper(Base):
                 raise
         return test
 
-    def namespace_modified_hook(self, assignment, val):
+    def namespace_modified_hook(self, assignment, val) -> typing.NoneType:
         """ """
 
-    def do_import_name(self, arg):
+    def do_import_name(self, arg) -> object:
         tmp = self.normalize_import(arg)
         # import IPython; IPython.embed()
         # raise Exception(tmp)
@@ -286,7 +296,7 @@ class ModulesWrapper(Base):
 
     def import_side_effects(
         self,
-    ):
+    ) -> typing.List[str]:
         import_statements = []
         for name in self.import_mods:
             spec = self.normalize_import(name)
@@ -321,7 +331,7 @@ class ModulesWrapper(Base):
         import_statements=[],
         # return_values=False,
         rekey: typing.Callable = None,
-    ):
+    ) -> typing.Dict:
         """ """
         # if kwargs:
         #     raise ValueError(f'unused kwargs {kwargs}')

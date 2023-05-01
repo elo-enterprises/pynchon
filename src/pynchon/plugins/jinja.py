@@ -1,8 +1,9 @@
 """ pynchon.plugins.jinja
 """
+from pynchon.util import lme, typing # noqa
 from pynchon import abcs, models
 from pynchon.api import project
-from pynchon.util import files, lme, typing
+from pynchon.util import files, text
 
 LOGGER = lme.get_logger(__name__)
 
@@ -36,7 +37,9 @@ class Jinja(models.Planner):
     class config_class(abcs.Config):
 
         config_key = "jinja"
-        defaults = dict()
+        defaults = dict(
+            # exclude_patterns=src/pynchon/templates/
+        )
 
     def _get_exclude_patterns(self, config):
         """ """
@@ -52,12 +55,16 @@ class Jinja(models.Planner):
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]
         self.logger.debug(f"search pattern is {search}")
-        j2s = files.find_j2s(search)
-        self.logger.debug(f"found {len(j2s)} j2 files (pre-filter)")
+        result = files.find_j2s(search)
+        self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
         excludes = self._get_exclude_patterns(config)
-        j2s = [p for p in j2s if not p.match_any_glob(excludes)]
-        self.logger.debug(f"found {len(j2s)} j2 files (post-filter)")
-        return j2s
+        self.logger.debug(f"filtering search with {len(excludes)} excludes")
+        result = [p for p in result if not p.match_any_glob(excludes)]
+        self.logger.debug(f"found {len(result)} j2 files (post-filter)")
+        if not result:
+            err = "jinja-plugin is included in this config, but found no .j2 files!"
+            self.logger.critical(err)
+        return result
 
     def _get_templates(self, config):
         """ """
@@ -68,20 +75,34 @@ class Jinja(models.Planner):
         self.logger.warning(f"found j2 templates: {templates}")
         return templates
 
+    def list(self, config=None):
+        """ """
+        return self._find_j2s(config or project.get_config())
+
+    def _get_jinja_context(self, config):
+        """
+        """
+        fname = f".tmp.{id(self)}"
+        with open(fname, 'w') as fhandle:
+            fhandle.write(text.to_json(config))
+        return f"--context-file {fname}"
+
     def plan(self, config=None) -> typing.List:
         """Creates a plan for this plugin"""
         config = config or project.get_config()
         plan = super(self.__class__, self).plan(config)
+        jctx = self._get_jinja_context(config)
+        self.logger.info("using `context` argument:")
+        self.logger.info(f"  {jctx}")
         templates = self._get_templates(config)
+        self.logger.info("using `templates` argument:")
+        self.logger.info(f"  {templates}")
         j2s = self._find_j2s(config)
-        if j2s:
-            plan += [
-                f"python -mpynchon.util.text render jinja {templates} --in-place {fname} "
-                for fname in j2s
-            ]
-        else:
-            err = "jinja-plugin is included in this config, but found no .j2 files!"
-            self.logger.warning(err)
+        cmd_t = "python -mpynchon.util.text render jinja"
+        plan += [
+            f"{cmd_t} {fname} {jctx} {templates} --in-place"
+            for fname in j2s
+        ]
         return plan
 
 

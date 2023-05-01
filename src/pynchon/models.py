@@ -231,8 +231,10 @@ class AbstractPlanner(BasePlugin):
 
     def plan(self, config=None) -> typing.List:
         """Creates a plan for this plugin"""
-        # write status event (used by the app-console)
-        events.lifecycle.send(stage=f"planning for `{self.__class__.name}`")
+        events.lifecycle.send(
+            # writes status event (used by the app-console)
+            stage=f"Planning for `{self.__class__.name}`"
+        )
         self.state = config
         return []
 
@@ -240,8 +242,10 @@ class AbstractPlanner(BasePlugin):
         """Executes the plan for this plugin"""
         from pynchon.util.os import invoke
 
-        # write status event (used by the app-console)
-        events.lifecycle.send(stage=f"applying for `{self.__class__.name}`")
+        events.lifecycle.send(
+            # write status event (used by the app-console)
+            stage=f"applying for `{self.__class__.name}`"
+        )
         plan = self.plan(config=config)
         return [invoke(p).succeeded for p in plan]
 

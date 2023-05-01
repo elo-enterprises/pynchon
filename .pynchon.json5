@@ -108,7 +108,7 @@
     "exclude_patterns": [
        // allows {tpls|paths|globs}
       // files that shouldn't show up in plans
-      "{{pynchon.src_root}}/pynchon/templates/**",
+      "**/{{pynchon.src_root}}/pynchon/templates/**",
     ],
 
     "template_includes": [

@@ -76,7 +76,6 @@ class stdout_handler(handler):
     def handle(self, result, **call_kwargs):
         """ """
         print_json(result)
-        # print(result, file=sys.stdout)
 
 
 class output_handler(handler):

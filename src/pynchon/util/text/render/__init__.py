@@ -130,11 +130,10 @@ def jinja(
     )
     env.globals.update(shell=shell_helper, env=os.getenv)
 
-    known_templates = map(abcs.Path, set(env.loader.list_templates()))
+    known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
     # known_templates = [str(p) for p in known_templates if dot not in p.parents]
     if known_templates:
         from pynchon.util import text as util_text
-
         msg = "Known templates: "
         msg += "(excluding the ones under working-dir)"
         msg += "\n{}".format(util_text.to_json(known_templates))
@@ -161,17 +160,19 @@ loads.jinja = j2_loads
 @options.should_print
 @options.option_inplace
 @options.option_templates
-@click.option('--context', help='context file.  must be JSON')
+@click.option('--context', help='context literal.  must be JSON')
+@click.option('--context-file', help='context file.  must be JSON')
 @click.argument("file", nargs=1)
 @tags(
     click_aliases=['jinja'],
 )
 def jinja_file(
     file: str,
-    output: str = "",
-    should_print: bool = False,
-    in_place: bool = False,
-    context: dict = {},
+    output: typing.StringMaybe = "",
+    should_print: typing.Bool = False,
+    in_place: typing.Bool = False,
+    context: typing.Dict = {},
+    context_file: typing.Dict = {},
     templates: typing.List[str] = ["."],
     strict: bool = True,
 ) -> str:
@@ -203,11 +204,18 @@ def jinja_file(
     #         **project_config,
     #     }
 
-    ctx = final_ctx = context
+    # ctx = final_ctx = context
+    if context_file:
+        assert not context
+        context = loadf.json(context_file)
+
     import sys
 
     content = THIS.loadf_jinja(
-        file=file, context=context or {}, templates=[templates], strict=strict
+        file=file,
+        context=context or {},
+        templates=[templates],
+        strict=strict
     )
 
     if in_place:

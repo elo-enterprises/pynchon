@@ -174,11 +174,10 @@ def jinja(
     )
     env.globals.update(shell=shell_helper, env=os.getenv)
 
-    known_templates = map(abcs.Path, set(env.loader.list_templates()))
+    known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
     # known_templates = [str(p) for p in known_templates if dot not in p.parents]
     if known_templates:
         from pynchon.util import text as util_text
-
         msg = "Known templates: "
         msg += "(excluding the ones under working-dir)"
         msg += "\n{}".format(util_text.to_json(known_templates))

@@ -47,11 +47,12 @@ class Visitor:
 
 
 def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):
-    """example `visitor`:
-
-    def visit(value=None, path=None):
-        print(f"[{path}: {value}]")
-        return value
+    """
+    # example `visitor`:
+    #
+    # def visit(value=None, path=None):
+    #     print(f"[{path}: {value}]")
+    #     return value
     """
     assert bool(visitor) ^ bool(visitor_kls) ^ bool(visitor_kwargs)
     paths = []
