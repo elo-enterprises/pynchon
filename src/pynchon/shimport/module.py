@@ -1,9 +1,6 @@
 """ shimport.module
 """
-import importlib
-
 from pynchon.util import typing
-from pynchon.abcs.path import Path
 
 from . import models
 

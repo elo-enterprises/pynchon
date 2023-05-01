@@ -1,15 +1,15 @@
 """ pynchon.util.text.loadf CLI
 """
-from pynchon import shimport
-from pynchon.cli import click, common, options
-from pynchon.util import text, typing, lme
-from pynchon.util.text import loadf as THIS
+from pynchon.util import typing, lme  # noqa
+from pynchon.cli import click, common, options  # noqa
 from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
 
 entry = common.entry_for(__name__)
 
+
+from pynchon import shimport
 
 tmp = (
     shimport.wrapper('pynchon.util.text.loadf')

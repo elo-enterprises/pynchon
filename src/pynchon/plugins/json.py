@@ -1,7 +1,8 @@
 """ pynchon.plugins.render
 """
+from pynchon.util import lme, typing  # noqa
+
 from pynchon import models, abcs
-from pynchon.util import lme, typing
 
 # from pynchon.util.os import invoke
 

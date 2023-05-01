@@ -1,6 +1,6 @@
 """ pynchon.plugins.plugins
 """
-from pynchon import abcs, models
+from pynchon import models
 
 from pynchon.util import lme, typing  # noqa
 

@@ -1,7 +1,8 @@
 """ pynchon.plugins.python.cli
 """
-from pynchon import shimport, abcs, models
-from pynchon.util import typing, lme
+from pynchon.util import typing, lme  # noqa
+
+from pynchon import abcs, models, shimport
 
 config_mod = shimport.lazy(
     'pynchon.config',

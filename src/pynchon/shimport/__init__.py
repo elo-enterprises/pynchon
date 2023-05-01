@@ -1,6 +1,6 @@
 """ {{pkg}}.util.importing
 """
-from importlib import import_module
+from importlib import import_module  # noqa
 
 from . import module as mod_module
 from .module import *

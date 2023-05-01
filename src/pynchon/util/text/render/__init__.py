@@ -9,15 +9,17 @@ from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
 from pynchon import abcs
-from pynchon.cli import click, common, options
-from pynchon.util import typing, lme, text
+from pynchon.cli import click, options
+from pynchon.util import text
 from pynchon.util.os import invoke
-from pynchon.util.text import loadf
-from pynchon.util.text import loadf as _sibling
-from pynchon.util.text import loads
 from pynchon.util.tagging import tags
 
+from pynchon.util import typing, lme  # noqa
+
 LOGGER = lme.get_logger(__name__)
+
+from pynchon.util.text import render as THIS
+from pynchon.util.text import loadf, loads
 
 
 def shell_helper(*args, **kwargs) -> typing.StringMaybe:
@@ -150,7 +152,7 @@ def jinja(
 
 j2_loads = jinja
 
-_sibling.jinja = jinja
+loadf.jinja = jinja
 
 
 @options.output
@@ -200,6 +202,7 @@ def jinja_file(
     #     }
 
     ctx = final_ctx = context
+    import sys
 
     content = THIS.loadf_jinja(
         file=file, context=context or {}, templates=[templates], strict=strict

@@ -4,7 +4,8 @@ import blinker
 
 # from .jenkins import Jenkins  # noqa
 from pynchon import shimport, config, abcs
-from pynchon.app import app
+
+# from pynchon.app import app
 
 from pynchon.util import lme, typing  # noqa
 

@@ -1,7 +1,7 @@
 """ pynchon.util.text CLI
 """
-from pynchon.cli import click, common
-from pynchon.util import lme, typing
+from pynchon.util import lme, typing  # noqa
+from pynchon.cli import common
 
 LOGGER = lme.get_logger(__name__)
 entry = common.entry_for(__name__)

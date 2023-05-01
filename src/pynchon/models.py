@@ -6,7 +6,7 @@ from pynchon import shimport
 from pynchon.api import project
 from pynchon.app import app
 from pynchon.bin import entry
-from pynchon.cli import click, common, options
+from pynchon.cli import click, common
 from pynchon.util import typing, lme, text
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
