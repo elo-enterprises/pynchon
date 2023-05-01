@@ -152,7 +152,7 @@ class JinjaDict(TemplatedDict):
         resolved = render.jinja(
             text=value,
             context={**self, **ctx},
-            templates=[],
+            # includes=[],
         )
         self.set_path(path, resolved)
         return resolved

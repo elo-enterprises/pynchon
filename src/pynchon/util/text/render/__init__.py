@@ -21,7 +21,7 @@ LOGGER = lme.get_logger(__name__)
 from pynchon.util.text import loadf, loads
 
 
-def _get_jinja_env(templates):
+def _get_jinja_env(includes, quiet: bool = False):
     """
     FIXME: Move to pynchon.api.render
     """
@@ -42,17 +42,16 @@ def _get_jinja_env(templates):
     import pynchon
 
     ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
-    templates += [ptemp]
-    templates = [abcs.Path(t) for t in templates]
+    includes += [ptemp]
+    includes = [abcs.Path(t) for t in includes]
 
-    for template_dir in templates:
+    for template_dir in includes:
         if not template_dir.exists:
             err = f"template directory @ `{template_dir}` does not exist"
             raise ValueError(err)
-    if templates:
-        LOGGER.warning(f"Templates: {templates}")
+    includes and (not quiet) and LOGGER.warning(f"Includes: {includes}")
     env = Environment(
-        loader=FileSystemLoader([str(t) for t in templates]),
+        loader=FileSystemLoader([str(t) for t in includes]),
         undefined=StrictUndefined,
     )
 
@@ -74,7 +73,7 @@ def _get_jinja_env(templates):
 def jinja_loadf(
     file: str,
     context: typing.Dict = {},
-    templates: typing.List[str] = [],
+    includes: typing.List[str] = [],
     strict: bool = True,
     quiet: bool = False,
 ) -> str:
@@ -87,7 +86,7 @@ def jinja_loadf(
     quiet and LOGGER.debug("render context: \n{}".format(text.to_json(context)))
     tmp = list(context.keys())
     quiet and LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
-    content = jinja(text=content, context=context, templates=templates)
+    content = jinja(text=content, context=context, includes=includes)
     return content
 
 
@@ -95,13 +94,13 @@ def jinja_loadf(
 def jinja(
     text: str = "",
     context: dict = {},
-    templates: typing.List[abcs.Path] = [abcs.Path(".")],
+    includes: typing.List[str] = [],
     strict: bool = True,
 ):
     """
     Renders jinja-templates (with support for includes)
     """
-    env = _get_jinja_env(templates)
+    env = _get_jinja_env(includes)
     template = env.from_string(text)
     context = {
         # FIXME: try to santize this
@@ -118,7 +117,7 @@ def jinja(
         raise
     except (jinja2.exceptions.TemplateNotFound,) as exc:
         LOGGER.critical(f"Template exception: {exc}")
-        LOGGER.critical(f"User-provided templates: {templates}")
+        LOGGER.critical(f"Jinja-includes: {includes}")
         err = getattr(exc, 'templates', exc.message)
         LOGGER.critical(f"Problem template: {err}")
         import IPython
@@ -128,9 +127,11 @@ def jinja(
 
 
 @options.output
+@options.inplace
 @options.should_print
-@options.option_inplace
-@options.option_templates
+@options.includes
+# @options.context
+# @options.context_file
 @click.option('--context', help='context literal.  must be JSON')
 @click.option('--context-file', help='context file.  must be JSON')
 @click.argument("file", nargs=1)
@@ -144,7 +145,7 @@ def jinja_file(
     in_place: typing.Bool = False,
     context: typing.Dict = {},
     context_file: typing.Dict = {},
-    templates: typing.List[str] = ["."],
+    includes: typing.List[str] = [],
     strict: bool = True,
 ) -> str:
     """
@@ -163,7 +164,7 @@ def jinja_file(
     content = jinja_loadf(
         file=file,
         context=context,
-        templates=[templates],
+        includes=includes,
         strict=strict,
     )
 

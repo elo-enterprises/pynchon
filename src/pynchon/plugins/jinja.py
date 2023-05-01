@@ -66,7 +66,7 @@ class Jinja(models.Planner):
         """ """
         templates = config.jinja['template_includes']
         templates = [t for t in templates]
-        templates = [f"--templates {t}" for t in templates]
+        templates = [f"--include {t}" for t in templates]
         templates = " ".join(templates)
         self.logger.warning(f"found j2 templates: {templates}")
         return templates

@@ -1,10 +1,10 @@
-""" pynchon.bin.options:
+""" pynchon.cli.options:
+
     Common options for CLI
 """
 import os
 
-import click
-
+from pynchon.cli import click
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
@@ -22,7 +22,7 @@ inplace = in_place = click.option(
     default=False,
     help=("if true, writes to {file}.{ext} (dropping any other extensions)"),
 )
-option_inplace = inplace
+
 should_print = click.option(
     '--print',
     'should_print',
@@ -31,14 +31,15 @@ should_print = click.option(
     is_flag=True,
 )
 
-option_templates = click.option(
-    "-t",
-    "--templates",
-    default=".",
+includes = click.option(
+    "--include",
+    'includes',
+    default=[],
     help=("path to use for template-root / includes"),
-    # cls=OptionEatAll,
+    multiple=True,
+    # type=list,
+    # cls=click.OptionEatAll,
 )
-template = option_templates
 
 script = click.option("--script", default=None, help=("script to use"))
 ctx = click.option("--ctx", default="", help=("context to use"))
