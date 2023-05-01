@@ -8,6 +8,7 @@
   // BEGIN: top-level config
   // Everything here is optional.
   // Literals only; no templating please!
+
   "src_root": "src",
 
   "src_patterns": [
@@ -30,6 +31,9 @@
     // Recommended for projects with source-code
     "fixme", "todo", "headers",
 
+    //
+    "cicd",
+
     // Standard if there's a python-project
     "pypi", "python-api", "python-cli",
 
@@ -51,9 +55,11 @@
       "**/build/lib/**",
     ],
 
-  }, // END top-level config.
+  },
 
-  // BEGIN plugins-config
+  // END: top-level config
+  // BEGIN: plugins-config
+
   // Hooks plugin customization.
   "hooks":{},
 
@@ -93,33 +99,44 @@
      ],
    },
 
-   // Scaffolding plugin customization.
+   // Jinja plugin customization.
    "jinja":{
      "context_vars": {
-        // allows {tpls|json}
        // extra context-vars passed for renders
+        // allows {tpls|json}
       },
 
      "filter_includes": [
+       // where to load jinja filters from
        // allows {tpls|paths|globs}
-      // where to load jinja filters from
      ],
 
     "exclude_patterns": [
-       // allows {tpls|paths|globs}
       // files that shouldn't show up in plans
+       // allows {tpls|paths|globs}
       "**/{{pynchon.src_root}}/pynchon/templates/**",
     ],
 
     "template_includes": [
-       // allows {tpls|paths|globs}
       // paths to load templates from
+       // allows {tpls|paths|globs}
       "{{pynchon.docs_root}}/includes",
     ],
   },
 
-  // Scaffolding plugin customization.
+  // PyPI plugin customization.
+  // This isn't fancy; for now just a provider
+  // that holds details that might be used by rendering.
   "pypi": {
     "name":"THE public PyPI"
-  }
+  },
+
+  // CI/CD plugin customization.
+  // This isn't fancy; for now just a provider
+  // that holds details that might be used by rendering.
+  "cicd": {
+    // "url_base": "",
+    // "url_build": "",
+    "url_deploy": "OVERRIDE",
+  },
 }

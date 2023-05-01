@@ -120,6 +120,9 @@ def jinja(
         LOGGER.critical(f"User-provided templates: {templates}")
         err = getattr(exc, 'templates', exc.message)
         LOGGER.critical(f"Problem template: {err}")
+        import IPython
+
+        IPython.embed()
         raise
 
 

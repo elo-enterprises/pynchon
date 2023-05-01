@@ -2,49 +2,12 @@
 """
 import os
 
-import click
-
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     result = render.dot(file, output=output, in_place=in_place)
-#     output = result["output"]
-#     if open_after:
-#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-#         invoke(f"{DEFAULT_OPENER} {output}")
-#
 from pynchon import abcs, models
-from pynchon.cli import common, options
-
-# from pynchon.bin import common
-from pynchon.util import lme, files, typing
+from pynchon.util import files
 from pynchon.util.os import invoke
 
-kommand = common.kommand
-# @kommand(
-#     name="dot",
-#     parent=PARENT,
-#     options=[
-#         options.output,
-#         click.option(
-#             "--open",
-#             "open_after",
-#             is_flag=True,
-#             default=False,
-#             help=(f"if true, opens the created file using {DEFAULT_OPENER}"),
-#         ), options.option_inplace
-#     ],
-#     arguments=[files_arg],
-# )
-# def render_dot(files, output, in_place, open_after):
-#     """
-#     Render dot file (graphviz) -> PNG
-#     """
+from pynchon.cli import click, common, options  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -122,7 +85,7 @@ class Dot(models.Planner):
         LOGGER = lme.get_logger(__name__)
         files_arg = click.argument("files", nargs=-1)
 
-        @kommand(
+        @common.kommand(
             name="files",
             parent=parent,
             # formatters=dict(),
@@ -154,3 +117,19 @@ class Dot(models.Planner):
             """
             assert os.path.exists(script), f"script file @`{script}` is missing!"
             invoke(f"python {script}")
+
+
+#     assert files, "expected files would be provided"
+#     # if file:
+#     #     return render.j5(file, output=output, in_place=in_place)
+#     # elif files:
+#     # files = files.split(' ')
+#     LOGGER.debug(f"Running with many: {files}")
+#     file = files[0]
+#     files = files[1:]
+#     result = render.dot(file, output=output, in_place=in_place)
+#     output = result["output"]
+#     if open_after:
+#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
+#         invoke(f"{DEFAULT_OPENER} {output}")
+#
