@@ -6,39 +6,37 @@ from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon.util.text.render import __main__ as render_main
+# from pynchon.util.text.render import __main__ as render_main
 
+# @property
+# def _base(self) -> abcs.AttrDict:
+#     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
 
-class JinjaConfig(abcs.Config):
-
-    config_key = "jinja"
-    defaults = dict()
-    # @property
-    # def _base(self) -> abcs.AttrDict:
-    #     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
-
-    # @property
-    # def template_includes(self) -> typing.List:
-    #     docs_root = initialized["pynchon"].get("docs_root", None)
-    #     docs_root = docs_root and abcs.Path(docs_root)
-    #     if docs_root:
-    #         extra = [abcs.Path(docs_root.joinpath("templates"))]
-    #     else:
-    #         LOGGER.warning("`docs_root` is not set; cannot guess `jinja.template_includes`")
-    #         extra = []
-    #     return extra + self._base.get("template_includes", [])
+# @property
+# def template_includes(self) -> typing.List:
+#     docs_root = initialized["pynchon"].get("docs_root", None)
+#     docs_root = docs_root and abcs.Path(docs_root)
+#     if docs_root:
+#         extra = [abcs.Path(docs_root.joinpath("templates"))]
+#     else:
+#         LOGGER.warning("`docs_root` is not set; cannot guess `jinja.template_includes`")
+#         extra = []
+#     return extra + self._base.get("template_includes", [])
 
 
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 
     name = "jinja"
-    defaults = dict()
-    config_class = JinjaConfig
     cli_subsumes: typing.List[typing.Callable] = [
-        render_main.j2cli,
-        render_main.jinja_file,
+        # render_main.j2cli,
+        # render_main.jinja_file,
     ]
+
+    class config_class(abcs.Config):
+
+        config_key = "jinja"
+        defaults = dict()
 
     def _get_exclude_patterns(self, config):
         """ """

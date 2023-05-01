@@ -43,7 +43,7 @@ LOGGER = lme.get_logger(__name__)
 #             fhandle.write(f"{content}\n")
 #     return data
 
-from pynchon.util.text.loadf import __main__ as loadf_main
+# from pynchon.util.text.loadf import __main__ as loadf_main
 
 
 class Json(models.ToolPlugin):
