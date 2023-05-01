@@ -12,6 +12,24 @@ from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
+def subsume_subs(root=None, parent=None):
+    from pynchon import shimport
+    from pynchon.cli import click
+    shimport.wrap(root).filter_folder(include_main=True).prune(
+        name_is='entry',  # default
+    ).map(
+        lambda ch: [
+            ch.name.replace('.__main__', '').split('.')[-1],
+            ch.namespace['entry'],
+        ]
+    ).starmap(
+        lambda name, fxn: [
+            setattr(fxn, 'name', name),
+            click.group_copy(fxn, parent),
+        ]
+    )
+
+
 # from rich.console import Console
 # class BetterGroup(click.Group):
 #     def format_usage(self,ctx,formatter):
