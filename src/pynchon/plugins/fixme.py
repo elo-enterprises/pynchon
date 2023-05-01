@@ -9,8 +9,6 @@ from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
-T_FIXME = constants.ENV.get_template("plugins/FIXME.md.j2")
-
 
 class FixMeConfig(abcs.Config):
     config_key = 'fixme'
@@ -36,6 +34,9 @@ class FixMe(models.Planner):
     def init_cli(kls):
         """"""
         parent = kls.click_group
+        T_FIXME = constants.ENV.get_template(
+            "pynchon/plugins/plugins/fixme/FIXME.md.j2"
+        )
 
         @common.kommand(
             name="gen",

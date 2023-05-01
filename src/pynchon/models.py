@@ -1,13 +1,12 @@
 """ pynchon.models
 """
-# from memoized_property import memoized_property
+from pynchon.util import typing, lme  # noqa
 
 from pynchon import shimport
 from pynchon.api import project
 from pynchon.app import app
 from pynchon.bin import entry
 from pynchon.cli import click, common
-from pynchon.util import typing, lme, text
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 
@@ -142,9 +141,9 @@ class CliPlugin(PynchonPlugin):
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
                 result = fxn(*args, **kwargs)
-                from rich import print_json
-
-                print_json(text.to_json(result))
+                # FIXME: this wraps twice?
+                # from rich import print_json
+                # print_json(text.to_json(result))
                 return result
 
             kls.click_create_cmd(fxn, wrapper=wrapper)

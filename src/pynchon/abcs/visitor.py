@@ -16,7 +16,6 @@ class Visitor:
         self,
         filter_path=lambda _: True,
         filter_value=lambda _: True,
-        # trigger=lambda p, v: [print(f"[{p}: {v}]", file=sys.stderr)],
         trigger=lambda p, v: (p, v),
         paths=[],
         obj=None,
@@ -51,7 +50,7 @@ def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):
     # example `visitor`:
     #
     # def visit(value=None, path=None):
-    #     print(f"[{path}: {value}]")
+    #     LOGGER.debug(f"[{path}: {value}]")
     #     return value
     """
     assert bool(visitor) ^ bool(visitor_kls) ^ bool(visitor_kwargs)

@@ -22,7 +22,9 @@ from pynchon.util.text import loadf, loads
 
 
 def _get_jinja_env(templates):
-    """ """
+    """
+    FIXME: Move to pynchon.api.render
+    """
 
     def _get_jinja_globals():
         """ """
@@ -39,7 +41,7 @@ def _get_jinja_env(templates):
 
     import pynchon
 
-    ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates'
+    ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
     templates += [ptemp]
     templates = [abcs.Path(t) for t in templates]
 

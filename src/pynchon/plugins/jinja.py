@@ -10,10 +10,6 @@ LOGGER = lme.get_logger(__name__)
 # from pynchon.util.text.render import __main__ as render_main
 
 # @property
-# def _base(self) -> abcs.AttrDict:
-#     return abcs.AttrDict(**initialized["pynchon"].get("jinja", {}))
-
-# @property
 # def template_includes(self) -> typing.List:
 #     docs_root = initialized["pynchon"].get("docs_root", None)
 #     docs_root = docs_root and abcs.Path(docs_root)
@@ -86,7 +82,11 @@ class Jinja(models.Planner):
             fhandle.write(text.to_json(config))
         return f"--context-file {fname}"
 
-    def plan(self, config=None) -> typing.List:
+    def plan(
+        self,
+        config=None,
+        # relative_paths: bool = True,
+    ) -> typing.List:
         """Creates a plan for this plugin"""
         config = config or project.get_config()
         plan = super(self.__class__, self).plan(config)
@@ -96,7 +96,8 @@ class Jinja(models.Planner):
         templates = self._get_templates(config)
         self.logger.info("using `templates` argument:")
         self.logger.info(f"  {templates}")
-        j2s = self._find_j2s(config)
+        j2s = self.list(config)
+        self.logger.warning(f"plan covers: {text.to_json(j2s)}")
         cmd_t = "python -mpynchon.util.text render jinja"
         plan += [f"{cmd_t} {fname} {jctx} {templates} --in-place" for fname in j2s]
         return plan
