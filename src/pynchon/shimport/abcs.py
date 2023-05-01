@@ -6,11 +6,11 @@ import itertools
 class FilterResult(list):
     """ """
 
-    def map(self, fxn):
+    def map(self, fxn, logger: object = None):
         """ """
         return FilterResult(list(map(fxn, self)))
 
-    def starmap(self, fxn):
+    def starmap(self, fxn, logger: object = None):
         """ """
         return FilterResult(list(itertools.starmap(fxn, self)))
 

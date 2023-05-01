@@ -170,7 +170,7 @@ class ModulesWrapper(Base):
         prune: typing.Dict = {},
         filter: typing.Dict = {},
         select: typing.Dict = {},
-        merge_filters=False,
+        # merge_filters=False,
         # rekey=None,
         # return_values=None,
         **kwargs,

@@ -2,6 +2,7 @@
 """
 import importlib
 
+
 def get_namespace(name):
     """
     FIXME: use FakeModule?

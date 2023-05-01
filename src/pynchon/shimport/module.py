@@ -73,7 +73,11 @@ def wrap(name, **kwargs):
 wrapper = wrap
 
 
-def registry_builder(name, itemizer=None, **kargs):
+def registry_builder(
+    name,
+    # itemizer=None,
+    **kargs,
+):
     """ """
     wrapped = wrap(
         name,
