@@ -18,75 +18,11 @@ from pynchon.util import typing, lme  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon.util.text import render as THIS
 from pynchon.util.text import loadf, loads
 
 
-def shell_helper(*args, **kwargs) -> typing.StringMaybe:
-    """ """
-    out = invoke(*args, **kwargs)
-    assert out.succeeded
-    return out.stdout
-
-
-# def json5_loadc(
-#     output: str = '',
-#     files: typing.List[str] = [],
-#     wrapper_key: str = '',
-#     pull: str = '',
-#     push_data: str = '',
-#     push_file_data: str = '',
-#     push_json_data: str = '',
-#     push_command_output: str = '',
-#     under_key: str = '',
-# ) -> None:
-#     """
-#     loads json5 file(s) and outputs json.
-#     if multiple files are provided, files will
-#     be merged with overwrites in the order provided
-#     """
-#     out: typing.Dict[str, typing.Any] = {}
-#     for file in files:
-#         obj = loadf.json5(file=file)
-#         out = {**out, **obj}
-#
-#     push_args = [push_data, push_file_data, push_json_data, push_command_output]
-#     if any(push_args):
-#         assert under_key
-#         assert under_key not in out, f'content already has key@{under_key}!'
-#         assert (
-#             sum([1 for x in push_args if x]) == 1
-#         ), 'only one --push arg can be provided!'
-#         if push_data:
-#             assert isinstance(push_data, (str,))
-#             push = push_data
-#         elif push_command_output:
-#             cmd = invoke(push_command_output)
-#             if cmd.succeeded:
-#                 push = cmd.stdout
-#             else:
-#                 err = cmd.stderr
-#                 LOGGER.critical(err)
-#                 raise SystemExit(1)
-#         elif push_json_data:
-#             push = loads.json5(content=push_json_data)
-#         elif push_file_data:
-#             err = f'file@{push_file_data} doesnt exist'
-#             assert os.path.exists(push_file_data), err
-#             with open(push_file_data, 'r') as fhandle:
-#                 push = fhandle.read()
-#         out[under_key] = push
-#
-#     if wrapper_key:
-#         # NB: must remain after push
-#         out = {wrapper_key: out}
-#
-#     return out
-#
-
-
 @typing.validate_arguments
-def loadf_jinja(
+def jinja_loadf(
     file: str,
     context: typing.Dict = {},
     templates: typing.List[str] = ["."],
@@ -94,7 +30,7 @@ def loadf_jinja(
     quiet: bool = False,
 ) -> str:
     """ """
-    # from pynchon.util.text.render import j2_loads
+    # from pynchon.util.text.render import jinja
     context = {} if context is None else context
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
@@ -102,7 +38,7 @@ def loadf_jinja(
     quiet and LOGGER.debug("render context: \n{}".format(text.to_json(context)))
     tmp = list(context.keys())
     quiet and LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
-    content = j2_loads(text=content, context=context, templates=templates)
+    content = jinja(text=content, context=context, templates=templates)
     return content
 
 
@@ -117,23 +53,32 @@ def jinja(
     Renders jinja-templates (with support for includes)
     """
 
+    def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
+        """
+        A jinja filter/extension
+        """
+        out = invoke(*args, **kwargs)
+        assert out.succeeded
+        return out.stdout
+
     templates = [abcs.Path(t) for t in templates]
     for template_dir in templates:
         if not template_dir.exists:
             err = f"template directory @ `{template_dir}` does not exist"
             raise ValueError(err)
     if templates:
-        LOGGER.critical(f"Templates: {templates}")
+        LOGGER.warning(f"Templates: {templates}")
     env = Environment(
         loader=FileSystemLoader([str(t) for t in templates]),
         undefined=StrictUndefined,
     )
-    env.globals.update(shell=shell_helper, env=os.getenv)
+    env.globals.update(invoke=invoke_helper, env=os.getenv)
 
     known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
     # known_templates = [str(p) for p in known_templates if dot not in p.parents]
     if known_templates:
         from pynchon.util import text as util_text
+
         msg = "Known templates: "
         msg += "(excluding the ones under working-dir)"
         msg += "\n{}".format(util_text.to_json(known_templates))
@@ -148,12 +93,6 @@ def jinja(
         LOGGER.critical(exc)
         LOGGER.critical(known_templates)
         raise RuntimeError()
-
-
-j2_loads = jinja
-
-loadf.jinja = jinja
-loads.jinja = j2_loads
 
 
 @options.output
@@ -179,43 +118,21 @@ def jinja_file(
     """
     Renders jinja2 file (supports includes, custom filters)
     """
-    # def get_pynchon_ctx():
-    #     # from pynchon.api import project
-    #     # project_config = project.get_config()
-    #     project_config={}
-    #     user_ctx = context
-    #     if not isinstance(user_ctx, (dict,)):
-    #         ext = abcs.Path(ctx).splitext()[-1]
-    #         if "{" in user_ctx:
-    #             LOGGER.debug(
-    #                 "found bracket in context, assuming it is data instead of file."
-    #             )
-    #             ctx = json.loads(ctx)  # noqa
-    #         elif ext in ["json"]:
-    #             LOGGER.debug(f"context is json file @ `{ctx}`")
-    #             with open(ctx, "r") as fhandle:
-    #                 ctx = json.loads(fhandle.read())
-    #         else:
-    #             LOGGER.critical(f"unrecognized extension for context file: {ext}")
-    #             raise TypeError(ext)
-    #
-    #     return {
-    #         **ctx,
-    #         **project_config,
-    #     }
+    if isinstance(context, (str,)):
+        LOGGER.warning("provided `context` is a string, loading it as JSON")
+        context = loads.json(context)
 
-    # ctx = final_ctx = context
     if context_file:
         assert not context
         context = loadf.json(context_file)
 
     import sys
 
-    content = THIS.loadf_jinja(
+    content = jinja_loadf(
         file=file,
-        context=context or {},
+        context=context,
         templates=[templates],
-        strict=strict
+        strict=strict,
     )
 
     if in_place:
@@ -257,8 +174,6 @@ def j2cli(
 
     NB: No support for jinja-includes or custom filters.
     """
-    from pynchon.util.os import invoke
-
     cmd = f'j2 --format {format} {file} {context}'
     result = invoke(cmd)
     if not result.succeeded:
@@ -276,3 +191,9 @@ def j2cli(
     print(msg, file=open(output, 'w'))
     if should_print and output != '/dev/stdout':
         print(msg)
+
+
+# assign utils back to sibling modules for convenience
+# FIXME: is this smart?
+loadf.jinja = jinja
+loads.jinja = jinja

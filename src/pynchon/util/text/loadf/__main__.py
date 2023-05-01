@@ -38,25 +38,3 @@ LOGGER.debug(tmp)
 
 if __name__ == '__main__':
     entry()
-
-# @options.strict
-# @click.argument("files", nargs=-1)
-# def json_load(
-#     files: typing.List[str] = [],
-#     strict: bool = True,
-# ) -> None:
-#     """
-#     loads json5 file(s) and outputs json.
-#     if multiple files are provided, files will
-#     be merged with overwrites in the order provided
-#     """
-#     out: typing.Dict[str, typing.Any] = {}
-#     for file in files:
-#         obj = THIS.json(file=file, strict=strict)
-#         out = {**out, **obj}
-#     print(text.to_json(out))
-# json = entry.command('json')(json_load)
-
-
-# json5 = common.kommand('json5',parent=entry)(THIS.json5)
-# j5 = entry.command('j5')(THIS.json5)

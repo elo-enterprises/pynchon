@@ -1,6 +1,6 @@
 """ pynchon.plugins.jinja
 """
-from pynchon.util import lme, typing # noqa
+from pynchon.util import lme, typing  # noqa
 from pynchon import abcs, models
 from pynchon.api import project
 from pynchon.util import files, text
@@ -80,8 +80,7 @@ class Jinja(models.Planner):
         return self._find_j2s(config or project.get_config())
 
     def _get_jinja_context(self, config):
-        """
-        """
+        """ """
         fname = f".tmp.{id(self)}"
         with open(fname, 'w') as fhandle:
             fhandle.write(text.to_json(config))
@@ -99,10 +98,7 @@ class Jinja(models.Planner):
         self.logger.info(f"  {templates}")
         j2s = self._find_j2s(config)
         cmd_t = "python -mpynchon.util.text render jinja"
-        plan += [
-            f"{cmd_t} {fname} {jctx} {templates} --in-place"
-            for fname in j2s
-        ]
+        plan += [f"{cmd_t} {fname} {jctx} {templates} --in-place" for fname in j2s]
         return plan
 
 

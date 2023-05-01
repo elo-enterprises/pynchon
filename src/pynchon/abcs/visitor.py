@@ -150,7 +150,7 @@ class JinjaDict(TemplatedDict):
 
         strict and True
         value = self.get_path(path)
-        resolved = render.j2_loads(
+        resolved = render.jinja(
             text=value,
             context={**self, **ctx},
             templates=[],
