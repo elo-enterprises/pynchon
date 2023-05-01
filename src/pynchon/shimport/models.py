@@ -35,9 +35,21 @@ def get_namespace(name):
 
 
 import logging
+base_filter =filter
+class Base(object):
+    @classmethod
+    def classmethod_dispatch(kls, *args):
+        """ """
+        from multipledispatch import dispatch
 
+        def dec(fxn):
+            return classmethod(dispatch(type(kls), *args)(fxn))
 
-class ModulesWrapper(object):
+        return dec
+class ModulesWrapper(Base):
+
+    # @Base.classmethod_dispatch()
+
     class Error(ImportError):
         pass
 
@@ -93,8 +105,6 @@ class ModulesWrapper(object):
         self.filter_failure_raises = filter_failure_raises
         if kwargs:
             raise TypeError(f'extra kwargs: {kwargs}')
-        # if not lazy:
-        #     self.import_side_effects()
 
     @property
     def module(self):
@@ -116,7 +126,6 @@ class ModulesWrapper(object):
     def select(self, **filter_kwargs):
         tmp = list(
             self.filter(
-                # return_values=True,
                 **filter_kwargs
             )
         )
@@ -137,20 +146,16 @@ class ModulesWrapper(object):
             setattr(self.module, assignment, self.namespace[assignment])
 
     def prune(self, **filters):
+        self.logger.critical(f"prune: {filters}")
         self.namespace = self.filter(**filters)
         return self
 
-    def filter_folder(
+    def get_folder_children(
         self,
         include_main: str = True,
         exclude_private=True,
-        filter: typing.Dict = {},
-        select: typing.Dict = {},
-        merge_filters=False,
-        # rekey=None,
-        # return_values=None,
+
     ):
-        """ """
         import os
         import glob
 
@@ -168,34 +173,57 @@ class ModulesWrapper(object):
             rel = rel.parents[0] / rel.stem
             rel = str(rel).replace(os.path.sep, '.')
             dotpath = f"{self.name}.{rel}"
-            child = ModulesWrapper(name=dotpath, import_mods=[dotpath])
+            child = ModulesWrapper(
+                name=dotpath,
+                import_mods=[dotpath],
+                import_names=[f"{dotpath}.*"])
             children.append(child)
-        if not (filter or select):
+        return children
+
+    def filter_folder(
+        self,
+        prune: typing.Dict = {},
+        filter: typing.Dict = {},
+        select: typing.Dict = {},
+        merge_filters=False,
+        rekey=None,
+        # return_values=None,
+        **kwargs
+    ):
+        """ """
+        self.logger.critical(f"filter_folder: {locals()}")
+        children = self.get_folder_children(**kwargs)
+
+        if sum([1 for choice in [filter,select,prune]])==0:
             return children
         else:
             result = []
-            assert bool(filter) ^ bool(select)
+            assert sum([1 for choice in [filter,select,prune] if bool(choice)])==1
             filter_results = []
             for child in children:
-                fxn = child.filter if filter else child.select
-                kwargs = filter if filter else select
+                if filter:
+                    fxn,kwargs = child.filter, filter
+                if select:
+                    fxn,kwargs = child.select, select
+                if prune:
+                    fxn, kwargs = child.prune, prune
                 matches = fxn(**kwargs)
+                if prune:
+                    matches = matches.namespace
                 if matches:
-                    import IPython
-
-                    IPython.embed()
                     filter_results.append([child, matches])
                     result.append(child)
-            if not merge_filters:
-                return result
-            else:
-                out = {}
-                for child, fres in filter_results:
-                    out = {**out, **child.namespace}
-                return out
+            children=[x for x in children if x.namespace]
+            # if not merge_filters:
+            #     return result
+            # else:
+            out = {}
+            for child in children:
+                out = {**out, **child.namespace}
 
-        # if rekey is not None:
-        #     return dict([rekey(ch) for ch in result])
+            if rekey is not None:
+                return dict([rekey(ch) for ch in out.values()])
+
         # if return_values:
         #     # raise Exception([ch.namespace.values() for ch in result])
         #     result = [child.namespace for child in result]
@@ -258,6 +286,11 @@ class ModulesWrapper(object):
 
     def namespace_modified_hook(self, assignment, val):
         """ """
+    def do_import_name(self, arg):
+        tmp = self.normalize_import(arg)
+        # import IPython; IPython.embed()
+        # raise Exception(tmp)
+        return self
 
     def import_side_effects(
         self,
@@ -272,6 +305,7 @@ class ModulesWrapper(object):
 
         for name in self.import_names:
             import_statements.append(self.normalize_import(name))
+            self.do_import_name(name)
 
         if self.import_children:
             mod_file = self.module.__file__

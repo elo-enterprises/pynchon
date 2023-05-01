@@ -9,23 +9,15 @@ entry = common.entry_for(__name__)
 
 from pynchon.util import text as THIS
 
-subs = shimport.module(THIS).filter_folder(
+for ch in shimport.wrap(THIS).filter_folder(
     include_main=True,
-    merge_filters=True,
-    select=dict(
+    prune=dict(
         name_is='entry',  # default
-    ),
-)
-raise Exception(subs)
-for ch in subs:
-    setattr(
-        THIS,
-        ch.name.replace('.__main__', '').split('.')[-1],
-        # FIXME: why, access should be safe based on filter
-        getattr(ch.module, 'entry', None),
     )
+):
+    that = ch.namespace['entry']
+    that.name = ch.name.replace('.__main__', '').split('.')[-1]
+    click.group_copy(that, entry)
 
 if __name__ == '__main__':
-    click.group_copy(THIS.render, entry)
-    click.group_copy(THIS.loadf, entry)
     entry()
