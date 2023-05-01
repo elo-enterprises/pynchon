@@ -35,7 +35,10 @@ def get_namespace(name):
 
 
 import logging
-base_filter =filter
+
+base_filter = filter
+
+
 class Base(object):
     @classmethod
     def classmethod_dispatch(kls, *args):
@@ -46,6 +49,24 @@ class Base(object):
             return classmethod(dispatch(type(kls), *args)(fxn))
 
         return dec
+
+
+class SearchResult(list):
+    def map(self, fxn):
+        return SearchResult(list(map(fxn, self)))
+
+    def starmap(self, fxn):
+        import itertools
+
+        return SearchResult(list(itertools.starmap(fxn, self)))
+
+    def prune(self, **kwargs):
+        return SearchResult(filter(None, [x.prune(**kwargs) for x in self]))
+
+    def filter(self, **kwargs):
+        return SearchResult([x.filter(**kwargs) for x in self])
+
+
 class ModulesWrapper(Base):
 
     # @Base.classmethod_dispatch()
@@ -124,11 +145,7 @@ class ModulesWrapper(Base):
         return self.__class__(name='.'.join(self.name.split('.')[:-1]))
 
     def select(self, **filter_kwargs):
-        tmp = list(
-            self.filter(
-                **filter_kwargs
-            )
-        )
+        tmp = list(self.filter(**filter_kwargs))
         assert len(tmp) == 1
         return tmp[0]
 
@@ -148,13 +165,12 @@ class ModulesWrapper(Base):
     def prune(self, **filters):
         self.logger.critical(f"prune: {filters}")
         self.namespace = self.filter(**filters)
-        return self
+        return self if self.namespace else None
 
     def get_folder_children(
         self,
         include_main: str = True,
         exclude_private=True,
-
     ):
         import os
         import glob
@@ -174,9 +190,8 @@ class ModulesWrapper(Base):
             rel = str(rel).replace(os.path.sep, '.')
             dotpath = f"{self.name}.{rel}"
             child = ModulesWrapper(
-                name=dotpath,
-                import_mods=[dotpath],
-                import_names=[f"{dotpath}.*"])
+                name=dotpath, import_mods=[dotpath], import_names=[f"{dotpath}.*"]
+            )
             children.append(child)
         return children
 
@@ -186,48 +201,54 @@ class ModulesWrapper(Base):
         filter: typing.Dict = {},
         select: typing.Dict = {},
         merge_filters=False,
-        rekey=None,
+        # rekey=None,
         # return_values=None,
-        **kwargs
+        **kwargs,
     ):
         """ """
         self.logger.critical(f"filter_folder: {locals()}")
-        children = self.get_folder_children(**kwargs)
-
-        if sum([1 for choice in [filter,select,prune]])==0:
+        children = SearchResult(self.get_folder_children(**kwargs))
+        if sum([1 for choice in map(bool, [filter, select, prune]) if choice]) == 0:
             return children
         else:
-            result = []
-            assert sum([1 for choice in [filter,select,prune] if bool(choice)])==1
-            filter_results = []
-            for child in children:
-                if filter:
-                    fxn,kwargs = child.filter, filter
-                if select:
-                    fxn,kwargs = child.select, select
-                if prune:
-                    fxn, kwargs = child.prune, prune
-                matches = fxn(**kwargs)
-                if prune:
-                    matches = matches.namespace
-                if matches:
-                    filter_results.append([child, matches])
-                    result.append(child)
-            children=[x for x in children if x.namespace]
-            # if not merge_filters:
-            #     return result
-            # else:
-            out = {}
-            for child in children:
-                out = {**out, **child.namespace}
+            import IPython
 
-            if rekey is not None:
-                return dict([rekey(ch) for ch in out.values()])
+            IPython.embed()
+            result = []
+            if sum([1 for choice in [filter, select, prune] if bool(choice)]) == 1:
+                filter_results = []
+                if filter:
+                    fxn, kwargs = children.filter, filter
+                if select:
+                    fxn, kwargs = children.select, select
+                if prune:
+                    fxn, kwargs = children.prune, prune
+                children = SearchResult(fxn(**kwargs))
+                return children
+                # import IPython; IPython.embed()
+                # for child in children:
+                #     matches = fxn(**kwargs)
+                #     if prune:
+                #         matches = matches.namespace
+                #     if matches:
+                #         filter_results.append([child, matches])
+                #         result.append(child)
+                # return SearchResult(children)
+                # return SearchResult(children)
+                # if not merge_filters:
+                #     return result
+                # else:
+                # out = {}
+                # for child in children:
+                #     out = {**out, **child.namespace}
+
+                # if rekey is not None:
+                #     return dict([rekey(ch) for ch in out.values()])
 
         # if return_values:
         #     # raise Exception([ch.namespace.values() for ch in result])
         #     result = [child.namespace for child in result]
-        return result
+        return SearchResult(result)
 
     def __items__(self):
         return self.namespace.__items__()
@@ -286,6 +307,7 @@ class ModulesWrapper(Base):
 
     def namespace_modified_hook(self, assignment, val):
         """ """
+
     def do_import_name(self, arg):
         tmp = self.normalize_import(arg)
         # import IPython; IPython.embed()

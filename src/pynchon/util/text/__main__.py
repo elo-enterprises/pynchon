@@ -7,17 +7,25 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 entry = common.entry_for(__name__)
 
-from pynchon.util import text as THIS
-
-for ch in shimport.wrap(THIS).filter_folder(
-    include_main=True,
-    prune=dict(
+registry = (
+    shimport.wrap('pynchon.util.text')
+    .filter_folder(include_main=True)
+    .prune(
         name_is='entry',  # default
     )
-):
-    that = ch.namespace['entry']
-    that.name = ch.name.replace('.__main__', '').split('.')[-1]
-    click.group_copy(that, entry)
+    .map(
+        lambda ch: [
+            ch.name.replace('.__main__', '').split('.')[-1],
+            ch.namespace['entry'],
+        ]
+    )
+    .starmap(
+        lambda name, fxn: [
+            setattr(fxn, 'name', name),
+            click.group_copy(fxn, entry),
+        ]
+    )
+)
 
 if __name__ == '__main__':
     entry()
