@@ -1,42 +1,19 @@
 """ shimport.models
 """
+import logging
 import importlib
+import itertools
 import collections
 
 from pynchon.util import typing
 from pynchon.abcs.path import Path
-from pynchon.abcs.attrdict import AttrDict
+
+from .abcs import FilterResult
+from .util import get_namespace
 
 import_spec = collections.namedtuple(
     'importSpec', 'assignment var star package relative'
 )
-
-
-def get_namespace(name):
-    """
-    FIXME: use FakeModule?
-    """
-
-    class ModuleNamespace(AttrDict):
-        """ """
-
-        def __str__(self):
-            return f'<{self.__class__.__name__}[{self.__class__.name}]>'
-
-        __repr__ = __str__
-
-        @property
-        def module(self):
-            result = importlib.import_module(self.__class__.name)
-            return result
-
-    ModuleNamespace.name = name
-    return ModuleNamespace()
-
-
-import logging
-
-base_filter = filter
 
 
 class Base(object):
@@ -51,30 +28,12 @@ class Base(object):
         return dec
 
 
-class SearchResult(list):
-    def map(self, fxn):
-        return SearchResult(list(map(fxn, self)))
-
-    def starmap(self, fxn):
-        import itertools
-
-        return SearchResult(list(itertools.starmap(fxn, self)))
-
-    def prune(self, **kwargs):
-        return SearchResult(filter(None, [x.prune(**kwargs) for x in self]))
-
-    def filter(self, **kwargs):
-        return SearchResult([x.filter(**kwargs) for x in self])
-
-
-from itertools import starmap
-
-
 class ModulesWrapper(Base):
-
-    # @Base.classmethod_dispatch()
+    """ """
 
     class Error(ImportError):
+        """ """
+
         pass
 
     def __str__(self):
@@ -83,7 +42,8 @@ class ModulesWrapper(Base):
     __repr__ = __str__
 
     def map_ns(self, fxn):
-        return SearchResult(starmap(fxn, self.namespace.items()))
+        """ """
+        return FilterResult(itertools.starmap(fxn, self.namespace.items()))
         # out = []
         # for k,v in self.namespace.items():
         #     out.append(fxn(k,v))
@@ -217,7 +177,7 @@ class ModulesWrapper(Base):
     ):
         """ """
         self.logger.critical(f"filter_folder: {locals()}")
-        children = SearchResult(self.get_folder_children(**kwargs))
+        children = FilterResult(self.get_folder_children(**kwargs))
         if sum([1 for choice in map(bool, [filter, select, prune]) if choice]) == 0:
             return children
         else:
@@ -233,7 +193,7 @@ class ModulesWrapper(Base):
                     fxn, kwargs = children.select, select
                 if prune:
                     fxn, kwargs = children.prune, prune
-                children = SearchResult(fxn(**kwargs))
+                children = FilterResult(fxn(**kwargs))
                 return children
                 # import IPython; IPython.embed()
                 # for child in children:
@@ -243,8 +203,8 @@ class ModulesWrapper(Base):
                 #     if matches:
                 #         filter_results.append([child, matches])
                 #         result.append(child)
-                # return SearchResult(children)
-                # return SearchResult(children)
+                # return FilterResult(children)
+                # return FilterResult(children)
                 # if not merge_filters:
                 #     return result
                 # else:
@@ -258,7 +218,7 @@ class ModulesWrapper(Base):
         # if return_values:
         #     # raise Exception([ch.namespace.values() for ch in result])
         #     result = [child.namespace for child in result]
-        return SearchResult(result)
+        return FilterResult(result)
 
     def __items__(self):
         return self.namespace.__items__()

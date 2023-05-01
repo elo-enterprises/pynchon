@@ -91,6 +91,7 @@ def loadf_jinja(
     context: typing.Dict = {},
     templates: typing.List[str] = ["."],
     strict: bool = True,
+    quiet: bool = False,
 ) -> str:
     """ """
     # from pynchon.util.text.render import j2_loads
@@ -98,9 +99,9 @@ def loadf_jinja(
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
         content = fhandle.read()
-    LOGGER.debug("render context: \n{}".format(text.to_json(context)))
+    quiet and LOGGER.debug("render context: \n{}".format(text.to_json(context)))
     tmp = list(context.keys())
-    LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
+    quiet and LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
     content = j2_loads(text=content, context=context, templates=templates)
     return content
 
@@ -153,6 +154,7 @@ def jinja(
 j2_loads = jinja
 
 loadf.jinja = jinja
+loads.jinja = j2_loads
 
 
 @options.output

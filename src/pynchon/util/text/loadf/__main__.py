@@ -25,9 +25,13 @@ tmp = (
             common.kommand(
                 name=alias,
                 parent=entry,
+                help=fxn.__doc__
+                if alias == fxn.__name__
+                else f'alias for {fxn.__name__}',
             )(fxn)
             for alias in aliases
-        ]
+        ],
+        logger=LOGGER,
     )
 )
 LOGGER.debug(tmp)
