@@ -67,6 +67,9 @@ class SearchResult(list):
         return SearchResult([x.filter(**kwargs) for x in self])
 
 
+from itertools import starmap
+
+
 class ModulesWrapper(Base):
 
     # @Base.classmethod_dispatch()
@@ -78,6 +81,13 @@ class ModulesWrapper(Base):
         return f'<{self.__class__.__name__}[{self.name}]>'
 
     __repr__ = __str__
+
+    def map_ns(self, fxn):
+        return SearchResult(starmap(fxn, self.namespace.items()))
+        # out = []
+        # for k,v in self.namespace.items():
+        #     out.append(fxn(k,v))
+        # return out
 
     def normalize_import(self, name):
         """ """

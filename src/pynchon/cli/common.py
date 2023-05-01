@@ -12,9 +12,11 @@ from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
-def subsume_subs(root=None, parent=None):
+
+def load_groups_from_children(root=None, parent=None):
     from pynchon import shimport
     from pynchon.cli import click
+
     shimport.wrap(root).filter_folder(include_main=True).prune(
         name_is='entry',  # default
     ).map(
@@ -143,7 +145,11 @@ def entry_for(
         pass
 
     entry.__doc__ = (mdoc or "").lstrip()
-    entry = click.group(name.split('.')[-1])(entry)
+
+    class Groop(click.Group):
+        pass
+
+    entry = click.group(name.split('.')[-1], cls=Groop)(entry)
     return entry
 
 
