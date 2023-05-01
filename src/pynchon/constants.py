@@ -29,8 +29,9 @@ assert os.path.exists(TEMPLATE_DIR), TEMPLATE_DIR
 
 ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
 
-T_DETAIL_CLI = ENV.get_template("cli/detail.md.j2")
-T_TOC_API = ENV.get_template("api/TOC.md.j2")
-T_TOC_CLI = ENV.get_template("cli/TOC.md.j2")
-T_VERSION_METADATA = ENV.get_template("VERSIONS.md.j2")
-T_CLI_MAIN_MODULE = ENV.get_template("cli/main.module.md.j2")
+# FIXME: reuse parallel jinja env/template stuff in pynchon.util.text.render
+T_DETAIL_CLI = ENV.get_template("plugins/python/cli/detail.md.j2")
+T_TOC_API = ENV.get_template("plugins/python/api/TOC.md.j2")
+T_TOC_CLI = ENV.get_template("plugins/python/cli/TOC.md.j2")
+T_VERSION_METADATA = ENV.get_template("core/VERSIONS.md.j2")
+T_CLI_MAIN_MODULE = ENV.get_template("plugins/python/cli/main.module.md.j2")

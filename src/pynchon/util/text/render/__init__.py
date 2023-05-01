@@ -63,7 +63,6 @@ def _get_jinja_env(templates):
         from pynchon.util import text as util_text
 
         msg = "Known templates: "
-        msg += "(excluding the ones under working-dir)"
         msg += "\n{}".format(util_text.to_json(known_templates))
         LOGGER.warning(msg)
     return env

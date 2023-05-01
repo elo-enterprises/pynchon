@@ -9,7 +9,7 @@ from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
-T_FIXME = constants.ENV.get_template("FIXME.md.j2")
+T_FIXME = constants.ENV.get_template("plugins/FIXME.md.j2")
 
 
 class FixMeConfig(abcs.Config):
