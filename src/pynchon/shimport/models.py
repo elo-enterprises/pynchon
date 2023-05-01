@@ -210,7 +210,7 @@ class ModulesWrapper(object):
         name_is: str = '',
         filter_names: typing.List[typing.Callable] = [],
         filter_vals: typing.List[typing.Callable] = [],
-        filter_types: typing.List[type(type)] = [],
+        types_in: typing.List[type(type)] = [],
         filter_module_origin: str = '',
         filter_instances: typing.List[type(type)] = [],
         exclude_names: typing.List[str] = [],
@@ -227,9 +227,9 @@ class ModulesWrapper(object):
             ] + filter_names
 
         filter_vals = filter_vals
-        if filter_types:
+        if types_in:
             filter_vals = [
-                lambda val: any([typing.is_subclass(val, ty) for ty in filter_types])
+                lambda val: any([typing.is_subclass(val, ty) for ty in types_in])
             ] + filter_vals
         if filter_instances:
             filter_vals = [lambda val: isinstance(val, filter_instances)] + filter_vals

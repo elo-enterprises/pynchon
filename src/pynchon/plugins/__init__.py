@@ -16,7 +16,7 @@ registry = (
     shimport.wrap(__name__, import_children=True)
     .prune(
         exclude_names='git'.split(),  # FIXME: hack
-        filter_types=[abcs.Plugin],
+        types_in=[abcs.Plugin],
         filter_vals=[
             lambda val: val.name in config.PLUGINS,
         ],
