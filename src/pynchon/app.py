@@ -62,9 +62,10 @@ class AppConsole(AppBase):
         )
 
         atexit.register(
-            lambda: self.events.lifecycle.send(self, stage="\o/",msg='')
+            lambda: self.events.lifecycle.send(self, stage="\o/", msg='')
         )  # noqa: W605
         return tmp
+
     #
     # @memoized_property
     # def lifecycle_bar(self):

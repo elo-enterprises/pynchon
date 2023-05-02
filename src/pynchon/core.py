@@ -31,7 +31,7 @@ class Config(abcs.Config):
         diff = defaults - intersection
         if diff:
             msg = "implied plugins are not mentioned explicitly"
-            LOGGER.warning(f"msg: {diff}")
+            self.logger.warning(f"{msg}:\n  {diff}")
 
     def validate(self, k, v):
         if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
@@ -49,14 +49,11 @@ class Config(abcs.Config):
 
     def __init__(self, **core_config):
         if not core_config:
-            self.logger.critical("core_config is empty!")
+            self.logger.critical("core config is empty!")
         self.logger.debug('Validating..')
         for k, v in core_config.items():
             self.validate(k, v)
         super(Config, self).__init__(**core_config)
-        if 'src_root' not in self:
-            raise Exception([self, core_config])
-            # import IPython; IPython.embed()
 
     @property
     def root(self) -> str:

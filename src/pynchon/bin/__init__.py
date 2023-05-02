@@ -24,6 +24,7 @@ for name, plugin_meta in loop:
     except (Exception,) as exc:
         LOGGER.critical(f"  failed to initialize cli for {plugin_kls.__name__}:")
         LOGGER.critical(f"    {exc}")
-        continue
+        if name == 'core':
+            raise
     else:
         registry[name] = dict(plugin=plugin_kls, entry=p_entry)

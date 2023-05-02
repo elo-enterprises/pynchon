@@ -22,7 +22,7 @@ class Config(
 
     @typing.classproperty
     def _logging_name(kls):
-        return f"{kls.__name__}@{kls.config_key}"
+        return f"<{kls.__name__}['{kls.config_key}']"
 
     @typing.classproperty
     def logger(kls):
@@ -79,5 +79,5 @@ class Config(
         user_wins = record['user_wins']
         if user_wins:
             msg = "these keys have defaults, but user-provided config wins: "
-            self.logger.info(msg)
-            self.logger.info(text.to_json(user_wins))
+            tmp = text.to_json(user_wins)
+            self.logger.info(f"{msg}\n  {tmp}")

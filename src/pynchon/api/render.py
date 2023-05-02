@@ -19,6 +19,13 @@ from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
 
+def dictionary(input, context):
+    """ """
+    from pynchon.abcs.visitor import JinjaDict
+
+    return JinjaDict(input).render(context)
+
+
 @functools.lru_cache(maxsize=None)
 def get_jinja_globals():
     """ """

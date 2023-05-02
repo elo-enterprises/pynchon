@@ -1,4 +1,4 @@
-"""
+""" {{pkg}}.util.lme
 """
 import logging
 
@@ -41,8 +41,7 @@ def get_logger(name):
     )
     log_handler = RichHandler(
         rich_tracebacks=True,
-        console=Console(theme=theme),
-        # highlighter=ReprHighlighter(),
+        console=Console(theme=theme, stderr=True),
         show_time=False,
     )
 
@@ -61,20 +60,7 @@ def get_logger(name):
     log_handler.setFormatter(formatter)
 
     logger = logging.getLogger(name)
+
     # FIXME: get this from some kind of global config
     logger.setLevel("DEBUG")
     return logger
-
-    # if sys.stdout.isatty():
-    #     import coloredlogs
-    #
-    #     FormatterClass = coloredlogs.ColoredFormatter
-    # else:
-    # log_handler = logging.StreamHandler()
-    # logger = logging.getLogger(name)
-    # if not logger.handlers:
-    #     # prevents duplicate registration
-    #     logger.addHandler(log_handler)
-    # # intermittent duplicated stuff without this
-    # logger.propagate = False
-    # return logger

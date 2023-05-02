@@ -21,6 +21,14 @@ class Core(models.Planner):
         kls._finalized_click_groups[kls] = entry.entry
         return kls._finalized_click_groups[kls]
 
+    @classmethod
+    def get_current_config(kls):
+        """ """
+        from pynchon import config as config_mod
+
+        result = getattr(config_mod, getattr(kls.config_class, 'config_key', kls.name))
+        return result
+
     def plan(self, config=None) -> typing.List:
         """Creates a plan for all plugins"""
         raise NotImplementedError()
@@ -33,22 +41,13 @@ class Core(models.Planner):
         """Show current project config (with templating/interpolation)"""
         return project.get_config()
 
-    @classmethod
-    def get_current_config(kls):
-        """ """
-        from pynchon import config as config_mod
-
-        result = getattr(config_mod, getattr(kls.config_class, 'config_key', kls.name))
-        return result
-
-    @cli.options.strict
-    def bootstrap(self, strict: bool = False) -> None:
+    @cli.click.option('--bash', default=False, is_flag=True, help='bootstrap bash')
+    def bootstrap(self, bash: bool = False, strict: bool = False) -> None:
         """
         bootstrappery
         """
-        import IPython
-
-        IPython.embed()
+        if bash:
+            return 'alias p=pynchon'
 
     def raw(self) -> None:
         """

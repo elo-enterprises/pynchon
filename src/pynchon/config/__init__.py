@@ -1,17 +1,16 @@
 """ pynchon.config
 """
 # from pynchon import abcs
+from pynchon.api import render
 from pynchon.app import app
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme  # typing
 from pynchon.abcs.plugin import Meta
-from pynchon.abcs.visitor import JinjaDict
 
 from .util import config_folders  # noqa
 from .util import load_config_from_files  # noqa
 from .util import get_config_files  # noqa
 from .util import finalize  # noqa
-
 from pynchon.plugins.git import GitConfig  # noqa
 
 LOGGER = lme.get_logger(__name__)
@@ -70,4 +69,4 @@ events.lifecycle.send(
     stage=msg,
 )
 
-USER_DEFAULTS = JinjaDict(RAW.copy()).render(dict(pynchon=RAW))
+USER_DEFAULTS = render.dictionary(input=RAW.copy(), context=dict(pynchon=RAW))

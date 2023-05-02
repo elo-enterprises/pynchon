@@ -162,6 +162,7 @@ class kommand(object):
         name=None,
         parent=None,
         arguments=[],
+        alias=None,
         options=[],
         transformers=[],
         handlers=[],
@@ -171,6 +172,7 @@ class kommand(object):
     ):
         """ """
         self.name = name
+        self.alias = alias
         self.parent = parent or click
         self.options = options
         self.arguments = arguments
@@ -197,6 +199,7 @@ class kommand(object):
             self.cmd = self.parent.command(self.name, **click_kwargs)
         else:
             self.cmd = self.parent.group(self.name, **click_kwargs)
+        self.cmd.alias = alias
         self.logger = lme.get_logger(f"cmd[{name}]")
 
     def format_json(self, result):
@@ -237,11 +240,11 @@ class kommand(object):
         f.help = ' '.join(
             [x.strip() for x in (f.help or fxn.__doc__ or "").split('\n')]
         ).lstrip()
+
         for opt in self.options:
             f = opt(f)
         for arg in self.arguments:
             f = arg(f)
-        click_params = getattr(fxn, '__click_params__', [])
         # import IPython; IPython.embed()
         # for opt_or_arg in click_params:
         #     f=opt_or_arg(f)

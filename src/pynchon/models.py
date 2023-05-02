@@ -9,6 +9,7 @@ from pynchon.bin import entry
 from pynchon.cli import click, common
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
+from pynchon.util.tagging import tags
 
 from pynchon.util import lme, typing  # noqa
 
@@ -20,6 +21,7 @@ LOGGER = lme.get_logger(__name__)
 events = app.events
 
 
+@tags(cli_label='<<Abstract>>')
 class PynchonPlugin(AbstractPlugin):
     """
     Pynchon-specific plugin-functionality
@@ -60,6 +62,7 @@ class PynchonPlugin(AbstractPlugin):
         return result
 
 
+@tags(cli_label='<<Default>>')
 class CliPlugin(PynchonPlugin):
     cli_label = '<<Default>>'
     _finalized_click_groups = dict()
@@ -124,8 +127,10 @@ class CliPlugin(PynchonPlugin):
         obj = kls.instance
         if obj is None:
             err = f"{kls.__name__}.`instance` is not ready?"
-            LOGGER.critical(err)
+            LOGGER.warning(err)
             raise ValueError(err)
+
+        cli_commands = []
         for method_name in kls.__methods__:
             # LOGGER.info(f"  {kls.__name__}.init_cli: {method_name}")
             fxn = obj and getattr(obj, method_name, None)
@@ -146,9 +151,20 @@ class CliPlugin(PynchonPlugin):
                 # print_json(text.to_json(result))
                 return result
 
-            kls.click_create_cmd(fxn, wrapper=wrapper)
+            commands = [kls.click_create_cmd(fxn, wrapper=wrapper, alias=None)]
             for alias in click_aliases:
-                kls.click_create_cmd(fxn, wrapper=wrapper, alias=alias)
+                tmp = kls.click_create_cmd(
+                    fxn,
+                    alias=alias,
+                    wrapper=wrapper,
+                )
+                commands.append(tmp)
+            cli_commands += commands
+
+        # if method_name == 'bootstrap':
+        msg = [cmd.name for cmd in cli_commands]
+        msg = ' | '.join(msg)
+        LOGGER.info(f" created commands: '{msg}'")
         kls.init_cli_children()
         return kls.click_group
 
@@ -171,17 +187,18 @@ class CliPlugin(PynchonPlugin):
         name = name.replace('_', '-')
         help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
         help = help.lstrip()
-        msg = f"    click_create_cmd `{name}` for {fxn.__name__} {'(alias)' if alias else ''}"
-        if typing.new_in_class(fxn.__name__, kls):
-            LOGGER.info(msg)
-        tmp = common.kommand(
+        cmd = common.kommand(
             name,
-            parent=kls.click_group,
             help=help,
+            alias=alias,
+            parent=kls.click_group,
         )(wrapper)
-        return tmp
+        options = getattr(fxn, '__click_params__', [])
+        cmd.params += options
+        return cmd
 
 
+@tags(cli_label='Provider')
 class Provider(CliPlugin):
     """
     ProviderPlugin provides context-information, but little other functionality
@@ -193,6 +210,7 @@ class Provider(CliPlugin):
     #     config_key = None
 
 
+@tags(cli_label='NameSpace')
 class NameSpace(CliPlugin):
     """
     `CliNamespace` collects functionality
@@ -204,6 +222,7 @@ class NameSpace(CliPlugin):
     priority = -1
 
 
+@tags(cli_label='Tool')
 class ToolPlugin(CliPlugin):
     """
     Tool plugins may have their own config, but generally should not need project-config.
@@ -221,6 +240,7 @@ class BasePlugin(CliPlugin):
     priority = 10
 
 
+@tags(cli_label='Planner')
 class AbstractPlanner(BasePlugin):
     """
     AbstractPlanner is a plugin-type that provides plan/apply basics
@@ -259,6 +279,7 @@ class ShyPlanner(AbstractPlanner):
     contribute_plan_apply = False
 
 
+@tags(cli_label='Manager')
 class Manager(ShyPlanner):
     cli_label = 'Manager'
 
