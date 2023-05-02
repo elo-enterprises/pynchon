@@ -24,7 +24,7 @@ def get_logger(name):
                 "logging.level.info": Style(
                     dim=True,
                     # color="blue",
-                    ),
+                ),
                 "logging.level.warning": Style(color="yellow"),
                 "logging.level.error": Style(color="red", dim=True, bold=True),
                 "logging.level.critical": Style(

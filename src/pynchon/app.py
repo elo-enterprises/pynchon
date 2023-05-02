@@ -39,33 +39,49 @@ class AppConsole(AppBase):
         """ """
         self.console = Console()
 
-    # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
-    def lifecycle_stage(self, sender, stage=None, **kwargs):
-        """ """
-        if stage:
-            tmp = getattr(sender, '__name__', str(sender))
-            # LOGGER.critical(f"STAGE ({tmp}): {stage}")
-            self.status_bar.update(stage=stage)
+    # # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
+    # def lifecycle_stage(self, sender, stage=None, **kwargs):
+    #     """ """
+    #     if stage:
+    #         tmp = getattr(sender, '__name__', str(sender))
+    #         # LOGGER.critical(f"STAGE ({tmp}): {stage}")
+    #         self.status_bar.update(stage=stage)
 
     @memoized_property
     def status_bar(self):
         """ """
         tmp = self.manager.status_bar(
-            status_format=u'{app}{fill}{stage}{fill}{elapsed}',
+            status_format=u'{app}{fill}{stage}:{fill}{msg}{fill}{elapsed}',
             color='bold_underline_bright_white_on_lightslategray',
-            justify=enlighten.Justify.CENTER,
+            justify=enlighten.Justify.LEFT,
             app='Pynchon',
             stage='...',
+            msg='...',
             autorefresh=True,
             min_delta=0.1,
         )
 
-        # self.events.lifecycle.connect(lifecycle_stage)
-
         atexit.register(
-            lambda: self.events.lifecycle.send(self, stage="\o/")
+            lambda: self.events.lifecycle.send(self, stage="\o/",msg='')
         )  # noqa: W605
         return tmp
+    #
+    # @memoized_property
+    # def lifecycle_bar(self):
+    #     """ """
+    #     tmp = self.manager.status_bar(
+    #         status_format=u'{fill}{msg}{fill}',
+    #         color='bold_underline_bright_red_on_lightslategray',
+    #         justify=enlighten.Justify.CENTER,
+    #         msg='222',
+    #         autorefresh=True,
+    #         min_delta=0.1,
+    #     )
+    #
+    #     atexit.register(
+    #         lambda: self.events.lifecycle.send(self, msg="\o/")
+    #     )  # noqa: W605
+    #     return tmp
 
     @memoized_property
     def manager(self):
@@ -128,7 +144,6 @@ class AppEvents(AppBase):
     def __init__(self, **kwargs):
         """ """
         self.events = events
-        # self.events.status = self.status_bar
         events.lifecycle.connect(self.lifecycle_msg)
         events.lifecycle.connect(self.lifecycle_stage)
 
@@ -146,6 +161,7 @@ class AppEvents(AppBase):
         if msg:
             tmp = getattr(sender, 'name', getattr(sender, '__name__', str(sender)))
             LOGGER.critical(f"LIFECYCLE ({tmp}): {msg}")
+            self.status_bar.update(msg=msg)
 
 
 class App(AppConsole, AppEvents, AppExitHooks):
