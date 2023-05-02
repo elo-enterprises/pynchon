@@ -52,6 +52,7 @@
     // Well-behaved plugins will honor values here
     "exclude_patterns": [
       ".*[.]pyc",
+      "**/tests/fixtures/**",
       "**/build/lib/**",
     ],
 

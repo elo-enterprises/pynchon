@@ -4,8 +4,6 @@ import os
 import subprocess
 from collections import namedtuple
 
-import termcolor
-
 from . import lme
 
 LOGGER = lme.get_logger(__name__)
@@ -27,9 +25,7 @@ def invoke(
     which fixes problems with subprocess.POpen and os.system.
     """
     log_command and LOGGER.info(
-        "running command: (system={})\n\t{}".format(
-            system, termcolor.colored(cmd, color="green")
-        )
+        "running command: (system={})\n\t{}".format(system, cmd)
     )
     if system:
         assert not stdin and not interactive

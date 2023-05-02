@@ -22,7 +22,7 @@ class FixMe(models.Planner):
     defaults = dict()
 
     def plan(self, config: dict = None) -> typing.List:
-        """ """
+        """...."""
         from pynchon.config import pynchon
 
         config = config or self.__class__.get_current_config()
@@ -31,7 +31,7 @@ class FixMe(models.Planner):
         return plan
 
     @classmethod
-    def init_cli(kls):
+    def asdasdinit_cli(kls):
         """"""
         parent = kls.click_group
         T_FIXME = constants.ENV.get_template(

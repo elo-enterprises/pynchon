@@ -43,6 +43,15 @@ class Jinja(models.Planner):
             set(config.jinja['exclude_patterns'] + config.globals['exclude_patterns'])
         )
 
+    def _get_templates(self, config):
+        """ """
+        templates = config.jinja['template_includes']
+        templates = [t for t in templates]
+        templates = [f"--include {t}" for t in templates]
+        templates = " ".join(templates)
+        self.logger.warning(f"found j2 templates: {templates}")
+        return templates
+
     def _find_j2s(self, config):
         """ """
         proj_conf = config.project.get("subproject", config.project)
@@ -51,7 +60,7 @@ class Jinja(models.Planner):
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]
         self.logger.debug(f"search pattern is {search}")
-        result = files.find_j2s(search)
+        result = files.find_globs(search)
         self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
         excludes = self._get_exclude_patterns(config)
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
@@ -61,15 +70,6 @@ class Jinja(models.Planner):
             err = "jinja-plugin is included in this config, but found no .j2 files!"
             self.logger.critical(err)
         return result
-
-    def _get_templates(self, config):
-        """ """
-        templates = config.jinja['template_includes']
-        templates = [t for t in templates]
-        templates = [f"--include {t}" for t in templates]
-        templates = " ".join(templates)
-        self.logger.warning(f"found j2 templates: {templates}")
-        return templates
 
     def list(self, config=None):
         """ """

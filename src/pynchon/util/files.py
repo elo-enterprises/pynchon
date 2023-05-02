@@ -93,14 +93,14 @@ def find_src(
     return matches
 
 
-def find_globs(
-    globs: typing.List[str],
-    quiet: bool = False,
-) -> typing.List[str]:
-    quiet or LOGGER.debug(f"matching globs: {globs}")
-    globs = [glob.glob(str(x), recursive=True) for x in globs]
-    matches = functools.reduce(lambda x, y: x + y, globs)
-    return matches
+# def find_globs(
+#     globs: typing.List[str],
+#     quiet: bool = False,
+# ) -> typing.List[str]:
+#     quiet or LOGGER.debug(f"matching globs: {globs}")
+#     globs = [glob.glob(str(x), recursive=True) for x in globs]
+#     matches = functools.reduce(lambda x, y: x + y, globs)
+#     return matches
 
 
 import pydantic
@@ -109,7 +109,7 @@ from pynchon import abcs
 
 
 @pydantic.validate_arguments
-def find_j2s(
+def find_globs(
     globs: typing.List[abcs.Path],
     includes=[],
     quiet: bool = False,
@@ -120,7 +120,7 @@ def find_j2s(
     #
     # obj = registry['jinja']['obj']
     # config import
-    quiet or LOGGER.info(f"finding .j2s under {globs}")
+    quiet or LOGGER.info(f"finding files matching {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)
 
@@ -130,12 +130,12 @@ def find_j2s(
                 includes.append(m)
             # else:
             #     LOGGER.warning(f"'{d}'.has_file('{m}') -> false")
-    j2s = []
+    result = []
     for m in matches:
         assert m
         if m not in includes:
-            j2s.append(Path(m))
-    return j2s
+            result.append(Path(m))
+    return result
 
 
 # def find_j2s(conf) -> list:
