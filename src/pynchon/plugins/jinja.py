@@ -37,6 +37,14 @@ class Jinja(models.Planner):
             # exclude_patterns=src/pynchon/templates/
         )
 
+    def _get_jinja_context(self, config):
+        """ """
+        fname = f".tmp.ctx.{id(self)}.json"
+        with open(fname, 'w') as fhandle:
+            fhandle.write(text.to_json(config))
+        return f"--context-file {fname}"
+
+
     def _get_exclude_patterns(self, config):
         """ """
         return list(
@@ -55,8 +63,9 @@ class Jinja(models.Planner):
         self.logger.warning(f"found j2 templates: {templates}")
         return templates
 
-    def _find_j2s(self, config):
-        """ """
+    def list(self, config=None):
+        """ Lists resources in this project """
+        config = config or project.get_config()
         proj_conf = config.project.get("subproject", config.project)
         project_root = proj_conf.get("root", config.git["root"])
         search = [
@@ -73,17 +82,6 @@ class Jinja(models.Planner):
             err = "jinja-plugin is included in this config, but found no .j2 files!"
             self.logger.critical(err)
         return result
-
-    def list(self, config=None):
-        """ """
-        return self._find_j2s(config or project.get_config())
-
-    def _get_jinja_context(self, config):
-        """ """
-        fname = f".tmp.{id(self)}"
-        with open(fname, 'w') as fhandle:
-            fhandle.write(text.to_json(config))
-        return f"--context-file {fname}"
 
     def plan(
         self,
