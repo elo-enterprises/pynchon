@@ -4,7 +4,7 @@
 """
 import json as json_mod
 
-import json5 as json5_mod
+import pyjson5 as json5_mod
 
 from pynchon.util import typing, lme
 

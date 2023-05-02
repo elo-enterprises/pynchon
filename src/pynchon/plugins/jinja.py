@@ -40,7 +40,7 @@ class Jinja(models.Planner):
     def _get_exclude_patterns(self, config):
         """ """
         return list(
-            set(config.jinja['exclude_patterns'] + config.globals['exclude_patterns'])
+            set(config.jinja.get('exclude_patterns',[]) + config.globals['exclude_patterns'])
         )
 
     def _get_templates(self, config):
