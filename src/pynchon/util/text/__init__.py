@@ -17,9 +17,9 @@ from . import loadf, loads  # noqa
 #     import_mods=['.loadf', '.loads',])
 
 
-def to_json(obj, cls=JSONEncoder) -> str:
+def to_json(obj, cls=JSONEncoder, indent: int = 2) -> str:
     """ """
-    return json.dumps(obj, indent=2, cls=cls)
+    return json.dumps(obj, indent=indent, cls=cls)
 
 
 jsonify = to_json

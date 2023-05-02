@@ -51,18 +51,33 @@ class Config(
 
     def resolve_conflicts(self, conflicts):
         """ """
-        conflicts and LOGGER.info(f"'{self.config_key}' is resolving conflicts..")
+        from pynchon.util import text
+
+        conflicts and LOGGER.info(
+            f"'{self.config_key}' is resolving {len(conflicts)} conflicts.."
+        )
+        import collections
+
+        record = collections.defaultdict(list)
         for pname in conflicts:
             prop = getattr(self.__class__, pname)
             strategy = tags.get(prop, {}).get('conflict_strategy', 'user_wins')
             if strategy == 'user_wins':
-                self.logger.info(
-                    f"'{self.config_key}.{pname}' has prop-def,"
-                    " but provided kwargs overrides them"
-                )
+                record[strategy].append(f"{self.config_key}.{pname}")
             elif strategy == 'override':
                 val = getattr(self, pname)
                 self[pname] = val
+                record[strategy] += [pname]
             else:
                 LOGGER.critical(f'unsupported conflict-strategy! {strategy}')
                 raise SystemExit(1)
+
+        overrides = record['override']
+        if overrides:
+            pass
+
+        user_wins = record['user_wins']
+        if user_wins:
+            msg = "these keys have defaults, but user-provided config wins: "
+            self.logger.info(msg)
+            self.logger.info(text.to_json(user_wins))

@@ -144,7 +144,7 @@ class AppEvents(AppBase):
     def lifecycle_msg(self, sender, msg=None, **kwargs):
         """ """
         if msg:
-            tmp = getattr(sender, '__name__', str(sender))
+            tmp = getattr(sender, 'name', getattr(sender, '__name__', str(sender)))
             LOGGER.critical(f"LIFECYCLE ({tmp}): {msg}")
 
 

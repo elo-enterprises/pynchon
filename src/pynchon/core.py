@@ -22,6 +22,17 @@ class Config(abcs.Config):
         plugins=list(set(constants.DEFAULT_PLUGINS)),
     )
 
+    def validate_plugins(self, plugin_list: typing.List = []):
+        """ """
+        # LOGGER.warning('skipping plugin validation..')
+        defaults = set(constants.DEFAULT_PLUGINS)
+        user_provided = set(plugin_list)
+        intersection = defaults.intersection(user_provided)
+        diff = defaults - intersection
+        if diff:
+            msg = "implied plugins are not mentioned explicitly"
+            LOGGER.warning(f"msg: {diff}")
+
     def validate(self, k, v):
         if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
             raise ValueError(f"Top-level keys should be simple strings! {k}")
@@ -29,7 +40,7 @@ class Config(abcs.Config):
             raise ValueError(f"No templating in top level! {v}")
         raw_plugin_configs = {}
         if k == 'plugins':
-            LOGGER.warning('skipping plugin validation..')
+            self.validate_plugins(v)
         elif isinstance(v, (dict,)):
             raw_plugin_configs[k] = v
         else:
@@ -39,7 +50,7 @@ class Config(abcs.Config):
     def __init__(self, **core_config):
         if not core_config:
             self.logger.critical("core_config is empty!")
-        LOGGER.debug('validating..')
+        self.logger.debug('Validating..')
         for k, v in core_config.items():
             self.validate(k, v)
         super(Config, self).__init__(**core_config)

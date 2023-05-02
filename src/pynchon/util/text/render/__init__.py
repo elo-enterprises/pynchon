@@ -4,11 +4,6 @@
 """
 import os
 
-import jinja2
-from jinja2 import Environment  # Template,; UndefinedError,
-from jinja2 import FileSystemLoader, StrictUndefined
-
-from pynchon import abcs
 from pynchon.cli import click, options
 from pynchon.util import text
 from pynchon.util.os import invoke
@@ -18,55 +13,8 @@ from pynchon.util import typing, lme  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon.api import render as api
 from pynchon.util.text import loadf, loads
-
-
-def _get_jinja_env(includes, quiet: bool = False):
-    """
-    FIXME: Move to pynchon.api.render
-    """
-
-    def _get_jinja_globals():
-        """ """
-
-        def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
-            """
-            A jinja filter/extension
-            """
-            out = invoke(*args, **kwargs)
-            assert out.succeeded
-            return out.stdout
-
-        return dict(invoke=invoke_helper, env=os.getenv)
-
-    import pynchon
-
-    ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
-    includes += [ptemp]
-    includes = [abcs.Path(t) for t in includes]
-
-    for template_dir in includes:
-        if not template_dir.exists:
-            err = f"template directory @ `{template_dir}` does not exist"
-            raise ValueError(err)
-    includes and (not quiet) and LOGGER.warning(f"Includes: {includes}")
-    env = Environment(
-        loader=FileSystemLoader([str(t) for t in includes]),
-        undefined=StrictUndefined,
-    )
-
-    env.globals.update(**_get_jinja_globals())
-
-    known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
-    # known_templates = [str(p) for p in known_templates if dot not in p.parents]
-
-    if known_templates:
-        from pynchon.util import text as util_text
-
-        msg = "Known templates: "
-        msg += "\n{}".format(util_text.to_json(known_templates))
-        LOGGER.warning(msg)
-    return env
 
 
 @typing.validate_arguments
@@ -100,14 +48,15 @@ def jinja(
     """
     Renders jinja-templates (with support for includes)
     """
-    env = _get_jinja_env(includes)
+    import jinja2
+
+    env = api.get_jinja_env(*includes)
     template = env.from_string(text)
     context = {
         # FIXME: try to santize this
         **dict(os.environ.items()),
         **context,
     }
-
     try:
         return template.render(**context)
     except (jinja2.exceptions.UndefinedError,) as exc:
