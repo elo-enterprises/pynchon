@@ -21,7 +21,10 @@ def get_logger(name):
                 "logging.keyword": Style(bold=True, color="yellow"),
                 # "logging.level.notset": Style(dim=True),
                 "logging.level.debug": Style(color="green"),
-                "logging.level.info": Style(dim=True, color="blue"),
+                "logging.level.info": Style(
+                    dim=True,
+                    # color="blue",
+                    ),
                 "logging.level.warning": Style(color="yellow"),
                 "logging.level.error": Style(color="red", dim=True, bold=True),
                 "logging.level.critical": Style(
