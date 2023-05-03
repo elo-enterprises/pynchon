@@ -1,4 +1,4 @@
-"""
+""" pynchon.config.util
 """
 import os
 import functools
@@ -32,19 +32,19 @@ def finalize():
         try:
             tmp = get_plugin(pname)
         except (PluginNotRegistered,) as exc:
-            LOGGER.critical(exc)
+            LOGGER.critical(f"PluginNotRegistered: {exc}")
             continue
         else:
             plugins.append(tmp)
     # raise Exception(plugins)
+    import collections
     from pynchon import config as THIS_MODULE
-    from pynchon.app import app
-
-    events = app.events
+    from pynchon import events
+    warnings = collections.defaultdict(list)
     for plugin_kls in plugins:
         pconf_kls = getattr(plugin_kls, 'config_class', None)
         if pconf_kls is None:
-            LOGGER.warning(f"{plugin_kls.__name__}.`config_class` not set!")
+            warnings["`config_kls` not set!"].append(plugin_kls)
             plugin_config = abcs.Config()
         else:
 
@@ -58,7 +58,7 @@ def finalize():
             )
             # user_defaults = user_defaults if not
             if pconf_kls is None:
-                LOGGER.warning(f"{plugin_kls} does not define `config_class`")
+                warnings['`config_class` not set!'].append(plugin_kls)
                 conf_key = None
                 plugin_config = {}
             else:
@@ -83,7 +83,11 @@ def finalize():
 
             # plugins_registry.register(plugin_obj)
             plugins_registry[plugin_kls.name]['obj'] = plugin_obj
-            events.lifecycle.send(plugin_obj, msg=f'finalized {plugin_kls.__name__}')
+            events.lifecycle.send(plugin_obj, plugin=f'finalized {plugin_kls.__name__}')
+    for msg,offenders in warnings.items():
+        offenders=[x.__name__ for x in offenders]
+        LOGGER.warning(f"{msg}")
+        LOGGER.warning(f"offenders={offenders}")
     return result
 
 
