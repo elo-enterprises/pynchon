@@ -118,8 +118,9 @@ class CliPlugin(PynchonPlugin):
     @classmethod
     def init_cli(kls):
         """ """
-        LOGGER.info(f"{kls.__name__}.init_cli:")
+        from pynchon import events
         from pynchon.plugins.core import Core
+        events.lifecycle.send(kls, plugin='initializing CLI')
 
         if kls != Core:
             config_mod.finalize()
