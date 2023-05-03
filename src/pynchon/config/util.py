@@ -2,30 +2,35 @@
 """
 import os
 import functools
+import collections
 from types import MappingProxyType
-from collections import OrderedDict
 
 import pyjson5
 
-from pynchon import abcs
+from pynchon import abcs, events
+from pynchon import config as config_module
 from pynchon.util import typing, lme
+from pynchon.plugins.util import PluginNotRegistered, get_plugin
 
 LOGGER = lme.get_logger(__name__)
 
 
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
-    from pynchon import config
-    from pynchon.plugins import get_plugin
 
     result = abcs.AttrDict(
         pynchon=MappingProxyType(
-            dict([[k, v] for k, v in config.RAW.items() if not isinstance(v, (dict,))])
+            dict(
+                [
+                    [k, v]
+                    for k, v in config_module.RAW.items()
+                    if not isinstance(v, (dict,))
+                ]
+            )
         ),
-        git=config.GIT,
+        git=config_module.GIT,
     )
     plugins = []
-    from pynchon.plugins.util import PluginNotRegistered
 
     pnames = result.pynchon['plugins']
     for pname in pnames:
@@ -36,16 +41,11 @@ def finalize():
             continue
         else:
             plugins.append(tmp)
-    # raise Exception(plugins)
-    import collections
-    from pynchon import config as THIS_MODULE
-    from pynchon import events
+
     warnings = collections.defaultdict(list)
     for plugin_kls in plugins:
         pconf_kls = getattr(plugin_kls, 'config_class', None)
-        conf_key = getattr(
-            pconf_kls, 'config_key', plugin_kls.name.replace('-', '_')
-        )
+        conf_key = getattr(pconf_kls, 'config_key', plugin_kls.name.replace('-', '_'))
         if not conf_key:
             msg = f'failed to determine conf-key for {plugin_kls}'
             LOGGER.critical(msg)
@@ -56,16 +56,17 @@ def finalize():
         else:
             # NB: module access
             user_defaults = (
-                config.PYNCHON_CORE if plugin_kls.name == 'base' else config.USER_DEFAULTS.get(plugin_kls.name, {})
+                config_module.PYNCHON_CORE
+                if plugin_kls.name == 'base'
+                else config_module.USER_DEFAULTS.get(plugin_kls.name, {})
             )
-
             plugin_config = pconf_kls(
                 **{
                     # **plugin_defaults,
                     **user_defaults,
                 }
             )
-        setattr(THIS_MODULE, conf_key, plugin_config)
+        setattr(config_module, conf_key, plugin_config)
         result.update({conf_key: plugin_config})
 
         plugin_obj = plugin_kls(final=plugin_config)
@@ -74,8 +75,8 @@ def finalize():
         # plugins_registry.register(plugin_obj)
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
         events.lifecycle.send(plugin_obj, plugin=f'finalized {plugin_kls.__name__}')
-    for msg,offenders in warnings.items():
-        offenders=[x.__name__ for x in offenders]
+    for msg, offenders in warnings.items():
+        offenders = [x.__name__ for x in offenders]
         LOGGER.warning(f"{msg}")
         LOGGER.warning(f"offenders={offenders}")
     return result
@@ -117,7 +118,7 @@ def load_config_from_files() -> typing.Dict[str, str]:
     """ """
     from pynchon.util import python
 
-    contents = OrderedDict()
+    contents = collections.OrderedDict()
     for src in get_config_files():
         if not src.exists():
             LOGGER.warning(f"src@`{src}` doesn't exist, skipping it")

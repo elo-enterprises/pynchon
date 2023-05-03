@@ -120,6 +120,7 @@ class CliPlugin(PynchonPlugin):
         """ """
         from pynchon import events
         from pynchon.plugins.core import Core
+
         events.lifecycle.send(kls, plugin='initializing CLI')
 
         if kls != Core:
@@ -164,8 +165,8 @@ class CliPlugin(PynchonPlugin):
 
         # if method_name == 'bootstrap':
         msg = [cmd.name for cmd in cli_commands]
-        msg = ' | '.join(msg)
-        LOGGER.info(f" created commands: '{msg}'")
+        if len(msg) > 1:
+            LOGGER.info(f"{kls.__name__} created {len(msg)} commands")
         kls.init_cli_children()
         return kls.click_group
 

@@ -3,8 +3,9 @@
 import os
 
 from pynchon import abcs, config, models
-from pynchon.cli import common, options
-from pynchon.util import lme, typing
+
+from pynchon.cli import common, options  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -57,80 +58,80 @@ class Project(models.Manager):
     priority = 2
     config_class = ProjectConfig
 
-    @classmethod
-    def asdinit_cli(kls):
-        """pynchon.bin.project"""
-        parent = kls.click_group
+    # @classmethod
+    # def asdinit_cli(kls):
+    #     """pynchon.bin.project"""
+    #     parent = kls.click_group
+    #
+    #     from pynchon import constants, util
+    #     from pynchon.api import project
+    #     from pynchon.util import lme, text
+    #     from pynchon.util.os import invoke
+    #
+    #     LOGGER = lme.get_logger(__name__)
 
-        from pynchon import constants, util
-        from pynchon.api import project
-        from pynchon.util import lme, text
-        from pynchon.util.os import invoke
+    # @common.kommand(
+    #     name="version",
+    #     parent=parent,
+    #     formatters=dict(markdown=constants.T_VERSION_METADATA),
+    #     options=[
+    #         # FIXME: options.output_with_default('docs/VERSION.md'),
+    #         options.format_markdown,
+    #         options.output,
+    #         options.header,
+    #     ],
+    # )
+    # def project_version(format, output, header) -> None:
+    #     """
+    #     Describes version details for this package (and pynchon itself).
+    #     """
+    #     # from pynchon.api import python #, git
+    #     import pynchon
+    #     from pynchon.config import git, python
+    #
+    #     return dict(
+    #         pynchon_version=pynchon.__version__,
+    #         package_version=python.package.version,
+    #         git_hash=git.hash,
+    #     )
 
-        LOGGER = lme.get_logger(__name__)
-
-        # @common.kommand(
-        #     name="version",
-        #     parent=parent,
-        #     formatters=dict(markdown=constants.T_VERSION_METADATA),
-        #     options=[
-        #         # FIXME: options.output_with_default('docs/VERSION.md'),
-        #         options.format_markdown,
-        #         options.output,
-        #         options.header,
-        #     ],
-        # )
-        # def project_version(format, output, header) -> None:
-        #     """
-        #     Describes version details for this package (and pynchon itself).
-        #     """
-        #     # from pynchon.api import python #, git
-        #     import pynchon
-        #     from pynchon.config import git, python
-        #
-        #     return dict(
-        #         pynchon_version=pynchon.__version__,
-        #         package_version=python.package.version,
-        #         git_hash=git.hash,
-        #     )
-
-        @parent.command(
-            name="config",
-            # parent=parent,
-            # options=[],
-        )
-        def project_config(config=None) -> None:
-            """
-            Describe the config for this project
-            """
-            tmp = project.get_config()
-            print(text.to_json(tmp))
-
-        @common.kommand(
-            name="apply",
-            parent=parent,
-            options=[],
-        )
-        def project_apply() -> None:
-            """
-            Apply the plan created by `pynchon project plan`
-            """
-            config, plan = project.plan()
-            for p in plan:
-                invoke(p)
-            return plan
-
-        @common.kommand(
-            name="plan",
-            parent=parent,
-            options=[
-                options.stdout,
-            ],
-        )
-        def project_plan(stdout):
-            """
-            List goals for auto-documenting this project
-            """
-            config, plan = project.plan()
-            config["plan"] = plan
-            return text.to_json(config)
+    # @parent.command(
+    #     name="config",
+    #     # parent=parent,
+    #     # options=[],
+    # )
+    # def project_config(config=None) -> None:
+    #     """
+    #     Describe the config for this project
+    #     """
+    #     tmp = project.get_config()
+    #     print(text.to_json(tmp))
+    #
+    # @common.kommand(
+    #     name="apply",
+    #     parent=parent,
+    #     options=[],
+    # )
+    # def project_apply() -> None:
+    #     """
+    #     Apply the plan created by `pynchon project plan`
+    #     """
+    #     config, plan = project.plan()
+    #     for p in plan:
+    #         invoke(p)
+    #     return plan
+    #
+    # @common.kommand(
+    #     name="plan",
+    #     parent=parent,
+    #     options=[
+    #         options.stdout,
+    #     ],
+    # )
+    # def project_plan(stdout):
+    #     """
+    #     List goals for auto-documenting this project
+    #     """
+    #     config, plan = project.plan()
+    #     config["plan"] = plan
+    #     return text.to_json(config)

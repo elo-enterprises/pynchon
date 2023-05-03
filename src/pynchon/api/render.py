@@ -9,8 +9,7 @@ import os
 import functools
 
 import pynchon
-from pynchon import abcs
-from pynchon import events
+from pynchon import abcs, events
 
 from pynchon.util import typing, lme  # noqa
 
@@ -31,6 +30,7 @@ def dictionary(input, context):
 def get_jinja_globals():
     """ """
     events.lifecycle.send(__name__, msg='finalizing jinja globals')
+
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """
         A jinja filter/extension
@@ -47,13 +47,13 @@ def get_jinja_globals():
         invoke=invoke_helper,
         map=map,
         eval=eval,
-        env=os.getenv)
+        env=os.getenv,
+    )
 
 
 @functools.lru_cache(maxsize=None)
 def get_jinja_env(*includes, quiet: bool = False):
-    """
-    """
+    """ """
     events.lifecycle.send(__name__, msg='finalizing jinja-Env')
     includes = list(includes)
     ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'

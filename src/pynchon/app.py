@@ -9,8 +9,9 @@ from rich.text import Text
 from rich.console import Console, Theme
 from memoized_property import memoized_property
 
-from pynchon.util import lme
 from pynchon import events
+from pynchon.util import lme
+
 LOGGER = lme.get_logger(__name__)
 
 
