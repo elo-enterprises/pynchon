@@ -114,15 +114,6 @@ class Dot(models.Planner):
             )
         return plan
 
-    # @classmethod
-    # def init_cli(kls):
-    #     """
-    #     Option parsing for the `dot` subcommands
-    #     """
-    #     parent = kls.click_group
-    #     LOGGER = lme.get_logger(__name__)
-    #     files_arg = click.argument("files", nargs=-1)
-
     # @common.kommand(
     #     name="files",
     #     parent=parent,

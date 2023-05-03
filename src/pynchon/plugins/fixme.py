@@ -27,7 +27,14 @@ class FixMe(models.Planner):
 
         config = config or self.__class__.get_current_config()
         plan = super(self.__class__, self).plan(config)
-        plan += [f"pynchon fixme gen --output {pynchon['docs_root']}/FIXME.md"]
+        target = "{pynchon['docs_root']}/FIXME.md"
+        plan.append(
+            models.Goal(
+                type='gen',
+                resource=target,
+                command=f"pynchon fixme gen --output {target}",
+            )
+        )
         return plan
 
     @classmethod

@@ -43,7 +43,7 @@ class PythonCliConfig(abcs.Config):
         return matches
 
 
-class PythonCLI(models.Planner):
+class PythonCLI(models.ShyPlanner):
     """Tools for generating CLI docs"""
 
     name = "python-cli"
@@ -196,18 +196,46 @@ class PythonCLI(models.Planner):
         #         commands=result,
         #     )
 
-    def plan(self, config=None):
-        from pynchon.api import project
+    def goal(self, **kwargs):
+        """ """
+        return models.Goal(**kwargs)
 
-        config = config or project.get_config()
+    def plan(self, config=None):
+        from pynchon import api
+
+        config = config or api.project.get_config()
         plan = super(self.__class__, self).plan(config)
         droot = config.pynchon['docs_root']
         cli_root = f"{droot}/cli"
-        plan += [f"mkdir -p {cli_root}"]
-        plan += [f"pynchon gen cli toc --output {cli_root}/README.md"]
-        plan += [f"pynchon gen cli all --output-dir {cli_root}"]
-        plan += [
-            f"pynchon gen cli main --file {fname} --output-dir {cli_root}"
+
+        plan.append(
+            self.goal(command=f"mkdir -p {cli_root}", type='mkdir', resource=cli_root)
+        )
+        plan.append(
+            self.goal(
+                command=f"pynchon gen cli toc --output {cli_root}/README.md",
+                type='gen',
+                resource=cli_root,
+            )
+        )
+
+        plan.append(
+            self.goal(
+                command=f"pynchon gen cli all --output-dir {cli_root}",
+                type='gen',
+                resource=cli_root,
+            )
+        )
+
+        [
+            plan.append(
+                self.goal(
+                    command=f"pynchon gen cli main --file {fname} --output-dir {cli_root}",
+                    type='gen',
+                    resource=fname,
+                )
+            )
             for fname in config['python-cli'].entrypoints
         ]
+
         return plan

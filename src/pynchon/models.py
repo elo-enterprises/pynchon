@@ -379,6 +379,10 @@ class ApplyResults(typing.List[Action], metaclass=BNT):
         return result
 
 
+# from abc import abstractmethod
+# from typing import Protocol
+
+
 @tags(cli_label='Planner')
 class AbstractPlanner(BasePlugin):
     """

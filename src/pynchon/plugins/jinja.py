@@ -25,6 +25,13 @@ class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 
     name = "jinja"
+
+    COMMAND_TEMPLATE = (
+        "python -mpynchon.util.text render jinja "
+        "{resource} --context-file {context_file} "
+        "--in-place {template_args}"
+    )
+
     cli_subsumes: typing.List[typing.Callable] = [
         # render_main.j2cli,
         # render_main.jinja_file,
@@ -39,7 +46,7 @@ class Jinja(models.Planner):
 
     def _get_jinja_context(self, config):
         """ """
-        fname = f".tmp.ctx.{id(self)}.json"
+        fname = f".tmp.jinja.ctx.{id(self)}.json"
         with open(fname, 'w') as fhandle:
             fhandle.write(text.to_json(config))
         return f"{fname}"
@@ -85,25 +92,20 @@ class Jinja(models.Planner):
             templates = [t for t in templates]
             templates = [f"--include {t}" for t in templates]
             templates = " ".join(templates)
-            self.logger.warning(f"found j2 templates: {templates}")
             return templates
 
         config = config or project.get_config()
         plan = super(self.__class__, self).plan(config)
         jctx = self._get_jinja_context(config)
         templates = _get_templates(config)
-        self.logger.info("using `templates` argument(s):")
-        self.logger.info(f"  {templates}")
-        # j2s = self.list(config)
-        cmd_t = "python -mpynchon.util.text render jinja "
-        cmd_t += "{resource} --context-file {context_file} "
-        cmd_t += "--in-place {template_args}"
+        # self.logger.info("using `templates` argument(s):")
+        # self.logger.info(f"  {templates}")
         for rsrc in self.list():
             plan.append(
                 models.Goal(
                     type='render',
                     resource=rsrc,
-                    command=cmd_t.format(
+                    command=self.COMMAND_TEMPLATE.format(
                         resource=rsrc, context_file=jctx, template_args=templates
                     ),
                 )

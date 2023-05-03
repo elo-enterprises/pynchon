@@ -86,3 +86,42 @@ class Core(models.Planner):
         from pynchon.config import RAW
 
         return RAW
+
+    @property
+    def active_plugins(self):
+        """ """
+        result = []
+        from pynchon.plugins import util as plugins_util
+        from pynchon.plugins import registry
+
+        for plugin in registry.keys():
+            if plugin == self.name:
+                continue
+            result.append(plugins_util.get_plugin_obj(plugin))
+        return result
+
+    def plan(
+        self,
+        config=None,
+    ) -> models.Plan:
+        from pynchon import api
+
+        config = config or api.project.get_config()
+        plan = super(self.__class__, self).plan(config)
+        self.logger.debug("planning..")
+        plugins = self.active_plugins
+        plugins = [p for p in plugins if isinstance(p, models.AbstractPlanner)]
+        self.logger.critical(f"Planning on behalf of: {[p.name for p in plugins]}")
+        for plugin_obj in plugins:
+            if not plugin_obj.contribute_plan_apply:
+                continue
+            self.logger.critical("=" * 20 + plugin_obj.name)
+            subplan = plugin_obj.plan()
+            if not subplan:
+                self.logger.warning(f'subplan for {plugin_obj} is empty!')
+            else:
+                for g in subplan:
+                    self.logger.info(f'{plugin_obj} contributes {g}')
+                    plan.append(g)
+        return plan
+        # import IPython; IPython.embed()

@@ -10,7 +10,7 @@ tags = tagging.tags
 LOGGER = lme.get_logger(__name__)
 
 
-class Scaffolding(models.Manager):
+class Scaffolding(models.ShyPlanner):
     """Management tool for project boilerplate"""
 
     contribute_plan_apply = False
@@ -99,5 +99,11 @@ class Scaffolding(models.Manager):
         config or self.plugin_config
         plan = super(Scaffolding, self).plan(config)
         for delta in self.diff()['modified']:
-            plan += [f"cp {delta['src']} {delta['fname']}"]
+            plan.append(
+                models.Goal(
+                    type='scaffold',
+                    resource=delta['fname'],
+                    command=f"cp {delta['src']} {delta['fname']}",
+                )
+            )
         return plan

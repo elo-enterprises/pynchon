@@ -6,7 +6,7 @@ from pynchon.util import typing, lme
 LOGGER = lme.get_logger(__name__)
 
 
-class PythonAPI(models.Planner):
+class PythonAPI(models.ShyPlanner):
     """Tools for generating python-api docs"""
 
     # @common.groop("api", parent=groups.gen)
@@ -73,13 +73,24 @@ class PythonAPI(models.Planner):
         #         blocks=result,
         #     )
 
-    def plan(self, config) -> typing.List:
+    def plan(self, config=None) -> typing.List:
+        from pynchon import api
+
+        config = config or api.project.get_config()
         plan = super(self.__class__, self).plan(config)
-        # self.logger.debug("planning for API docs..")
         api_root = f"{config.pynchon['docs_root']}/api"
-        plan += [f"mkdir -p {api_root}"]
+        plan.append(
+            models.Goal(command=f"mkdir -p {api_root}", resource=None, type='gen')
+        )
+
         tmp = config.python["package"]["name"]
-        plan += [
-            "pynchon gen api toc" f' --package {tmp}' f" --output {api_root}/README.md"
-        ]
+        plan.append(
+            models.Goal(
+                command="pynchon gen api toc"
+                + f' --package {tmp}'
+                + f" --output {api_root}/README.md",
+                resource=None,
+                type='gen',
+            )
+        )
         return plan
