@@ -8,7 +8,9 @@ import functools
 import click
 from rich import print_json
 
-from pynchon.util import lme, typing
+from pynchon.util import text
+
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -30,20 +32,6 @@ def load_groups_from_children(root=None, parent=None):
             click.group_copy(fxn, parent),
         ]
     )
-
-
-# from rich.console import Console
-# class BetterGroup(click.Group):
-#     def format_usage(self,ctx,formatter):
-#         super(BetterGroup,self).format_usage(ctx,formatter)
-#     def format_epilog(self,ctx,formatter):
-#         return super(BetterGroup,self).format_epilog(ctx,formatter)
-#     def format_help(self, ctx, formatter):
-#         super(BetterGroup,self).format_help(ctx,formatter)
-#     def format_options(self,ctx,formatter):
-#         super(BetterGroup,self).format_options(ctx,formatter)
-#     def format_help_text(self,ctx,formatter):
-#         super(BetterGroup,self).format_help_text(ctx,formatter)
 
 
 class handler(object):
@@ -210,16 +198,16 @@ class kommand(object):
     def wrapper(self, *args, **call_kwargs):
         """ """
         assert self.fxn
-        from pynchon.util.text import to_json
 
         @functools.wraps(self.fxn)
         def newf(*args, **call_kwargs):
-            self.logger.debug(f"Invoking {self.parent.name}.{self.name}")
-            self.logger.debug(f" with: {call_kwargs}")
+            self.logger.info(f"Wrapping invocation: {self.parent.name}.{self.name}")
+            call_kwargs and self.logger.debug(f" with: {call_kwargs}")
             result = self.fxn(*args, **call_kwargs)
-            # from pynchon import constants
             if result is not None:
-                print(to_json(result))
+                LOGGER.info(f'json conversion for type: {type(result)}')
+                tmp = text.to_json(result)
+                print(tmp)
             return result
 
         return newf
@@ -228,21 +216,31 @@ class kommand(object):
         """ """
         self.fxn = fxn
         assert fxn, 'function cannot be None!'
-        f = self.cmd(self.wrapper())
 
-        f.help = ' '.join(
-            [x.strip() for x in (f.help or fxn.__doc__ or "").split('\n')]
-        ).lstrip()
+        f = self.cmd(self.wrapper())
+        tmp = [x.strip() for x in (f.help or fxn.__doc__ or "").split('\n')]
+        f.help = ' '.join(tmp).lstrip()
 
         for opt in self.options:
             f = opt(f)
         for arg in self.arguments:
             f = arg(f)
-        # import IPython; IPython.embed()
-        # for opt_or_arg in click_params:
-        #     f=opt_or_arg(f)
         return f
 
 
 class groop(kommand):
+    """
+    # class BetterGroup(click.Group):
+    #     def format_usage(self,ctx,formatter):
+    #         super(BetterGroup,self).format_usage(ctx,formatter)
+    #     def format_epilog(self,ctx,formatter):
+    #         return super(BetterGroup,self).format_epilog(ctx,formatter)
+    #     def format_help(self, ctx, formatter):
+    #         super(BetterGroup,self).format_help(ctx,formatter)
+    #     def format_options(self,ctx,formatter):
+    #         super(BetterGroup,self).format_options(ctx,formatter)
+    #     def format_help_text(self,ctx,formatter):
+    #         super(BetterGroup,self).format_help_text(ctx,formatter)
+    """
+
     is_group = True

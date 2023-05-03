@@ -42,7 +42,7 @@ class Jinja(models.Planner):
         fname = f".tmp.ctx.{id(self)}.json"
         with open(fname, 'w') as fhandle:
             fhandle.write(text.to_json(config))
-        return f"--context-file {fname}"
+        return f"{fname}"
 
     def _get_exclude_patterns(self, config):
         """ """
@@ -53,17 +53,8 @@ class Jinja(models.Planner):
             )
         )
 
-    def _get_templates(self, config):
-        """ """
-        templates = config.jinja['template_includes']
-        templates = [t for t in templates]
-        templates = [f"--include {t}" for t in templates]
-        templates = " ".join(templates)
-        self.logger.warning(f"found j2 templates: {templates}")
-        return templates
-
     def list(self, config=None):
-        """Lists resources in this project"""
+        """Lists affected resources in this project"""
         config = config or project.get_config()
         proj_conf = config.project.get("subproject", config.project)
         project_root = proj_conf.get("root", config.git["root"])
@@ -85,88 +76,36 @@ class Jinja(models.Planner):
     def plan(
         self,
         config=None,
-        # relative_paths: bool = True,
     ) -> typing.List:
         """Creates a plan for this plugin"""
+
+        def _get_templates(config):
+            """ """
+            templates = config.jinja['template_includes']
+            templates = [t for t in templates]
+            templates = [f"--include {t}" for t in templates]
+            templates = " ".join(templates)
+            self.logger.warning(f"found j2 templates: {templates}")
+            return templates
+
         config = config or project.get_config()
         plan = super(self.__class__, self).plan(config)
         jctx = self._get_jinja_context(config)
-        self.logger.info("using `context` argument:")
-        self.logger.info(f"  {jctx}")
-        templates = self._get_templates(config)
-        self.logger.info("using `templates` argument:")
+        templates = _get_templates(config)
+        self.logger.info("using `templates` argument(s):")
         self.logger.info(f"  {templates}")
-        j2s = self.list(config)
-        self.logger.warning(f"plan covers: {text.to_json(j2s)}")
-        cmd_t = "python -mpynchon.util.text render jinja"
-        plan += [f"{cmd_t} {fname} {jctx} {templates} --in-place" for fname in j2s]
+        # j2s = self.list(config)
+        cmd_t = "python -mpynchon.util.text render jinja "
+        cmd_t += "{resource} --context-file {context_file} "
+        cmd_t += "--in-place {template_args}"
+        for rsrc in self.list():
+            plan.append(
+                models.Goal(
+                    type='render',
+                    resource=rsrc,
+                    command=cmd_t.format(
+                        resource=rsrc, context_file=jctx, template_args=templates
+                    ),
+                )
+            )
         return plan
-
-
-# @kommand(
-#     name="jinja",
-#     parent=PARENT,
-#     options=[
-#         # options.file,
-#         options.ctx,
-#         options.output,
-#         options.template,
-#         click.option(
-#             "--in-place",
-#             is_flag=True,
-#             default=False,
-#             help=(
-#                 "if true, writes to {file}.{ext} "
-#                 "(dropping any .j2 extension if present)"
-#             ),
-#         ),
-#     ],
-#     arguments=[files_arg],
-# )
-# def render_j2(files, ctx, output, in_place, templates):
-#     """
-#     Render J2 files with given context
-#     """
-#     templates = templates.split(",")
-#     assert isinstance(templates, (list, tuple)), f"expected list got {type(templates)}"
-#     # assert (file or files) and not (file and files), 'expected files would be provided'
-#     from pynchon import config
-#
-#     templates = templates + config.jinja.template_includes
-#     if ctx:
-#         if "{" in ctx:
-#             LOGGER.debug("context is inlined JSON")
-#             ctx = json.loads(ctx)
-#         elif "=" in ctx:
-#             LOGGER.debug("context is inlined (comma-separed k=v format)")
-#             ctx = dict([kv.split("=") for kv in ctx.split(",")])
-#         else:
-#             with open(ctx, "r") as fhandle:
-#                 content = fhandle.read()
-#             if ctx.endswith(".json"):
-#                 LOGGER.debug("context is JSON file")
-#                 ctx = json.loads(content)
-#             elif ctx.endswith(".json5"):
-#                 LOGGER.debug("context is JSON-5 file")
-#                 ctx = pyjson5.loads(content)
-#             elif ctx.endswith(".yml") or ctx.endswith(".yaml"):
-#                 LOGGER.debug("context is yaml file")
-#                 ctx = yaml.loads(content)
-#             else:
-#                 raise TypeError(f"not sure how to load: {ctx}")
-#     else:
-#         ctx = {}
-#     LOGGER.debug("user-defined context: ")
-#     LOGGER.debug(json.dumps(ctx, cls=abcs.JSONEncoder))
-#     if files:
-#         return [
-#             render.j2(
-#                 file, ctx=ctx, output=output, in_place=in_place, templates=templates
-#             )
-#             for file in files
-#         ]
-#     # elif files:
-#     #     LOGGER.debug(f"Running with many: {files}")
-#     #     return [
-#     #         render.j2(file, output=output, in_place=in_place, templates=templates)
-#     #         for file in files ]

@@ -15,10 +15,6 @@ class ProjectConfig(abcs.Config):
 
     priority = 1
     config_key = "project"
-    # @property
-    # def src_root(self) -> str:
-    #     """ """
-    #     return self.subproject and pynchon["working_dir"]
 
     @property
     def name(self) -> typing.StringMaybe:
@@ -58,18 +54,6 @@ class Project(models.Manager):
     priority = 2
     config_class = ProjectConfig
 
-    # @classmethod
-    # def asdinit_cli(kls):
-    #     """pynchon.bin.project"""
-    #     parent = kls.click_group
-    #
-    #     from pynchon import constants, util
-    #     from pynchon.api import project
-    #     from pynchon.util import lme, text
-    #     from pynchon.util.os import invoke
-    #
-    #     LOGGER = lme.get_logger(__name__)
-
     # @common.kommand(
     #     name="version",
     #     parent=parent,
@@ -94,44 +78,3 @@ class Project(models.Manager):
     #         package_version=python.package.version,
     #         git_hash=git.hash,
     #     )
-
-    # @parent.command(
-    #     name="config",
-    #     # parent=parent,
-    #     # options=[],
-    # )
-    # def project_config(config=None) -> None:
-    #     """
-    #     Describe the config for this project
-    #     """
-    #     tmp = project.get_config()
-    #     print(text.to_json(tmp))
-    #
-    # @common.kommand(
-    #     name="apply",
-    #     parent=parent,
-    #     options=[],
-    # )
-    # def project_apply() -> None:
-    #     """
-    #     Apply the plan created by `pynchon project plan`
-    #     """
-    #     config, plan = project.plan()
-    #     for p in plan:
-    #         invoke(p)
-    #     return plan
-    #
-    # @common.kommand(
-    #     name="plan",
-    #     parent=parent,
-    #     options=[
-    #         options.stdout,
-    #     ],
-    # )
-    # def project_plan(stdout):
-    #     """
-    #     List goals for auto-documenting this project
-    #     """
-    #     config, plan = project.plan()
-    #     config["plan"] = plan
-    #     return text.to_json(config)

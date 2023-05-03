@@ -42,12 +42,11 @@ class AppConsole(AppBase):
     def status_bar(self):
         """ """
         tmp = self.manager.status_bar(
-            status_format=u'{app}{fill}{stage}:{fill}{msg}{fill}{elapsed}',
+            status_format=u'{app}{fill}{stage}{fill}{elapsed}',
             color='bold_underline_bright_white_on_lightslategray',
             justify=enlighten.Justify.LEFT,
             app='Pynchon',
             stage='...',
-            msg='...',
             autorefresh=True,
             min_delta=0.1,
         )
@@ -138,8 +137,16 @@ class AppEvents(AppBase):
         self.events = events
         events.lifecycle.connect(self.lifecycle_msg)
         events.lifecycle.connect(self.lifecycle_stage)
+        events.lifecycle.connect(self.lifecycle_applying)
 
     # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
+    def lifecycle_applying(self, sender, applying=None, **kwargs):
+        """ """
+        if applying:
+            tmp = getattr(sender, '__name__', str(sender))
+            tmp = f'{tmp}: APPLY: {applying}'
+            self.events.lifecycle.send(self, stage=tmp)
+
     def lifecycle_stage(self, sender, stage=None, **kwargs):
         """ """
         if stage:
@@ -151,7 +158,8 @@ class AppEvents(AppBase):
         """ """
         if msg:
             tmp = getattr(sender, 'name', getattr(sender, '__name__', str(sender)))
-            self.status_bar.update(msg=msg)
+            # self.status_bar.update(msg=msg)
+            LOGGER.info(['lifecycle_msg', tmp, msg])
 
 
 class App(AppConsole, AppEvents, AppExitHooks):

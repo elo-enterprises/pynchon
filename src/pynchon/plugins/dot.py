@@ -28,7 +28,7 @@ class Dot(models.Planner):
             )
         )
 
-    def list(self, config=None):
+    def list(self, config=None) -> typing.List[str]:
         """ """
         config = config or api.project.get_config()
         proj_conf = config.project.get("subproject", config.project)
@@ -99,25 +99,19 @@ class Dot(models.Planner):
     def plan(
         self,
         config=None,
-    ) -> typing.List[str]:
+    ) -> models.Plan:
         config = config or api.project.get_config()
         plan = super(self.__class__, self).plan(config)
-        # render_instructions = self.render_instructions
-        # if "dot" in render_instructions:
         self.logger.debug("planning for rendering for .dot graph files..")
-        resources = self.list(config)
-        for rsrc in resources:
-            plan += [
-                f"pynchon dot render {rsrc} --in-place --output-mode png",
-            ]
-        # dot_config = config["pynchon"].get("dot", {})
-        # script = dot_config.get("script")
-        # # assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'
-        # from pynchon.api import render
-        # # FIXME: do this substition everywhere!
-        # script = render._render(text=script, context=config)
-        # cmd = "pynchon gen dot files --script {script}"
-        # plan += [cmd]
+        cmd_t = "pynchon dot render {resource} --in-place --output-mode png"
+        for resource in self.list(config):
+            plan.append(
+                models.Goal(
+                    resource=resource,
+                    command=cmd_t.format(resource=resource),
+                    type='render',
+                )
+            )
         return plan
 
     # @classmethod

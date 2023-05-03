@@ -38,11 +38,29 @@ class Path(typing.PathType):
 class JSONEncoder(json.JSONEncoder):
     """ """
 
+    def encode(self, obj):
+        """ """
+        result = None
+
+        def default():
+            return super(JSONEncoder, self).encode(obj)
+
+        try:
+            toJSON = getattr(obj, 'toJSON', default) or default
+        except (Exception,) as exc:
+            toJSON = default
+        return toJSON()
+
+    # FIXME: use multimethod
     def default(self, obj):
+        toJSON = getattr(obj, 'toJSON', None)
+        if toJSON is not None:
+            LOGGER.debug(f'{type(object)} brings custom toJSON')
+            return obj.toJSON()
         if isinstance(obj, Path):
             return str(obj)
         if isinstance(obj, MappingProxyType):
             return dict(obj)
         if isinstance(obj, map):
             return list(obj)
-        return json.JSONEncoder.default(self, obj)
+        return super().default(self, obj)

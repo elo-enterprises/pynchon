@@ -1,8 +1,9 @@
 """ pynchon.models
 """
-from pynchon.util import typing, lme  # noqa
+import typing
+import collections
 
-from pynchon import shimport
+from pynchon import events, shimport
 from pynchon.api import project
 from pynchon.app import app
 from pynchon.bin import entry
@@ -11,14 +12,17 @@ from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 from pynchon.util.tagging import tags
 
+from pynchon.util import typing, lme  # noqa
+
+
 from pynchon.util import lme, typing  # noqa
 
+# events = app.events
 config_mod = shimport.lazy(
     'pynchon.config',
 )
 
 LOGGER = lme.get_logger(__name__)
-events = app.events
 
 
 @tags(cli_label='<<Abstract>>')
@@ -163,7 +167,6 @@ class CliPlugin(PynchonPlugin):
                 commands.append(tmp)
             cli_commands += commands
 
-        # if method_name == 'bootstrap':
         msg = [cmd.name for cmd in cli_commands]
         if len(msg) > 1:
             LOGGER.info(f"{kls.__name__} created {len(msg)} commands")
@@ -203,7 +206,8 @@ class CliPlugin(PynchonPlugin):
 @tags(cli_label='Provider')
 class Provider(CliPlugin):
     """
-    ProviderPlugin provides context-information, but little other functionality
+    ProviderPlugin provides context-information,
+    but little other functionality
     """
 
     cli_label = 'Provider'
@@ -227,7 +231,8 @@ class NameSpace(CliPlugin):
 @tags(cli_label='Tool')
 class ToolPlugin(CliPlugin):
     """
-    Tool plugins may have their own config, but generally should not need project-config.
+    Tool plugins may have their own config,
+    but generally should not need project-config.
     """
 
     cli_label = 'Tool'
@@ -242,6 +247,138 @@ class BasePlugin(CliPlugin):
     priority = 10
 
 
+from pynchon.util import text
+
+
+def BNT(name, bases, namespace):
+    """ """
+
+    @property
+    def _dict(self):
+        """ """
+        return self._asdict()
+
+    def items(self):
+        """ """
+        return self._dict.items()
+
+    def keys(self):
+        """ """
+        return self._dict.keys()
+
+    def values(self):
+        """ """
+        return self._dict.values()
+
+    def toJSON(self, *args):
+        """ """
+        return text.to_json(self._dict, *args)
+
+    for k, v in dict(
+        values=values,
+        keys=keys,
+        items=items,
+        _dict=_dict,
+        toJSON=toJSON,
+        __repr__=namespace['__str__'],
+    ).items():
+        if k not in namespace:
+            namespace[k] = v
+
+    return type(name, bases, namespace)
+
+
+class Goal(typing.NamedTuple, metaclass=BNT):
+    """ """
+
+    resource: str = '??'
+    command: str = 'echo'
+    type: str = 'unknown'
+
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{self.resource}]>"
+
+    # @classmethod
+    # def __instancecheck__(cls, instance):
+    #     if return isinstance(instance, User)
+
+
+class Action(typing.NamedTuple, metaclass=BNT):
+    """ """
+
+    type: str = 'unknown_action_type'
+    result: object = None
+    resource: str = '??'
+    command: str = 'echo'
+
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{self.result}]>"
+
+
+class Plan(typing.List[Goal], metaclass=BNT):
+    """ """
+
+    def __init__(self, *args):
+        """ """
+        for arg in args:
+            if not isinstance(arg, (Goal,)):
+                err = f'plan can only include goals, got {arg} with type={type(arg)}'
+                raise TypeError(err)
+            super(Plan, self).__init__(*args)
+
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{len(self)} goals]>"
+
+    @property
+    def _dict(self):
+        """ """
+        result = collections.OrderedDict()
+        result['resources'] = list(set([g.resource for g in self]))
+        result['actions'] = collections.defaultdict(dict)
+        for g in self:
+            tmp = result['actions'][g.type]
+            tmp[str(g.resource)] = tmp.get(str(g.resource), []) + [g.command]
+        return result
+
+    def __add__(self, other):
+        """ """
+        return Plan(*(other + self))
+
+    __iadd__ = __add__
+
+    def append(self, other):
+        """ """
+        assert isinstance(other, (Goal,))
+        return super(Plan, self).append(other)
+
+    def extend(self, other):
+        """ """
+        assert isinstance(other, (Goal,))
+        return super(Plan, self).extend(other)
+
+
+class ApplyResults(typing.List[Action], metaclass=BNT):
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{len(self)} actions]>"
+
+    @property
+    def _dict(self):
+        """ """
+
+        def past_tense(x):
+            return f"{x}ed"
+
+        result = collections.OrderedDict()
+        result['ok'] = all([a.result for a in self])
+        result['resources'] = list(set([a.resource for a in self]))
+        result['actions'] = [g.command for g in self]
+        result['state'] = list(set([g.type for g in self]))
+        result['state'] = dict([past_tense(k), []] for k in result['state'])
+        for g in self:
+            result['state'][past_tense(g.type)].append(g.resource)
+        return result
+
+
 @tags(cli_label='Planner')
 class AbstractPlanner(BasePlugin):
     """
@@ -250,16 +387,17 @@ class AbstractPlanner(BasePlugin):
 
     cli_label = 'Planner'
 
-    def plan(self, config=None) -> typing.List:
+    def plan(self, config=None) -> Plan:
         """Creates a plan for this plugin"""
+        config = config or self.cfg()
         events.lifecycle.send(
             # writes status event (used by the app-console)
             stage=f"Planning for `{self.__class__.name}`"
         )
-        self.state = config
-        return []
+        plan = Plan()
+        return plan
 
-    def apply(self, config=None) -> None:
+    def apply(self, config=None) -> ApplyResults:
         """Executes the plan for this plugin"""
         from pynchon.util.os import invoke
 
@@ -268,7 +406,19 @@ class AbstractPlanner(BasePlugin):
             stage=f"applying for `{self.__class__.name}`"
         )
         plan = self.plan(config=config)
-        return [invoke(p).succeeded for p in plan]
+        results = []
+        for action_item in plan:
+            events.lifecycle.send(self, applying=action_item)
+            application = invoke(action_item.command)
+            tmp = Action(
+                result=application.succeeded,
+                command=action_item.command,
+                resource=action_item.resource,
+                type=action_item.type,
+            )
+            results.append(tmp)
+        results = ApplyResults(results)
+        return results
 
 
 class ShyPlanner(AbstractPlanner):
