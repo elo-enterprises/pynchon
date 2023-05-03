@@ -43,47 +43,37 @@ def finalize():
     warnings = collections.defaultdict(list)
     for plugin_kls in plugins:
         pconf_kls = getattr(plugin_kls, 'config_class', None)
+        conf_key = getattr(
+            pconf_kls, 'config_key', plugin_kls.name.replace('-', '_')
+        )
+        if not conf_key:
+            msg = f'failed to determine conf-key for {plugin_kls}'
+            LOGGER.critical(msg)
+            raise TypeError(msg)
         if pconf_kls is None:
             warnings["`config_kls` not set!"].append(plugin_kls)
             plugin_config = abcs.Config()
         else:
-
-            # plugin_defaults = getattr(plugin_kls,'defaults',None)
-            # if plugin_defaults is not None:
-            #     raise Exception(plugin_kls)
             # NB: module access
-            user_defaults = config.USER_DEFAULTS.get(plugin_kls.name, {})
             user_defaults = (
-                config.PYNCHON_CORE if plugin_kls.name == 'base' else user_defaults
+                config.PYNCHON_CORE if plugin_kls.name == 'base' else config.USER_DEFAULTS.get(plugin_kls.name, {})
             )
-            # user_defaults = user_defaults if not
-            # if pconf_kls is None:
-            #     warnings['`config_class` not set!'].append(plugin_kls)
-            #     conf_key = None
-            #     plugin_config = {}
-            # else:
-            conf_key = getattr(
-                pconf_kls, 'config_key', plugin_kls.name.replace('-', '_')
-            )
-            if not conf_key:
-                msg = f'failed to determine conf-key for {pconf_kls}'
-                LOGGER.critical(msg)
-                raise TypeError(msg)
+
             plugin_config = pconf_kls(
                 **{
                     # **plugin_defaults,
                     **user_defaults,
                 }
             )
-            setattr(THIS_MODULE, conf_key, plugin_config)
-            result.update({conf_key: plugin_config})
+        setattr(THIS_MODULE, conf_key, plugin_config)
+        result.update({conf_key: plugin_config})
 
-            plugin_obj = plugin_kls(final=plugin_config)
-            from pynchon.plugins import registry as plugins_registry
+        plugin_obj = plugin_kls(final=plugin_config)
+        from pynchon.plugins import registry as plugins_registry
 
-            # plugins_registry.register(plugin_obj)
-            plugins_registry[plugin_kls.name]['obj'] = plugin_obj
-            events.lifecycle.send(plugin_obj, plugin=f'finalized {plugin_kls.__name__}')
+        # plugins_registry.register(plugin_obj)
+        plugins_registry[plugin_kls.name]['obj'] = plugin_obj
+        events.lifecycle.send(plugin_obj, plugin=f'finalized {plugin_kls.__name__}')
     for msg,offenders in warnings.items():
         offenders=[x.__name__ for x in offenders]
         LOGGER.warning(f"{msg}")
