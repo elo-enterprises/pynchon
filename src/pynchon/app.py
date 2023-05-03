@@ -10,18 +10,8 @@ from rich.console import Console, Theme
 from memoized_property import memoized_property
 
 from pynchon.util import lme
-
+from pynchon import events
 LOGGER = lme.get_logger(__name__)
-
-import blinker
-
-
-class Events:
-    lifecycle = blinker.signal('lifecyle')
-    bootstrap = blinker.signal('bootstrap')
-
-
-events = Events()
 
 
 class AppBase(object):
@@ -117,13 +107,13 @@ class AppExitHooks(AppBase):
         if self.exit_code is not None and not self.exit_code == 0:
             tmp = f"death by sys.exit({self.exit_code})"
             self.events.lifecycle.send(self, stage=tmp)
-            # status.update(stage=tmp)
+            return True
 
     def exit_handler(self):
         """ """
         handled = self.sys_exit_handler()
         handled = handled or self.exc_exit_handler()
-        handled = handled or self.def_exit_handler()
+        handled = handled or self.default_exit_handler()
         return handled
 
     def exc_exit_handler(self):
@@ -135,7 +125,7 @@ class AppExitHooks(AppBase):
             self.console.print(text)
             self.events.lifecycle.send(self, stage='❌')
 
-    def def_exit_handler(self):
+    def default_exit_handler(self):
         """ """
         # LOGGER.info("ok")
         return True
@@ -153,7 +143,6 @@ class AppEvents(AppBase):
         """ """
         if stage:
             tmp = getattr(sender, '__name__', str(sender))
-            # LOGGER.critical(f"STAGE ({tmp}): {stage}")
             self.status_bar.update(stage=stage)
 
     # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
@@ -161,7 +150,6 @@ class AppEvents(AppBase):
         """ """
         if msg:
             tmp = getattr(sender, 'name', getattr(sender, '__name__', str(sender)))
-            LOGGER.critical(f"LIFECYCLE ({tmp}): {msg}")
             self.status_bar.update(msg=msg)
 
 
