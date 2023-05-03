@@ -53,7 +53,7 @@ class PynchonPlugin(AbstractPlugin):
         result = getattr(config_mod, conf_key)
         return result
 
-    def config(self):
+    def cfg(self):
         """Shows current config for this plugin"""
         kls = self.__class__
         LOGGER.debug(f"config class: {kls.config_class}")

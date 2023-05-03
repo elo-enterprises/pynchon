@@ -44,7 +44,6 @@ class Jinja(models.Planner):
             fhandle.write(text.to_json(config))
         return f"--context-file {fname}"
 
-
     def _get_exclude_patterns(self, config):
         """ """
         return list(
@@ -64,7 +63,7 @@ class Jinja(models.Planner):
         return templates
 
     def list(self, config=None):
-        """ Lists resources in this project """
+        """Lists resources in this project"""
         config = config or project.get_config()
         proj_conf = config.project.get("subproject", config.project)
         project_root = proj_conf.get("root", config.git["root"])

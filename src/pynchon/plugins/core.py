@@ -37,17 +37,46 @@ class Core(models.Planner):
         """Executes the result returned by planner"""
         raise NotImplementedError()
 
-    def config(self):
+    def cfg(self):
         """Show current project config (with templating/interpolation)"""
         return project.get_config()
 
+    @property
+    def config(self):
+        return self.cfg()
+
     @cli.click.option('--bash', default=False, is_flag=True, help='bootstrap bash')
-    def bootstrap(self, bash: bool = False, strict: bool = False) -> None:
+    @cli.click.option('--tox', default=False, is_flag=True, help='bootstrap tox')
+    def bootstrap(
+        self,
+        bash: bool = False,
+        tox: bool = False,
+    ) -> None:
         """
-        bootstrappery
+        Bootstrap for shell integration, etc
         """
+        from pynchon.api import render
+
         if bash:
-            return 'alias p=pynchon'
+            LOGGER.warning("This is intended to be run through a pipe, as in:")
+            LOGGER.critical("pynchon bootstrap --bash | bash")
+            result = render.get_template('pynchon/bootstrap/bash.sh').render(
+                self.config
+            )
+            fname = '.tmp.pynchon.completions.sh'
+            with open(fname, 'w') as fhandle:
+                fhandle.write(result)
+            LOGGER.debug(f"Wrote {fname}.")
+            LOGGER.debug(
+                "To use completion hints every time they are present "
+                "in a folder add this to .bashrc:"
+            )
+            LOGGER.info(render.get_template('pynchon/bootstrap/bashrc.sh').render({}))
+
+            # print(f"source /dev/stdin < <(cat {fname})")
+        elif tox:
+            result = render.get_template('pynchon/tox.ini')
+            print(result)
 
     def raw(self) -> None:
         """

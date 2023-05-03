@@ -69,6 +69,7 @@ def get_jinja_env(*includes, quiet: bool = False):
         loader=FileSystemLoader([str(t) for t in includes]),
         undefined=StrictUndefined,
     )
+    env.pynchon_includes = includes
 
     env.globals.update(**get_jinja_globals())
 
@@ -81,3 +82,18 @@ def get_jinja_env(*includes, quiet: bool = False):
         tmp = list(set([p.parents[0] for p in known_templates]))
         LOGGER.info(msg + util_text.to_json(tmp))
     return env
+
+
+def get_template(
+    template_name: str,
+    env=None,
+):
+    """ """
+    env = env or get_jinja_env()
+    try:
+        return env.get_template(template_name)
+    except (jinja2.exceptions.TemplateNotFound,) as exc:
+        LOGGER.critical(f"Template exception: {exc}")
+        LOGGER.critical(f"Jinja-includes: {env.pynchon_includes}")
+        err = getattr(exc, 'templates', exc.message)
+        LOGGER.critical(f"Problem template: {err}")

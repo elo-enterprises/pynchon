@@ -69,9 +69,6 @@ def jinja(
         LOGGER.critical(f"Jinja-includes: {includes}")
         err = getattr(exc, 'templates', exc.message)
         LOGGER.critical(f"Problem template: {err}")
-        import IPython
-
-        IPython.embed()
         raise
 
 
