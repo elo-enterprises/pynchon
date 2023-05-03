@@ -30,7 +30,7 @@ def dictionary(input, context):
 @functools.lru_cache(maxsize=None)
 def get_jinja_globals():
     """ """
-    lifecycle.send(__name__, msg='finalizing jinja globals')
+    events.lifecycle.send(__name__, msg='finalizing jinja globals')
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """
         A jinja filter/extension
@@ -54,7 +54,7 @@ def get_jinja_globals():
 def get_jinja_env(*includes, quiet: bool = False):
     """
     """
-    lifecycle.send(__name__, msg='finalizing jinja-Env')
+    events.lifecycle.send(__name__, msg='finalizing jinja-Env')
     includes = list(includes)
     ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
     includes += [ptemp]
@@ -77,8 +77,7 @@ def get_jinja_env(*includes, quiet: bool = False):
     if known_templates:
         from pynchon.util import text as util_text
 
-        # msg = "Known template search paths (includes folders only): "
-        # LOGGER.warning(msg)
+        msg = "Known template search paths (includes folders only): "
         tmp = list(set([p.parents[0] for p in known_templates]))
         LOGGER.info(msg + util_text.to_json(tmp))
     return env
