@@ -10,6 +10,7 @@ import functools
 
 import pynchon
 from pynchon import abcs
+from pynchon import events
 
 from pynchon.util import typing, lme  # noqa
 
@@ -29,7 +30,7 @@ def dictionary(input, context):
 @functools.lru_cache(maxsize=None)
 def get_jinja_globals():
     """ """
-
+    lifecycle.send(__name__, msg='finalizing jinja globals')
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """
         A jinja filter/extension
@@ -40,14 +41,20 @@ def get_jinja_globals():
         assert out.succeeded
         return out.stdout
 
-    return dict(invoke=invoke_helper, env=os.getenv)
+    return dict(
+        sh=invoke_helper,
+        bash=invoke_helper,
+        invoke=invoke_helper,
+        map=map,
+        eval=eval,
+        env=os.getenv)
 
 
 @functools.lru_cache(maxsize=None)
 def get_jinja_env(*includes, quiet: bool = False):
     """
-    FIXME: Move to pynchon.api.render
     """
+    lifecycle.send(__name__, msg='finalizing jinja-Env')
     includes = list(includes)
     ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
     includes += [ptemp]
@@ -66,12 +73,11 @@ def get_jinja_env(*includes, quiet: bool = False):
     env.globals.update(**get_jinja_globals())
 
     known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
-    # known_templates = [str(p) for p in known_templates if dot not in p.parents]
 
     if known_templates:
         from pynchon.util import text as util_text
 
-        msg = "Known template search paths (includes folders only): "
+        # msg = "Known template search paths (includes folders only): "
         # LOGGER.warning(msg)
         tmp = list(set([p.parents[0] for p in known_templates]))
         LOGGER.info(msg + util_text.to_json(tmp))
