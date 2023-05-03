@@ -1,6 +1,7 @@
 """ pynchon.events
 """
+import blinker
 from blinker import signal
 
-lifecycle = signal('lifecycle')
-bootstrap = signal('bootstrap')
+lifecycle = blinker.signal('lifecyle')
+bootstrap = blinker.signal('bootstrap')
