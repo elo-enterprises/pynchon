@@ -57,26 +57,26 @@ def finalize():
                 config.PYNCHON_CORE if plugin_kls.name == 'base' else user_defaults
             )
             # user_defaults = user_defaults if not
-            if pconf_kls is None:
-                warnings['`config_class` not set!'].append(plugin_kls)
-                conf_key = None
-                plugin_config = {}
-            else:
-                conf_key = getattr(
-                    pconf_kls, 'config_key', plugin_kls.name.replace('-', '_')
-                )
-                if not conf_key:
-                    msg = f'failed to determine conf-key for {pconf_kls}'
-                    LOGGER.critical(msg)
-                    raise TypeError(msg)
-                plugin_config = pconf_kls(
-                    **{
-                        # **plugin_defaults,
-                        **user_defaults,
-                    }
-                )
-                setattr(THIS_MODULE, conf_key, plugin_config)
-                result.update({conf_key: plugin_config})
+            # if pconf_kls is None:
+            #     warnings['`config_class` not set!'].append(plugin_kls)
+            #     conf_key = None
+            #     plugin_config = {}
+            # else:
+            conf_key = getattr(
+                pconf_kls, 'config_key', plugin_kls.name.replace('-', '_')
+            )
+            if not conf_key:
+                msg = f'failed to determine conf-key for {pconf_kls}'
+                LOGGER.critical(msg)
+                raise TypeError(msg)
+            plugin_config = pconf_kls(
+                **{
+                    # **plugin_defaults,
+                    **user_defaults,
+                }
+            )
+            setattr(THIS_MODULE, conf_key, plugin_config)
+            result.update({conf_key: plugin_config})
 
             plugin_obj = plugin_kls(final=plugin_config)
             from pynchon.plugins import registry as plugins_registry
