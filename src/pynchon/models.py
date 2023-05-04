@@ -33,11 +33,6 @@ class PynchonPlugin(AbstractPlugin):
 
     cli_label = '<<Abstract>>'
 
-    @property
-    def plugin_config(self):
-        """ """
-        return self.get_current_config()
-
     @typing.classproperty
     def project_config(self):
         """class-property: finalized project-config"""
@@ -51,16 +46,41 @@ class PynchonPlugin(AbstractPlugin):
     @classmethod
     def get_current_config(kls):
         """class-method: get the current config for this plugin"""
-        assert kls.config_class
-        conf_key = getattr(kls.config_class, 'config_key', kls.name)
-        assert conf_key
+        conf_class = getattr(kls, 'config_class', None)
+        if conf_class is None:
+            return {}
+        conf_key = kls.get_config_key()
         result = getattr(config_mod, conf_key)
         return result
+
+    @classmethod
+    def get_config_key(kls):
+        return getattr(kls.config_class, 'config_key', kls.name)
+
+    @property
+    def plugin_config(self):
+        """ """
+        return self.get_current_config()
+
+    @property
+    def active_plugins(self):
+        """ """
+        result = []
+        from pynchon.plugins import util as plugins_util
+        from pynchon.plugins import registry
+
+        for plugin in registry.keys():
+            if plugin == self.name:
+                continue
+            result.append(plugins_util.get_plugin_obj(plugin))
+        return sorted(result, key=lambda p: p.priority)
 
     def cfg(self):
         """Shows current config for this plugin"""
         kls = self.__class__
-        LOGGER.debug(f"config class: {kls.config_class}")
+        conf_class = getattr(kls, 'config_class', None)
+        conf_class_name = conf_class.__name__ if conf_class else '(None)'
+        LOGGER.debug(f"config class: {conf_class_name}")
         LOGGER.debug("current config:")
         result = kls.get_current_config()
         return result
@@ -203,19 +223,6 @@ class CliPlugin(PynchonPlugin):
         return cmd
 
 
-@tags(cli_label='Provider')
-class Provider(CliPlugin):
-    """
-    ProviderPlugin provides context-information,
-    but little other functionality
-    """
-
-    cli_label = 'Provider'
-    contribute_plan_apply = False
-    # class config_class(abcs.Config):
-    #     config_key = None
-
-
 @tags(cli_label='NameSpace')
 class NameSpace(CliPlugin):
     """
@@ -225,7 +232,21 @@ class NameSpace(CliPlugin):
 
     cli_label = 'NameSpace'
     contribute_plan_apply = False
-    priority = -1
+    priority = 1
+
+
+@tags(cli_label='Provider')
+class Provider(CliPlugin):
+    """
+    ProviderPlugin provides context-information,
+    but little other functionality
+    """
+
+    cli_label = 'Provider'
+    contribute_plan_apply = False
+    priority = 2
+    # class config_class(abcs.Config):
+    #     config_key = None
 
 
 @tags(cli_label='Tool')
@@ -249,46 +270,10 @@ class BasePlugin(CliPlugin):
 
 from pynchon.util import text
 
-
-def BNT(name, bases, namespace):
-    """ """
-
-    @property
-    def _dict(self):
-        """ """
-        return self._asdict()
-
-    def items(self):
-        """ """
-        return self._dict.items()
-
-    def keys(self):
-        """ """
-        return self._dict.keys()
-
-    def values(self):
-        """ """
-        return self._dict.values()
-
-    def toJSON(self, *args):
-        """ """
-        return text.to_json(self._dict, *args)
-
-    for k, v in dict(
-        values=values,
-        keys=keys,
-        items=items,
-        _dict=_dict,
-        toJSON=toJSON,
-        __repr__=namespace['__str__'],
-    ).items():
-        if k not in namespace:
-            namespace[k] = v
-
-    return type(name, bases, namespace)
+from pynchon import abcs
 
 
-class Goal(typing.NamedTuple, metaclass=BNT):
+class Goal(typing.NamedTuple, metaclass=abcs.namespace):
     """ """
 
     resource: str = '??'
@@ -298,12 +283,7 @@ class Goal(typing.NamedTuple, metaclass=BNT):
     def __str__(self):
         return f"<{self.__class__.__name__}[{self.resource}]>"
 
-    # @classmethod
-    # def __instancecheck__(cls, instance):
-    #     if return isinstance(instance, User)
-
-
-class Action(typing.NamedTuple, metaclass=BNT):
+class Action(typing.NamedTuple, metaclass=abcs.namespace):
     """ """
 
     type: str = 'unknown_action_type'
@@ -315,7 +295,7 @@ class Action(typing.NamedTuple, metaclass=BNT):
         return f"<{self.__class__.__name__}[{self.result}]>"
 
 
-class Plan(typing.List[Goal], metaclass=BNT):
+class Plan(typing.List[Goal], metaclass=abcs.namespace):
     """ """
 
     def __init__(self, *args):
@@ -340,24 +320,28 @@ class Plan(typing.List[Goal], metaclass=BNT):
             tmp[str(g.resource)] = tmp.get(str(g.resource), []) + [g.command]
         return result
 
+    # @typing.validate_arguments
     def __add__(self, other):
         """ """
+        assert isinstance(other,(Plan,))
         return Plan(*(other + self))
 
     __iadd__ = __add__
 
-    def append(self, other):
+    # @typing.validate_arguments
+    def append(self, other:Goal):
         """ """
         assert isinstance(other, (Goal,))
         return super(Plan, self).append(other)
 
+    # @typing.validate_arguments
     def extend(self, other):
         """ """
         assert isinstance(other, (Goal,))
         return super(Plan, self).extend(other)
 
 
-class ApplyResults(typing.List[Action], metaclass=BNT):
+class ApplyResults(typing.List[Action], metaclass=abcs.namespace):
     def __str__(self):
         return f"<{self.__class__.__name__}[{len(self)} actions]>"
 

@@ -1,7 +1,6 @@
 """ pynchon.plugins.Core
 """
-from pynchon import models, cli
-from pynchon.api import project
+from pynchon import api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme, typing
@@ -13,7 +12,10 @@ class Core(models.Planner):
     """Core Plugin"""
 
     name = "core"
+    priority = -1
     config_class = CoreConfig
+
+    # NB: prevents recursion when `pynchon plan` is used!
     contribute_plan_apply = False
 
     @typing.classproperty
@@ -26,8 +28,12 @@ class Core(models.Planner):
         """ """
         from pynchon import config as config_mod
 
-        result = getattr(config_mod, getattr(kls.config_class, 'config_key', kls.name))
+        result = getattr(config_mod, kls.get_config_key())
         return result
+
+    @property
+    def config(self):
+        return self.cfg()
 
     def plan(self, config=None) -> typing.List:
         """Creates a plan for all plugins"""
@@ -39,11 +45,7 @@ class Core(models.Planner):
 
     def cfg(self):
         """Show current project config (with templating/interpolation)"""
-        return project.get_config()
-
-    @property
-    def config(self):
-        return self.cfg()
+        return self.project_config
 
     @cli.click.option('--bash', default=False, is_flag=True, help='bootstrap bash')
     @cli.click.option('--tox', default=False, is_flag=True, help='bootstrap tox')
@@ -87,28 +89,14 @@ class Core(models.Planner):
 
         return RAW
 
-    @property
-    def active_plugins(self):
-        """ """
-        result = []
-        from pynchon.plugins import util as plugins_util
-        from pynchon.plugins import registry
-
-        for plugin in registry.keys():
-            if plugin == self.name:
-                continue
-            result.append(plugins_util.get_plugin_obj(plugin))
-        return result
-
     def plan(
         self,
         config=None,
     ) -> models.Plan:
-        from pynchon import api
+        """ Runs plan for all plugins """
 
-        config = config or api.project.get_config()
+        config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
-        self.logger.debug("planning..")
         plugins = self.active_plugins
         plugins = [p for p in plugins if isinstance(p, models.AbstractPlanner)]
         self.logger.critical(f"Planning on behalf of: {[p.name for p in plugins]}")
@@ -124,4 +112,3 @@ class Core(models.Planner):
                     self.logger.info(f'{plugin_obj} contributes {g}')
                     plan.append(g)
         return plan
-        # import IPython; IPython.embed()

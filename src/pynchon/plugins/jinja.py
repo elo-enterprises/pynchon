@@ -25,7 +25,7 @@ class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 
     name = "jinja"
-
+    priority = 9
     COMMAND_TEMPLATE = (
         "python -mpynchon.util.text render jinja "
         "{resource} --context-file {context_file} "
@@ -62,7 +62,7 @@ class Jinja(models.Planner):
 
     def list(self, config=None):
         """Lists affected resources in this project"""
-        config = config or project.get_config()
+        config = config or self.project_config
         proj_conf = config.project.get("subproject", config.project)
         project_root = proj_conf.get("root", config.git["root"])
         search = [
@@ -76,7 +76,7 @@ class Jinja(models.Planner):
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} j2 files (post-filter)")
         if not result:
-            err = "jinja-plugin is included in this config, but found no .j2 files!"
+            err = f"{self.__class__.__name__} is active, but found no .j2 files!"
             self.logger.critical(err)
         return result
 

@@ -30,7 +30,7 @@ class Dot(models.Planner):
 
     def list(self, config=None) -> typing.List[str]:
         """ """
-        config = config or api.project.get_config()
+        config = config or self.project_config
         proj_conf = config.project.get("subproject", config.project)
         project_root = proj_conf.get("root", config.git["root"])
         search = [

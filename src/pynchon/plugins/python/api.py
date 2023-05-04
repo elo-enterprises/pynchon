@@ -74,9 +74,8 @@ class PythonAPI(models.ShyPlanner):
         #     )
 
     def plan(self, config=None) -> typing.List:
-        from pynchon import api
-
-        config = config or api.project.get_config()
+        """ """
+        config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
         api_root = f"{config.pynchon['docs_root']}/api"
         plan.append(

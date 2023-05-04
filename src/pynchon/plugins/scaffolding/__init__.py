@@ -18,6 +18,7 @@ class Scaffolding(models.ShyPlanner):
     name = "scaffolding"
     cli_name = 'scaffold'
     defaults = dict()
+    cli_label = 'Manager'
     config_class = ScaffoldingConfig
 
     def match(self, pattern=None):

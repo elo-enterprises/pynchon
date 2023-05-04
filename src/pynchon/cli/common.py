@@ -205,7 +205,7 @@ class kommand(object):
             call_kwargs and self.logger.debug(f" with: {call_kwargs}")
             result = self.fxn(*args, **call_kwargs)
             if result is not None:
-                LOGGER.info(f'json conversion for type: {type(result)}')
+                result and LOGGER.info(f'json conversion for type: {type(result)}')
                 tmp = text.to_json(result)
                 print(tmp)
             return result

@@ -12,11 +12,9 @@ LOGGER = lme.get_logger(__name__)
 
 class PythonCliConfig(abcs.Config):
     config_key = "python-cli"
-    #
     # @common.groop("cli", parent=groups.gen)
     # def gen_cli():
     #     """Generate CLI docs"""
-    #
 
     @property
     def entrypoints(self) -> dict:

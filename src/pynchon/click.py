@@ -3,7 +3,8 @@
 import click
 
 from click import (  # noqa
-    echo,
+    echo,pass_context,
+    get_current_context,
     argument,
     option,
     version_option,

@@ -2,7 +2,7 @@
 """
 from memoized_property import memoized_property
 
-from pynchon import abcs
+from pynchon import models, abcs
 from pynchon.abcs import Path
 from pynchon.util import lme, typing, files
 from pynchon.util.os import invoke
@@ -83,3 +83,12 @@ class GitConfig(abcs.Config):
         """ """
         cmd = self._run("git rev-parse HEAD")
         return cmd.succeeded and cmd.stdout.strip()
+
+
+class Git(models.Provider):
+    """Context for git"""
+
+    priority = -1
+    name = 'git'
+    defaults: typing.Dict = dict()
+    config_class = GitConfig
