@@ -17,20 +17,27 @@ from pynchon.util import typing, lme
 
 LOGGER = lme.get_logger(__name__)
 
-#         # if inspect.iscoroutinefunction(func):
-#         #     @functools.wraps(func)
-#         #     async def async_wrapped(*args: Any, **kwargs: Any) -> Awaitable:
-#         #         return await func(*args, **kwargs)
-#         #     return async_wrapped
-#         # else:
-#         #     @functools.wraps(func)
-#         #     def sync_wrapped(*args: Any, **kwargs: Any) -> Any:
-#         #         return func(*args, **kwargs)
-#         #     return sync_wrapped
-#
-#     return decorator
-#
-#
+
+def tagged_property(**ftags):
+    """
+    Equivalent to:
+        @tagging.tags(foo=bar)
+        @property
+        def method(self):
+            ...
+    """
+
+    def dec(fxn):
+        @tags(**ftags)
+        @property
+        def newf(*args, **kwargs):
+            return fxn(*args, **kwargs)
+
+        return newf
+
+    return dec
+
+
 def tag_factory(*args) -> typing.Any:
     """ """
 

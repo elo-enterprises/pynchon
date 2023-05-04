@@ -3,8 +3,7 @@
 # import os
 # ENV_DEBUG =
 # ENV_VERBOSE =
-D_VERBOSE = CLI_VERBOSE = False
-D_DEBUG = CLI_DEBUG = False
+D_DEBUG = CLI_DEBUG = D_VERBOSE = CLI_VERBOSE = True
 
 DEFAULT_PLUGINS = [
     # FIXME: docs

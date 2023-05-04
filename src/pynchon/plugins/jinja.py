@@ -1,6 +1,6 @@
 """ pynchon.plugins.jinja
 """
-from pynchon.util import lme, typing  # noqa
+from pynchon.util import lme, typing, tagging  # noqa
 from pynchon import abcs, models
 from pynchon.api import project
 from pynchon.util import files, text
@@ -40,9 +40,16 @@ class Jinja(models.Planner):
     class config_class(abcs.Config):
 
         config_key = "jinja"
-        defaults = dict(
-            # exclude_patterns=src/pynchon/templates/
-        )
+        defaults = dict()
+
+        @tagging.tagged_property(conflict_strategy='override')
+        def exclude_patterns(self):
+            from pynchon.plugins import util as plugin_util
+
+            globals = plugin_util.get_plugin('globals').get_current_config()
+            global_ex = globals['exclude_patterns']
+            my_ex = self.get('exclude_patterns', [])
+            return list(set(global_ex + my_ex))
 
     def _get_jinja_context(self, config):
         """ """
@@ -51,14 +58,8 @@ class Jinja(models.Planner):
             fhandle.write(text.to_json(config))
         return f"{fname}"
 
-    def _get_exclude_patterns(self, config):
-        """ """
-        return list(
-            set(
-                config.jinja.get('exclude_patterns', [])
-                + config.globals['exclude_patterns']
-            )
-        )
+    # def _get_exclude_patterns(self, config):
+    # """ """
 
     def list(self, config=None):
         """Lists affected resources in this project"""
@@ -71,7 +72,7 @@ class Jinja(models.Planner):
         self.logger.debug(f"search pattern is {search}")
         result = files.find_globs(search)
         self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
-        excludes = self._get_exclude_patterns(config)
+        excludes = self.config['exclude_patterns']
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} j2 files (post-filter)")

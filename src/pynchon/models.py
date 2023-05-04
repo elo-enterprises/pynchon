@@ -75,6 +75,11 @@ class PynchonPlugin(AbstractPlugin):
             result.append(plugins_util.get_plugin_obj(plugin))
         return sorted(result, key=lambda p: p.priority)
 
+    @property
+    def config(self):
+        """ """
+        return self.cfg()
+
     def cfg(self):
         """Shows current config for this plugin"""
         kls = self.__class__

@@ -70,8 +70,7 @@ class Config(abcs.Config):
         root = root or config.GIT.get("root")
         return root and abcs.Path(root)
 
-    @tagging.tags(conflict_strategy='override')
-    @property
+    @tagging.tagged_property(conflict_strategy='override')
     def plugins(self):
         result = sorted(
             list(set(self.get('plugins', []) + self.__class__.defaults['plugins']))

@@ -138,8 +138,16 @@ class AppEvents(AppBase):
         events.lifecycle.connect(self.lifecycle_msg)
         events.lifecycle.connect(self.lifecycle_stage)
         events.lifecycle.connect(self.lifecycle_applying)
+        events.lifecycle.connect(self.lifecycle_plugin)
 
     # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
+    def lifecycle_plugin(self, sender, plugin=None, **kwargs):
+        """ """
+        if plugin:
+            tmp = getattr(sender, '__name__', str(sender))
+            tmp = f'{tmp}: PLUGIN: {plugin}'
+            self.events.lifecycle.send(self, msg=plugin)
+
     def lifecycle_applying(self, sender, applying=None, **kwargs):
         """ """
         if applying:

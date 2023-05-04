@@ -11,10 +11,6 @@
 
   "src_root": "src",
 
-  "src_patterns": [
-    "*.py",
-  ],
-
   "pkg_name": "pynchon",
 
   "docs_root": "docs",
@@ -29,7 +25,7 @@
     // tools: `json`.
 
     // Recommended for projects with source-code
-      "cicd", "fixme", "todo", "headers",
+      "src", "cicd", "fixme", "todo",
 
 
 
@@ -44,7 +40,7 @@
     "scaffolding", // a boilerplate-manager
 
     // Experimental
-    "griffe",
+    "griffe", "f",
     "cookie-cutter", // helpers for cookie-cutter
   ],
 
@@ -54,10 +50,17 @@
     // Well-behaved plugins will honor values here
     "exclude_patterns": [
       ".*[.]pyc",
+      ".*_version[.]py",
       "**/tests/fixtures/**",
       "**/build/lib/**",
     ],
 
+  },
+
+  // SourceCode plugin customization.
+  "src": {
+    "include_patterns": ["**/*.py",],
+    "headers": {},
   },
 
   // END: top-level config

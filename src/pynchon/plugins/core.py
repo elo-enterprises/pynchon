@@ -31,10 +31,6 @@ class Core(models.Planner):
         result = getattr(config_mod, kls.get_config_key())
         return result
 
-    @property
-    def config(self):
-        return self.cfg()
-
     def plan(self, config=None) -> typing.List:
         """Creates a plan for all plugins"""
         raise NotImplementedError()
