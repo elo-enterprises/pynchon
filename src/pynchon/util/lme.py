@@ -1,12 +1,15 @@
 """ {{pkg}}.util.lme
 """
 import logging
+
 from rich.style import Style
 from rich.theme import Theme
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.default_styles import DEFAULT_STYLES
+
 from pynchon import constants
+
 
 def get_logger(name):
     """
@@ -64,7 +67,9 @@ def get_logger(name):
     # logger.setLevel("DEBUG")
     logger.setLevel(
         # 'WARNING'
-        'DEBUG' if constants.CLI_DEBUG else 'WARNING',
+        'DEBUG'
+        if constants.CLI_DEBUG
+        else 'WARNING',
     )
 
     return logger

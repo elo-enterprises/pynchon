@@ -1,4 +1,4 @@
-""" pynchon.plugins.render
+""" pynchon.plugins.json
 """
 from pynchon.util import lme, typing  # noqa
 

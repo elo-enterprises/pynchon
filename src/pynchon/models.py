@@ -268,9 +268,8 @@ class BasePlugin(CliPlugin):
     priority = 10
 
 
-from pynchon.util import text
-
 from pynchon import abcs
+from pynchon.util import text
 
 
 class Goal(typing.NamedTuple, metaclass=abcs.namespace):
@@ -282,6 +281,7 @@ class Goal(typing.NamedTuple, metaclass=abcs.namespace):
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{self.resource}]>"
+
 
 class Action(typing.NamedTuple, metaclass=abcs.namespace):
     """ """
@@ -323,13 +323,13 @@ class Plan(typing.List[Goal], metaclass=abcs.namespace):
     # @typing.validate_arguments
     def __add__(self, other):
         """ """
-        assert isinstance(other,(Plan,))
+        assert isinstance(other, (Plan,))
         return Plan(*(other + self))
 
     __iadd__ = __add__
 
     # @typing.validate_arguments
-    def append(self, other:Goal):
+    def append(self, other: Goal):
         """ """
         assert isinstance(other, (Goal,))
         return super(Plan, self).append(other)

@@ -84,16 +84,20 @@ class RootGroup(click.Group):
         super(RootGroup, self).format_usage(ctx, formatter)
 
     def get_command(self, *args, **kwargs):
-        tmp = super(RootGroup,self).get_command(*args, **kwargs)
+        tmp = super(RootGroup, self).get_command(*args, **kwargs)
         return tmp
 
+
 from pynchon import constants
+
 
 @click.version_option()
 @click.option('--plugins', help='shortcut for `--set plugins=...`')
 @click.option('--set', 'set_config', help='config overrides')
 @click.option('--get', 'get_config', help='config retrieval')
-@click.option('--verbose', help='set verbose', is_flag=True, default=constants.D_VERBOSE)
+@click.option(
+    '--verbose', help='set verbose', is_flag=True, default=constants.D_VERBOSE
+)
 @click.option('--debug', help='set verbose', is_flag=True, default=constants.D_DEBUG)
 @click.group("pynchon", cls=RootGroup)
 def entry(
@@ -104,9 +108,12 @@ def entry(
     get_config: str = '',
 ):
     from pynchon import constants
+
     c = click.get_current_context()
-    constants.CLI_VERBOSE=c.params.get('debug', constants.D_DEBUG)
-    constants.CLI_VERBOSE=c.params.get('verbose', constants.D_VERBOSE)
+    constants.CLI_VERBOSE = c.params.get('debug', constants.D_DEBUG)
+    constants.CLI_VERBOSE = c.params.get('verbose', constants.D_VERBOSE)
     # raise Exception()
     # import IPython; IPython.embed()
+
+
 # tmp=entry()

@@ -93,7 +93,7 @@ class Core(models.Planner):
         self,
         config=None,
     ) -> models.Plan:
-        """ Runs plan for all plugins """
+        """Runs plan for all plugins"""
 
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)

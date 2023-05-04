@@ -29,10 +29,9 @@
     // tools: `json`.
 
     // Recommended for projects with source-code
-    "fixme", "todo", "headers",
+      "cicd", "fixme", "todo", "headers",
 
-    //
-    "cicd",
+
 
     // Standard if there's a python-project
     "pypi", "python-api", "python-cli",
@@ -43,6 +42,9 @@
 
     // For projects management & grooming
     "scaffolding", // a boilerplate-manager
+
+    // Experimental
+    "griffe",
     "cookie-cutter", // helpers for cookie-cutter
   ],
 
