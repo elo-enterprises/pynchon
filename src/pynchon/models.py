@@ -3,11 +3,8 @@
 import typing
 import collections
 
-from pynchon import events, shimport
-from pynchon.api import project
-from pynchon.app import app
+from pynchon import abcs, api, cli, events, shimport
 from pynchon.bin import entry
-from pynchon.cli import click, common
 from pynchon.abcs.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 from pynchon.util.tagging import tags
@@ -36,7 +33,7 @@ class PynchonPlugin(AbstractPlugin):
     @typing.classproperty
     def project_config(self):
         """class-property: finalized project-config"""
-        return project.get_config()
+        return api.project.get_config()
 
     @typing.classproperty
     def instance(kls):
@@ -114,13 +111,13 @@ class CliPlugin(PynchonPlugin):
 
         plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
         gname = getattr(kls, 'cli_name', kls.name)
-        groop = common.groop(gname, parent=kls.click_entry)
+        groop = cli.common.groop(gname, parent=kls.click_entry)
         plugin_main = groop(plugin_main)
         kls._finalized_click_groups[kls] = plugin_main
         return plugin_main
 
-    @PynchonPlugin.classmethod_dispatch(click.Group)
-    def click_acquire(kls, grp: click.Group):  # noqa F811
+    @PynchonPlugin.classmethod_dispatch(cli.click.Group)
+    def click_acquire(kls, grp: cli.click.Group):  # noqa F811
         """ """
         parent = kls.click_group
         LOGGER.critical(
@@ -134,9 +131,9 @@ class CliPlugin(PynchonPlugin):
         msg = f'{kls.__name__} acquires naked fxn: {fxn.__name__}'
         assert fxn.__annotations__
         cmd_name = f'{fxn.__name__}'.replace('_', '-')
-        kls.click_group.add_command(click.command(cmd_name)(fxn))
+        kls.click_group.add_command(cli.click.command(cmd_name)(fxn))
 
-    @PynchonPlugin.classmethod_dispatch(click.Command)
+    @PynchonPlugin.classmethod_dispatch(cli.click.Command)
     def click_acquire(kls, cmd: click.Command):  # noqa F811
         """ """
         parent = kls.click_group
@@ -217,7 +214,7 @@ class CliPlugin(PynchonPlugin):
         name = name.replace('_', '-')
         help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
         help = help.lstrip()
-        cmd = common.kommand(
+        cmd = cli.common.kommand(
             name,
             help=help,
             alias=alias,
@@ -271,10 +268,6 @@ class BasePlugin(CliPlugin):
     """
 
     priority = 10
-
-
-from pynchon import abcs
-from pynchon.util import text
 
 
 class Goal(typing.NamedTuple, metaclass=abcs.namespace):

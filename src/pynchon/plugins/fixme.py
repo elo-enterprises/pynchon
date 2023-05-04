@@ -23,8 +23,6 @@ class FixMe(models.Planner):
 
     def plan(self, config: dict = None) -> typing.List:
         """...."""
-        from pynchon.config import pynchon
-
         config = config or self.__class__.get_current_config()
         plan = super(self.__class__, self).plan(config)
         target = "{pynchon['docs_root']}/FIXME.md"

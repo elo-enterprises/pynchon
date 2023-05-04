@@ -36,7 +36,8 @@ class Jinja(models.Planner):
         # render_main.j2cli,
         # render_main.jinja_file,
     ]
-# diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
+    # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
+
     class config_class(abcs.Config):
 
         config_key = "jinja"

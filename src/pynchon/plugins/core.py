@@ -1,6 +1,6 @@
 """ pynchon.plugins.Core
 """
-from pynchon import api, cli, models
+from pynchon import cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme, typing
@@ -30,10 +30,6 @@ class Core(models.Planner):
 
         result = getattr(config_mod, kls.get_config_key())
         return result
-
-    def plan(self, config=None) -> typing.List:
-        """Creates a plan for all plugins"""
-        raise NotImplementedError()
 
     def apply(self, config=None) -> None:
         """Executes the result returned by planner"""

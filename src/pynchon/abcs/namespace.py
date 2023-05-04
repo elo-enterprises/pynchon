@@ -2,7 +2,8 @@
 """
 
 import typing
-import collections
+
+# import collections
 
 
 def namespace(name, bases, namespace):
