@@ -15,5 +15,9 @@ if __name__ == '__main__':
     || bonk one \
     ; zoooom
     """
-    tmp = grammar.bash_fmt(cmd)
-    print(f'formatted:\n\n{tmp}\n\n')
+    result = grammar.bash_fmt(cmd)
+    from rich.console import Console
+    from rich.syntax import Syntax
+    console= Console()
+    syntax=Syntax(result,'bash')
+    console.print(syntax, )
