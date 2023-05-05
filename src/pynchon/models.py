@@ -177,7 +177,7 @@ class CliPlugin(PynchonPlugin):
                 # FIXME: this wraps twice?
                 # from rich import print_json
                 # print_json(text.to_json(result))
-                if hasattr(result,'display'):
+                if hasattr(result, 'display'):
                     result.display()
                 return result
 
@@ -278,9 +278,12 @@ class Goal(typing.NamedTuple, metaclass=abcs.namespace):
     resource: str = '??'
     command: str = 'echo'
     type: str = 'unknown'
+
     def display(self):
         from pynchon.util import shfmt
+
         shfmt.bash_fmt_display(self.command)
+
     def __str__(self):
         return f"<{self.__class__.__name__}[{self.resource}]>"
 
@@ -299,10 +302,12 @@ class Action(typing.NamedTuple, metaclass=abcs.namespace):
 
 class Plan(typing.List[Goal], metaclass=abcs.namespace):
     """ """
+
     def display(self):
         for g in self:
             if hasattr(g, 'display'):
                 g.display()
+
     def __init__(self, *args):
         """ """
         for arg in args:

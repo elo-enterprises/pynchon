@@ -16,6 +16,7 @@ from pyparsing import (
     QuotedString,
 )
 
+
 def QString(s, loc, tokens):  # noqa
     """Parse out the multiline quoted string"""
     text = Word(alphanums + '-')
@@ -23,19 +24,21 @@ def QString(s, loc, tokens):  # noqa
     text = (text) + Optional(Continuation)
     g = Combine(ZeroOrMore(text), adjacent=False, joinString=" ")
     return g.parseString(tokens[0])
+
+
 QArg = QuotedString("\'", multiline=True) | QuotedString('\"', multiline=True)
 QArg.setParseAction(QString)
 
 Continuation = ('\\' + (LineEnd())).suppress()
 CommandJoiner = Literal('&&')
-CommandJoiner|= Literal('||')
-CommandJoiner|= Literal(';')
-CommandJoiner|= pyparsing.LineStart()
-CommandJoiner=Optional(Continuation)+CommandJoiner
+CommandJoiner |= Literal('||')
+CommandJoiner |= Literal(';')
+CommandJoiner |= pyparsing.LineStart()
+CommandJoiner = Optional(Continuation) + CommandJoiner
 # CommandJoiner|=pyparsing.LineStart()
 CommandJoiner = CommandJoiner.setResultsName('joiner')
 
-Name = Word(alphanums+"./")#+pyparsing.White()
+Name = Word(alphanums + "./")  # +pyparsing.White()
 
 Arg = Name('argval') + Optional(Continuation)
 Arg = Arg('argval')
@@ -43,8 +46,16 @@ Vals = Group(ZeroOrMore(Arg | QArg('quoted_arg')))
 
 # Option = Literal("-").suppress() + Word(alphanums+".-")
 # Option =
-LOption = Group(Literal("--").suppress() + Word(alphanums+".-")('long_option_name') + Optional(Vals('vals')))
-Option = Group(Literal("-").suppress() + Word(alphanums+".-")('short_option_name') + Optional(Vals('vals')))
+LOption = Group(
+    Literal("--").suppress()
+    + Word(alphanums + ".-")('long_option_name')
+    + Optional(Vals('vals'))
+)
+Option = Group(
+    Literal("-").suppress()
+    + Word(alphanums + ".-")('short_option_name')
+    + Optional(Vals('vals'))
+)
 Options = ZeroOrMore(Option)
 LOptions = ZeroOrMore(LOption)
 # LongOption = Literal("--").suppress() + Name('long_option_name')
@@ -53,13 +64,13 @@ LOptions = ZeroOrMore(LOption)
 
 CommandName = Name('name')
 Command = Combine(CommandName)('cmd')
-Command+= Optional(LOptions('cmd_lopts') + Options('cmd_opts'))
+Command += Optional(LOptions('cmd_lopts') + Options('cmd_opts'))
 # Command+= Optional(LongOptions('cmd_lopts'))
-Command+= Optional(Vals('cmd_args'))
+Command += Optional(Vals('cmd_args'))
 
 JoinedCommand = ZeroOrMore(Group(CommandJoiner + Command)('cmd'))
 #
 # BashCommand = Command('cmd').set_results_name('cmd')
 # BashCommand+= Optional(JoinedCommand)
 
-BashCommand=JoinedCommand
+BashCommand = JoinedCommand
