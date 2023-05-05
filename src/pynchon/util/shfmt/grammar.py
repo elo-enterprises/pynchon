@@ -56,7 +56,7 @@ JoinedCommand = ZeroOrMore(Group(CommandJoiner + Command)('cmd'))
 # BashCommand+= Optional(JoinedCommand)
 
 BashCommand=JoinedCommand
-def fmt_token(token, indent=''):
+def fmt_token(token, level=0):
     """ """
     result = []
     if isinstance(token, (str,)) and token:
@@ -75,25 +75,34 @@ def fmt_token(token, indent=''):
         argval = token.argval[0]
         if argval:
             vals+=list(argval)
+            # import IPython; IPython.embed()
+        # vdict = dict(tdict['cmd_args'])
+        # vals+=list(token.cmd_args)
+        # import IPython; IPython.embed()
+        # vals.append(fmt_token(token.cmd_args.argval))
     vals = ' '.join(vals)
 
     if 'cmd' in tdict:
         cmd_opts = tdict.get('cmd_opts',[])
-        cmd_opts = [fmt_token(t,indent='\n') for t in cmd_opts]
+        cmd_opts = [fmt_token(t) for t in cmd_opts]
         cmd_opts = ' '.join(cmd_opts)
         cmd_args = tdict.get('cmd_args',[])
         cmd_args = [t for t in cmd_args]
         cmd_args = ' '.join(cmd_args)
+        # if token.cmd.name=='bonk':
+        #     import IPython; IPython.embed()
         return f'{token.joiner} {token.cmd.name} {cmd_opts} {cmd_args}'
+    # elif 'name' in tdict:
+    #     return token.name
     elif 'long_option_name' in tdict:
-        return f'{indent}  --{token.long_option_name} {vals}'
+        return f'\n\t --{token.long_option_name} {vals}'
     elif 'short_option_name' in tdict:
-        return f'{indent}  -{token.short_option_name} {vals}'
+        return f'\n\t -{token.short_option_name} {vals}'
     else:
         logger(f'dont know how to fmt {[token,tdict]}')
         return ''
 
-def bash_fmt(text, indent=''):
+def bash_fmt(text, level=0):
     """ """
     text=text.lstrip()
     print(f'parsing:\n\n{text}\n\n')
@@ -109,5 +118,5 @@ def bash_fmt(text, indent=''):
     # ]
     # pprint.pprint(list(tmp2)); print(); print()
 
-    result = [ fmt_token(token, indent=indent) for token in parsed]
+    result = [ fmt_token(token, level=level) for token in parsed]
     return '\n'.join(result).lstrip()
