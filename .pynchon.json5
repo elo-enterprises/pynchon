@@ -40,7 +40,7 @@
     "scaffolding", // a boilerplate-manager
 
     // Experimental
-    "griffe", "f",
+    "griffe", "f", "cookie-cutter",
     "cookie-cutter", // helpers for cookie-cutter
   ],
 
