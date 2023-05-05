@@ -134,7 +134,7 @@ class CliPlugin(PynchonPlugin):
         kls.click_group.add_command(cli.click.command(cmd_name)(fxn))
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Command)
-    def click_acquire(kls, cmd: click.Command):  # noqa F811
+    def click_acquire(kls, cmd: cli.click.Command):  # noqa F811
         """ """
         parent = kls.click_group
         LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")

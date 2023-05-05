@@ -20,6 +20,7 @@ LOGGER = lme.get_logger(__name__)
 #         extra = []
 #     return extra + self._base.get("template_includes", [])
 
+from pynchon.plugins import util as plugin_util
 
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
@@ -41,12 +42,10 @@ class Jinja(models.Planner):
     class config_class(abcs.Config):
 
         config_key = "jinja"
-        defaults = dict()
+        defaults = dict(template_includes=[])
 
         @tagging.tagged_property(conflict_strategy='override')
         def exclude_patterns(self):
-            from pynchon.plugins import util as plugin_util
-
             globals = plugin_util.get_plugin('globals').get_current_config()
             global_ex = globals['exclude_patterns']
             my_ex = self.get('exclude_patterns', [])

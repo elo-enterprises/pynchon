@@ -45,16 +45,15 @@
   ],
 
 
+  // Global-config.
+  // Well-behaved plugins will honor values here
   "globals": {
-    // Global-config.
-    // Well-behaved plugins will honor values here
     "exclude_patterns": [
       ".*[.]pyc",
       ".*_version[.]py",
       "**/tests/fixtures/**",
       "**/build/lib/**",
     ],
-
   },
 
   // SourceCode plugin customization.
