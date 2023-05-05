@@ -8,10 +8,6 @@ from pynchon import abcs, click, shimport
 
 from pynchon.util import lme, typing  # noqa
 
-
-# import click
-
-
 plugins = shimport.lazy(
     'pynchon.plugins',
 )
@@ -88,32 +84,14 @@ class RootGroup(click.Group):
         return tmp
 
 
-from pynchon import constants
-
-
 @click.version_option()
 @click.option('--plugins', help='shortcut for `--set plugins=...`')
 @click.option('--set', 'set_config', help='config overrides')
 @click.option('--get', 'get_config', help='config retrieval')
-@click.option(
-    '--verbose', help='set verbose', is_flag=True, default=constants.D_VERBOSE
-)
-@click.option('--debug', help='set verbose', is_flag=True, default=constants.D_DEBUG)
 @click.group("pynchon", cls=RootGroup)
 def entry(
     plugins: str = '',
-    verbose: bool = constants.D_VERBOSE,
-    debug: bool = constants.D_DEBUG,
     set_config: str = '',  # noqa
     get_config: str = '',
 ):
-    from pynchon import constants
-
-    c = click.get_current_context()
-    constants.CLI_VERBOSE = c.params.get('debug', constants.D_DEBUG)
-    constants.CLI_VERBOSE = c.params.get('verbose', constants.D_VERBOSE)
-    # raise Exception()
-    # import IPython; IPython.embed()
-
-
-# tmp=entry()
+    """ """

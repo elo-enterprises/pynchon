@@ -17,17 +17,13 @@
 
   "plugins": [
     // Plugins that are loaded.
-    // Some things are here implicitly,
-    // since default plugins are added
-    // regardless.  Default providers:
-    // `python`, `project`, `git`.  Default
-    // namespaces: `gen`, `render`.  Default
-    // tools: `json`.
+    // Default plugins are implicitly here, no need to mention them.
+    // Default providers: `python`, `project`, `git`, `globals`
+    // Default namespaces: `gen`, `render`.  Default
+    // Default tools: `json`.
 
     // Recommended for projects with source-code
-      "src", "cicd", "fixme", "todo",
-
-
+    "src", "cicd", "fixme", "todo",
 
     // Standard if there's a python-project
     "pypi", "python-api", "python-cli",
@@ -40,13 +36,14 @@
     "scaffolding", // a boilerplate-manager
 
     // Experimental
-    "griffe", "f", "cookie-cutter",
-    "cookie-cutter", // helpers for cookie-cutter
+    "griffe",         // ast tool
+    "cookie-cutter",  // helpers for cookie-cutter
   ],
 
 
-  // Global-config.
-  // Well-behaved plugins will honor values here
+  // Globals plugin.
+  // All well-behaved plugins will honor values here, appending
+  // these values to whatever is set explicitly for that plugin
   "globals": {
     "exclude_patterns": [
       ".*[.]pyc",
@@ -57,6 +54,7 @@
   },
 
   // SourceCode plugin customization.
+  // This provides find/search tooling, plus file-header generators, etc
   "src": {
     "include_patterns": ["**/*.py",],
     "headers": {},
@@ -66,16 +64,15 @@
   // BEGIN: plugins-config
 
   // Hooks plugin customization.
-  "hooks":{},
+  "hooks": {},
 
   // Dot (graphviz) plugin customization.
-  "dot":{},
+  "dot": {},
 
   // FixMe plugin customization.
   "fixme": {
     "exclude_patterns": [
-       // allows {paths|globs|tmpl}
-      // will include `globals.exclude_patterns`
+      // `globals.exclude_patterns` will be appended.
       "**/*.egg-info/**",
       "src/pynchon/plugins/fixme/**",
       "src/pynchon/templates/**",
@@ -83,12 +80,15 @@
   },
 
   // PythonAPI plugin customization.
+  // This generates API docs for python-packages
   "python-api":{
     "skip_private_methods": true,
     "skip_patterns": [],
   },
 
   // Scaffolding plugin customization.
+  // This provides ways to synchronize/diff project boilerplate.
+  // (Similar to cookie-cutter[], but more simple to use.)
   "scaffolding":{
     "exclude_patterns": [
       // includes globals
@@ -105,6 +105,7 @@
    },
 
    // Jinja plugin customization.
+   // Planner for finding/rendering project .j2 files
    "jinja":{
      "context_vars": {
        // extra context-vars passed for renders
@@ -117,28 +118,30 @@
      ],
 
     "exclude_patterns": [
-      // files that shouldn't show up in plans
-       // allows {tpls|paths|globs}
+      // Describes files that shouldn't show up in plans
+      // `globals.exclude_patterns` will be appended.
       "**/{{pynchon.src_root}}/pynchon/templates/**",
     ],
 
     "template_includes": [
-      // paths to load templates from
-       // allows {tpls|paths|globs}
+      // Paths to load includes from.
+      // (Used in templates as `{% include .. %}`)
       "{{pynchon.docs_root}}/includes",
     ],
   },
 
   // PyPI plugin customization.
-  // This isn't fancy; for now just a provider
-  // that holds details that might be used by rendering.
+  // Provider for details about the PyPI this project uses.
+  // (This is only used in rendering docs; `pynchon` does not manage releases.
+  // You can probably leave this blank for public PyPI but pynchon's own
+  // config has some values just1to ensure the plugin is exercised.)
   "pypi": {
     "name":"THE public PyPI"
   },
 
   // CI/CD plugin customization.
-  // This isn't fancy; for now just a provider
-  // that holds details that might be used by rendering.
+  // Provider for details about the build server for this project.
+  // (This is only used in rendering docs; `pynchon` does not manage builds.)
   "cicd": {
     // "url_base": "",
     // "url_build": "",

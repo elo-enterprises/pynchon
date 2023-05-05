@@ -1,6 +1,5 @@
 """ {{pkg}}.util.lme
 """
-import os
 import logging
 
 from rich.style import Style
@@ -66,12 +65,6 @@ def get_logger(name):
 
     # FIXME: get this from some kind of global config
     # logger.setLevel("DEBUG")
-    logger.setLevel(
-        # 'WARNING'
-        # 'DEBUG'
-        os.environ.get('PYNCHON_LOG_LEVEL', 'WARNING')
-        if constants.CLI_DEBUG
-        else 'WARNING',
-    )
+    logger.setLevel(constants.LOG_LEVEL)
 
     return logger

@@ -7,7 +7,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class CookierCutter(models.ToolPlugin):
-    """ Tools for working with cookie-cutter """
+    """Tools for working with cookie-cutter"""
 
     name = "cookie-cutter"
     cli_name = 'cut'

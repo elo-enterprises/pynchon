@@ -1,10 +1,8 @@
 """ pynchon.constants
 """
-# import os
-# ENV_DEBUG =
-# ENV_VERBOSE =
-D_DEBUG = CLI_DEBUG = D_VERBOSE = CLI_VERBOSE = True
+import os
 
+LOG_LEVEL = os.environ.get('PYNCHON_LOG_LEVEL', 'WARNING')
 DEFAULT_PLUGINS = [
     # FIXME: docs
     "core",

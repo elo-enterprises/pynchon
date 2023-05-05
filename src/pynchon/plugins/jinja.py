@@ -22,6 +22,7 @@ LOGGER = lme.get_logger(__name__)
 
 from pynchon.plugins import util as plugin_util
 
+
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 
