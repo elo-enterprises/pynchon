@@ -35,16 +35,16 @@ CommandJoiner=Optional(Continuation)+CommandJoiner
 # CommandJoiner|=pyparsing.LineStart()
 CommandJoiner = CommandJoiner.setResultsName('joiner')
 
-Name = Word(alphanums)
+Name = Word(alphanums+"./")#+pyparsing.White()
 
 Arg = Name('argval') + Optional(Continuation)
 Arg = Arg('argval')
 Vals = Group(ZeroOrMore(Arg | QArg('quoted_arg')))
 
-Option = Literal("-").suppress() + Name('short_option_name')
-Option = Group(Option + Vals('vals'))
+Option = Literal("-").suppress() + Word(alphanums+".-")('short_option_name')
+Option = Group(Option + Optional(Vals('vals')))
 LongOption = Literal("--").suppress() + Name('long_option_name')
-LongOption = Group(LongOption + Vals('vals'))
+LongOption = Group(LongOption + Optional(Vals('vals')))
 Options = ZeroOrMore(Option | LongOption)
 
 CommandName = Name('name')
@@ -100,9 +100,9 @@ def bash_fmt(text, indent=''):
     text=text.lstrip()
     # print(f'parsing:\n\n{text}\n\n')
     parsed = BashCommand().parseString(text)
-    # print(f'parsed:\n\n')
-    # import pprint
-    # pprint.pprint(list(enumerate(list(parsed))))
+    print(f'parsed:\n\n')
+    import pprint
+    pprint.pprint(list(enumerate(list(parsed))))
 
     result = [ fmt_token(token, indent=indent) for token in parsed]
     result = '\n'.join(result).lstrip()
