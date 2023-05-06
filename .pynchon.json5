@@ -1,20 +1,15 @@
+// pynchon is a docs-generation tool.
 //
-//  pynchon is a docs-generation tool.
-//
-//  this config is used implicitly with
-//  any direct invocations of the `pynchon` CLI
-//  tool, sometimes via `make docs` (which drives the CLI)
+// This config is used implicitly with any direct invocations
+// of the `pynchon` CLI tool, sometimes via `make docs` (which drives the CLI)
 {
+
   // BEGIN: top-level config
   // Everything here is optional.
   // Literals only; no templating please!
-
   "src_root": "src",
-
   "pkg_name": "pynchon",
-
   "docs_root": "docs",
-
   "plugins": [
     // Plugins that are loaded.
     // Default plugins are implicitly here, no need to mention them.
@@ -23,7 +18,8 @@
     // Default tools: `json`.
 
     // Recommended for projects with source-code
-    "src", "cicd", "fixme", "todo",
+    "src", "tests", "cicd", "fixme",
+    //"todo",
 
     // Standard if there's a python-project
     "pypi", "python-api", "python-cli",
@@ -56,10 +52,16 @@
   // SourceCode plugin customization.
   // This provides find/search tooling, plus file-header generators, etc
   "src": {
-    "root": "{{pynchon.root}}/src",
+    "root": "src",
     "include_patterns": ["**/*.py",],
     "headers": {},
   },
+
+  // Tests plugin customization.
+  // "tests": {
+  //   "root": "tests",
+  //   "include_patterns": ["**/*.py",],
+  // },
 
   // END: top-level config
   // BEGIN: plugins-config
@@ -68,7 +70,9 @@
   "hooks": {},
 
   // Dot (graphviz) plugin customization.
-  "dot": {},
+  "dot": {
+    "output_format": "png",
+  },
 
   // FixMe plugin customization.
   "fixme": {
@@ -121,7 +125,7 @@
     "exclude_patterns": [
       // Describes files that shouldn't show up in plans
       // `globals.exclude_patterns` will be appended.
-      "**/{{pynchon.src_root}}/pynchon/templates/**",
+      "**/{{src.root}}/pynchon/templates/**",
     ],
 
     "template_includes": [
