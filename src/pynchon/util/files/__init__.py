@@ -5,16 +5,34 @@ import glob
 import difflib
 import functools
 
-from pynchon.abcs import Path
+from pynchon import abcs, cli
+from pynchon.cli import click, options
 from pynchon.util.os import invoke
+from pynchon.util.tagging import tags
 
-from . import lme, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
+@cli.click.argument('prepend_file', nargs=1)
+@cli.click.argument('target_file', nargs=1)
+def prepend(
+    prepend_file: str,
+    target_file: str = None,
+    # template_context:dict={},
+):
+    """
+    prepends given file contents to given target
+    """
+    invoke(
+        f'''printf '%s\n%s\n' "$(cat {prepend_file})" "$(cat {target_file})" > {target_file}'''
+    )
+
+
 def diff_report(diff, logger=LOGGER.debug):
     """ """
+    # FIXME: use rich.syntax
     import pygments
     import pygments.lexers
     import pygments.formatters
@@ -27,20 +45,28 @@ def diff_report(diff, logger=LOGGER.debug):
     logger(f"scaffold drift: \n\n{tmp}\n\n")
 
 
-def diff_percent(f1, f2):
-    """ """
-    with open(f1, 'r') as src:
-        with open(f2, 'r') as dest:
+@cli.arguments.file1
+@cli.arguments.file2
+def diff_percent(file1: str = None, file2: str = None):
+    """
+    calculates file-delta, returning a percentage
+    """
+    with open(file1, 'r') as src:
+        with open(file2, 'r') as dest:
             src_c = src.read()
             dest_c = dest.read()
     sm = difflib.SequenceMatcher(None, src_c, dest_c)
     return 100 * (1.0 - sm.ratio())
 
 
-def diff(f1, f2):
-    """ """
-    with open(f1, 'r') as src:
-        with open(f2, 'r') as dest:
+@cli.arguments.file1
+@cli.arguments.file2
+def diff(file1: str = None, file2: str = None):
+    """
+    calculates a file-delta, returning a unified diff
+    """
+    with open(file1, 'r') as src:
+        with open(file2, 'r') as dest:
             src_l = src.readlines()
             dest_l = dest.readlines()
     xdiff = difflib.unified_diff(
@@ -59,7 +85,7 @@ def find_suffix(root: str = '', suffix: str = '') -> typing.StringMaybe:
 
 def get_git_root(path: str = ".") -> typing.StringMaybe:
     """ """
-    path = Path(path).absolute()
+    path = abcs.Path(path).absolute()
     tmp = path / ".git"
     if tmp.exists():
         return tmp
@@ -80,12 +106,12 @@ def find_src(
     """ """
     exclude_patterns = set(list(map(re.compile, exclude_patterns)))
     globs = [
-        Path(src_root).joinpath("**/*"),
+        abcs.Path(src_root).joinpath("**/*"),
     ]
     quiet or LOGGER.info(f"finding src under {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
     matches = functools.reduce(lambda x, y: x + y, globs)
-    matches = [str(x.absolute()) for x in map(Path, matches) if not x.is_dir()]
+    matches = [str(x.absolute()) for x in map(abcs.Path, matches) if not x.is_dir()]
     # LOGGER.debug(matches)
     matches = [
         m for m in matches if not any([p.match(str(m)) for p in exclude_patterns])
@@ -93,22 +119,7 @@ def find_src(
     return matches
 
 
-# def find_globs(
-#     globs: typing.List[str],
-#     quiet: bool = False,
-# ) -> typing.List[str]:
-#     quiet or LOGGER.debug(f"matching globs: {globs}")
-#     globs = [glob.glob(str(x), recursive=True) for x in globs]
-#     matches = functools.reduce(lambda x, y: x + y, globs)
-#     return matches
-
-
-import pydantic
-
-from pynchon import abcs
-
-
-@pydantic.validate_arguments
+@typing.validate_arguments
 def find_globs(
     globs: typing.List[abcs.Path],
     includes=[],
@@ -134,28 +145,5 @@ def find_globs(
     for m in matches:
         assert m
         if m not in includes:
-            result.append(Path(m))
+            result.append(abcs.Path(m))
     return result
-
-
-# def find_j2s(conf) -> list:
-#     """ """
-#     from pynchon import abcs, config
-#
-#     project = config.project.get("subproject", config.project)
-#     project_root = project.get("root", config.git["root"])
-#     globs = [
-#         Path(project_root).joinpath("**/*.j2"),
-#     ]
-#     LOGGER.debug(f"finding .j2s under {globs}")
-#     globs = [glob.glob(str(x), recursive=True) for x in globs]
-#     matches = functools.reduce(lambda x, y: x + y, globs)
-#     includes = []
-#     for i, m in enumerate(matches):
-#         for d in config.jinja.includes:
-#             if abcs.Path(d).has_file(m):
-#                 includes.append(m)
-#             else:
-#                 LOGGER.warning(f"'{d}'.has_file('{m}') -> false")
-#     j2s = [Path(m).relative_to(".") for m in matches if m not in includes]
-#     return j2s

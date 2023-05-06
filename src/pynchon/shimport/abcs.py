@@ -1,10 +1,19 @@
 """ shimport.abc
 """
+
 import itertools
 
+from pynchon.util import typing
 
-class FilterResult(list):
+
+# FIXME: move to fleks?
+class FilterResult(typing.List[typing.Any]):
     """ """
+
+    def __str__(self):
+        return '<{self.__class__.__name__}>'
+
+    __repr__ = __str__
 
     def map(self, fxn, logger: object = None):
         """ """

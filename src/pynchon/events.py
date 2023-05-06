@@ -9,7 +9,6 @@ LOGGER = lme.get_logger(__name__)
 lifecycle = blinker.signal('lifecyle')
 bootstrap = blinker.signal('bootstrap')
 
-
 # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
 def lifecycle_plugin(sender, plugin):
     """ """

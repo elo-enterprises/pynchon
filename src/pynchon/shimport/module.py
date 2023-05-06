@@ -73,24 +73,7 @@ def wrap(name, **kwargs):
 wrapper = wrap
 
 
-def registry_builder(
-    name,
-    # itemizer=None,
-    **kargs,
-):
-    """ """
-    wrapped = wrap(
-        name,
-    )
-    return wrapped
-    # return dict(itemizer(obj) for obj in built)
-
-
-registry = registry_builder
-build_registry = registry_builder
-
-
-def lazy_import(
+def lazy(
     module_name: str,
 ) -> models.LazyModule:
     """ """

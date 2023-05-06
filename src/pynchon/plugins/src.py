@@ -6,21 +6,22 @@ from pynchon.util import files
 
 LOGGER = lme.get_logger(__name__)
 
-ext_map = {
-    '.sh': dict(
-        template='includes/pynchon/src/header/sh.j2', pre=['#', '###'], post='###'
-    ),
+EXT_MAP = {
     '.ini': dict(
-        template='includes/pynchon/src/header/ini.j2', pre=['#', '###'], post='###'
+        template='pynchon/plugins/src/header/ini.j2', pre=['#', '###'], post='###'
     ),
-    '.j2': dict(template='includes/pynchon/src/jinja-header.j2', pre=["{#"], post='#}'),
+    '.j2': dict(template='pynchon/plugins/src/header/jinja.j2', pre=["{#"], post='#}'),
     '.json5': dict(
         template='includes/pynchon/src/json5-header.j2', pre=['//', '///'], post='///'
     ),
     '.py': dict(
-        template='includes/pynchon/src/python-header.j2',
+        # template='includes/pynchon/src/python-header.j2',
+        template='pynchon/plugins/src/header/python.j2',
         pre=['"""', '"', "'"],
         post='""""',
+    ),
+    '.sh': dict(
+        template='pynchon/plugins/src/header/sh.j2', pre=['#', '###'], post='###'
     ),
 }
 
@@ -49,22 +50,81 @@ class SourceMan(models.Manager):
         include_patterns = self.config.get('include_patterns', ["**"])
         return files.find_globs(include_patterns)
 
+    def _get_missing_headers(self, resources):
+        """ """
+        result = dict(extensions=set([]), files=[])
+        for p_rsrc in resources:
+            if not p_rsrc.is_file() or not p_rsrc.exists():
+                continue
+            # ext_info = self._rsrc_ext_info(p_rsrc)
+            ext_meta = EXT_MAP[p_rsrc.full_extension()]
+            preamble_patterns = ext_meta['pre']
+            assert isinstance(preamble_patterns, (list,))
+            with p_rsrc.open('r') as fhandle:
+                content = fhandle.read().lstrip()
+                if any([content.startswith(pre) for pre in preamble_patterns]):
+                    # we detected expected comment at the top of the file,
+                    # so the appropriate header *might* be present; skip it
+                    continue
+                else:
+                    # no header at all
+                    result['files'].append(p_rsrc)
+                    result['extensions'] = result['extensions'].union(
+                        set([p_rsrc.full_extension()])
+                    )
+        result.update(extensions=list(result['extensions']))
+        return result
+
+    def _plan_empties(self, resources):
+        """ """
+        result = []
+        return result
+
+    def _render_header_file(self, rsrc: abcs.Path = None):
+        """ """
+        ext = rsrc.full_extension()
+        fname = f'.tmp.{__name__}.header.{ext}.{rsrc.stem_truncated()}.txt'
+        templatef = EXT_MAP[ext]['template']
+        tpl = api.render.get_template(templatef)
+        result = tpl.render(
+            template=templatef,
+            filename=str(rsrc.absolute().relative_to(abcs.Path(".").absolute())),
+        )
+        if not result:
+            err = f'header for extension "{ext}" rendered to "{fname}" from {templatef}'
+            raise Exception(err)
+        with open(fname, 'w') as fhandle:
+            fhandle.write(result)
+        LOGGER.warning(f"wrote {fname}")
+        return fname
+
     def plan(self, config=None):
         """ """
-        for fsrc in self.list():
-            psrc = abcs.Path(fsrc)
-            if not psrc.is_file() or not psrc.exists():
-                continue
-            full_ext, stem = (
-                psrc.name[psrc.name.find('.') :],
-                psrc.name[: psrc.name.find('.')],
+        plan = super(SourceMan, self).plan(config=config)
+        resources = [abcs.Path(fsrc) for fsrc in self.list()]
+        cmd_t = 'python -mpynchon.util.files prepend'
+        loop = self._get_missing_headers(resources)
+        for rsrc in loop['files']:
+            ext = rsrc.full_extension()
+            ext = ext[1:] if ext.startswith('.') else ext
+            # fhdr = header_files[ext]
+            fhdr = self._render_header_file(rsrc)
+            plan.append(
+                self.goal(
+                    resource=rsrc,
+                    type='change',
+                    command=f"{cmd_t} {fhdr} {rsrc}",
+                )
             )
-            mdata = ext_map[full_ext]
-            with psrc.open('r') as fhandle:
-                content = fhandle.read().lstrip()
-                if any([content.startswith(pre) for pre in mdata['pre']]):
-                    continue
-                LOGGER.critical(f"{psrc} missing header!")
+        for rsrc in self._plan_empties(resources):
+            plan.append(
+                self.goal(
+                    resource=rsrc,
+                    type='delete',
+                    command=f'rm {rsrc}',
+                )
+            )
+        return plan
 
     def find(self):
         """file finder"""

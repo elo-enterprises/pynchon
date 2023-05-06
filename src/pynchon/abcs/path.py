@@ -13,6 +13,16 @@ LOGGER = lme.get_logger(__name__)
 class Path(typing.PathType):
     """ """
 
+    def full_extension(self):
+        """
+        no extension truncation, i.e. `.tar.gz`
+        """
+        return self.name[self.name.find('.') :]
+
+    def stem_truncated(self):
+        """truncated stem"""
+        return self.name[: self.name.rfind(self.full_extension())]
+
     def siblings(self):
         return self.parents[0].list()
 

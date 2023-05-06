@@ -97,3 +97,4 @@ def get_template(
         LOGGER.critical(f"Jinja-includes: {env.pynchon_includes}")
         err = getattr(exc, 'templates', exc.message)
         LOGGER.critical(f"Problem template: {err}")
+        raise

@@ -208,10 +208,6 @@ class PythonCLI(models.ShyPlanner):
     #         commands=result,
     #     )
 
-    def goal(self, **kwargs):
-        """ """
-        return models.Goal(**kwargs)
-
     def plan(self, config=None):
         from pynchon import api
 

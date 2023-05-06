@@ -10,8 +10,9 @@ from pynchon import events
 # from pynchon.plugins.util import get_plugin_obj
 from pynchon.util.tagging import tags
 
-from . import BasePlugin
-from .planning import *
+# from .planning import *
+from . import planning
+from .plugin_types import BasePlugin
 
 from pynchon.util import typing, lme  # noqa
 
@@ -24,17 +25,21 @@ class AbstractPlanner(BasePlugin):
 
     cli_label = 'Planner'
 
-    def plan(self, config=None) -> Plan:
+    def goal(self, **kwargs):
+        """ """
+        return planning.Goal(**kwargs)
+
+    def plan(self, config=None) -> planning.Plan:
         """Creates a plan for this plugin"""
         config = config or self.cfg()
         events.lifecycle.send(
             # writes status event (used by the app-console)
             stage=f"Planning for `{self.__class__.name}`"
         )
-        plan = Plan()
+        plan = planning.Plan()
         return plan
 
-    def apply(self, config=None) -> ApplyResults:
+    def apply(self, config=None) -> planning.ApplyResults:
         """Executes the plan for this plugin"""
         from pynchon.util.os import invoke
 
@@ -47,14 +52,14 @@ class AbstractPlanner(BasePlugin):
         for action_item in plan:
             events.lifecycle.send(self, applying=action_item)
             application = invoke(action_item.command)
-            tmp = Action(
+            tmp = planning.Action(
                 result=application.succeeded,
                 command=action_item.command,
                 resource=action_item.resource,
                 type=action_item.type,
             )
             results.append(tmp)
-        results = ApplyResults(results)
+        results = planning.ApplyResults(results)
         return results
 
 
