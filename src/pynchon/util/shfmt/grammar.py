@@ -40,7 +40,7 @@ CommandJoiner = CommandJoiner.setResultsName('joiner')
 
 Name = Word(alphanums + "./")  # +pyparsing.White()
 
-Arg = Word(alphanums + "./-")('argval') + Optional(Continuation)
+Arg = Word(alphanums + "./-_")('argval') + Optional(Continuation)
 Arg = Arg('argval')
 Vals = Group(ZeroOrMore(Arg | QArg('quoted_arg')))
 

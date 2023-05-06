@@ -9,6 +9,7 @@ logger = lme.get_logger(__name__).info
 
 def bash_fmt(text, indent=''):
     """ """
+    # NB: aggregated until end, since sorting here seems safe
     lopts = []
 
     def fmt_token(token, indent=''):
@@ -30,7 +31,9 @@ def bash_fmt(text, indent=''):
             argval = token.argval[0]
             if argval:
                 vals += list(argval)
-        vals = ' '.join(vals)
+        max_len = max([len(x) for x in vals]) if vals else 0
+        joiner = ' ' if max_len < 10 else '\n    '
+        vals = joiner.join(vals)
 
         if 'cmd' in tdict:
             cmd_opts = tdict.get('cmd_opts', [])
@@ -38,7 +41,10 @@ def bash_fmt(text, indent=''):
             cmd_opts = ' '.join(cmd_opts)
             cmd_args = tdict.get('cmd_args', [])
             cmd_args = [t for t in cmd_args]
-            cmd_args = ' '.join(cmd_args)
+            # if cmd_args:
+            #     raise Exception(cmd_args)
+            joiner = ' '
+            cmd_args = joiner.join(cmd_args)
             return f'{token.joiner and token.joiner[0] or ""} {token.cmd.name} {cmd_opts} {cmd_args}'.lstrip()
         elif 'short_option_name' in tdict:
             if token.short_option_name.startswith('-'):

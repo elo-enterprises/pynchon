@@ -83,12 +83,19 @@ class SourceMan(models.Manager):
     def _render_header_file(self, rsrc: abcs.Path = None):
         """ """
         ext = rsrc.full_extension()
-        fname = f'.tmp.{__name__}.header.{ext}.{rsrc.stem_truncated()}.txt'
         templatef = EXT_MAP[ext]['template']
         tpl = api.render.get_template(templatef)
+        abs = rsrc.absolute()
+        wd = abcs.Path(".").absolute()
+        relf = abs.relative_to(wd).path_truncated()
+        module_dotpath = str(relf).replace('/', '.')
+        tmp2 = __name__.replace('.', '-')
+        fname = f'.tmp.src-header.{module_dotpath}{ext}'
         result = tpl.render(
+            module_dotpath=module_dotpath,
             template=templatef,
-            filename=str(rsrc.absolute().relative_to(abcs.Path(".").absolute())),
+            filename=str(abs),
+            relative_filename=relf,
         )
         if not result:
             err = f'header for extension "{ext}" rendered to "{fname}" from {templatef}'
@@ -102,7 +109,7 @@ class SourceMan(models.Manager):
         """ """
         plan = super(SourceMan, self).plan(config=config)
         resources = [abcs.Path(fsrc) for fsrc in self.list()]
-        cmd_t = 'python -mpynchon.util.files prepend'
+        cmd_t = 'python -mpynchon.util.files prepend --clean '
         loop = self._get_missing_headers(resources)
         for rsrc in loop['files']:
             ext = rsrc.full_extension()

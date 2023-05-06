@@ -13,6 +13,10 @@ LOGGER = lme.get_logger(__name__)
 class Path(typing.PathType):
     """ """
 
+    def path_truncated(self):
+        """ """
+        return self.parents[0] / self.stem_truncated()
+
     def full_extension(self):
         """
         no extension truncation, i.e. `.tar.gz`

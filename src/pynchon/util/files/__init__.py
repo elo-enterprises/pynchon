@@ -17,17 +17,29 @@ LOGGER = lme.get_logger(__name__)
 
 @cli.click.argument('prepend_file', nargs=1)
 @cli.click.argument('target_file', nargs=1)
+@cli.click.option(
+    '--clean',
+    is_flag=True,
+    default=False,
+    help='when provided, prepend_file will be removed afterwards',
+)
 def prepend(
-    prepend_file: str,
+    prepend_file: str = None,
     target_file: str = None,
-    # template_context:dict={},
+    clean: bool = False,
 ):
     """
     prepends given file contents to given target
     """
-    invoke(
-        f'''printf '%s\n%s\n' "$(cat {prepend_file})" "$(cat {target_file})" > {target_file}'''
+    clean = '' if not clean else f' && rm {prepend_file}'
+    cmd = ' '.join(
+        [
+            "printf '%s\n%s\n'",
+            f'"$(cat {prepend_file})" "$(cat {target_file})"',
+            f'> {target_file} {clean}',
+        ]
     )
+    return invoke(cmd)
 
 
 def diff_report(diff, logger=LOGGER.debug):
