@@ -18,18 +18,15 @@ events = app.events
 
 # FIXME: abstract into phases inside pynchon.app
 msg = "Loading raw-config from OS.."
-# LOGGER.critical(msg)
 events.lifecycle.send(__name__, stage=msg)
 git = GIT = GitConfig()
 
 msg = "Building raw-config from files.."
-# LOGGER.critical(msg)
 events.lifecycle.send(
     __name__,
     msg=msg,
     stage=msg,
 )
-
 CONFIG_FILES = []
 MERGED_CONFIG_FILES = {}
 for cfg_src, config in load_config_from_files().items():

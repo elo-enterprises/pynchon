@@ -15,6 +15,6 @@ class Tests(models.Provider):
 
     class config_class(abcs.Config):
         config_key = 'tests'
-        defaults = dict(
-            root="{{pynchon.root}}/tests"
-        )
+        # defaults = dict(
+        #     root="{{pynchon.root}}/tests"
+        # )

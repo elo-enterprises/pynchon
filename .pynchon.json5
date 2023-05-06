@@ -7,7 +7,7 @@
   // BEGIN: top-level config
   // Everything here is optional.
   // Literals only; no templating please!
-  "src_root": "src",
+  // "src_root": "src",
   "pkg_name": "pynchon",
   "docs_root": "docs",
   "plugins": [
@@ -52,16 +52,19 @@
   // SourceCode plugin customization.
   // This provides find/search tooling, plus file-header generators, etc
   "src": {
-    "root": "src",
+    "root": "{{pynchon.root}}/src",
     "include_patterns": ["**/*.py",],
     "headers": {},
   },
+  "docs": {
+    "root": "{{pynchon.root}}/docs",
+  },
 
   // Tests plugin customization.
-  // "tests": {
-  //   "root": "tests",
-  //   "include_patterns": ["**/*.py",],
-  // },
+  "tests": {
+    "root": "{{pynchon.root}}/tests",
+    "include_patterns": ["**/*.py",],
+  },
 
   // END: top-level config
   // BEGIN: plugins-config
