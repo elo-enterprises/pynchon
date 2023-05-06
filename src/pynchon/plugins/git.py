@@ -88,7 +88,7 @@ class GitConfig(abcs.Config):
 class Git(models.Provider):
     """Context for git"""
 
-    priority = -1
+    priority = -2
     name = 'git'
     defaults: typing.Dict = dict()
     config_class = GitConfig

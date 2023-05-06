@@ -31,7 +31,7 @@ class SourceMan(models.Manager):
 
     name = "src"
     cli_name = 'src'
-
+    priority=0
     class config_class(abcs.Config):
 
         config_key = 'src'
