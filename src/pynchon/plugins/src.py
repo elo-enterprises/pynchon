@@ -86,8 +86,12 @@ class SourceMan(models.Manager):
         templatef = EXT_MAP[ext]['template']
         tpl = api.render.get_template(templatef)
         abs = rsrc.absolute()
-        wd = abcs.Path(".").absolute()
-        relf = abs.relative_to(wd).path_truncated()
+        src_root = abcs.Path(self.config['root']).absolute()
+        try:
+            relf = abs.relative_to(src_root)
+        except ValueError:
+            relf = abs.relative_to(abcs.Path(".").absolute())
+        rel=relf.path_truncated()
         module_dotpath = str(relf).replace('/', '.')
         tmp2 = __name__.replace('.', '-')
         fname = f'.tmp.src-header.{module_dotpath}{ext}'
