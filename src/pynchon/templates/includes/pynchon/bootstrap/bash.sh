@@ -26,6 +26,7 @@ _pynchon_completions() {
   local compline="${compwords[*]}"
 
   case "$compline" in
+    {#
     'apply'*'--protocol')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "ssh telnet")" -- "$cur" )
       ;;
@@ -33,14 +34,13 @@ _pynchon_completions() {
     'apply'*'--user')
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A user -- "$cur" )
       ;;
-
+    #}
+{{rest}}
     'apply'*)
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "--help --protocol --user -h")" -- "$cur" )
       ;;
 
-    *)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -A directory -A user -W "$(_pynchon_completions_filter "$(git branch 2> /dev/null) --help --version -h -v apply")" -- "$cur" )
-      ;;
+
 
   esac
 } &&

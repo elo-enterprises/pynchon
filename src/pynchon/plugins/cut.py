@@ -1,2 +1,0 @@
-""" pynchon.plugins.cut
-"""

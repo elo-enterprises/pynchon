@@ -69,6 +69,22 @@ from click import (  # noqa
 #         return retval
 
 
+def walk_group(parent, path='', tree={}):
+    """ """
+    tree = {
+        **tree,
+        **{
+            f"{path} {sub}": sub
+            for sub, item in parent.commands.items()
+            if isinstance(item, (Command,))
+        },
+    }
+    for sub, item in parent.commands.items():
+        if isinstance(item, (Group,)):
+            tree.update(**walk_group(item, path=f'{path} {sub}'))
+    return tree
+
+
 def group_merge(g1: click.Group, g2: click.Group):
     """ """
 
