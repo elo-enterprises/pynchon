@@ -196,7 +196,7 @@ class CliPlugin(PynchonPlugin):
 
         msg = [cmd.name for cmd in cli_commands]
         if len(msg) > 1:
-            LOGGER.info(f"{kls.__name__} created {len(msg)} commands")
+            events.lifecycle.send(kls, plugin=f'created {len(msg)} commands')
         kls.init_cli_children()
         return kls.click_group
 

@@ -135,39 +135,6 @@ class AppEvents(AppBase):
     def __init__(self, **kwargs):
         """ """
         self.events = events
-        events.lifecycle.connect(self.lifecycle_msg)
-        events.lifecycle.connect(self.lifecycle_stage)
-        events.lifecycle.connect(self.lifecycle_applying)
-        events.lifecycle.connect(self.lifecycle_plugin)
-
-    # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
-    def lifecycle_plugin(self, sender, plugin=None, **kwargs):
-        """ """
-        if plugin:
-            tmp = getattr(sender, '__name__', str(sender))
-            tmp = f'{tmp}: PLUGIN: {plugin}'
-            self.events.lifecycle.send(self, msg=plugin)
-
-    def lifecycle_applying(self, sender, applying=None, **kwargs):
-        """ """
-        if applying:
-            tmp = getattr(sender, '__name__', str(sender))
-            tmp = f'{tmp}: APPLY: {applying}'
-            self.events.lifecycle.send(self, stage=tmp)
-
-    def lifecycle_stage(self, sender, stage=None, **kwargs):
-        """ """
-        if stage:
-            tmp = getattr(sender, '__name__', str(sender))
-            self.status_bar.update(stage=stage)
-
-    # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
-    def lifecycle_msg(self, sender, msg=None, **kwargs):
-        """ """
-        if msg:
-            tmp = getattr(sender, 'name', getattr(sender, '__name__', str(sender)))
-            # self.status_bar.update(msg=msg)
-            LOGGER.info(['lifecycle_msg', tmp, msg])
 
 
 class App(AppConsole, AppEvents, AppExitHooks):

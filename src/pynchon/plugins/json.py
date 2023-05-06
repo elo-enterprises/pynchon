@@ -53,7 +53,7 @@ class Json(models.ToolPlugin):
     """
 
     name = 'json'
-    priority = -1
+    priority = 1
     config_class = None
     cli_name = name
     # cli_subsumes: typing.List[typing.Callable] = [
