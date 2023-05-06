@@ -18,7 +18,7 @@ class Config(abcs.Config):
     config_key = "pynchon"
     defaults = dict(
         version=__version__,
-        src_root=abcs.Path("."),
+        # src_root=abcs.Path("."),
         plugins=list(set(constants.DEFAULT_PLUGINS)),
     )
 
