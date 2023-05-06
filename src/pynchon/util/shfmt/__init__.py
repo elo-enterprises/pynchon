@@ -56,10 +56,8 @@ def bash_fmt(text, indent=''):
             return ''
 
     parsed = BashCommand().parseString(text.lstrip())
-    logger(f'parsed:\n\n')
-    import pprint
-
-    logger(list(enumerate(list(parsed))))
+    msg = list(enumerate(list(parsed)))
+    logger('parsed:\n\n{msg}')
     result = [fmt_token(token, indent=indent) for token in parsed]
     result = '\n'.join(result).lstrip()
     result += ''.join([x for x in reversed(sorted(lopts, key=len))])

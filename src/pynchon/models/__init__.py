@@ -5,7 +5,7 @@ import collections
 
 from pynchon import abcs, api, cli, events, shimport
 from pynchon.bin import entry
-from pynchon.abcs.plugin import Plugin as AbstractPlugin
+from pynchon.fleks.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 from pynchon.util.tagging import tags
 

@@ -1,6 +1,6 @@
 """ pynchon.plugins.python.cli
 """
-import os
+# import os
 import glob
 
 from pynchon import abcs, models, shimport

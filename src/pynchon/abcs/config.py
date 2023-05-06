@@ -1,9 +1,8 @@
 """ pynchon.abcs.config
 """
 from pynchon.util import typing, lme
+from pynchon.fleks.meta import Meta
 from pynchon.util.tagging import tags
-
-from .meta import Meta
 
 LOGGER = lme.get_logger(__name__)
 

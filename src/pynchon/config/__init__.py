@@ -5,7 +5,7 @@ from pynchon.api import render
 from pynchon.app import app
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme  # typing
-from pynchon.abcs.plugin import Meta
+from pynchon.fleks.plugin import Meta
 
 from .util import config_folders  # noqa
 from .util import load_config_from_files  # noqa

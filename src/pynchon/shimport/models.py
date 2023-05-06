@@ -143,11 +143,13 @@ class ModulesWrapper(Base):
         # self.logger.critical(f"prune: {filters}")
         self.namespace = self.filter(**filters)
         return self if self.namespace else None
+
     def sorted(self, key=None):
         tmp = self.namespace.items()
         tmp = sorted(tmp, key=key)
         self.namespace = collections.OrderedDict(tmp)
         return self
+
     def get_folder_children(
         self,
         include_main: str = True,
