@@ -45,8 +45,8 @@ class SourceMan(models.Manager):
 
     def list(self):
         """ """
-        config = api.project.get_config()
-        src_root = config.pynchon['src_root']
+        # config = api.project.get_config()
+        # src_root = config.pynchon['src_root']
         include_patterns = self.config.get('include_patterns', ["**"])
         return files.find_globs(include_patterns)
 
