@@ -4,6 +4,7 @@ pynchon: a utility for docs generation and template-rendering
 import collections
 from gettext import gettext as _
 
+from pynchon import fleks
 from pynchon import abcs, click, shimport
 
 from pynchon.util import lme, typing  # noqa
@@ -43,7 +44,7 @@ class RootGroup(click.Group):
                 label = ''
                 if is_plugin:
                     plugin_kls = plugin_subs[subcommand]['kls']
-                    if issubclass(plugin_kls, (abcs.Plugin,)):
+                    if issubclass(plugin_kls, (fleks.Plugin,)):
                         tmp = plugin_kls.cli_label
                         toplevel['plugins'][tmp].append(
                             (f"{subcommand}:", f"{cmd.help}")
