@@ -56,6 +56,7 @@
   // SourceCode plugin customization.
   // This provides find/search tooling, plus file-header generators, etc
   "src": {
+    "root": "{{pynchon.root}}/src",
     "include_patterns": ["**/*.py",],
     "headers": {},
   },

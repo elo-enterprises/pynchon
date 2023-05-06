@@ -177,8 +177,11 @@ class CliPlugin(PynchonPlugin):
                 # FIXME: this wraps twice?
                 # from rich import print_json
                 # print_json(text.to_json(result))
-                if hasattr(result, 'display'):
-                    result.display()
+                # if hasattr(result, 'display'):
+                try:
+                    getattr(result, 'display', lambda: None)()
+                except KeyError:
+                    pass
                 return result
 
             commands = [kls.click_create_cmd(fxn, wrapper=wrapper, alias=None)]

@@ -7,7 +7,7 @@ from pynchon.util import lme
 
 from .grammar import BashCommand
 
-logger = lme.get_logger(__name__).critical
+logger = lme.get_logger(__name__).info
 
 
 def bash_fmt(text, indent=''):
@@ -55,8 +55,7 @@ def bash_fmt(text, indent=''):
             logger(f'dont know how to fmt {[token,tdict]}')
             return ''
 
-    text = text.lstrip()
-    parsed = BashCommand().parseString(text)
+    parsed = BashCommand().parseString(text.lstrip())
     logger(f'parsed:\n\n')
     import pprint
 
