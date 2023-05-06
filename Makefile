@@ -37,6 +37,7 @@ version:
 clean:
 	rm -rf tmp.pypi* dist/* build/* \
 	&& rm -rf src/*.egg-info/
+	find . -name '*.tmp.*' -delete
 	find . -name '*.pyc' -delete
 	find . -name  __pycache__ -delete
 	find . -type d -name .tox | xargs -n1 -I% bash -x -c "rm -rf %"
