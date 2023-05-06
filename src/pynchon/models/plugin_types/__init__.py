@@ -1,20 +1,22 @@
 """
 """
 import typing
-import collections
 
-from pynchon.util import typing, lme  # noqa
-from pynchon import abcs, api, cli, events, shimport
+from pynchon import api, cli, shimport
 from pynchon.bin import entry
 from pynchon.fleks.plugin import Plugin as AbstractPlugin
 from pynchon.plugins.util import get_plugin_obj
 from pynchon.util.tagging import tags
 
+from pynchon.util import typing, lme  # noqa
 
 
-config_mod = shimport.lazy('pynchon.config',)
+config_mod = shimport.lazy(
+    'pynchon.config',
+)
 
 LOGGER = lme.get_logger(__name__)
+
 
 @tags(cli_label='<<Abstract>>')
 class PynchonPlugin(AbstractPlugin):
@@ -80,7 +82,6 @@ class PynchonPlugin(AbstractPlugin):
         LOGGER.debug("current config:")
         result = kls.get_current_config()
         return result
-
 
 
 @tags(cli_label='<<Default>>')
@@ -223,6 +224,7 @@ class CliPlugin(PynchonPlugin):
         options = getattr(fxn, '__click_params__', [])
         cmd.params += options
         return cmd
+
 
 @tags(cli_label='Provider')
 class Provider(CliPlugin):
