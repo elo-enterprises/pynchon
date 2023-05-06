@@ -1,3 +1,6 @@
+
+""" pynchon.util.complexity
+"""
 GLYPH_COMPLEXITY = "🐉 Complex"
 
 import os

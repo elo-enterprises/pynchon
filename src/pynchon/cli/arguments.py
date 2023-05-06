@@ -1,3 +1,6 @@
+
+""" pynchon.cli.arguments
+"""
 from pynchon.cli import click
 
 file1 = click.argument('file1', nargs=1)

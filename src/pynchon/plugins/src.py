@@ -91,7 +91,7 @@ class SourceMan(models.Manager):
             relf = abs.relative_to(src_root)
         except ValueError:
             relf = abs.relative_to(abcs.Path(".").absolute())
-        rel=relf.path_truncated()
+        relf = relf.path_truncated()
         module_dotpath = str(relf).replace('/', '.')
         tmp2 = __name__.replace('.', '-')
         fname = f'.tmp.src-header.{module_dotpath}{ext}'
