@@ -1,4 +1,2 @@
-
 """ pynchon.shimport.hooks
 """
-

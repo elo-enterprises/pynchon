@@ -1,4 +1,2 @@
-
 """ pynchon.plugins.python.config
 """
-

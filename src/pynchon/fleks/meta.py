@@ -1,4 +1,4 @@
-""" pynchon.abcs.meta
+""" fleks.meta
 """
 import collections
 
@@ -7,6 +7,10 @@ from pynchon.util import typing, lme
 LOGGER = lme.get_logger(__name__)
 
 type_spec = collections.namedtuple('type_spec', 'name bases namespace')
+
+
+class ClassMalformed(TypeError):
+    """ """
 
 
 class Meta(type):
@@ -19,7 +23,9 @@ class Meta(type):
         tspec = type_spec(name=name, bases=bases, namespace=namespace)
         mcls.register(tspec)
         namespace = mcls.annotate(tspec)
-        return super().__new__(mcls, name, bases, namespace)
+        kls = super().__new__(mcls, name, bases, namespace)
+        kls.__validate_class__(kls)
+        return kls
 
     @staticmethod
     def aggregate_across_bases(
@@ -87,4 +93,37 @@ class Meta(type):
         # namespace.update({'__static_methods__': .. })
         # namespace.update({'__properties__': .. })
         # LOGGER.debug(f'mcls for {name} returns')
+
+        namespace.update(__class_validators__=namespace.get('__class_validators__', []))
+
+        @classmethod
+        def __validate_class__(kls, quiet=True):
+            """ """
+            import collections
+
+            validators = kls.__class_validators__
+            vdata = dict(
+                errors=collections.defaultdict(list),
+                warnings=collections.defaultdict(list),
+            )
+            for validator in validators:
+                validator(kls, **vdata)
+            errors, warnings = vdata['errors'], vdata['warnings']
+            if errors:
+                raise ClassMalformed(errors)
+            if warnings and not quiet:
+                for msg, offenders in warnings.items():
+                    LOGGER.warning(f'{msg}')
+                    LOGGER.warning(f'  offenders: {offenders}')
+            kls.__class_validation_results__ = vdata
+            return vdata
+
+        assert (
+            '__validate_class__' not in namespace
+        ), 'cannot override __validate_class__'
+        namespace.update(
+            __validate_class__=__validate_class__,
+            # Malformed=ClassMalformed,
+        )
+
         return namespace

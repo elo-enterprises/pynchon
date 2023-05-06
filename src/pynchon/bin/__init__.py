@@ -26,5 +26,7 @@ for name, plugin_meta in loop:
         LOGGER.critical(f"    {exc}")
         if name == 'core':
             raise
+        else:
+            raise
     else:
         registry[name] = dict(plugin=plugin_kls, entry=p_entry)

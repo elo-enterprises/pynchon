@@ -1,4 +1,3 @@
-
 """ pynchon.util.complexity
 """
 GLYPH_COMPLEXITY = "🐉 Complex"

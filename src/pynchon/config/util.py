@@ -42,16 +42,10 @@ def finalize():
         else:
             plugins.append(tmp)
 
-    warnings = collections.defaultdict(list)
     for plugin_kls in plugins:
         pconf_kls = getattr(plugin_kls, 'config_class', None)
-        conf_key = getattr(pconf_kls, 'config_key', plugin_kls.name.replace('-', '_'))
-        if not conf_key:
-            msg = f'failed to determine conf-key for {plugin_kls}'
-            LOGGER.critical(msg)
-            raise TypeError(msg)
+        conf_key = plugin_kls.get_config_key()
         if pconf_kls is None:
-            warnings["`config_kls` not set!"].append(plugin_kls)
             plugin_config = abcs.Config()
         else:
             # NB: module access
@@ -75,10 +69,10 @@ def finalize():
         # plugins_registry.register(plugin_obj)
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
         events.lifecycle.send(plugin_obj, plugin=f'finalized {plugin_kls.__name__}')
-    for msg, offenders in warnings.items():
-        offenders = [x.__name__ for x in offenders]
-        LOGGER.warning(f"{msg}")
-        LOGGER.warning(f"offenders={offenders}")
+    # for msg, offenders in warnings.items():
+    #     offenders = [x.__name__ for x in offenders]
+    #     LOGGER.warning(f"{msg}")
+    #     LOGGER.warning(f"offenders={offenders}")
     return result
 
 

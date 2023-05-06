@@ -18,23 +18,57 @@ config_mod = shimport.lazy(
 LOGGER = lme.get_logger(__name__)
 
 
+import collections
+
+
+def v_require_conf_key(kls, **vdata):
+    """ """
+    pconf_kls = getattr(kls, 'config_class', None)
+    conf_key = getattr(pconf_kls, 'config_key', kls.name.replace('-', '_'))
+    if not conf_key:
+        msg = f'failed to determine conf-key for {kls}'
+        LOGGER.critical(msg)
+        raise PynchonPlugin.PluginMalformed(msg)
+    return vdata
+
+
+def v_warn_config_kls(kls, warnings=collections.defaultdict(list), **vdata):
+    pconf_kls = getattr(kls, 'config_class', None)
+    if pconf_kls is None:
+        warnings["`config_kls` not set!"].append(kls)
+    vdata.update(warnings=warnings)
+    return vdata
+
+
 @tags(cli_label='<<Abstract>>')
 class PynchonPlugin(AbstractPlugin):
     """
     Pynchon-specific plugin-functionality
     """
 
+    name = '<<Abstract>>'
     cli_label = '<<Abstract>>'
+    __class_validators__ = [
+        v_require_conf_key,
+        v_warn_config_kls,
+    ]
+
+    @typing.classproperty
+    def instance(kls):
+        """class-property: the instance for this plugin"""
+        return get_plugin_obj(kls.name)
 
     @typing.classproperty
     def project_config(self):
         """class-property: finalized project-config"""
         return api.project.get_config()
 
-    @typing.classproperty
-    def instance(kls):
-        """class-property: the instance for this plugin"""
-        return get_plugin_obj(kls.name)
+    @classmethod
+    def get_config_key(kls):
+        """ """
+        default = kls.name.replace('-', '_')
+        config_kls = getattr(kls, 'config_class', None)
+        return getattr(config_kls, 'config_key', default) or default
 
     @classmethod
     def get_current_config(kls):
@@ -45,10 +79,6 @@ class PynchonPlugin(AbstractPlugin):
         conf_key = kls.get_config_key()
         result = getattr(config_mod, conf_key)
         return result
-
-    @classmethod
-    def get_config_key(kls):
-        return getattr(kls.config_class, 'config_key', kls.name)
 
     @property
     def plugin_config(self):
@@ -236,8 +266,10 @@ class Provider(CliPlugin):
     cli_label = 'Provider'
     contribute_plan_apply = False
     priority = 2
-    # class config_class(abcs.Config):
-    #     config_key = None
+    __class_validators__ = [
+        v_require_conf_key,
+        # v_warn_config_kls,
+    ]
 
 
 @tags(cli_label='Tool')
@@ -249,6 +281,10 @@ class ToolPlugin(CliPlugin):
 
     cli_label = 'Tool'
     contribute_plan_apply = False
+    __class_validators__ = [
+        # v_require_conf_key,
+        # v_warn_config_kls,
+    ]
 
 
 class BasePlugin(CliPlugin):

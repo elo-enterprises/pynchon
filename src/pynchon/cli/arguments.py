@@ -1,4 +1,3 @@
-
 """ pynchon.cli.arguments
 """
 from pynchon.cli import click
