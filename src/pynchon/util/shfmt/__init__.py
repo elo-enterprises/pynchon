@@ -1,8 +1,5 @@
 """ pynchon.util.shfmt
 """
-from rich.syntax import Syntax
-from rich.console import Console
-
 from pynchon.util import lme
 
 from .grammar import BashCommand
@@ -66,6 +63,8 @@ def bash_fmt(text, indent=''):
 
 def bash_fmt_display(*args, **kwargs):
     """ """
+    from rich.syntax import Syntax
+    from rich.console import Console
     console = kwargs.pop('console', None) or Console(stderr=True)
     result = bash_fmt(*args, **kwargs)
     syntax = Syntax(result, 'bash', line_numbers=True)
