@@ -5,7 +5,8 @@ import typing
 
 # import collections
 
-class Namespace():
+
+class Namespace:
     """ """
 
     # @classmethod

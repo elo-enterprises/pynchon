@@ -3,6 +3,7 @@ import collections
 
 from pynchon import abcs
 from pynchon.fleks import meta
+
 # from pynchon.fleks.plugin import Plugin as AbstractPlugin
 # from pynchon.plugins.util import get_plugin_obj
 
@@ -17,16 +18,18 @@ class Goal(typing.NamedTuple, metaclass=meta.namespace):
     resource: str = '??'
     command: str = 'echo'
     type: str = 'unknown'
+
     def __rich__(self) -> str:
         from pynchon.util import shfmt
+
         pretty = shfmt.bash_fmt(self.command)
         from rich.syntax import Syntax
         from rich.console import Console
+
         # console = kwargs.pop('console', None) or Console(stderr=True)
         # result = bash_fmt(*args, **kwargs)
         syntax = Syntax(pretty, 'bash', line_numbers=True)
         return syntax
-
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{self.resource}]>"
@@ -49,23 +52,21 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
     def __rich__(self) -> str:
         syntaxes = [g.__rich__() for g in self]
-        from rich.console import Console
-        from rich.table import Table
-        from rich.text import Text
-        from rich.markdown import Markdown
-        from rich.syntax import Syntax
         from rich import box
+        from rich.text import Text
+        from rich.table import Table
+        from rich.syntax import Syntax
+        from rich.console import Console
+        from rich.markdown import Markdown
+
         table = Table(
             title=f'{self.__class__.__name__}',
             # box=box.MINIMAL_DOUBLE_HEAD,
             expand=True,
-            )
+        )
         # table.add_column("idx", justify="left", style="bold magenta", no_wrap=True)
         table.add_column("action", justify="left", style="green", no_wrap=True)
-        [
-            [   table.add_row(x),
-                table.add_row()]
-            for i,x in enumerate(syntaxes) ]
+        [[table.add_row(x), table.add_row()] for i, x in enumerate(syntaxes)]
         return table
 
     def __init__(self, *args):

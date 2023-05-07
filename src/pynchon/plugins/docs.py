@@ -7,13 +7,13 @@ from pynchon.util import files
 LOGGER = lme.get_logger(__name__)
 
 
-class DocsMan(models.Manager):
+class DocsMan(models.Planner):
     """Management tool for project source"""
 
     name = "docs"
     cli_name = 'docs'
     priority = 0
-
+    
     class config_class(abcs.Config):
 
         config_key = 'docs'
@@ -32,14 +32,23 @@ class DocsMan(models.Manager):
         include_patterns = self.config.get('include_patterns', ["**"])
         return files.find_globs(include_patterns)
 
-    def plan(self,config=None):
+    @cli.options.output
+    @cli.options.should_print
+    def gen_version_file(self,
+        output,
+        should_print):
+        """ creates {docs.root}/VERSION.md file """
+        raise NotImplementedError()
+
+    def plan(self, config=None):
         """ """
         plan = super(self.__class__, self).plan(config=config)
         rsrc = self.config['root']
-        plan.append(
-            self.goal(
-                resource=rsrc,
-                type='mkdir',
-                command=f'mkdir -p {rsrc}'
-        ))
+        plan.append(self.goal(resource=rsrc, type='mkdir', command=f'mkdir -p {rsrc}'))
+        cmd_t = 'pynchon docs gen-version-file'
+        rsrc=abcs.Path(rsrc)/'VERSION.md'
+        plan.append(self.goal(
+            resource=rsrc,
+            type='gen',
+            command=f"{cmd_t} --output {rsrc} --print"))
         return plan

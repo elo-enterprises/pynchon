@@ -42,7 +42,7 @@ class PythonCliConfig(abcs.Config):
         matches = dict(matches)
         pkg_name = config_mod.python['package']["name"] or "unknown"
         for f, meta in matches.items():
-            LOGGER.critical(f'{f}')
+            LOGGER.info(f'found entry-point: {f}')
             dotpath = abcs.Path(f).relative_to(src_root)
             dotpath = '.'.join(str(dotpath).split('/')[:-1])
             matches[f] = {

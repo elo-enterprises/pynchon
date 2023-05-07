@@ -204,9 +204,10 @@ class CliPlugin(PynchonPlugin):
                 # from rich import print_json
                 # print_json(text.to_json(result))
                 # if hasattr(result, 'display'):
-                rproto = getattr(result,'__rich__',None)
+                rproto = getattr(result, '__rich__', None)
                 if rproto:
                     from pynchon.util.lme import CONSOLE
+
                     CONSOLE.print(result)
                 # try:
                 #     renderable =rproto()
