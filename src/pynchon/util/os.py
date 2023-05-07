@@ -44,7 +44,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
             fmt=shfmt.bash_fmt(self.cmd)
             return Syntax(
-                f"# {self.cmd}\n\n{fmt}", 'bash', 
+                f"# {self.cmd}\n\n{fmt}", 'bash',
                 line_numbers=True,word_wrap=True)
             # return Syntax(self.cmd, 'bash', word_wrap=True)
 
