@@ -50,11 +50,11 @@ class Jinja(models.Planner):
             globals = plugin_util.get_plugin('globals').get_current_config()
             global_ex = globals['exclude_patterns']
             my_ex = self.get('exclude_patterns', [])
-            return list(set(global_ex + my_ex))
+            return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
     def _get_jinja_context(self, config):
         """ """
-        fname = f".tmp.jinja.ctx.{id(self)}.json"
+        fname = f".tmp.jinja.ctx.json"
         with open(fname, 'w') as fhandle:
             fhandle.write(text.to_json(config))
         return f"{fname}"

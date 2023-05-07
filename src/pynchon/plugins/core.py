@@ -32,9 +32,9 @@ class Core(models.Planner):
         result = getattr(config_mod, kls.get_config_key())
         return result
 
-    def apply(self, config=None) -> None:
-        """Executes the result returned by planner"""
-        raise NotImplementedError()
+    # def apply(self, config=None) -> None:
+    #     """Executes the result returned by planner"""
+    #     raise NotImplementedError()
 
     def cfg(self):
         """Show current project config (with templating/interpolation)"""
@@ -54,31 +54,35 @@ class Core(models.Planner):
 
         if bash:
             gr = self.__class__.click_group
-            all_known_subcommands = [' '.join(x.split()[1:])
-                for x in cli.click.walk_group(gr, path='pynchon').keys()]
-            head=[x for x in all_known_subcommands if len(x.split())==1]
+            all_known_subcommands = [
+                ' '.join(x.split()[1:])
+                for x in cli.click.walk_group(gr, path='pynchon').keys()
+            ]
+            head = [x for x in all_known_subcommands if len(x.split()) == 1]
             rest = [x for x in all_known_subcommands if x not in head]
             import collections
-            tmp =collections.defaultdict(list)
+
+            tmp = collections.defaultdict(list)
             for phrase in rest:
-                bits=phrase.split()
+                bits = phrase.split()
                 k = bits.pop(0)
                 tmp[k] += bits
             rest = [
-            f"""    '{k}'*)
+                f"""    '{k}'*)
               while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(subs)}")" -- "$cur" )
               ;;
-            """ for k, subs in tmp.items()
+            """
+                for k, subs in tmp.items()
             ]
-            rest +=[f"""    *)
+            rest += [
+                f"""    *)
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(head)}")" -- "$cur" )
-      ;;"""]
+      ;;"""
+            ]
             LOGGER.warning("This is intended to be run through a pipe, as in:")
             LOGGER.critical("pynchon bootstrap --bash | bash")
             result = render.get_template('pynchon/bootstrap/bash.sh').render(
-                head=head,
-                rest="\n".join(rest),
-                **self.config
+                head=head, rest="\n".join(rest), **self.config
             )
             fname = '.tmp.pynchon.completions.sh'
             with open(fname, 'w') as fhandle:

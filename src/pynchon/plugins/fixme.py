@@ -26,7 +26,7 @@ class FixMe(models.Planner):
         """...."""
         config = config or self.__class__.get_current_config()
         plan = super(self.__class__, self).plan(config)
-        target = abcs.Path(self.project_config['docs']['root'])/'FIXME.md'
+        target = abcs.Path(self.project_config['docs']['root']) / 'FIXME.md'
         plan.append(
             models.Goal(
                 type='gen',
@@ -36,28 +36,17 @@ class FixMe(models.Planner):
         )
         return plan
 
-    # @common.kommand(
-    #     name="gen",
-    #     parent=parent,
-    #     formatters=dict(markdown=T_FIXME),
-    #     options=[
-    #     ],
-    # )
-    # @options.format_markdown
     @click.option(
         "--output",
         "-o",
         default="docs/FIXME.md",
         help=("output file to write.  (optional)"),
     )
-    # @options.stdout
     @options.should_print
     @options.header
     def gen(
         self,
         output,
-        # format,
-        # stdout,
         should_print,
         header,
     ):
@@ -65,6 +54,7 @@ class FixMe(models.Planner):
         Generate FIXME.md files, aggregating references to all FIXME's in code-base
         """
         from pynchon import api
+
         config = self.__class__.project_config
         src_root = config.src['root']
         exclude_patterns = config.fixme.get('exclude_patterns', [])
@@ -85,22 +75,25 @@ class FixMe(models.Planner):
                     break
             else:
                 line_no = bits.pop(0)
-                items.append(dict(
-                    file=abcs.Path(file).relative_to(abcs.Path(config['git']['root']).absolute()), 
-                    line=':'.join(bits),
-                    line_no=line_no))
+                items.append(
+                    dict(
+                        file=abcs.Path(file).relative_to(
+                            abcs.Path(config['git']['root']).absolute()
+                        ),
+                        line=':'.join(bits),
+                        line_no=line_no,
+                    )
+                )
         for g in skipped:
             msg = f"exclude_pattern @ `{g}` skipped {len(skipped[g])} matches"
-            LOGGER.warning(msg)
+            LOGGER.info(msg)
         result = api.render.get_template(
             'pynchon/plugins/fixme/FIXME.md.j2',
-            ).render(**dict(items=items))
+        ).render(**dict(items=items))
         msg = result
         print(msg, file=open(output, 'w'))
         if should_print and output != '/dev/stdout':
             print(msg)
-
-
 
     @classmethod
     def asdasdinit_cli(kls):

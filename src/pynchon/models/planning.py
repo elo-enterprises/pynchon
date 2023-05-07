@@ -65,10 +65,10 @@ class Plan(typing.List[Goal], metaclass=abcs.namespace):
         """ """
         result = collections.OrderedDict()
         result['resources'] = list(set([g.resource for g in self]))
-        result['actions'] = collections.defaultdict(dict)
+        actions_by_type = collections.defaultdict(list)
         for g in self:
-            tmp = result['actions'][g.type]
-            tmp[str(g.resource)] = tmp.get(str(g.resource), []) + [g.command]
+            actions_by_type[g.type].append(g.command)
+        result.update(**actions_by_type)
         return result
 
     # @typing.validate_arguments
