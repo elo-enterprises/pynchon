@@ -62,7 +62,6 @@ def bash_fmt(text, indent='', joiners='| || && > < ;'.split(), logger=logger):
             else:
                 logger(f'formatting short: {token}')
                 return f'{indent}  -{token.short_option_name} {vals}'
-
         return vals
 
     parsed = BashCommand().parseString(text.lstrip())

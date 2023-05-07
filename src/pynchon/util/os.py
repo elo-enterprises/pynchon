@@ -25,7 +25,12 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     def __enter__(self, *args, **kwargs):
         msg = "running command: (system={})\n\t{}".format(self.system, self.cmd)
         self.log_command and LOGGER.warning(msg)
-        self.log_command and lme.CONSOLE.print(self)
+        from rich.panel import Panel
+        panel = Panel(
+            self, title=__name__,
+            # subtitle="Thank you"
+            )
+        self.log_command and lme.CONSOLE.print(panel)
 
     def __exit__(self, *args, **kwargs):
         pass
@@ -37,7 +42,10 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
 
         if self.log_command:
             # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
-            return Syntax(shfmt.bash_fmt(self.cmd), 'bash', word_wrap=True)
+            fmt=shfmt.bash_fmt(self.cmd)
+            return Syntax(
+                f"# {self.cmd}\n\n{fmt}", 'bash', 
+                line_numbers=True,word_wrap=True)
             # return Syntax(self.cmd, 'bash', word_wrap=True)
 
     def __call__(self):
