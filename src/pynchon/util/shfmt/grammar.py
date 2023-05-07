@@ -67,10 +67,14 @@ Command = Combine(CommandName)('cmd')
 Command += Optional(LOptions('cmd_lopts') + Options('cmd_opts'))
 # Command+= Optional(LongOptions('cmd_lopts'))
 Command += Optional(Vals('cmd_args'))
-
+RedirCommand = Literal('>').setResultsName('redir') + Word(alphanums + "./-_")('file')
+Command += Optional(RedirCommand)('file')
+# Command = Command |
+PipedCommand = ZeroOrMore(Group(Literal('|').setResultsName('joiner') + Command))
 JoinedCommand = ZeroOrMore(Group(CommandJoiner + Command)('cmd'))
+
 #
 # BashCommand = Command('cmd').set_results_name('cmd')
 # BashCommand+= Optional(JoinedCommand)
 
-BashCommand = JoinedCommand
+BashCommand = Command + (PipedCommand | RedirCommand | JoinedCommand)

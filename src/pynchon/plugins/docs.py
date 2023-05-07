@@ -13,7 +13,7 @@ class DocsMan(models.Planner):
     name = "docs"
     cli_name = 'docs'
     priority = 0
-    
+
     class config_class(abcs.Config):
 
         config_key = 'docs'
@@ -34,10 +34,8 @@ class DocsMan(models.Planner):
 
     @cli.options.output
     @cli.options.should_print
-    def gen_version_file(self,
-        output,
-        should_print):
-        """ creates {docs.root}/VERSION.md file """
+    def gen_version_file(self, output, should_print):
+        """creates {docs.root}/VERSION.md file"""
         raise NotImplementedError()
 
     def plan(self, config=None):
@@ -46,9 +44,10 @@ class DocsMan(models.Planner):
         rsrc = self.config['root']
         plan.append(self.goal(resource=rsrc, type='mkdir', command=f'mkdir -p {rsrc}'))
         cmd_t = 'pynchon docs gen-version-file'
-        rsrc=abcs.Path(rsrc)/'VERSION.md'
-        plan.append(self.goal(
-            resource=rsrc,
-            type='gen',
-            command=f"{cmd_t} --output {rsrc} --print"))
+        rsrc = abcs.Path(rsrc) / 'VERSION.md'
+        plan.append(
+            self.goal(
+                resource=rsrc, type='gen', command=f"{cmd_t} --output {rsrc} --print"
+            )
+        )
         return plan

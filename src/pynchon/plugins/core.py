@@ -1,9 +1,9 @@
 """ pynchon.plugins.Core
 """
-from pynchon import cli, models
+from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
-from pynchon.util import lme, typing
+from pynchon.util import files, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -32,10 +32,6 @@ class Core(models.Planner):
         result = getattr(config_mod, kls.get_config_key())
         return result
 
-    # def apply(self, config=None) -> None:
-    #     """Executes the result returned by planner"""
-    #     raise NotImplementedError()
-
     def cfg(self):
         """Show current project config (with templating/interpolation)"""
         return self.project_config
@@ -52,11 +48,12 @@ class Core(models.Planner):
         """
         Bootstrap for shell integration, etc
         """
-        # ansible local -i local, -c local -mblockinfile --args "dest=/tmp/foo block='\nfoo\nbar' marker='# {mark} ANSIBLE MANAGED BLOCK - pynchon' create=yes insertbefore=BOF owner=$USER backup=yes"
-
-        from pynchon.api import render
+        pynchon_completions_script = '.tmp.pynchon.completions.sh'
+        bashrc_snippet = f'.tmp.pynchon.bashrc'
 
         if bash:
+            import collections
+
             gr = self.__class__.click_group
             all_known_subcommands = [
                 ' '.join(x.split()[1:])
@@ -64,8 +61,6 @@ class Core(models.Planner):
             ]
             head = [x for x in all_known_subcommands if len(x.split()) == 1]
             rest = [x for x in all_known_subcommands if x not in head]
-            import collections
-
             tmp = collections.defaultdict(list)
             for phrase in rest:
                 bits = phrase.split()
@@ -83,38 +78,30 @@ class Core(models.Planner):
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(head)}")" -- "$cur" )
       ;;"""
             ]
-            LOGGER.warning("This is intended to be run through a pipe, as in:")
-            LOGGER.critical("pynchon bootstrap --bash | bash")
-            result = render.get_template('pynchon/bootstrap/bash.sh').render(
-                head=head, rest="\n".join(rest), **self.config
+            # LOGGER.warning("This is intended to be run through a pipe, as in:")
+            # LOGGER.critical("pynchon bootstrap --bash | bash")
+            tmpl = api.render.get_template('pynchon/bootstrap/bash.sh')
+            content = tmpl.render(head=head, rest="\n".join(rest), **self.config)
+            files.dumps(content=content, file=pynchon_completions_script)
+            LOGGER.warning(
+                f"To refresh your shell, run: `source {pynchon_completions_script}`"
             )
-            fname = '.tmp.pynchon.completions.sh'
-            with open(fname, 'w') as fhandle:
-                fhandle.write(result)
-            LOGGER.warning(f"Wrote {fname}.")
-            LOGGER.warning(f"To refresh your shell, run: `source {fname}`")
+            return dict()
         if bashrc:
             LOGGER.critical(
-                "To use completion hints every time they are present "
-                "in a folder add this to .bashrc:"
+                "To use completion hints every time they are "
+                "present in a folder, adding this to .bashrc:"
             )
-            content = render.get_template('pynchon/bootstrap/bashrc.sh').render({})
-            LOGGER.warning(f"\n{content}")
-            from pynchon import abcs
-            from pynchon.util import files
-            fname = f'.tmp.pynchon.bashrc'
-            with open(fname,'w') as fhandle:
-                fhandle.write(content)
-            LOGGER.warning(f'Wrote "{fname}"')
+            tmpl = api.render.get_template('pynchon/bootstrap/bashrc.sh')
+            content = tmpl.render(pynchon_completions_script=pynchon_completions_script)
+            files.dumps(content=content, file=bashrc_snippet, logger=LOGGER.info)
             return files.block_in_file(
                 target_file=abcs.Path("~/.bashrc").expanduser(),
-                block_file=fname)
-
-
-            # print(f"source /dev/stdin < <(cat {fname})")
+                block_file=bashrc_snippet,
+            )
         elif tox:
-            result = render.get_template('pynchon/tox.ini')
-            print(result)
+            result = api.render.get_template('pynchon/tox.ini')
+            raise NotImplementedError()
 
     def raw(self) -> None:
         """

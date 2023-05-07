@@ -77,4 +77,4 @@ class JSONEncoder(json.JSONEncoder):
             return dict(obj)
         if isinstance(obj, map):
             return list(obj)
-        return super(JSONEncoder,self).default(obj)
+        return super(JSONEncoder, self).default(obj)

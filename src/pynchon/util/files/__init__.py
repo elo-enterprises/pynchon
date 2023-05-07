@@ -161,58 +161,91 @@ def find_globs(
     return result
 
 
+from pynchon import abcs
+from pynchon.util.os import invoke
+
+
+def ansible_docker(
+    local: bool = True,
+    volumes: dict = {},
+    container: str = "alpinelinux/ansible",
+    entrypoint: str = 'ansible',
+    e: dict = {},
+    module_name: str = None,
+    extra: typing.List[str] = [],
+) -> typing.List[str]:
+    """ """
+    vextras = [f"-v {k}:{v}" for k, v in volumes.items()]
+    cmd = (
+        [
+            "docker run",
+            "-w /workspace",
+            "-v `pwd`:/workspace",
+        ]
+        + vextras
+        + [
+            "-e ANSIBLE_STDOUT_CALLBACK=json",
+            "-e ANSIBLE_CALLBACKS_ENABLED=json",
+            "-e ANSIBLE_LOAD_CALLBACK_PLUGINS=1",
+            f"--entrypoint {entrypoint} ",
+            f"{container}",
+        ]
+    )
+    local and cmd.append("local -i local, -c local")
+    e and [cmd.append(f"-e {k}={v}") for k, v in e.items()]
+    module_name and cmd.append(f"--module-name {module_name}")
+
+    return cmd + extra
+
+
+def dumps(content: str = None, file: str = None, logger=LOGGER.info):
+    logger(f"\n{content}")
+    with open(file, 'w') as fhandle:
+        fhandle.write(content)
+    logger(f'Wrote "{file}"')
+
+
 def block_in_file(
-    target_file,
-    block_file,
-    create="no",
-    insertbefore="BOF",
-    backup="yes",
-    marker='# {mark} ANSIBLE MANAGED BLOCK - pynchon',):
-    """
-    """
-    from pynchon.util.os import invoke
+    target_file: str,
+    block_file: str,
+    create: str = "no",
+    insertbefore: str = "BOF",
+    backup: str = "yes",
+    marker: str = '# {mark} ANSIBLE MANAGED BLOCK - pynchon',
+):
+    """ """
+    dest = ".tmp.ansible.blockinfile.out"
     assert "'" not in marker
-    from pynchon import abcs
-    target_file = abcs.Path(target_file)
+    target_file = abcs.Path(target_file).absolute()
+    block_file = abcs.Path(block_file).absolute()
     assert target_file.exists()
-    target_file=target_file.absolute()
-    dest=".tmp.ansible.blockinfile.out"
-    invoke(f'cp {target_file} {dest}')
-    block_file = abcs.Path(block_file)
     assert block_file.exists()
-    block_file=block_file.absolute()
-    args = [
+    invoke(f'cp {target_file} {dest}')
+    blockinfile_args = [
         f"marker='{marker}'",
         f"dest={dest}",
+        f"backup={backup}",
         'block=\\"{{ lookup(\'file\', fname)}}\\"',
         f"create={create} insertbefore={insertbefore} ",
-        f"backup={backup}",]
-    args = ' '.join(args)
-    cmd = [
-        "docker run",
-        "-w /workspace",
-        "-v `pwd`:/workspace",
-        f"-v {block_file}:{block_file}",
-        # f"-v {target_file}:{target_file}",
-        "-e ANSIBLE_STDOUT_CALLBACK=json",
-        "-e ANSIBLE_CALLBACKS_ENABLED=json",
-        "-e ANSIBLE_LOAD_CALLBACK_PLUGINS=1",
-        "--entrypoint ansible alpinelinux/ansible",
-        "local -i local, -c local",
-        f"-e fname={block_file}",
-        "-mblockinfile",
-        "--args",
-        '"'+args+'"',
     ]
-    cmd=' '.join(cmd)
-    LOGGER.critical(cmd)
-    result = invoke(cmd,system=True)
-    assert result.succeeded
+    blockinfile_args = ' '.join(blockinfile_args)
+    cmd_components = ansible_docker(
+        local=True,
+        volumes={block_file: block_file},
+        e=dict(fname=block_file),
+        module_name='blockinfile',
+        extra=[
+            f'--args "{blockinfile_args}"',
+        ],
+    )
+    cmd = ' '.join(cmd_components)
+    result = invoke(cmd, system=True)
+    assert result.succeeded, result.stderr
     invoke(f'mv {dest} {target_file}')
-    assert result.succeeded
     # result = invoke(cmd,load_json=True)
     # return dict(ansible=dict(stats=result.json['stats']))
     # LOGGER.debug(result.stdout)
     # LOGGER.debug(result.stderr)
-    # return result.succeeded
-    # {} #result.suceeded #json['stats']
+    # return result.json['stats']
+    assert result.succeeded, result.stderr
+    return True

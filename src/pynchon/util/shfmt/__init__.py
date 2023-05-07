@@ -7,7 +7,7 @@ from .grammar import BashCommand
 logger = lme.get_logger(__name__).info
 
 
-def bash_fmt(text, indent=''):
+def bash_fmt(text, indent='', joiners='| || && > < ;'.split(), logger=logger):
     """ """
     # NB: aggregated until end, since sorting here seems safe
     lopts = []
@@ -16,10 +16,16 @@ def bash_fmt(text, indent=''):
         """ """
         result = []
         if isinstance(token, (str,)) and token:
+            # if token in joiners:
+            #     return f'{token}'
+
             raise Exception(f'expected token! got {token}')
 
         tdict = dict(token)
         vals = []
+        if 'name' in tdict:
+            return token.name
+
         if 'vals' in tdict:
             vdict = dict(tdict['vals'])
             for v in tdict['vals']:
@@ -30,7 +36,8 @@ def bash_fmt(text, indent=''):
         if 'argval' in tdict:
             argval = token.argval[0]
             if argval:
-                vals += list(argval)
+                vals += [f"{indent}  {argval}"]
+
         max_len = max([len(x) for x in vals]) if vals else 0
         joiner = ' ' if max_len < 10 else '\n    '
         vals = joiner.join(vals)
@@ -45,7 +52,8 @@ def bash_fmt(text, indent=''):
             #     raise Exception(cmd_args)
             joiner = ' '
             cmd_args = joiner.join(cmd_args)
-            return f'{token.joiner and token.joiner[0] or ""} {token.cmd.name} {cmd_opts} {cmd_args}'.lstrip()
+            redir = f'\n  {" ".join(token.file)}' if token.redir else ''
+            return f'{token.joiner and token.joiner[0] or ""} {token.cmd.name} {cmd_opts} {cmd_args}{redir}'.lstrip()
         elif 'short_option_name' in tdict:
             if token.short_option_name.startswith('-'):
                 lopt = token.short_option_name[1:]
@@ -54,13 +62,12 @@ def bash_fmt(text, indent=''):
             else:
                 logger(f'formatting short: {token}')
                 return f'{indent}  -{token.short_option_name} {vals}'
-        else:
-            logger(f'dont know how to fmt {[token,tdict]}')
-            return ''
+
+        return vals
 
     parsed = BashCommand().parseString(text.lstrip())
     msg = list(enumerate(list(parsed)))
-    logger('parsed:\n\n{msg}')
+    logger(f'parsed:\n\n{msg}')
     result = [fmt_token(token, indent=indent) for token in parsed]
     result = '\n'.join(result).lstrip()
     result += ''.join([x for x in reversed(sorted(lopts, key=len))])

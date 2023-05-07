@@ -23,7 +23,7 @@ PROMPT_COMMAND="_chpwd_hook${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 
 # example 1: `ls` list directory once dir is changed
 _pynchon_use_dir_completions() {
-  [ -f .tmp.pynchon.completions.sh ] && source .tmp.pynchon.completions.sh
+  [ -f {{pynchon_completions_script}} ] && source {{pynchon_completions_script}}
 }
 
 # append the command into CHPWD_COMMAND
