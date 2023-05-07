@@ -1,9 +1,6 @@
-""" fleks.meta
-"""
 import collections
 
 from pynchon.util import typing, lme
-
 LOGGER = lme.get_logger(__name__)
 
 type_spec = collections.namedtuple('type_spec', 'name bases namespace')

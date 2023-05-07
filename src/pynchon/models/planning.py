@@ -1,10 +1,8 @@
-"""
-"""
 import typing
 import collections
 
 from pynchon import abcs
-
+from pynchon.fleks import meta
 # from pynchon.fleks.plugin import Plugin as AbstractPlugin
 # from pynchon.plugins.util import get_plugin_obj
 
@@ -13,7 +11,7 @@ from pynchon.util import typing, lme  # noqa
 # from pynchon.util.tagging import tags
 
 
-class Goal(typing.NamedTuple, metaclass=abcs.namespace):
+class Goal(typing.NamedTuple, metaclass=meta.namespace):
     """ """
 
     resource: str = '??'
@@ -34,7 +32,7 @@ class Goal(typing.NamedTuple, metaclass=abcs.namespace):
         return f"<{self.__class__.__name__}[{self.resource}]>"
 
 
-class Action(typing.NamedTuple, metaclass=abcs.namespace):
+class Action(typing.NamedTuple, metaclass=meta.namespace):
     """ """
 
     type: str = 'unknown_action_type'
@@ -46,7 +44,7 @@ class Action(typing.NamedTuple, metaclass=abcs.namespace):
         return f"<{self.__class__.__name__}[{self.result}]>"
 
 
-class Plan(typing.List[Goal], metaclass=abcs.namespace):
+class Plan(typing.List[Goal], metaclass=meta.namespace):
     """ """
 
     def __rich__(self) -> str:
@@ -113,7 +111,7 @@ class Plan(typing.List[Goal], metaclass=abcs.namespace):
         return super(Plan, self).extend(other)
 
 
-class ApplyResults(typing.List[Action], metaclass=abcs.namespace):
+class ApplyResults(typing.List[Action], metaclass=meta.namespace):
     def __str__(self):
         return f"<{self.__class__.__name__}[{len(self)} actions]>"
 
