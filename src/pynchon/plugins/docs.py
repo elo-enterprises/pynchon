@@ -31,3 +31,15 @@ class DocsMan(models.Manager):
         # src_root = config.pynchon['src_root']
         include_patterns = self.config.get('include_patterns', ["**"])
         return files.find_globs(include_patterns)
+
+    def plan(self,config=None):
+        """ """
+        plan = super(self.__class__, self).plan(config=config)
+        rsrc = self.config['root']
+        plan.append(
+            self.goal(
+                resource=rsrc,
+                type='mkdir',
+                command=f'mkdir -p {rsrc}'
+        ))
+        return plan

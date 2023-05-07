@@ -4,6 +4,5 @@ import sys
 
 if __name__ == '__main__':
     from . import *
-
     cmd = sys.argv[-1]
-    result = bash_fmt_display(cmd)
+    result = bash_fmt(cmd)

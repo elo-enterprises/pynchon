@@ -19,11 +19,16 @@ class Goal(typing.NamedTuple, metaclass=abcs.namespace):
     resource: str = '??'
     command: str = 'echo'
     type: str = 'unknown'
-
-    def display(self):
+    def __rich__(self) -> str:
         from pynchon.util import shfmt
+        pretty = shfmt.bash_fmt(self.command)
+        from rich.syntax import Syntax
+        from rich.console import Console
+        # console = kwargs.pop('console', None) or Console(stderr=True)
+        # result = bash_fmt(*args, **kwargs)
+        syntax = Syntax(pretty, 'bash', line_numbers=True)
+        return syntax
 
-        shfmt.bash_fmt_display(self.command)
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{self.resource}]>"
@@ -44,10 +49,26 @@ class Action(typing.NamedTuple, metaclass=abcs.namespace):
 class Plan(typing.List[Goal], metaclass=abcs.namespace):
     """ """
 
-    def display(self):
-        for g in self:
-            if hasattr(g, 'display'):
-                g.display()
+    def __rich__(self) -> str:
+        syntaxes = [g.__rich__() for g in self]
+        from rich.console import Console
+        from rich.table import Table
+        from rich.text import Text
+        from rich.markdown import Markdown
+        from rich.syntax import Syntax
+        from rich import box
+        table = Table(
+            title=f'{self.__class__.__name__}',
+            # box=box.MINIMAL_DOUBLE_HEAD,
+            expand=True,
+            )
+        # table.add_column("idx", justify="left", style="bold magenta", no_wrap=True)
+        table.add_column("action", justify="left", style="green", no_wrap=True)
+        [
+            [   table.add_row(x),
+                table.add_row()]
+            for i,x in enumerate(syntaxes) ]
+        return table
 
     def __init__(self, *args):
         """ """

@@ -65,14 +65,3 @@ def bash_fmt(text, indent=''):
     result = '\n'.join(result).lstrip()
     result += ''.join([x for x in reversed(sorted(lopts, key=len))])
     return result
-
-
-def bash_fmt_display(*args, **kwargs):
-    """ """
-    from rich.syntax import Syntax
-    from rich.console import Console
-
-    console = kwargs.pop('console', None) or Console(stderr=True)
-    result = bash_fmt(*args, **kwargs)
-    syntax = Syntax(result, 'bash', line_numbers=True)
-    return console.print(syntax)

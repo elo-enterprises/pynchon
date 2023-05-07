@@ -204,10 +204,15 @@ class CliPlugin(PynchonPlugin):
                 # from rich import print_json
                 # print_json(text.to_json(result))
                 # if hasattr(result, 'display'):
-                try:
-                    getattr(result, 'display', lambda: None)()
-                except KeyError:
-                    pass
+                rproto = getattr(result,'__rich__',None)
+                if rproto:
+                    from pynchon.util.lme import CONSOLE
+                    CONSOLE.print(result)
+                # try:
+                #     renderable =rproto()
+                #     # getattr(result, 'display', lambda: None)()
+                # except KeyError:
+                #     pass
                 return result
 
             commands = [kls.click_create_cmd(fxn, wrapper=wrapper, alias=None)]
