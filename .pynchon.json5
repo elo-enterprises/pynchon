@@ -9,7 +9,7 @@
   // Literals only; no templating please!
   // "src_root": "src",
   "pkg_name": "pynchon",
-  "docs_root": "docs",
+  // "docs_root": "docs",
   "plugins": [
     // Plugins that are loaded.
     // Default plugins are implicitly here, no need to mention them.
@@ -18,7 +18,7 @@
     // Default tools: `json`.
 
     // Recommended for projects with source-code
-    "src", "tests", "cicd", "fixme",
+    "docs", "src", "tests", "cicd", "fixme",
     //"todo",
 
     // Standard if there's a python-project
@@ -82,8 +82,10 @@
     "exclude_patterns": [
       // `globals.exclude_patterns` will be appended.
       "**/*.egg-info/**",
-      "src/pynchon/plugins/fixme/**",
-      "src/pynchon/templates/**",
+      "{{src.root}}/**/fixme/**",
+      "{{src.root}}/**/fixme.py",
+      "{{src.root}}/**/python/api/**",
+      "{{src.root}}/pynchon/annotate.py",
     ],
   },
 
@@ -134,7 +136,7 @@
     "template_includes": [
       // Paths to load includes from.
       // (Used in templates as `{% include .. %}`)
-      "{{pynchon.docs_root}}/includes",
+      "{{docs.root}}/includes",
     ],
   },
 
