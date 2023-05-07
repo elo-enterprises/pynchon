@@ -159,3 +159,60 @@ def find_globs(
         if m not in includes:
             result.append(abcs.Path(m))
     return result
+
+
+def block_in_file(
+    target_file,
+    block_file,
+    create="no",
+    insertbefore="BOF",
+    backup="yes",
+    marker='# {mark} ANSIBLE MANAGED BLOCK - pynchon',):
+    """
+    """
+    from pynchon.util.os import invoke
+    assert "'" not in marker
+    from pynchon import abcs
+    target_file = abcs.Path(target_file)
+    assert target_file.exists()
+    target_file=target_file.absolute()
+    dest=".tmp.ansible.blockinfile.out"
+    invoke(f'cp {target_file} {dest}')
+    block_file = abcs.Path(block_file)
+    assert block_file.exists()
+    block_file=block_file.absolute()
+    args = [
+        f"marker='{marker}'",
+        f"dest={dest}",
+        'block=\\"{{ lookup(\'file\', fname)}}\\"',
+        f"create={create} insertbefore={insertbefore} ",
+        f"backup={backup}",]
+    args = ' '.join(args)
+    cmd = [
+        "docker run",
+        "-w /workspace",
+        "-v `pwd`:/workspace",
+        f"-v {block_file}:{block_file}",
+        # f"-v {target_file}:{target_file}",
+        "-e ANSIBLE_STDOUT_CALLBACK=json",
+        "-e ANSIBLE_CALLBACKS_ENABLED=json",
+        "-e ANSIBLE_LOAD_CALLBACK_PLUGINS=1",
+        "--entrypoint ansible alpinelinux/ansible",
+        "local -i local, -c local",
+        f"-e fname={block_file}",
+        "-mblockinfile",
+        "--args",
+        '"'+args+'"',
+    ]
+    cmd=' '.join(cmd)
+    LOGGER.critical(cmd)
+    result = invoke(cmd,system=True)
+    assert result.succeeded
+    invoke(f'mv {dest} {target_file}')
+    assert result.succeeded
+    # result = invoke(cmd,load_json=True)
+    # return dict(ansible=dict(stats=result.json['stats']))
+    # LOGGER.debug(result.stdout)
+    # LOGGER.debug(result.stderr)
+    # return result.succeeded
+    # {} #result.suceeded #json['stats']

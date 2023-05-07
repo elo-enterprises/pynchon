@@ -24,11 +24,10 @@ def invoke(
     dependency-free replacement for the `invoke` module,
     which fixes problems with subprocess.POpen and os.system.
     """
+    msg="running command: (system={})\n\t{}".format(system, cmd)
+    log_command and LOGGER.info(msg)
     from pynchon.util import shfmt
-
-    # msg="running command: (system={})\n\t{}".format(system, cmd)
-    # log_command and LOGGER.info(msg)
-    log_command and shfmt.bash_fmt_display(cmd)
+    log_command and LOGGER.warning('shfmt: '+shfmt.bash_fmt(cmd))
     if system:
         assert not stdin and not interactive
         error = os.system(cmd)
@@ -75,8 +74,7 @@ def invoke(
     exec_cmd.success = exec_cmd.succeeded
     exec_cmd.failure = exec_cmd.failed
     if load_json:
-        assert exec_cmd.succeeded
+        assert exec_cmd.succeeded, exec_cmd.stderr
         import json
-
         exec_cmd.json = json.loads(exec_cmd.stdout)
     return exec_cmd

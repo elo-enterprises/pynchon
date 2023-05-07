@@ -15,10 +15,6 @@ LOGGER = lme.get_logger(__name__)
 
 class PythonCliConfig(abcs.Config):
     config_key = "python-cli"
-    # @common.groop("cli", parent=groups.gen)
-    # def gen_cli():
-    #     """Generate CLI docs"""
-
     @property
     def src_root(self):
         """ """
@@ -60,12 +56,6 @@ class PythonCLI(models.ShyPlanner):
 
     name = "python-cli"
     config_class = PythonCliConfig
-
-    # @classmethod
-    # def sddsinit_cli(kls):
-    #     """pynchon.bin.cli:
-    #     Option parsing for the `cli` subcommand
-    #     """
 
     # @common.kommand(
     #     name="toc",

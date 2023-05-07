@@ -1,4 +1,3 @@
-# tested with bash @ 5.0.17
 # create a PROPMT_COMMAND equivalent to store chpwd functions
 typeset -g CHPWD_COMMAND=""
 

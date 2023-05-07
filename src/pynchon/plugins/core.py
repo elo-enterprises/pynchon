@@ -41,15 +41,19 @@ class Core(models.Planner):
         return self.project_config
 
     @cli.click.option('--bash', default=False, is_flag=True, help='bootstrap bash')
+    @cli.click.option('--bashrc', default=False, is_flag=True, help='bootstrap bashrc')
     @cli.click.option('--tox', default=False, is_flag=True, help='bootstrap tox')
     def bootstrap(
         self,
         bash: bool = False,
+        bashrc: bool = False,
         tox: bool = False,
     ) -> None:
         """
         Bootstrap for shell integration, etc
         """
+        # ansible local -i local, -c local -mblockinfile --args "dest=/tmp/foo block='\nfoo\nbar' marker='# {mark} ANSIBLE MANAGED BLOCK - pynchon' create=yes insertbefore=BOF owner=$USER backup=yes"
+
         from pynchon.api import render
 
         if bash:
@@ -89,13 +93,23 @@ class Core(models.Planner):
                 fhandle.write(result)
             LOGGER.warning(f"Wrote {fname}.")
             LOGGER.warning(f"To refresh your shell, run: `source {fname}`")
-            # LOGGER.critical(
-            #     "To use completion hints every time they are present "
-            #     "in a folder add this to .bashrc:"
-            # )
-            # LOGGER.warning(
-            #     "\n" + render.get_template('pynchon/bootstrap/bashrc.sh').render({})
-            # )
+        if bashrc:
+            LOGGER.critical(
+                "To use completion hints every time they are present "
+                "in a folder add this to .bashrc:"
+            )
+            content = render.get_template('pynchon/bootstrap/bashrc.sh').render({})
+            LOGGER.warning(f"\n{content}")
+            from pynchon import abcs
+            from pynchon.util import files
+            fname = f'.tmp.pynchon.bashrc'
+            with open(fname,'w') as fhandle:
+                fhandle.write(content)
+            LOGGER.warning(f'Wrote "{fname}"')
+            return files.block_in_file(
+                target_file=abcs.Path("~/.bashrc").expanduser(),
+                block_file=fname)
+
 
             # print(f"source /dev/stdin < <(cat {fname})")
         elif tox:
