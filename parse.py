@@ -5,11 +5,12 @@ r"""@@grammar::bash
 
 start = bash_command $;
 
-word = /[a-zA-Z0-9_]+/;
-qblock =
-    | "'" /([^']*)/ "'"
-    | '"' /'([^"]*)/ '"'
-    ;
+word = /[\/a-zA-Z0-9_:,=.\{\}\(\)]+/;
+backtick = /`(.*)`/;
+squote = /'(.*)'/;
+dquote = /"(.*)"/;
+qblock = backtick | squote |dquote;
+
 arg = word | qblock;
 args = {arg};
 
@@ -18,8 +19,6 @@ lopt = /--[a-zA-Z0-9-_]+/;
 opt = (shopt|lopt) [args];
 opts = {opt};
 
-command = word opts args;
-subproc = lparen command rparen;
 
 bash_and = '&&';
 bash_bg = '&';
@@ -27,22 +26,23 @@ bash_pipe = '|';
 bash_or = '||';
 semi=';';
 lparen='('; rparen=')';
-joiner = bash_and | bash_bg | bash_pipe | bash_or | semi ;
+joiner = bash_and | bash_bg | bash_or | bash_pipe  | semi ;
 
+command = word args opts;
+subproc = lparen command rparen;
 compound_command =
-    subproc
+    | command joiner compound_command
+    | subproc joiner compound_command
+    | subproc
     | command
     ;
 
 pipeline_command =
   compound_command
-  [bash_and compound_command]
-  [bash_pipe compound_command]
-  [bash_or compound_command]
-  [semi compound_command]
+  | compound_command joiner compound_command
   ;
 
-bash_command = {pipeline_command}+;
+bash_command = pipeline_command;
 """
 import json
 import tatsu
@@ -50,7 +50,7 @@ from tatsu.contexts import closure
 from tatsu.util import asjson
 
 src = tatsu.to_python_sourcecode(__doc__)
-src=src[:src.rfind('''def main(filename, **kwargs)''')]
+src = src[:src.rfind('''def main(filename, **kwargs)''')]
 exec(src)
 
 def append_record(fxn):
@@ -68,53 +68,67 @@ class Semantics:
     """
     def __init__(self):
         self.record = []
+        self._joiner = None
+        self.indention = '  '
+
+    @property
+    def _indent(self):
+        return f'  '
+
+    @property
+    def _pre(self):
+        pre = f'{self._joiner} ' if self._joiner else ''
+        self._joiner = None
+        return pre
 
     @append_record
     def lparen(self, ast):
-        return ast
-
-    @append_record
-    def joiner(self,ast):
-        return ast
+        return f'{self._pre}{ast}'
 
     @append_record
     def rparen(self, ast):
         return ast
 
     @append_record
-    def bash_or(self, ast):
-        return ast
+    def joiner(self,ast):
+        self._joiner = ast
+        return ''
+    def backtick(self,ast):
+        return f"`{ast}`"
+    def squote(self,ast):
+        return f"'{ast}'"
+    def dquote(self,ast):
+        return f'"{ast}"'
 
-    @append_record
-    def bash_and(self, ast):
-        return ast
+    # @append_record
+    # def backtick(self, ast):
+    #     tmp=" ".join(ast)
+    #     import IPython; IPython.embed()
+    #     return f'`{tmp}`'
+
+    def indent(self,text):
+        return '\n'.join([self.indention+x for x in text.split('\n')])
 
     def subproc(self, ast):
         lparen, command, rparen=ast
-        return f"(\n  {command}\n)"
+        command = self.indent(command)
+        return f"(\n{command}\n)"
 
     def qblock(self, ast):
-        q1,content,q2=ast
-        return f"{q1}{content}{q2}"
+        # q1,content,q2=ast
+        # return f"{q1}{content}{q2}"
+        # import IPython; IPython.embed()
+        return f"{ast}"
 
     def arg(self, ast):
         return ast
 
     @append_record
     def command(self, ast):
-        # if self.record:
-        #     raise Exception(ast,self.record[-1])
         name, opts, args = ast
         opts='\n  '.join(opts)
         args='\n  '.join(args)
-        return f'{name} {opts} {args}'
-
-    # @append_record
-    # def subproc(self,ast):
-    #     lp, command, rp = ast
-    #     # import IPython; IPython.embed()
-    #     tmp = self.command(command)
-    #     return f"{lp}\n  {tmp}\n{rp}"
+        return f'{self._pre}{name} {opts} {args}'
 
     def opt(self, ast):
         option, vals = ast
@@ -144,7 +158,9 @@ semantics=Semantics()
 if __name__ == '__main__':
     ast = generic_main(main, bashParser, name='bash')
     data = asjson(ast)
-    print(json.dumps(data, indent=2))
+    # print(json.dumps(data, indent=2))
     print('-'*50)
-    for cmd in semantics.record:
-        print(cmd)
+    rec=semantics.record
+    for cmd in rec:
+        if cmd:
+            print(cmd)
