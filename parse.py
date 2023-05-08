@@ -6,13 +6,10 @@ r"""@@grammar::bash
 start = bash_command $;
 
 word = /[a-zA-Z0-9_]+/;
-string
-    =
-    | '"' {/[^"]+/} '"'
-    | "'" {/([^'])+/} "'"
-;
-
-qblock = string;
+qblock =
+    | "'" /([^']*)/ "'"
+    | '"' /'([^"]*)/ '"'
+    ;
 arg = word | qblock;
 args = {arg};
 
@@ -97,9 +94,7 @@ class Semantics:
         return f"(\n  {command}\n)"
 
     def qblock(self, ast):
-        q1, content, q2 = ast
-        content=content[0]
-        content = r'{}'.format(content)
+        q1,content,q2=ast
         return f"{q1}{content}{q2}"
 
     def arg(self, ast):
