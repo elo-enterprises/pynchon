@@ -27,7 +27,7 @@ class AbstractPlanner(BasePlugin):
 
     def goal(self, **kwargs):
         """ """
-        return planning.Goal(**kwargs)
+        return planning.Goal(owner=self.name, **kwargs)
 
     def plan(self, config=None) -> planning.Plan:
         """Creates a plan for this plugin"""

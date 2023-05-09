@@ -28,7 +28,7 @@ class FixMe(models.Planner):
         plan = super(self.__class__, self).plan(config)
         target = abcs.Path(self.project_config['docs']['root']) / 'FIXME.md'
         plan.append(
-            models.Goal(
+            self.goal(
                 type='gen',
                 resource=target,
                 command=f"pynchon fixme gen --output {target}",

@@ -5,15 +5,6 @@ from tatsu.contexts import closure
 from .grammar import generic_main, asjson, main, bashParser
 
 
-def append_record(fxn):
-    def newf(self, *args, **kargs):
-        result = fxn(self, *args, **kargs)
-        self.record.append(result)
-        return result
-
-    return newf
-
-
 class Semantics:
     """
     a value, for simple elements such as token, pattern, or constant
@@ -45,15 +36,9 @@ class Semantics:
     def dquote(self, ast):
         return f'"{ast}"'
 
-    # @append_record
     def lparen(self, ast):
         return f'{self._pre}{ast}'
 
-    # @append_record
-    # def rparen(self, ast):
-    #     return ast
-
-    @append_record
     def joiner(self, ast):
         self._joiner = ast
         return ''
@@ -69,9 +54,6 @@ class Semantics:
     def qblock(self, ast):
         return f"{ast}"
 
-    # def arg(self, ast):
-    #     return ast
-
     def opts(self, ast):
         def is_lopt(o):
             return o.lstrip().startswith('--')
@@ -80,20 +62,28 @@ class Semantics:
         rest = [o for o in ast if is_lopt(o)]
         rest = list(reversed(sorted(rest, key=len)))
         ast = first + rest
-        return [f'\n  {o}' for o in ast]
+        out = []
+        for o in ast:
+            tmp = " \\" if o != ast[-1] else ""
+            out.append(f'\n  {o}{tmp}')
+        return out
+
     def cmd_arg(self, ast):
         return f' {ast}'
-    def cmd_args(self, ast):
-        return [ f'{a}' for a in ast]
 
-    @append_record
+    def cmd_args(self, ast):
+        return [f'{a}' for a in ast]
+
     def command(self, ast):
         # import IPython; IPython.embed()
         name, cmd_args, opts = ast
         cmd_args = ''.join(cmd_args)
         opts = ''.join(opts)
+        # opts = opts and opts.strip()[:-1]
         # args = '\n  '.join(args)
-        return f'{self._pre}{name}{cmd_args} {opts}'
+        tmp = f'{self._pre}{name}{cmd_args} {opts}'
+        # tmp = tmp.strip()[:-1] if tmp.strip().endswith('/') else tmp
+        return tmp
 
     def opt(self, ast):
         option, vals = ast

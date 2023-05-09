@@ -104,7 +104,7 @@ class Jinja(models.Planner):
         # self.logger.info(f"  {templates}")
         for rsrc in self.list():
             plan.append(
-                models.Goal(
+                self.goal(
                     type='render',
                     resource=rsrc,
                     command=self.COMMAND_TEMPLATE.format(

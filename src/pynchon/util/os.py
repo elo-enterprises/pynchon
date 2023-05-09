@@ -132,7 +132,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
 
             fmt = shfmt.bash_fmt(self.cmd)
             syntax = Syntax(
-                f"# {self.cmd}\n\n{fmt}", 'bash', line_numbers=True, word_wrap=True
+                f"# {self.cmd}\n\n{fmt}", 'bash', line_numbers=False, word_wrap=True
             )
             # return Syntax(self.cmd, 'bash', word_wrap=True)
             from rich.text import Text

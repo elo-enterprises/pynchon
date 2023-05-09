@@ -106,7 +106,7 @@ class Dot(models.Planner):
         cmd_t = "pynchon dot render {resource} --in-place --output-mode png"
         for resource in self.list(config):
             plan.append(
-                models.Goal(
+                self.goal(
                     resource=resource,
                     command=cmd_t.format(resource=resource),
                     type='render',

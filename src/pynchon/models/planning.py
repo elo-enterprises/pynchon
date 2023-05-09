@@ -15,11 +15,13 @@ from pynchon.util import typing, lme  # noqa
 class Goal(typing.NamedTuple, metaclass=meta.namespace):
     """ """
 
-    resource: str = '??'
-    command: str = 'echo'
-    type: str = 'unknown'
+    resource: str = '?r'
+    command: str = '?c'
+    type: str = '?t'
+    owner: str = '?o'
 
     def __rich__(self) -> str:
+        from rich.text import Text
         from rich.panel import Panel
         from rich.syntax import Syntax
         from rich.console import Console
@@ -34,9 +36,9 @@ class Goal(typing.NamedTuple, metaclass=meta.namespace):
             # title=__name__,
             # title=f'[dim italic yellow]{self.type}',
             # title=f'[bold cyan on black]{self.type}',
-            title=f'[bold bright_green]{self.type}',
-            title_align='left'
-            # subtitle="actions"
+            title=Text(self.type, style='bold bright_green'),
+            title_align='left',
+            subtitle=Text(f'({self.owner})', style='dim ochre'),
         )
 
         # pretty = shfmt.bash_fmt(self.command)
