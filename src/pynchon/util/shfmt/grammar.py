@@ -1,77 +1,152 @@
+r"""@@grammar::bash
+@@comments :: /\(\*.*?\*\)/
+@@eol_comments :: /#.*?$/
+@@whitespace :: /[\t \n \\]/
+
+start = bash_command $;
+
+semi=';'; bash_and = '&&'; bash_bg = '&'; bash_pipe = '|'; bash_or = '||';
+backtick = /`(.*)`/; squote = /'(.*)'/; dquote = /"(.*)"/;
+qblock = backtick | squote |dquote;
+
+word = /[\/a-zA-Z0-9_:,=.\{\}\(\)]+/;
+
+arg = word | qblock;
+args = {arg};
+
+shopt = /-[a-zA-Z0-9-_]+/;
+lopt = /--[a-zA-Z0-9-_]+/;
+opt = (shopt|lopt) [args];
+opts = {opt};
+
+lparen='('; rparen=')';
+joiner = bash_and | bash_bg | bash_or | bash_pipe  | semi ;
+
+command = word args opts;
+subproc = lparen command rparen;
+compound_command =
+  | command joiner compound_command
+  | subproc joiner compound_command
+  | subproc
+  | command
+  ;
+
+pipeline_command =
+  compound_command
+  | compound_command joiner compound_command
+  ;
+
+bash_command = pipeline_command;
 """
-"""
-from pynchon.util import lme
+import json
 
-logger = lme.get_logger(__name__).critical
-import pyparsing
-from pyparsing import (
-    LineEnd,
-    Word,
-    Combine,
-    ZeroOrMore,
-    Group,
-    Literal,
-    Optional,
-    alphanums,
-    QuotedString,
-)
+import tatsu
+from tatsu.util import asjson
+from tatsu.contexts import closure
+
+src = tatsu.to_python_sourcecode(__doc__)
+src = src[: src.rfind('''def main(filename, **kwargs)''')]
+exec(src)
 
 
-def QString(s, loc, tokens):  # noqa
-    """Parse out the multiline quoted string"""
-    text = Word(alphanums + '-')
-    text |= Word(alphanums + '-\\').suppress()
-    text = (text) + Optional(Continuation)
-    g = Combine(ZeroOrMore(text), adjacent=False, joinString=" ")
-    return g.parseString(tokens[0])
+def append_record(fxn):
+    def newf(self, *args, **kargs):
+        result = fxn(self, *args, **kargs)
+        self.record.append(result)
+        return result
+
+    return newf
 
 
-QArg = QuotedString("\'", multiline=True) | QuotedString('\"', multiline=True)
-QArg.setParseAction(QString)
+class Semantics:
+    """
+    a value, for simple elements such as token, pattern, or constant
+    a tuple, for closures, gatherings, and the right-hand-side of rules with more than one element but without named elements
+    a dict-derived object (AST) that contains one item for every named element in the grammar rule, with items can be accessed through the standard dict syntax (ast['key']), or as attributes (ast.key).
+    """
 
-Continuation = ('\\' + (LineEnd())).suppress()
-CommandJoiner = Literal('&&')
-CommandJoiner |= Literal('||')
-CommandJoiner |= Literal(';')
-CommandJoiner |= pyparsing.LineStart()
-CommandJoiner = Optional(Continuation) + CommandJoiner
-# CommandJoiner|=pyparsing.LineStart()
-CommandJoiner = CommandJoiner.setResultsName('joiner')
+    def __init__(self):
+        self.record = []
+        self._joiner = None
+        self.indention = '  '
 
-Name = Word(alphanums + "./")  # +pyparsing.White()
+    @property
+    def _indent(self):
+        return f'  '
 
-Arg = Word(alphanums + "./-_")('argval') + Optional(Continuation)
-Arg = Arg('argval')
-Vals = Group(ZeroOrMore(Arg | QArg('quoted_arg')))
+    @property
+    def _pre(self):
+        pre = f'{self._joiner} ' if self._joiner else ''
+        self._joiner = None
+        return pre
 
-# Option = Literal("-").suppress() + Word(alphanums+".-")
-# Option =
-LOption = Group(
-    Literal("--").suppress()
-    + Word(alphanums + ".-")('long_option_name')
-    + Optional(Vals('vals'))
-)
-Option = Group(
-    Literal("-").suppress()
-    + Word(alphanums + ".-")('short_option_name')
-    + Optional(Vals('vals'))
-)
-Options = ZeroOrMore(Option)
-LOptions = ZeroOrMore(LOption)
-# LongOption = Literal("--").suppress() + Name('long_option_name')
-# LongOption = Group(LongOption + Optional(Vals('vals')))
-# LongOptions = ZeroOrMore(LongOption)
+    @append_record
+    def lparen(self, ast):
+        return f'{self._pre}{ast}'
 
-CommandName = Name('name')
-Command = Combine(CommandName)('cmd')
-Command += Optional(LOptions('cmd_lopts') + Options('cmd_opts'))
-# Command+= Optional(LongOptions('cmd_lopts'))
-Command += Optional(Vals('cmd_args'))
-RedirCommand = Literal('>').setResultsName('redir') + Word(alphanums + "./-_")('file')
-Command += Optional(RedirCommand)('file')
+    @append_record
+    def rparen(self, ast):
+        return ast
 
-# Command = Command |
-PipedCommand = ZeroOrMore(Group(Literal('|').setResultsName('joiner') + Command))
-JoinedCommand = ZeroOrMore(Group(CommandJoiner + Command)('cmd'))
+    @append_record
+    def joiner(self, ast):
+        self._joiner = ast
+        return ''
 
-BashCommand = Command + (PipedCommand | RedirCommand | JoinedCommand)
+    def backtick(self, ast):
+        return f"`{ast}`"
+
+    def squote(self, ast):
+        return f"'{ast}'"
+
+    def dquote(self, ast):
+        return f'"{ast}"'
+
+    def indent(self, text):
+        return '\n'.join([self.indention + x for x in text.split('\n')])
+
+    def subproc(self, ast):
+        lparen, command, rparen = ast
+        command = self.indent(command)
+        return f"(\n{command}\n)"
+
+    def qblock(self, ast):
+        return f"{ast}"
+
+    def arg(self, ast):
+        return ast
+
+    @append_record
+    def command(self, ast):
+        name, opts, args = ast
+        opts = '\n  '.join(opts)
+        args = '\n  '.join(args)
+        return f'{self._pre}{name} {opts} {args}'
+
+    def opt(self, ast):
+        option, vals = ast
+        tmp = ''
+        if isinstance(vals, (closure,)):
+            for c in vals:
+                tmp += str(c)
+        elif isinstance(vals, (str,)):
+            tmp = vals
+        else:
+            assert type(vals) == 'bonk', type(vals)
+        return f"{option} {tmp}"
+
+
+def main(text=None, filename=None, **kwargs):
+    if not text:
+        if not filename or filename == '-':
+            text = sys.stdin.read()
+        else:
+            with open(filename) as f:
+                text = f.read()
+    parser = bashParser()
+    return parser.parse(
+        text, parseinfo=True, filename=filename, semantics=semantics, **kwargs
+    )
+
+
+semantics = Semantics()

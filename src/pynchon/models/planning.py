@@ -20,22 +20,24 @@ class Goal(typing.NamedTuple, metaclass=meta.namespace):
     type: str = 'unknown'
 
     def __rich__(self) -> str:
-        from rich.syntax import Syntax
         from rich.panel import Panel
+        from rich.syntax import Syntax
         from rich.console import Console
+
         from pynchon.util import shfmt
-        fmt=shfmt.bash_fmt(self.command)
+
+        fmt = shfmt.bash_fmt(self.command)
         return Panel(
             Syntax(
-                f"# {self.command}\n\n{fmt}", 'bash',
-                line_numbers=True,word_wrap=True),
+                f"# {self.command}\n\n{fmt}", 'bash', line_numbers=True, word_wrap=True
+            ),
             # title=__name__,
             # title=f'[dim italic yellow]{self.type}',
             # title=f'[bold cyan on black]{self.type}',
             title=f'[bold bright_green]{self.type}',
             title_align='left'
             # subtitle="actions"
-            )
+        )
 
         # pretty = shfmt.bash_fmt(self.command)
         # console = kwargs.pop('console', None) or Console(stderr=True)
@@ -66,34 +68,33 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         syntaxes = [g.__rich__() for g in self]
         from rich import box
         from rich.text import Text
-        from rich.table import Table
-        from rich.style import Style
-        from rich.emoji import Emoji
         from rich.align import Align
+        from rich.emoji import Emoji
+        from rich.style import Style
+        from rich.table import Table
         from rich.syntax import Syntax
         from rich.console import Console
         from rich.markdown import Markdown
+
         table = Table(
             # title=,
             # box=box.MINIMAL_DOUBLE_HEAD,
             expand=True,
             # border_style='dim italic yellow'
-            border_style='bold dim'
+            border_style='bold dim',
         )
         # table.add_column("idx", justify="left", style="bold magenta", no_wrap=True)
         table.add_column(
             f'{__name__}',
             justify="left",
             # style="green",
-            style = Style.parse("dim italic"),
-            no_wrap=True)
-        [ [
-            table.add_row(x),
-            table.add_row(
-                Align(
-                    Emoji("gear"),
-                    align='center'))
-                ] for i, x in enumerate(syntaxes) ]
+            style=Style.parse("dim italic"),
+            no_wrap=True,
+        )
+        [
+            [table.add_row(x), table.add_row(Align(Emoji("gear"), align='center'))]
+            for i, x in enumerate(syntaxes)
+        ]
         return table
 
     def __init__(self, *args):

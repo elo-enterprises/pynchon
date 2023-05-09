@@ -5,11 +5,11 @@ r"""@@grammar::bash
 
 start = bash_command $;
 
-word = /[\/a-zA-Z0-9_:,=.\{\}\(\)]+/;
-backtick = /`(.*)`/;
-squote = /'(.*)'/;
-dquote = /"(.*)"/;
+semi=';'; bash_and = '&&'; bash_bg = '&'; bash_pipe = '|'; bash_or = '||';
+backtick = /`(.*)`/; squote = /'(.*)'/; dquote = /"(.*)"/;
 qblock = backtick | squote |dquote;
+
+word = /[\/a-zA-Z0-9_:,=.\{\}\(\)]+/;
 
 arg = word | qblock;
 args = {arg};
@@ -19,23 +19,17 @@ lopt = /--[a-zA-Z0-9-_]+/;
 opt = (shopt|lopt) [args];
 opts = {opt};
 
-
-bash_and = '&&';
-bash_bg = '&';
-bash_pipe = '|';
-bash_or = '||';
-semi=';';
 lparen='('; rparen=')';
 joiner = bash_and | bash_bg | bash_or | bash_pipe  | semi ;
 
 command = word args opts;
 subproc = lparen command rparen;
 compound_command =
-    | command joiner compound_command
-    | subproc joiner compound_command
-    | subproc
-    | command
-    ;
+  | command joiner compound_command
+  | subproc joiner compound_command
+  | subproc
+  | command
+  ;
 
 pipeline_command =
   compound_command
@@ -100,12 +94,6 @@ class Semantics:
     def dquote(self,ast):
         return f'"{ast}"'
 
-    # @append_record
-    # def backtick(self, ast):
-    #     tmp=" ".join(ast)
-    #     import IPython; IPython.embed()
-    #     return f'`{tmp}`'
-
     def indent(self,text):
         return '\n'.join([self.indention+x for x in text.split('\n')])
 
@@ -115,9 +103,6 @@ class Semantics:
         return f"(\n{command}\n)"
 
     def qblock(self, ast):
-        # q1,content,q2=ast
-        # return f"{q1}{content}{q2}"
-        # import IPython; IPython.embed()
         return f"{ast}"
 
     def arg(self, ast):
@@ -154,7 +139,9 @@ def main(filename, **kwargs):
         filename=filename,
         semantics=semantics,
         **kwargs)
+
 semantics=Semantics()
+
 if __name__ == '__main__':
     ast = generic_main(main, bashParser, name='bash')
     data = asjson(ast)
