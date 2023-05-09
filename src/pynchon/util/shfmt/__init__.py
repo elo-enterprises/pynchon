@@ -81,15 +81,19 @@ class Semantics:
         rest = list(reversed(sorted(rest, key=len)))
         ast = first + rest
         return [f'\n  {o}' for o in ast]
+    def cmd_arg(self, ast):
+        return f' {ast}'
+    def cmd_args(self, ast):
+        return [ f'{a}' for a in ast]
 
     @append_record
     def command(self, ast):
         # import IPython; IPython.embed()
-        name, opts, args = ast
-        args = ''.join(args)
+        name, cmd_args, opts = ast
+        cmd_args = ''.join(cmd_args)
         opts = ''.join(opts)
         # args = '\n  '.join(args)
-        return f'{self._pre}{name} {args} {opts}'
+        return f'{self._pre}{name}{cmd_args} {opts}'
 
     def opt(self, ast):
         option, vals = ast

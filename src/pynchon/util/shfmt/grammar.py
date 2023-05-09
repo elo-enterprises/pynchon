@@ -12,8 +12,9 @@ qblock = backtick | squote |dquote;
 word = /[\/a-zA-Z0-9_:,=.\{\}\(\)]+/;
 
 arg = word | qblock;
+cmd_arg=arg;
 args = {arg};
-
+cmd_args={cmd_arg};
 _shopt = /-[a-zA-Z0-9-_.]+/;
 _lopt = /--[a-zA-Z0-9-_.]+/;
 shopt = _shopt [args];
@@ -24,7 +25,7 @@ opts = {opt};
 lparen='('; rparen=')';
 joiner = bash_and | bash_bg | bash_or | bash_pipe  | semi ;
 
-command = word args opts;
+command = word cmd_args opts;
 subproc = lparen command rparen;
 compound_command =
   | command joiner compound_command
