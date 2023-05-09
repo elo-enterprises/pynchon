@@ -61,7 +61,7 @@ digraph project_dependencies {
     empty [label="", visible=false;]
     }
     subgraph cluster_iface {
-      graph [label="iface"; style=filled; colorscheme=greens9 color=1;]
+      graph [colorscheme=greens9 color=4; label="iface"; style=filled; ]
       node [shape=doublecircle colorscheme="oranges9"]
       zconfig [color=4, label="Config"];
       cli [color=5, label="Pynchon CLI"];
@@ -69,8 +69,8 @@ digraph project_dependencies {
     }
 
     subgraph cluster_api {
-      graph [colorscheme=greens9 color=2; style=filled; label="util"; overlap=false; splines=True]
-      node [colorscheme="blues9"; shape=doublecircle,]
+      graph [colorscheme=greens9; color=2; style=filled; label="pynchon.util"]
+      node [colorscheme="blues9"; shape=doublecircle]
       util [color=5, label="pynchon.util"]; // blue
       json [color=6, label=".json"];
       loadf [color=6, label=".loadf"];
@@ -78,28 +78,28 @@ digraph project_dependencies {
       jinja [color=6, label=".jinja"];
       {json} -> util [style="dotted"];
       {jinja} -> util [minlen=3.8, style="dotted"];
-      {util} -> cli [xlabel="publish"];
+      //{util} -> cli [xlabel="publish"];
       {loadf} ->util [style="dotted"];
       {shfmt} ->util [style="dotted"];
 
     }
 
-    subgraph default {
-      graph [colorscheme=greens9 color=3; style=filled]
+    subgraph cluster_default {
+      graph [colorscheme=greens9 color=4; style="filled"]
       node [colorscheme=purples9]
-      plugin2 [color=4 label="Plugin[]"];
-      {plugin2} -> cli [xlabel="publish"];
-      {plugin2} -> util [xlabel="invoke"];
-      {plugin2} -> zconfig [xlabel="read"];
     }
     subgraph cluster_p{
-    graph  [colorscheme=greens9 color=4;]
+    graph  [colorscheme=greens9 color=3; style=filled]
       node [colorscheme=purples9]
       dot [color=3, label="dot"];
       fixme [color=3, label="fixme"];
       src [color=3, label="src"];
       docs [color=3, label="docs"];
       {dot,fixme,src,docs} -> plugin2 [style="dotted"]
+      plugin2 [color=4 label="Plugin[]"];
+      {plugin2} -> cli [xlabel="publish"];
+      {plugin2} -> util [xlabel="invoke"];
+      {plugin2} -> zconfig [xlabel="read"];
     }
 
     {rank=min;cli;zconfig;util}
