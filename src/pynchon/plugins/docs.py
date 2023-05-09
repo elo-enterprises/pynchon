@@ -26,20 +26,24 @@ class DocsMan(models.Planner):
         #     return list(set( global_ex+my_ex))
 
     def list(self):
-        """ """
-        # config = api.project.get_config()
-        # src_root = config.pynchon['src_root']
+        """ Lists resources associated with this plugin """
         include_patterns = self.config.get('include_patterns', ["**"])
-        return files.find_globs(include_patterns)
+        return files.find_globs(
+            [abcs.Path(self.config['root'])/p for p in include_patterns])
+
+    @cli.click.group('gen')
+    def gen(self):
+        """ Generators """
 
     @cli.options.output
     @cli.options.should_print
-    def gen_version_file(self, output, should_print):
-        """creates {docs.root}/VERSION.md file"""
+    @gen.command('version-file')
+    def version_file(self, output, should_print):
+        """Creates {docs.root}/VERSION.md file"""
         raise NotImplementedError()
 
     def plan(self, config=None):
-        """ """
+        """Creates a plan for this plugin"""
         plan = super(self.__class__, self).plan(config=config)
         rsrc = self.config['root']
         plan.append(self.goal(resource=rsrc, type='mkdir', command=f'mkdir -p {rsrc}'))

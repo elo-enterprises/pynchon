@@ -149,7 +149,8 @@ class CliPlugin(PynchonPlugin):
         LOGGER.critical(
             f"{kls.__name__} acquires group@`{grp.name}` to: parent@`{parent.name}`"
         )
-        raise NotImplementedError("groups are not supported yet!")
+        return cli.click.group_merge(grp, parent)
+        # raise NotImplementedError("groups are not supported yet!")
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
     def click_acquire(kls, fxn: typing.FunctionType):  # noqa F811
@@ -172,6 +173,7 @@ class CliPlugin(PynchonPlugin):
         """ """
         from pynchon import events
         from pynchon.plugins.core import Core
+        from pynchon.util import tagging
 
         events.lifecycle.send(kls, plugin='initializing CLI')
 
@@ -185,6 +187,15 @@ class CliPlugin(PynchonPlugin):
             raise ValueError(err)
 
         cli_commands = []
+        group_names = [
+            name for name in dir(kls)
+            if name not in 'click_entry click_group'.split() and isinstance(getattr(kls,name), (cli.click.Group,))]
+
+        for group_name in group_names:
+            gr = getattr(obj, group_name)
+            cli_commands.append(gr)
+            kls.click_acquire(gr)
+
         for method_name in kls.__methods__:
             # LOGGER.info(f"  {kls.__name__}.init_cli: {method_name}")
             fxn = obj and getattr(obj, method_name, None)
@@ -193,10 +204,18 @@ class CliPlugin(PynchonPlugin):
                 LOGGER.critical(msg)
                 raise TypeError(msg)
 
-            tags = getattr(obj, 'tags', None)
-            tags = tags.get_tags(fxn) if tags is not None else {}
+            # tags = getattr(obj, 'tags', {})
+            # tags = tags.get(fxn) if tags else {}
+            tags = {}
+            if not tags and type(fxn)==typing.MethodType:
+                cfxn = getattr(fxn.__self__.__class__, fxn.__name__)
+                tags = tagging.tags.get(cfxn,{})
             click_aliases = tags.get('click_aliases', []) if tags else []
-
+            publish_to_cli = tags.get('publish_to_cli', True)
+            if not publish_to_cli:
+                continue
+            if method_name=='goal':
+                import IPython; IPython.embed()
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
                 result = fxn(*args, **kwargs)
@@ -207,13 +226,7 @@ class CliPlugin(PynchonPlugin):
                 rproto = getattr(result, '__rich__', None)
                 if rproto:
                     from pynchon.util.lme import CONSOLE
-
                     CONSOLE.print(result)
-                # try:
-                #     renderable =rproto()
-                #     # getattr(result, 'display', lambda: None)()
-                # except KeyError:
-                #     pass
                 return result
 
             commands = [kls.click_create_cmd(fxn, wrapper=wrapper, alias=None)]

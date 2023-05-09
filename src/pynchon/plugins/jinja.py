@@ -22,6 +22,7 @@ LOGGER = lme.get_logger(__name__)
 
 from pynchon.plugins import util as plugin_util
 from pynchon import cli
+from pynchon import api
 
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
@@ -69,8 +70,9 @@ class Jinja(models.Planner):
     @cli.click.option('--local', default=False, is_flag=True)
     def list_includes(self, local:bool=False, ):
         """ Lists full path of each include-file """
+        includes=self._include_folders
         if local: includes.remove(api.render.PYNCHON_CORE_INCLUDES)
-        includes = [  abcs.Path(t)/'**/*.j2' for t in self._include_folders ]
+        includes = [  abcs.Path(t)/'**/*.j2' for t in includes ]
         LOGGER.warning(includes)
         matches = files.find_globs(includes)
         return matches
@@ -78,10 +80,9 @@ class Jinja(models.Planner):
     @cli.click.option('--local', default=False, is_flag=True)
     def list_include_args(self, local:bool=False, ):
         """ Lists all usable {% include ... %} values """
-        from pynchon import api
-        inc_fs = self.list_includes(local=local)
+        includes = self.list_includes(local=local)
         out=[]
-        for fname in inc_fs:
+        for fname in includes:
             fname=abcs.Path(fname)
             for inc in self._include_folders:
                 try:
@@ -95,16 +96,13 @@ class Jinja(models.Planner):
                 pass
         return out
 
-
-
-
     def list(self, config=None):
         """Lists affected resources in this project"""
         config = config or self.project_config
         proj_conf = config.project.get("subproject", config.project)
         project_root = proj_conf.get("root", config.git["root"])
         search = [
-            abcs.Path(project_root).joinpath("**/*"),
+            abcs.Path(project_root).joinpath("**/*.j2"),
         ]
         self.logger.debug(f"search pattern is {search}")
         result = files.find_globs(search)

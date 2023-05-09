@@ -25,6 +25,7 @@ class AbstractPlanner(BasePlugin):
 
     cli_label = 'Planner'
 
+    @tags(publish_to_cli=False)
     def goal(self, **kwargs):
         """ """
         return planning.Goal(

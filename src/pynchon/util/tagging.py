@@ -85,7 +85,7 @@ GLOBAL_TAG_REGISTRY = defaultdict(dict)
 
 
 class tagsM:
-    GLOBAL_TAG_REGISTRY.__iter__
+    __iter__ = GLOBAL_TAG_REGISTRY.__iter__
 
     def __call__(self, **tags):
         def decorator(func: typing.Callable) -> typing.Callable:
