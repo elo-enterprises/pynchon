@@ -1,19 +1,8 @@
 """ pynchon.util
 """
-import os
 import sys
-
-# import glob
 from pynchon import constants
-
 from . import lme
-
-# from .os import invoke
-
-# import functools
-
-# import tomli as tomllib  # tomllib only available in py3.11
-
 
 LOGGER = lme.get_logger(__name__)
 
@@ -35,14 +24,15 @@ def get_root(path: str = ".") -> str:
 
 def is_python_project() -> bool:
     """ """
+    import os
     from pynchon.api import git
-
     return os.path.exists(os.path.join(git.get_root(), constants.PYNCHON_CONFIG_FILE))
 
 
 def find_src_root(config: dict) -> str:
     """ """
     from pynchon.abcs import Path
+    import os
 
     pconf = config.get("project", {})
     LOGGER.debug(f"project config: {pconf}")

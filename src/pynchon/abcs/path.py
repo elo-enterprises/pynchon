@@ -12,6 +12,11 @@ LOGGER = lme.get_logger(__name__)
 
 class Path(typing.PathType):
     """ """
+    def endswith(self,other) -> bool:
+        return str(self).endswith(other)
+
+    def startswith(self,other) -> bool:
+        return str(self).startswith(other)
 
     def path_truncated(self):
         """ """

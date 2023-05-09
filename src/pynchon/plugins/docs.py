@@ -47,29 +47,60 @@ class DocsMan(models.Planner):
     @property
     def serving(self):
         """ """
-        return False
+        return bool(self._get_grip())
 
-    @cli.click.options('--background', is_flag=True, default=True)
-    def serve(self, background: bool = True):
+    def _get_grips(self):
+        import psutil
+        import sys
+        this_env = abcs.Path(sys.argv[0]).parents[0]
+        grip=this_env/'grip'
+        procs = [psutil.Process(p) for p in psutil.pids()]
+        grips = [p for p in procs if p.name()=='grip']
+        return grips
+
+    def _get_grip(self):
+        """
+        """
+        tmp = [g for g in self._get_grips() if self._this_grip(g)]
+        if tmp:
+            return tmp[0]
+
+    def _this_grip(self, g) -> bool:
+        """
+        """
+        return g.cwd() == str(abcs.Path('.').absolute())
+
+    @cli.click.option('--background', is_flag=True, default=True)
+    def serve(self, background: bool = True, logfile='.tmp.grip.log'):
         """Runs a grip server with the global pidfile"""
-        tmp = self.config['pidfile_grip']
-        # proc = subprocess.Popen(['grip&'], close_fds=True)
-        proc = invoke('grip&', close_fds=True)
-        proc.pid
+        grips = self._get_grips()
+        if grips:
+            LOGGER.warning(f"{len(grips)} copies of grip are already started")
+            for p in grips:
+                # p.cmdline()
+                if self._this_grip(p):
+                    LOGGER.warning(f"grip @ {p.pid} uses the current working-dir")
+                    p.kill()
+        proc = invoke(f'grip >> {logfile} 2>&1 &', system=True)
+        return {}
 
-    def _open_md(self):
+    def _open_md(self, file:str=None):
         """ """
+        import webbrowser
         if not self.serving:
             self.serve()
-        import webbrowser
+        g = self._get_grip()
+        port = g.connections()[0].laddr.port
+        webbrowser.open(f'http://localhost:{port}/{file}')
 
-        webbrowser.open(...)
-
-    def open(self, fname):
+    @cli.click.argument('file',)
+    def open(self, file):
         """Open a docs-artifact (based on file type)"""
-        raise NotImplementedError()
-        if fname.endswith('.md'):
-            self._open_md()
+        file=abcs.Path(file)
+        if not file.exists():
+            raise ValueError(f'File @ `{file}` does not exist')
+        if file.endswith('.md'):
+            self._open_md(file)
 
     def plan(self, config=None):
         """Creates a plan for this plugin"""

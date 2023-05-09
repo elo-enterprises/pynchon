@@ -5,7 +5,7 @@ from memoized_property import memoized_property
 from pynchon import models, abcs
 from pynchon.abcs import Path
 from pynchon.util import lme, typing, files
-from pynchon.util.os import invoke
+from pynchon.util import os
 
 LOGGER = lme.get_logger(__name__)
 
@@ -17,7 +17,7 @@ class GitConfig(abcs.Config):
 
     def _run(self, cmd, log_command=False, **kwargs):
         """ """
-        return invoke(f"cd {self.root} && {cmd}", log_command=log_command, **kwargs)
+        return os.invoke(f"cd {self.root} && {cmd}", log_command=log_command, **kwargs)
 
     @memoized_property
     def default_remote_branch(self) -> typing.StringMaybe:
@@ -35,7 +35,7 @@ class GitConfig(abcs.Config):
     @memoized_property
     def repo(self) -> typing.StringMaybe:
         """ """
-        cmd = invoke(
+        cmd = os.invoke(
             f"cd {self.root} && git config --get remote.origin.url", log_command=False
         )
         return cmd.stdout.strip() if cmd.succeeded else None
