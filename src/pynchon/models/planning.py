@@ -22,7 +22,9 @@ class Goal(typing.NamedTuple, metaclass=meta.namespace):
 
     def __rich__(self) -> str:
         from rich.text import Text
+        from rich.emoji import Emoji
         from rich.panel import Panel
+        from rich.style import Style
         from rich.syntax import Syntax
         from rich.console import Console
 
@@ -31,21 +33,21 @@ class Goal(typing.NamedTuple, metaclass=meta.namespace):
         fmt = shfmt.bash_fmt(self.command)
         return Panel(
             Syntax(
-                f"# {self.command}\n\n{fmt}", 'bash', line_numbers=True, word_wrap=True
+                f"# {self.command}\n\n{fmt}", 'bash', line_numbers=False, word_wrap=True
             ),
             # title=__name__,
             # title=f'[dim italic yellow]{self.type}',
             # title=f'[bold cyan on black]{self.type}',
-            title=Text(self.type, style='bold bright_green'),
+            title=Text(self.type, style='dim bold'),
             title_align='left',
-            subtitle=Text(f'({self.owner})', style='dim ochre'),
+            style=Style(
+                dim=True,
+                # color='green',
+                bgcolor='black',
+                frame=False,
+            ),
+            subtitle=Text(f'{self.owner}', style='dim italic'),
         )
-
-        # pretty = shfmt.bash_fmt(self.command)
-        # console = kwargs.pop('console', None) or Console(stderr=True)
-        # result = bash_fmt(*args, **kwargs)
-        # syntax = Syntax(pretty, 'bash', line_numbers=True)
-        # return syntax
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{self.resource}]>"
@@ -78,26 +80,40 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         from rich.console import Console
         from rich.markdown import Markdown
 
-        table = Table(
-            # title=,
+        table = Table.grid(
+            # title=f'{__name__} ({len(self)} items)',
+            # subtitle='...',
             # box=box.MINIMAL_DOUBLE_HEAD,
             expand=True,
             # border_style='dim italic yellow'
-            border_style='bold dim',
-        )
-        # table.add_column("idx", justify="left", style="bold magenta", no_wrap=True)
-        table.add_column(
-            f'{__name__}',
-            justify="left",
-            # style="green",
-            style=Style.parse("dim italic"),
-            no_wrap=True,
+            # border_style='bold dim',
         )
         [
-            [table.add_row(x), table.add_row(Align(Emoji("gear"), align='center'))]
+            [
+                table.add_row(x),
+                # table.add_row(Align(Emoji("gear"), align='center')),
+            ]
             for i, x in enumerate(syntaxes)
         ]
-        return table
+        from rich.text import Text
+        from rich.panel import Panel
+
+        panel = Panel(
+            table,
+            title=Text(f'{__name__}', justify='left', style='italic'),
+            title_align='left',
+            padding=1,
+            style=Style(
+                dim=True,
+                # color='green',
+                bgcolor='black',
+                frame=False,
+            ),
+            subtitle=f'(Planned {len(self)} items)'  # subtitle=Text("✔", style='green')
+            # if True
+            # else Text('❌', style='red'),
+        )
+        return panel
 
     def __init__(self, *args):
         """ """

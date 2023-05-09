@@ -121,12 +121,13 @@ class Core(models.Planner):
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
         plugins = self.active_plugins
-        plugins = [p for p in plugins if isinstance(p, models.AbstractPlanner)]
+        plugins = [
+            p
+            for p in plugins
+            if isinstance(p, models.AbstractPlanner) and p.contribute_plan_apply
+        ]
         self.logger.critical(f"Planning on behalf of: {[p.name for p in plugins]}")
         for plugin_obj in plugins:
-            if not plugin_obj.contribute_plan_apply:
-                continue
-            self.logger.critical("=" * 20 + plugin_obj.name)
             subplan = plugin_obj.plan()
             if not subplan:
                 self.logger.warning(f'subplan for {plugin_obj} is empty!')
