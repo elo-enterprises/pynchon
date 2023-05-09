@@ -22,34 +22,6 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     system: bool = False
     load_json: bool = False
 
-    def __enter__(self, *args, **kwargs):
-        msg = "running command: (system={})\n\t{}".format(self.system, self.cmd)
-        self.log_command and LOGGER.warning(msg)
-        from rich.panel import Panel
-
-        panel = Panel(
-            self,
-            title=__name__,
-            # subtitle="Thank you"
-        )
-        self.log_command and lme.CONSOLE.print(panel)
-
-    def __exit__(self, *args, **kwargs):
-        pass
-
-    def __rich__(self):
-        from rich.syntax import Syntax
-
-        from pynchon.util import shfmt
-
-        if self.log_command:
-            # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
-            fmt = shfmt.bash_fmt(self.cmd)
-            return Syntax(
-                f"# {self.cmd}\n\n{fmt}", 'bash', line_numbers=True, word_wrap=True
-            )
-            # return Syntax(self.cmd, 'bash', word_wrap=True)
-
     def __call__(self):
         if self.system:
             assert not self.stdin and not self.interactive
@@ -113,7 +85,21 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             import json
 
             exec_cmd.json = json.loads(exec_cmd.stdout)
-        return exec_cmd
+        # return exec_cmd
+        return InvocationResult(
+            **{
+                **self._dict,
+                **dict(
+                    failed=exec_cmd.failed,
+                    failure=exec_cmd.failure,
+                    success=exec_cmd.success,
+                    succeeded=exec_cmd.succeeded,
+                    stdout=exec_cmd.stdout,
+                    stderr=exec_cmd.stderr,
+                    json=self.load_json and exec_cmd.json,
+                ),
+            }
+        )
 
 
 class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
@@ -132,6 +118,34 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
     succeeded: bool = None
     success: bool = None
     stdout: str = ""
+    stderr: str = ""
+
+    def __rich__(self):
+        from rich.syntax import Syntax
+
+        from pynchon.util import shfmt
+
+        if self.log_command:
+            # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
+            msg = "running command: (system={})\n\t{}".format(self.system, self.cmd)
+            # self.log_command and LOGGER.warning(msg)
+
+            fmt = shfmt.bash_fmt(self.cmd)
+            syntax = Syntax(
+                f"# {self.cmd}\n\n{fmt}", 'bash', line_numbers=True, word_wrap=True
+            )
+            # return Syntax(self.cmd, 'bash', word_wrap=True)
+            from rich.text import Text
+            from rich.panel import Panel
+
+            panel = Panel(
+                syntax,
+                title=__name__,
+                subtitle=Text("✔", style='green')
+                if self.success
+                else Text('❌', style='red'),
+            )
+            lme.CONSOLE.print(panel)
 
 
 def invoke(cmd: str, **kwargs):
@@ -140,7 +154,6 @@ def invoke(cmd: str, **kwargs):
     which fixes problems with subprocess.POpen and os.system.
     """
     invoc = Invocation(cmd=cmd, **kwargs)
-    with invoc:
-        pass
     result = invoc()
+    result.__rich__()
     return result
