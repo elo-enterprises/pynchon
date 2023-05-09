@@ -3,16 +3,18 @@
 // See also the docs here: https://graphviz.org/doc/info/lang.html
 ////
 digraph project_dependencies {
+    compound=true
+
     // Graph & cluster attributes
     graph [
         margin = 1
         //layout=circo
-        layout=neato
-        mode=hier
+        layout=dot
+        //mode=hier
         //ratio="fill"; size="4,3!";
         ratio=.7;
         compound = true // allows edges between clusters
-        fillcolor = white
+        //fillcolor = white
         fontname = verdana
         fontsize = 10
         labeljust = l // aligns label to the left
@@ -20,18 +22,19 @@ digraph project_dependencies {
         newrank = true
         nodesep = .25 // separation between nodes in inches (default is 0.25
         overlap = false // prism is also interesting
-        rankdir = LR // LR (left-to-right) or TB (top-to-bottom)
-        ranksep = 0.5 // separation between ranks in inches (default is 0.5)
+        rankdir = TB // LR (left-to-right) or TB (top-to-bottom)
+        ranksep = 1.5 // separation between ranks in inches (default is 0.5)
         ratio = auto // aspect ratio. diagram is tighter when it is declared
         shape = box
         splines = true // uses curved lines to avoid nodes
-        style = "filled"
+        #style = "filled"
     ]
+
+
 
 
     // Node attributes
     node [
-        colorscheme=oranges9
         fontname = verdana
         fontsize = 10
         margin = "0.1, 0.05"
@@ -50,19 +53,38 @@ digraph project_dependencies {
             <tr><td></td></tr>
         </table>
     >
+    subgraph iface {
+      graph [label="iface";]
+      node [shape=doublecircle colorscheme="oranges9"]
+      zconfig [color=4, label="Config"];
+      cli [color=5, label="Pynchon CLI"];
+      {plugin2} -> zconfig [xlabel="read"];
 
-    // Main graph Node declarations
-    plugin2 [color=4 label="Plugin[]"]; // green
-    zconfig [shape=doublecircle,color=2,label="Config"]; // blue
-    cli [shape=doublecircle, color=3, label="CLI"]; // blue
-    util [shape=doublecircle, fillcolor="#56B4E9", label="pynchon.util"]; // blue
+    }
 
-    // Main graph linkages
-    {plugin2} -> zconfig [xlabel="read"];
+    subgraph api {
+      graph [color=lightgrey; style=filled; label="util"; ]
+      node [colorscheme="blues9"; shape=doublecircle,]
+      util [color=5, label="pynchon.util"]; // blue
+      json [color=6, label=".json"];
+      loadf [color=6, label=".loadf"];
+      jinja [color=6, label=".jinja"];
+      {json} -> util [style="dotted"];
+      {jinja} -> util [len=3.8, style="dotted"];
+      {util} -> cli [xlabel="publish"];
+      {loadf} ->util [style="dotted"];
 
-    {plugin2} -> cli [xlabel="publish"];
-    {plugin2} -> util [xlabel="invoke"];
-    {util} -> cli [xlabel="publish"];
+    }
 
+    subgraph default {
+      graph []
+      plugin2 [color=4 colorscheme=purples9 color=4 label="Plugin[]"]; // green
+      {plugin2} -> cli [xlabel="publish"];
+      {plugin2} -> util [xlabel="invoke"];
+
+    }
+    { rank=min;cli;zconfig;util}
+    {rank=same;json;jinja;loadf;}
+    {rank=max;plugin2;}
 
 }
