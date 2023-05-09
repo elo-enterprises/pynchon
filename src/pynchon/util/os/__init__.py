@@ -2,13 +2,14 @@
 """
 import os
 import subprocess
-from collections import namedtuple
 
 from . import lme
 
 LOGGER = lme.get_logger(__name__)
 
 from pynchon.fleks import meta
+
+# from . import models
 
 
 class Invocation(meta.NamedTuple, metaclass=meta.namespace):
@@ -54,8 +55,8 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             exec_kwargs.update(
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
-            exec_cmd = subprocess.Popen(cmd, **exec_kwargs)
-            exec_cmd.stdin.write(stdin.encode("utf-8"))
+            exec_cmd = subprocess.Popen(self.cmd, **exec_kwargs)
+            exec_cmd.stdin.write(self.stdin.encode("utf-8"))
             exec_cmd.stdin.close()
             exec_cmd.wait()
         else:

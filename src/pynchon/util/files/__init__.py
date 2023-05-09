@@ -6,9 +6,9 @@ import difflib
 import functools
 
 from pynchon import abcs, cli
-from pynchon.cli import click, options
 from pynchon.util.os import invoke
-from pynchon.util.tagging import tags
+
+# from pynchon.util.tagging import tags
 
 from pynchon.util import lme, typing  # noqa
 
@@ -159,10 +159,6 @@ def find_globs(
         if m not in includes:
             result.append(abcs.Path(m))
     return result
-
-
-from pynchon import abcs
-from pynchon.util.os import invoke
 
 
 def ansible_docker(

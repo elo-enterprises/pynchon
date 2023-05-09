@@ -86,7 +86,7 @@ class Dot(models.Planner):
     def render(
         self,
         img: str = '??',
-        open_after:bool=True,
+        open_after: bool = True,
         file: str = '',
         in_place: bool = True,
         output_mode: str = "png",
@@ -100,6 +100,7 @@ class Dot(models.Planner):
         assert result.succeeded
         if open_after:
             import webbrowser
+
             tmp = abcs.Path(output).absolute()
             webbrowser.open(f'file://{tmp}', new=2)
         return result.succeeded
@@ -111,7 +112,9 @@ class Dot(models.Planner):
         config = config or api.project.get_config()
         plan = super(self.__class__, self).plan(config)
         self.logger.debug("planning for rendering for .dot graph files..")
-        cmd_t = "pynchon dot render {resource} --open-after --in-place --output-mode png"
+        cmd_t = (
+            "pynchon dot render {resource} --open-after --in-place --output-mode png"
+        )
         for resource in self.list(config):
             plan.append(
                 self.goal(

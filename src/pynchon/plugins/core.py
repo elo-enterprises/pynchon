@@ -49,7 +49,7 @@ class Core(models.Planner):
         Bootstrap for shell integration, etc
         """
         pynchon_completions_script = '.tmp.pynchon.completions.sh'
-        bashrc_snippet = f'.tmp.pynchon.bashrc'
+        bashrc_snippet = '.tmp.pynchon.bashrc'
 
         if bash:
             import collections

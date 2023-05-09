@@ -41,25 +41,21 @@ pipeline_command =
 
 bash_command = pipeline_command;
 """
-import json
-
 import tatsu
-from tatsu.util import asjson
-from tatsu.contexts import closure
 
 src = tatsu.to_python_sourcecode(__doc__)
 src = src[: src.rfind('''def main(filename, **kwargs)''')]
 exec(src)
 
-
-def main(text=None, filename=None, **kwargs):
-    if not text:
-        if not filename or filename == '-':
-            text = sys.stdin.read()
-        else:
-            with open(filename) as f:
-                text = f.read()
-    parser = bashParser()
-    return parser.parse(
-        text, parseinfo=True, filename=filename, semantics=semantics, **kwargs
-    )
+#
+# def main(text=None, filename=None, **kwargs):
+#     if not text:
+#         if not filename or filename == '-':
+#             text = sys.stdin.read()
+#         else:
+#             with open(filename) as f:
+#                 text = f.read()
+#     parser = bashParser()
+#     return parser.parse(
+#         text, parseinfo=True, filename=filename, semantics=semantics, **kwargs
+#     )

@@ -1,7 +1,7 @@
 import typing
 import collections
 
-from pynchon import abcs
+from pynchon import app
 from pynchon.fleks import meta
 
 # from pynchon.fleks.plugin import Plugin as AbstractPlugin
@@ -21,32 +21,25 @@ class Goal(typing.NamedTuple, metaclass=meta.namespace):
     owner: str = '?o'
 
     def __rich__(self) -> str:
-        from rich.text import Text
-        from rich.emoji import Emoji
-        from rich.panel import Panel
-        from rich.style import Style
-        from rich.syntax import Syntax
-        from rich.console import Console
-
         from pynchon.util import shfmt
 
         fmt = shfmt.bash_fmt(self.command)
-        return Panel(
-            Syntax(
+        return app.Panel(
+            app.Syntax(
                 f"# {self.command}\n\n{fmt}", 'bash', line_numbers=False, word_wrap=True
             ),
             # title=__name__,
             # title=f'[dim italic yellow]{self.type}',
             # title=f'[bold cyan on black]{self.type}',
-            title=Text(self.type, style='dim bold'),
+            title=app.Text(self.type, style='dim bold'),
             title_align='left',
-            style=Style(
+            style=app.Style(
                 dim=True,
                 # color='green',
                 bgcolor='black',
                 frame=False,
             ),
-            subtitle=Text(f'{self.owner}', style='dim italic'),
+            subtitle=app.Text(f'{self.owner}', style='dim italic'),
         )
 
     def __str__(self):
@@ -70,17 +63,8 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
     def __rich__(self) -> str:
         syntaxes = [g.__rich__() for g in self]
-        from rich import box
-        from rich.text import Text
-        from rich.align import Align
-        from rich.emoji import Emoji
-        from rich.style import Style
-        from rich.table import Table
-        from rich.syntax import Syntax
-        from rich.console import Console
-        from rich.markdown import Markdown
 
-        table = Table.grid(
+        table = app.Table.grid(
             # title=f'{__name__} ({len(self)} items)',
             # subtitle='...',
             # box=box.MINIMAL_DOUBLE_HEAD,
@@ -90,20 +74,18 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         )
         [
             [
-                table.add_row(x),
+                app.table.add_row(x),
                 # table.add_row(Align(Emoji("gear"), align='center')),
             ]
             for i, x in enumerate(syntaxes)
         ]
-        from rich.text import Text
-        from rich.panel import Panel
 
-        panel = Panel(
+        panel = app.Panel(
             table,
-            title=Text(f'{__name__}', justify='left', style='italic'),
+            title=app.Text(f'{__name__}', justify='left', style='italic'),
             title_align='left',
             padding=1,
-            style=Style(
+            style=app.Style(
                 dim=True,
                 # color='green',
                 bgcolor='black',

@@ -1,8 +1,5 @@
 """ pynchon.util.shfmt.__main__
 """
-import sys
-import json
-
 from rich.syntax import Syntax
 
 from pynchon import cli

@@ -1,9 +1,7 @@
 """ {{pkg}}.abcs.namespace
 """
 
-import typing
-
-# import collections
+import typing  # noqa
 
 
 class Namespace:

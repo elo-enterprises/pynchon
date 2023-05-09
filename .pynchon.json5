@@ -58,6 +58,7 @@
   },
   "docs": {
     "root": "{{pynchon.root}}/docs",
+    "pidfile_grip": "/tmp/grip.pid",
   },
 
   // Tests plugin customization.

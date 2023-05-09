@@ -20,9 +20,9 @@ LOGGER = lme.get_logger(__name__)
 #         extra = []
 #     return extra + self._base.get("template_includes", [])
 
+from pynchon import cli, api
 from pynchon.plugins import util as plugin_util
-from pynchon import cli
-from pynchon import api
+
 
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
@@ -55,7 +55,7 @@ class Jinja(models.Planner):
 
     def _get_jinja_context(self, config):
         """ """
-        fname = f".tmp.jinja.ctx.json"
+        fname = ".tmp.jinja.ctx.json"
         with open(fname, 'w') as fhandle:
             fhandle.write(text.to_json(config))
         return f"{fname}"
@@ -64,26 +64,34 @@ class Jinja(models.Planner):
     def _include_folders(self):
         includes = self.project_config.jinja['template_includes']
         from pynchon import api
+
         includes = api.render.get_jinja_includes(*includes)
         return includes
 
     @cli.click.option('--local', default=False, is_flag=True)
-    def list_includes(self, local:bool=False, ):
-        """ Lists full path of each include-file """
-        includes=self._include_folders
-        if local: includes.remove(api.render.PYNCHON_CORE_INCLUDES)
-        includes = [  abcs.Path(t)/'**/*.j2' for t in includes ]
+    def list_includes(
+        self,
+        local: bool = False,
+    ):
+        """Lists full path of each include-file"""
+        includes = self._include_folders
+        if local:
+            includes.remove(api.render.PYNCHON_CORE_INCLUDES)
+        includes = [abcs.Path(t) / '**/*.j2' for t in includes]
         LOGGER.warning(includes)
         matches = files.find_globs(includes)
         return matches
 
     @cli.click.option('--local', default=False, is_flag=True)
-    def list_include_args(self, local:bool=False, ):
-        """ Lists all usable {% include ... %} values """
+    def list_include_args(
+        self,
+        local: bool = False,
+    ):
+        """Lists all usable {% include ... %} values"""
         includes = self.list_includes(local=local)
-        out=[]
+        out = []
         for fname in includes:
-            fname=abcs.Path(fname)
+            fname = abcs.Path(fname)
             for inc in self._include_folders:
                 try:
                     fname = fname.relative_to(inc)
@@ -142,8 +150,7 @@ class Jinja(models.Planner):
                     type='render',
                     resource=rsrc,
                     command=self.COMMAND_TEMPLATE.format(
-                        resource=rsrc, context_file=jctx,
-                        template_args=templates
+                        resource=rsrc, context_file=jctx, template_args=templates
                     ),
                 )
             )

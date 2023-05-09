@@ -4,7 +4,7 @@ pynchon: a utility for docs generation and template-rendering
 import collections
 from gettext import gettext as _
 
-from pynchon import fleks, abcs, cli, shimport
+from pynchon import fleks, cli, shimport
 
 from pynchon.util import lme, typing  # noqa
 

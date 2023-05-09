@@ -50,12 +50,17 @@ def get_jinja_globals():
         env=os.getenv,
     )
 
-PYNCHON_CORE_INCLUDES = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
+
+PYNCHON_CORE_INCLUDES = (
+    abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
+)
+
 
 def get_jinja_includes(*includes):
     includes = list(includes)
     includes.append(PYNCHON_CORE_INCLUDES)
     return [abcs.Path(t) for t in includes]
+
 
 @functools.lru_cache(maxsize=None)
 def get_jinja_env(*includes, quiet: bool = False):

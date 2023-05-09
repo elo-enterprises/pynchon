@@ -3,6 +3,7 @@
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
 from pynchon.util import files
+from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
@@ -26,14 +27,15 @@ class DocsMan(models.Planner):
         #     return list(set( global_ex+my_ex))
 
     def list(self):
-        """ Lists resources associated with this plugin """
+        """Lists resources associated with this plugin"""
         include_patterns = self.config.get('include_patterns', ["**"])
         return files.find_globs(
-            [abcs.Path(self.config['root'])/p for p in include_patterns])
+            [abcs.Path(self.config['root']) / p for p in include_patterns]
+        )
 
     @cli.click.group('gen')
     def gen(self):
-        """ Generators """
+        """Generator subcommands"""
 
     @cli.options.output
     @cli.options.should_print
@@ -41,6 +43,33 @@ class DocsMan(models.Planner):
     def version_file(self, output, should_print):
         """Creates {docs.root}/VERSION.md file"""
         raise NotImplementedError()
+
+    @property
+    def serving(self):
+        """ """
+        return False
+
+    @cli.click.options('--background', is_flag=True, default=True)
+    def serve(self, background: bool = True):
+        """Runs a grip server with the global pidfile"""
+        tmp = self.config['pidfile_grip']
+        # proc = subprocess.Popen(['grip&'], close_fds=True)
+        proc = invoke('grip&', close_fds=True)
+        proc.pid
+
+    def _open_md(self):
+        """ """
+        if not self.serving:
+            self.serve()
+        import webbrowser
+
+        webbrowser.open(...)
+
+    def open(self, fname):
+        """Open a docs-artifact (based on file type)"""
+        raise NotImplementedError()
+        if fname.endswith('.md'):
+            self._open_md()
 
     def plan(self, config=None):
         """Creates a plan for this plugin"""

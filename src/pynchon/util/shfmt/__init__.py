@@ -3,7 +3,7 @@
 import tatsu
 from tatsu.contexts import closure
 
-from .grammar import generic_main, asjson, main, bashParser
+from .grammar import bashParser
 
 
 class Semantics:
@@ -17,10 +17,6 @@ class Semantics:
         self.record = []
         self._joiner = None
         self.indention = '  '
-
-    @property
-    def _indent(self):
-        return f'  '
 
     @property
     def _pre(self):

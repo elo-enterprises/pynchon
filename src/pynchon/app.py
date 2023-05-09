@@ -5,12 +5,23 @@ import sys
 import atexit
 
 import enlighten
-from rich.text import Text
-from rich.console import Console, Theme
 from memoized_property import memoized_property
 
 from pynchon import events
 from pynchon.util import lme
+
+from rich.text import Text  # noqa
+from rich.console import Console, Theme  # noqa
+from rich.emoji import Emoji  # noqa
+from rich.console import Console  # noqa
+from rich.align import Align  # noqa
+from rich.emoji import Emoji  # noqa
+from rich.syntax import Syntax  # noqa
+from rich.console import Console  # noqa
+from rich.markdown import Markdown  # noqa
+from rich.panel import Panel  # noqa
+from rich.style import Style  # noqa
+from rich.table import Table  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
