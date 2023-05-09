@@ -1,5 +1,6 @@
 """ pynchon.util.shfmt
 """
+import tatsu
 from tatsu.contexts import closure
 
 from .grammar import generic_main, asjson, main, bashParser
@@ -101,12 +102,15 @@ class Semantics:
 def fmt(text, filename='?'):
     semantics = Semantics()
     parser = bashParser()
-    return parser.parse(
-        text,
-        parseinfo=True,
-        filename=filename,
-        semantics=semantics,
-    )
+    try:
+        return parser.parse(
+            text,
+            parseinfo=True,
+            filename=filename,
+            semantics=semantics,
+        )
+    except (tatsu.exceptions.FailedParse,):
+        return text
 
 
 bash_fmt = fmt

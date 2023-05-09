@@ -81,10 +81,12 @@ class Dot(models.Planner):
     @cli.options.output
     @cli.click.option('--img', default="nshine/dot")
     @cli.click.option('--output-mode')
+    @cli.click.option('--open-after', default=True, is_flag=True)
     @cli.click.argument("file", nargs=1)
     def render(
         self,
         img: str = '??',
+        open_after:bool=True,
         file: str = '',
         in_place: bool = True,
         output_mode: str = "png",
@@ -94,7 +96,13 @@ class Dot(models.Planner):
             assert not output
             output = os.path.splitext(file)[0] + ".png"
         cmd = f"cat {file} | docker run --rm --entrypoint dot -i {img} -T{output_mode} > {output}"
-        return invoke(cmd, system=True).succeeded
+        result = invoke(cmd, system=True)
+        assert result.succeeded
+        if open_after:
+            import webbrowser
+            tmp = abcs.Path(output).absolute()
+            webbrowser.open(f'file://{tmp}', new=2)
+        return result.succeeded
 
     def plan(
         self,
@@ -103,7 +111,7 @@ class Dot(models.Planner):
         config = config or api.project.get_config()
         plan = super(self.__class__, self).plan(config)
         self.logger.debug("planning for rendering for .dot graph files..")
-        cmd_t = "pynchon dot render {resource} --in-place --output-mode png"
+        cmd_t = "pynchon dot render {resource} --open-after --in-place --output-mode png"
         for resource in self.list(config):
             plan.append(
                 self.goal(

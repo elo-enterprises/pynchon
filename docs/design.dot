@@ -1,0 +1,68 @@
+////
+// This is a dot-file that contains the spec for a labeled digraph.
+// See also the docs here: https://graphviz.org/doc/info/lang.html
+////
+digraph project_dependencies {
+    // Graph & cluster attributes
+    graph [
+        margin = 1
+        //layout=circo
+        layout=neato
+        mode=hier
+        //ratio="fill"; size="4,3!";
+        ratio=.7;
+        compound = true // allows edges between clusters
+        fillcolor = white
+        fontname = verdana
+        fontsize = 10
+        labeljust = l // aligns label to the left
+        labelloc = t // puts label at top of diagram
+        newrank = true
+        nodesep = .25 // separation between nodes in inches (default is 0.25
+        overlap = false // prism is also interesting
+        rankdir = LR // LR (left-to-right) or TB (top-to-bottom)
+        ranksep = 0.5 // separation between ranks in inches (default is 0.5)
+        ratio = auto // aspect ratio. diagram is tighter when it is declared
+        shape = box
+        splines = true // uses curved lines to avoid nodes
+        style = "filled"
+    ]
+
+
+    // Node attributes
+    node [
+        colorscheme=oranges9
+        fontname = verdana
+        fontsize = 10
+        margin = "0.1, 0.05"
+        shape = box
+        style = "filled, rounded"
+    ]
+
+    // Edge attributes
+    edge [ style=bold; fontname="Arial"; len=3.2; weight=.5; arrowsize = 0.9; color=black; penwidth = 0.9 ]
+    label = <
+        <table border="0" cellborder="0" cellspacing="0">
+            <tr><td align="left"><b>Project Dependencies, Artifacts, Deployments</b></td></tr>
+            <tr><td align="left">Key: Yellow⇒3rd party libs; Green⇒Our libs; Red⇒External Services</td></tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+            <tr><td></td></tr>
+        </table>
+    >
+
+    // Main graph Node declarations
+    plugin2 [color=4 label="Plugin[]"]; // green
+    zconfig [shape=doublecircle,color=2,label="Config"]; // blue
+    cli [shape=doublecircle, color=3, label="CLI"]; // blue
+    util [shape=doublecircle, fillcolor="#56B4E9", label="pynchon.util"]; // blue
+
+    // Main graph linkages
+    {plugin2} -> zconfig [xlabel="read"];
+
+    {plugin2} -> cli [xlabel="publish"];
+    {plugin2} -> util [xlabel="invoke"];
+    {util} -> cli [xlabel="publish"];
+
+
+}
