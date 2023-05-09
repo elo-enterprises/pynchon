@@ -50,16 +50,18 @@ def get_jinja_globals():
         env=os.getenv,
     )
 
+PYNCHON_CORE_INCLUDES = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
+
+def get_jinja_includes(*includes):
+    includes = list(includes)
+    includes.append(PYNCHON_CORE_INCLUDES)
+    return [abcs.Path(t) for t in includes]
 
 @functools.lru_cache(maxsize=None)
 def get_jinja_env(*includes, quiet: bool = False):
     """ """
     events.lifecycle.send(__name__, msg='finalizing jinja-Env')
-    includes = list(includes)
-    ptemp = abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
-    includes += [ptemp]
-    includes = [abcs.Path(t) for t in includes]
-
+    includes = get_jinja_includes(*includes)
     for template_dir in includes:
         if not template_dir.exists:
             err = f"template directory @ `{template_dir}` does not exist"

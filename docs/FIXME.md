@@ -13,7 +13,7 @@
 * [src/pynchon/util/text/render/__init__.py:176](#): `# FIXME: is this smart?`
 * [src/pynchon/util/lme.py:81](#): `# FIXME: get this from some kind of global config`
 * [src/pynchon/util/files/__init__.py:47](#): `# FIXME: use rich.syntax`
-* [src/pynchon/util/os.py:55](#): `# FIXME: subclass namedtuple here`
+* [src/pynchon/util/os.py:29](#): `# FIXME: subclass namedtuple here`
 * [src/pynchon/constants.py:7](#): `# FIXME: docs`
 * [src/pynchon/constants.py:32](#): `# # FIXME: reuse parallel jinja env/template stuff in pynchon.util.text.render`
 * [src/pynchon/config/util.py:89](#): `# FIXME: handle sub`
