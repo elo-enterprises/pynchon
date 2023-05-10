@@ -44,7 +44,9 @@ class Jinja(models.Planner):
     class config_class(abcs.Config):
 
         config_key = "jinja"
-        defaults = dict(template_includes=[])
+        defaults = dict(
+            template_includes=[],
+            )
 
         @tagging.tagged_property(conflict_strategy='override')
         def exclude_patterns(self):
@@ -53,11 +55,11 @@ class Jinja(models.Planner):
             my_ex = self.get('exclude_patterns', [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
-    def _get_jinja_context(self, config):
+    def _get_jinja_context(self):
         """ """
         fname = ".tmp.jinja.ctx.json"
         with open(fname, 'w') as fhandle:
-            fhandle.write(text.to_json(config))
+            fhandle.write(text.to_json(self.config))
         return f"{fname}"
 
     @property
@@ -104,18 +106,19 @@ class Jinja(models.Planner):
                 pass
         return out
 
-    def list(self, config=None):
+    def list(self, changes=False):
         """Lists affected resources in this project"""
-        config = config or self.project_config
-        proj_conf = config.project.get("subproject", config.project)
-        project_root = proj_conf.get("root", config.git["root"])
-        search = [
+        default=self[:'project']
+        proj_conf = self[:'project.subproject':default]
+        default=self[:'git.root']
+        project_root = proj_conf.get("root", default)
+        globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]
-        self.logger.debug(f"search pattern is {search}")
-        result = files.find_globs(search)
+        self.logger.debug(f"search patterns are {globs}")
+        result = files.find_globs(globs)
         self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
-        excludes = self.config['exclude_patterns']
+        excludes = self['exclude_patterns']
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} j2 files (post-filter)")
@@ -130,18 +133,18 @@ class Jinja(models.Planner):
     ) -> typing.List:
         """Creates a plan for this plugin"""
 
-        def _get_template_args(config):
+        def _get_template_args():
             """ """
-            templates = config.jinja['template_includes']
+            templates = self['template_includes']
             templates = [t for t in templates]
             templates = [f"--include {t}" for t in templates]
             templates = " ".join(templates)
             return templates
 
-        config = config or project.get_config()
-        plan = super(self.__class__, self).plan(config)
-        jctx = self._get_jinja_context(config)
-        templates = _get_template_args(config)
+
+        plan = super(self.__class__, self).plan()
+        jctx = self._get_jinja_context()
+        templates = _get_template_args()
         # self.logger.info("using `templates` argument(s):")
         # self.logger.info(f"  {templates}")
         for rsrc in self.list():

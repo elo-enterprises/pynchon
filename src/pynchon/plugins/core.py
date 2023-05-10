@@ -103,13 +103,6 @@ class Core(models.Planner):
             result = api.render.get_template('pynchon/tox.ini')
             raise NotImplementedError()
 
-    @tagging.tags(click_aliases=['sh'])
-    def shell(self):
-        """drop to debugging shell"""
-        import IPython
-
-        IPython.embed()
-
     def raw(self) -> None:
         """
         Returns (almost) raw config,

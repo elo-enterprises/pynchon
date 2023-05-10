@@ -2,8 +2,7 @@
 """
 import typing
 
-# from pynchon import abcs, api, cli,
-from pynchon import events
+from pynchon import events, cli
 
 # from pynchon.bin import entry
 # from pynchon.fleks.plugin import Plugin as AbstractPlugin
@@ -24,6 +23,32 @@ class AbstractPlanner(BasePlugin):
     """
 
     cli_label = 'Planner'
+
+    @property
+    def changes(self):
+        """
+        Set(git_changes).intersection(plugin_resources)
+        """
+        git = self.siblings['git']
+        changes = git.modified
+        these_changes = set(changes).intersection(set(self.list(changes=False)))
+        return dict(modified=list(these_changes))
+
+    @cli.click.option('--changes','-m','changes',
+        is_flag=True, default=False, help='returns the git-modified subset')
+    def list(self,changes:bool=False):
+        """Lists resources associated with this plugin"""
+        if changes:
+            return self.changes['modified']
+        from pynchon import abcs
+        from pynchon.util import files
+        include_patterns = self['include_patterns'::[]]
+        root = abcs.Path(self['root'])
+        # proot = self.project_config['pynchon']['root']
+        tmp = [p for p in include_patterns if abcs.Path(p).is_absolute()]
+        tmp += [root / p for p in include_patterns if not abcs.Path(p).is_absolute()]
+        # tmp += [proot / p for p in include_patterns if not abcs.Path(p).is_absolute()]
+        return files.find_globs(tmp)
 
     @tags(publish_to_cli=False)
     def goal(self, **kwargs):

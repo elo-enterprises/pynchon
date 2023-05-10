@@ -12,3 +12,4 @@ pynchon src cfg
 pynchon src plan
 pynchon jinja list
 pynchon jinja plan
+pynchon jinja sh -c'self.logger.debug("hello world")'

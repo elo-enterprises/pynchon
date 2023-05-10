@@ -1,4 +1,4 @@
-""" pynchon.plugins.tests
+""" pynchon.plugins.github
 """
 from pynchon import abcs, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
@@ -6,12 +6,12 @@ from pynchon.util import lme, typing, tagging  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Tests(models.Provider):
-    """Tests"""
+class GitHub(models.Provider):
+    """GitHub"""
 
-    name = "tests"
-    cli_name = 'tests'
-    cli_label = 'tests'
+    name = "github"
+    cli_name = 'github'
+    cli_aliases = []
 
     class config_class(abcs.Config):
-        config_key = 'tests'
+        config_key = 'github'

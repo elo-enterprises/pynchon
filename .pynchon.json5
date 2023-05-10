@@ -18,8 +18,7 @@
     // Default tools: `json`.
 
     // Recommended for projects with source-code
-    "docs", "src", "tests", "cicd", "fixme",
-    //"todo",
+    "docs", "src", "tests", "cicd", "fixme", "github",
 
     // Standard if there's a python-project
     "pypi", "python-api", "python-cli",
@@ -49,6 +48,9 @@
     ],
   },
 
+  // GitHub plugin customization.
+  "github": {},
+
   // SourceCode plugin customization.
   // This provides find/search tooling, plus file-header generators, etc
   "src": {
@@ -56,6 +58,8 @@
     "include_patterns": ["**/*.py",],
     "headers": {},
   },
+
+  // Docs plugin customization.
   "docs": {
     "root": "{{pynchon.root}}/docs",
     "include_patterns": [

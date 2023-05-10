@@ -44,12 +44,12 @@ class SourceMan(models.Manager):
         #     my_ex = self.get('exclude_patterns', [])
         #     return list(set( global_ex+my_ex))
 
-    def list(self):
-        """ """
-        # config = api.project.get_config()
-        # src_root = config.pynchon['src_root']
-        include_patterns = self.config.get('include_patterns', ["**"])
-        return files.find_globs(include_patterns)
+    # def list(self):
+    #     """ """
+    #     # config = api.project.get_config()
+    #     # src_root = config.pynchon['src_root']
+    #     include_patterns = self.config.get('include_patterns', ["**"])
+    #     return files.find_globs(include_patterns)
 
     def _get_missing_headers(self, resources):
         """ """

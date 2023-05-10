@@ -157,6 +157,7 @@ class kommand(object):
         formatters={},
         cls=None,
         help=None,
+        **click_kwargs
     ):
         """ """
         self.name = name
@@ -164,6 +165,7 @@ class kommand(object):
         self.parent = parent or click
         self.options = options
         self.arguments = arguments
+        self.click_kwargs=click_kwargs
         self.formatters = {**formatters, **dict(json=self.format_json)}
         self.transformers = sorted(
             transformers
@@ -180,7 +182,6 @@ class kommand(object):
             ],
             key=lambda h: h.priority,
         )
-        click_kwargs = {}
         cls and click_kwargs.update(cls=cls)
         help and click_kwargs.update(help=help.lstrip())
         if not self.is_group:
