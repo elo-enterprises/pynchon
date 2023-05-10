@@ -12,11 +12,13 @@ from pynchon.util import lme, typing, tagging  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
+@tagging.tags(click_aliases=['d'])
 class DocsMan(models.Planner):
-    """Management tool for project source"""
+    """Management tool for project docs"""
 
     name = "docs"
     cli_name = 'docs'
+    cli_label = 'Manager'
     priority = 0
     serving = None
 

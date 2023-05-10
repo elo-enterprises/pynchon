@@ -28,6 +28,10 @@ class PluginsMan(models.Manager):
             raise NotImplementedError()
         return result.succeeded
 
+    def list(self, **kwargs):
+        """List all plugins"""
+        return list(self.status()['plugins'].keys())
+
     @tagging.tags(click_aliases=['st', 'stat'])
     def status(self) -> typing.Dict:
         """Returns details about all known plugins"""

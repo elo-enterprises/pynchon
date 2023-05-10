@@ -24,6 +24,7 @@ from pynchon import cli, api
 from pynchon.plugins import util as plugin_util
 
 
+@tagging.tags(click_aliases=['j'])
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 

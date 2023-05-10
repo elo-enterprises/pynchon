@@ -8,6 +8,7 @@ from pynchon.util import files, lme, typing, tagging
 LOGGER = lme.get_logger(__name__)
 
 
+@tagging.tags(click_aliases=['c'])
 class Core(models.Planner):
     """Core Plugin"""
 

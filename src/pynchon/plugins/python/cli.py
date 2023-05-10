@@ -1,11 +1,9 @@
 """ pynchon.plugins.python.cli
 """
-# import os
-import glob
 
-from pynchon import abcs, models, shimport
+from pynchon import shimport, abcs, cli, models
 
-from pynchon.util import typing, lme  # noqa
+from pynchon.util import typing, tagging, lme  # noqa
 
 config_mod = shimport.lazy(
     'pynchon.config',
@@ -13,6 +11,7 @@ config_mod = shimport.lazy(
 LOGGER = lme.get_logger(__name__)
 
 
+@tagging.tags(click_aliases=['pc'])
 class PythonCliConfig(abcs.Config):
     config_key = "python-cli"
 
@@ -33,6 +32,8 @@ class PythonCliConfig(abcs.Config):
     @property
     def entrypoints(self) -> dict:
         """ """
+        import glob
+
         src_root = self.src_root
         pat = src_root / "**" / "__main__.py"
         matches = [[x, {}] for x in glob.glob(str(pat), recursive=True)]
@@ -59,6 +60,10 @@ class PythonCLI(models.ShyPlanner):
 
     name = "python-cli"
     config_class = PythonCliConfig
+
+    @cli.click.group
+    def gen(self):
+        """Generates CLI docs for python packages"""
 
     # @common.kommand(
     #     name="toc",

@@ -49,8 +49,18 @@ class AbstractPlanner(BasePlugin):
         from pynchon import abcs
         from pynchon.util import files
 
-        include_patterns = self['include_patterns'::[]]
-        root = abcs.Path(self['root'])
+        try:
+            include_patterns = self['include_patterns']
+            root = self['root']
+        except (KeyError,) as exc:
+            self.logger.critical(
+                f'self.__class__ tried to use self.list(), but does not follow protocol'
+            )
+            self.logger.critical(
+                "self['include_patterns'] and self['root'] must both be defined!"
+            )
+            raise
+        root = abcs.Path(root)
         # proot = self.project_config['pynchon']['root']
         tmp = [p for p in include_patterns if abcs.Path(p).is_absolute()]
         tmp += [root / p for p in include_patterns if not abcs.Path(p).is_absolute()]

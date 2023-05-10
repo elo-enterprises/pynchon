@@ -1,19 +1,18 @@
 """ pynchon.plugins.python.api
 """
-from pynchon import abcs, models
-from pynchon.util import typing, lme
+from pynchon import abcs, cli, models
+from pynchon.util import typing, tagging, lme
 
 LOGGER = lme.get_logger(__name__)
 
 
+@tagging.tags(click_aliases=['pa'])
 class PythonAPI(models.ShyPlanner):
     """Tools for generating python-api docs"""
 
-    # @common.groop("api", parent=groups.gen)
-    # def gen_api() -> None:
-    #     """
-    #     Generate API docs from python modules, packages, etc
-    #     """
+    @cli.click.group
+    def gen(self):
+        """Generates API docs from python modules, packages, etc"""
 
     name = "python-api"
 

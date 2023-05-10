@@ -15,12 +15,14 @@ class ProjectConfig(abcs.Config):
 
     priority = 1
     config_key = "project"
+    defaults = dict(shell_aliases=dict())
 
     @property
     def name(self) -> typing.StringMaybe:
         """ """
         repo_name = config.git.get("repo_name")
-        return repo_name or os.path.split(os.getcwd())[-1]
+        return repo_name or abcs.Path('.').name()
+        # os.path.split(os.getcwd())[-1]
 
     @property
     def root(self) -> str:

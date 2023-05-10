@@ -5,12 +5,13 @@ import platform as stdlib_platform
 from memoized_property import memoized_property
 
 from pynchon import abcs, models
-from pynchon.util import typing, lme
+from pynchon.util import typing, tagging, lme
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
 
+@tagging.tags(click_aliases=['p'])
 class PythonPlatform(models.Provider):
     """Context for python-platform"""
 

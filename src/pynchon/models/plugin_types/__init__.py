@@ -120,7 +120,7 @@ class PynchonPlugin(fleks.Plugin):
                 if stop:
                     result = self % stop
             except (KeyError,) as exc:
-                if step:
+                if step is not None:
                     return step
                 else:
                     raise

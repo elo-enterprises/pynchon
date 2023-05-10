@@ -6,12 +6,11 @@ from pynchon.util import lme, typing, tagging  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Tests(models.Provider):
-    """Tests"""
+class Tests(models.Planner):
+    """Management tool for project tests"""
 
     name = "tests"
     cli_name = 'tests'
-    cli_label = 'tests'
 
     class config_class(abcs.Config):
         config_key = 'tests'

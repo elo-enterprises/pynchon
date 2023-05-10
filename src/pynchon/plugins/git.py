@@ -83,6 +83,7 @@ class GitConfig(abcs.Config):
         return cmd.succeeded and cmd.stdout.strip()
 
 
+@tagging.tags(click_aliases=['g'])
 class Git(models.Provider):
     """Context for git"""
 

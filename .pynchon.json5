@@ -16,7 +16,6 @@
     // Default providers: `python`, `project`, `git`, `globals`
     // Default namespaces: `gen`, `render`.  Default
     // Default tools: `json`.
-
     // Recommended for projects with source-code
     "docs", "src", "tests", "cicd", "fixme", "github",
 
@@ -36,7 +35,7 @@
   ],
 
 
-  // Globals plugin.
+  // Config for `globals` plugin:
   // All well-behaved plugins will honor values here, appending
   // these values to whatever is set explicitly for that plugin
   "globals": {
@@ -48,10 +47,22 @@
     ],
   },
 
-  // GitHub plugin customization.
+  // Config for `github` plugin:
   "github": {},
 
-  // SourceCode plugin customization.
+  // Config for `project` plugin:
+  "project":{
+    "shell_aliases":{
+      "m":"make",
+      "g":"git",
+      "st":"git status",
+      "fl":"flake8",
+      "mns": "make normalize static-analysis",
+      "groom": "make normalize static-analysis",
+    },
+  },
+
+  // Config for `src` plugin:
   // This provides find/search tooling, plus file-header generators, etc
   "src": {
     "root": "{{pynchon.root}}/src",
@@ -59,27 +70,29 @@
     "headers": {},
   },
 
-  // Docs plugin customization.
+  // Config for `docs` plugin:
   "docs": {
     "root": "{{pynchon.root}}/docs",
     "include_patterns": [
         "{{pynchon.root}}/*.md",
         "{{docs.root}}/*.md",
       ],
-    // "pidfile_grip": "/tmp/grip.pid",
     "open_changes": true,
   },
 
-  // Tests plugin customization.
+  // Config for `tests` plugin:
   "tests": {
     "root": "{{pynchon.root}}/tests",
     "include_patterns": ["**/*.py",],
   },
 
+  // Config for `hooks` plugin:
+   "hooks": {},
+
   // END: top-level config
   // BEGIN: plugins-config
 
-  // Jinja plugin customization.
+  // Config for `jinja` plugin:
   // Planner for finding/rendering project .j2 files
   "jinja":{
     "context_vars": {
@@ -105,18 +118,16 @@
    ],
  },
 
-  // Hooks plugin customization.
-  "hooks": {},
-
-  // Dot (graphviz) plugin customization.
+  // Config for `dot` plugin:
+  // Tool for working with dot (aka graphviz)
   "dot": {
     "output_format": "png",
   },
 
-  // FixMe plugin customization.
+  // Config for `fixme` plugin:
+  // `globals.exclude_patterns` will be appended.
   "fixme": {
     "exclude_patterns": [
-      // `globals.exclude_patterns` will be appended.
       "**/*.egg-info/**",
       "{{src.root}}/**/fixme/**",
       "{{src.root}}/**/fixme.py",
@@ -125,14 +136,14 @@
     ],
   },
 
-  // PythonAPI plugin customization.
+  // Config for `python-api` plugin:
   // This generates API docs for python-packages
   "python-api":{
     "skip_private_methods": true,
     "skip_patterns": [],
   },
 
-  // Scaffolding plugin customization.
+  // Config for `scaffolding` plugin:
   // This provides ways to synchronize/diff project boilerplate.
   // (Similar to cookie-cutter[], but more simple to use.)
   "scaffolding":{
@@ -150,7 +161,7 @@
      ],
    },
 
-  // PyPI plugin customization.
+   // Config for `pypi` plugin:
   // Provider for details about the PyPI this project uses.
   // (This is only used in rendering docs; `pynchon` does not manage releases.
   // You can probably leave this blank for public PyPI but pynchon's own
@@ -159,7 +170,7 @@
     "name":"THE public PyPI"
   },
 
-  // CI/CD plugin customization.
+  // Config for `cicd` plugin:
   // Provider for details about the build server for this project.
   // (This is only used in rendering docs; `pynchon` does not manage builds.)
   "cicd": {

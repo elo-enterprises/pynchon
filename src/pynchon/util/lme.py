@@ -80,6 +80,6 @@ def get_logger(name, console=CONSOLE):
 
     # FIXME: get this from some kind of global config
     # logger.setLevel("DEBUG")
-    logger.setLevel(constants.LOG_LEVEL)
+    logger.setLevel(constants.LOG_LEVEL.upper())
 
     return logger
