@@ -46,7 +46,7 @@ class Jinja(models.Planner):
         config_key = "jinja"
         defaults = dict(
             template_includes=[],
-            )
+        )
 
         @tagging.tagged_property(conflict_strategy='override')
         def exclude_patterns(self):
@@ -108,9 +108,9 @@ class Jinja(models.Planner):
 
     def list(self, changes=False):
         """Lists affected resources in this project"""
-        default=self[:'project']
+        default = self[:'project']
         proj_conf = self[:'project.subproject':default]
-        default=self[:'git.root']
+        default = self[:'git.root']
         project_root = proj_conf.get("root", default)
         globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
@@ -140,7 +140,6 @@ class Jinja(models.Planner):
             templates = [f"--include {t}" for t in templates]
             templates = " ".join(templates)
             return templates
-
 
         plan = super(self.__class__, self).plan()
         jctx = self._get_jinja_context()

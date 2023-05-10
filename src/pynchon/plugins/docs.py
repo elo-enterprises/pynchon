@@ -2,9 +2,10 @@
 """
 import webbrowser
 
+from pynchon.util import files, grip
+
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
-from pynchon.util import files, grip
 
 # from pynchon.util.os import invoke, filter_pids
 
@@ -18,6 +19,7 @@ class DocsMan(models.Planner):
     cli_name = 'docs'
     priority = 0
     serving = None
+
     class config_class(abcs.Config):
         config_key = 'docs'
 

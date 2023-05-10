@@ -37,7 +37,9 @@ class PythonCliConfig(abcs.Config):
         pat = src_root / "**" / "__main__.py"
         matches = [[x, {}] for x in glob.glob(str(pat), recursive=True)]
         matches = dict(matches)
-        pkg_name = 'unknown' #self.siblings['python']['package'].get("name") or "unknown"
+        pkg_name = (
+            'unknown'  # self.siblings['python']['package'].get("name") or "unknown"
+        )
         for f, meta in matches.items():
             LOGGER.info(f'found entry-point: {f}')
             dotpath = abcs.Path(f).relative_to(src_root)

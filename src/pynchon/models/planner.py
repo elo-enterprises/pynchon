@@ -34,14 +34,21 @@ class AbstractPlanner(BasePlugin):
         these_changes = set(changes).intersection(set(self.list(changes=False)))
         return dict(modified=list(these_changes))
 
-    @cli.click.option('--changes','-m','changes',
-        is_flag=True, default=False, help='returns the git-modified subset')
-    def list(self,changes:bool=False):
+    @cli.click.option(
+        '--changes',
+        '-m',
+        'changes',
+        is_flag=True,
+        default=False,
+        help='returns the git-modified subset',
+    )
+    def list(self, changes: bool = False):
         """Lists resources associated with this plugin"""
         if changes:
             return self.changes['modified']
         from pynchon import abcs
         from pynchon.util import files
+
         include_patterns = self['include_patterns'::[]]
         root = abcs.Path(self['root'])
         # proot = self.project_config['pynchon']['root']

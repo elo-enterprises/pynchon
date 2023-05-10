@@ -13,3 +13,6 @@ pynchon src plan
 pynchon jinja list
 pynchon jinja plan
 pynchon jinja sh -c'self.logger.debug("hello world")'
+pynchon plugins list | jq .
+pynchon docs list | jq .
+pynchon git config|jq .

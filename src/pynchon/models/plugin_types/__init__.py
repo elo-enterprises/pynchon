@@ -4,20 +4,22 @@ import typing
 import collections
 
 import pydash
+
 from pynchon import fleks, events, api, cli, shimport
 from pynchon.bin import entry
 from pynchon.plugins import util as plugins_util
 
+from . import validators
 
 from pynchon.util import typing, tagging, lme  # noqa
 
-from . import validators
 
 config_mod = shimport.lazy(
     'pynchon.config',
 )
 
 LOGGER = lme.get_logger(__name__)
+
 
 @tagging.tags(cli_label='<<Abstract>>')
 class PynchonPlugin(fleks.Plugin):
@@ -92,8 +94,8 @@ class PynchonPlugin(fleks.Plugin):
         """ """
         return self.cfg()
 
-    def __mod__(self, key:str, strict=True):
-        """ shortcut for accessing global pynchon-config """
+    def __mod__(self, key: str, strict=True):
+        """shortcut for accessing global pynchon-config"""
         try:
             return self.project_config[key]
         except (KeyError,) as exc:
@@ -104,19 +106,19 @@ class PynchonPlugin(fleks.Plugin):
                 if strict:
                     raise
 
-    def __floordiv__(self,key:str, strict=False):
+    def __floordiv__(self, key: str, strict=False):
         """ """
         return self.__mod__(key, strict=strict)
 
-    def __getitem__(self, key:str):
-        """ shortcut for accessing local plugin-config """
-        if isinstance(key,(slice,)):
-            start,stop,step=key.start,key.stop,key.step
+    def __getitem__(self, key: str):
+        """shortcut for accessing local plugin-config"""
+        if isinstance(key, (slice,)):
+            start, stop, step = key.start, key.stop, key.step
             try:
                 if start:
                     result = self[start]
                 if stop:
-                    result = self%stop
+                    result = self % stop
             except (KeyError,) as exc:
                 if step:
                     return step
@@ -133,8 +135,6 @@ class PynchonPlugin(fleks.Plugin):
                     return fallback
                 else:
                     raise
-
-
 
 
 @tagging.tags(cli_label='<<Default>>')
@@ -259,16 +259,16 @@ class CliPlugin(PynchonPlugin):
                 rproto = getattr(result, '__rich__', None)
                 if rproto:
                     from pynchon.util.lme import CONSOLE
+
                     CONSOLE.print(result)
                 return result
 
-            commands = [kls.click_create_cmd(fxn, wrapper=wrapper, hidden=hidden, alias=None)]
+            commands = [
+                kls.click_create_cmd(fxn, wrapper=wrapper, hidden=hidden, alias=None)
+            ]
             for alias in click_aliases:
                 tmp = kls.click_create_cmd(
-                    fxn,
-                    alias=alias,
-                    wrapper=wrapper,
-                    hidden=hidden
+                    fxn, alias=alias, wrapper=wrapper, hidden=hidden
                 )
                 commands.append(tmp)
             cli_commands += commands
@@ -290,8 +290,9 @@ class CliPlugin(PynchonPlugin):
             kls.click_acquire(fxn)
 
     @classmethod
-    def click_create_cmd(kls, fxn: typing.Callable, wrapper=None,
-        alias: str = None, **click_kwargs) ->cli.click.Command:
+    def click_create_cmd(
+        kls, fxn: typing.Callable, wrapper=None, alias: str = None, **click_kwargs
+    ) -> cli.click.Command:
         """ """
         assert fxn
         assert wrapper
@@ -300,28 +301,30 @@ class CliPlugin(PynchonPlugin):
         help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
         help = help.lstrip()
         cmd = cli.common.kommand(
-            name,
-            help=help,
-            alias=alias,
-            parent=kls.click_group,
-            **click_kwargs
+            name, help=help, alias=alias, parent=kls.click_group, **click_kwargs
         )(wrapper)
         options = getattr(fxn, '__click_params__', [])
         cmd.params += options
         return cmd
 
-    @tagging.tags(click_aliases=['sh'], click_hidden=True,)
-    @cli.click.option('--command','-c',default='')
-    def shell(self, command:str='')->None:
+    @tagging.tags(
+        click_aliases=['sh'],
+        click_hidden=True,
+    )
+    @cli.click.option('--command', '-c', default='')
+    def shell(self, command: str = '') -> None:
         """drop to debugging shell"""
-        before=locals()
+        before = locals()
         if command:
             self.logger.warning(f'executing command: {command} ')
             return eval(command)
         else:
-            import IPython; IPython.embed() # noqa
-        after = dict([[k,v] for k,v in locals().items() if k not in before])
+            import IPython
+
+            IPython.embed()  # noqa
+        after = dict([[k, v] for k, v in locals().items() if k not in before])
         LOGGER.warning(f"namespace changes: {after}")
+
 
 @tagging.tags(cli_label='Provider')
 class Provider(CliPlugin):
