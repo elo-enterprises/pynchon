@@ -2,6 +2,7 @@
 """
 import os
 from pathlib import Path
+
 # from pynchon.abcs.path import Path
 
 PYNCHON_ROOT = os.environ.get("PYNCHON_ROOT", None)
@@ -22,10 +23,8 @@ DEFAULT_PLUGINS = [
     "json",
     "jinja",
 ]
-PYNCHON_EMBEDDED_TEMPLATES_ROOT =Path(__file__).parents[0] / 'templates'
-PYNCHON_CORE_INCLUDES_DIRS = (
-    PYNCHON_EMBEDDED_TEMPLATES_ROOT / 'includes',
-)
+PYNCHON_EMBEDDED_TEMPLATES_ROOT = Path(__file__).parents[0] / 'templates'
+PYNCHON_CORE_INCLUDES_DIRS = (PYNCHON_EMBEDDED_TEMPLATES_ROOT / 'includes',)
 for _p in PYNCHON_CORE_INCLUDES_DIRS:
     assert _p.exists()
 

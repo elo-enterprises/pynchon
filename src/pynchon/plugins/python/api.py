@@ -5,15 +5,19 @@ from pynchon.util import typing, tagging, lme
 
 LOGGER = lme.get_logger(__name__)
 
+
 class PythonApiConfig(abcs.Config):
     config_key = "python-cli"
     defaults = dict(
         skip_private_methods=True,
         skip_patterns=[],
     )
+
+
 @tagging.tags(click_aliases=['pa'])
 class PythonAPI(models.ShyPlanner):
     """Tools for generating python-api docs"""
+
     name = "python-api"
     config_class = PythonApiConfig
 
@@ -41,21 +45,23 @@ class PythonAPI(models.ShyPlanner):
         default="",
         help=("comma-separated list of modules to exclude (optional)"),
     )
-    def toc(self,
-    package=None,
-    should_print=None,
-    file=None,
-    exclude=None,
-    output=None,
-    stdout=None,
-    header=None):
+    def toc(
+        self,
+        package=None,
+        should_print=None,
+        file=None,
+        exclude=None,
+        output=None,
+        stdout=None,
+        header=None,
+    ):
         """
         Generate table-of-contents
         """
-        from pynchon.util import complexity
         from pynchon.api import render
-        T_TOC_API = render.get_template(
-            "pynchon/plugins/python/api/TOC.md.j2")
+        from pynchon.util import complexity
+
+        T_TOC_API = render.get_template("pynchon/plugins/python/api/TOC.md.j2")
         module = complexity.get_module(package=package, file=file)
         result = complexity.visit_module(
             module=module,
@@ -72,7 +78,6 @@ class PythonAPI(models.ShyPlanner):
         print(result, file=open(output, 'w'))
         if should_print and output != '/dev/stdout':
             print(result)
-
 
     def plan(self, config=None) -> typing.List:
         """ """

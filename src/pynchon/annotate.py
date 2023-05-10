@@ -5,7 +5,7 @@ import importlib
 
 import pynchon
 from pynchon import abcs
-from pynchon.util import lme,typing, complexity
+from pynchon.util import lme, typing, complexity
 
 LOGGER = lme.get_logger(__name__)
 
@@ -73,12 +73,12 @@ def klass(name, kls) -> None:
         kls_code = inspect.getsource(kls._handle)
     except (Exception,) as exc:
         LOGGER.critical(exc)
-        kls_code='?'
+        kls_code = '?'
     try:
         kls_fname = inspect.getfile(kls._handle)
     except (Exception,) as exc:
         LOGGER.critical(exc)
-        kls_fname='?'
+        kls_fname = '?'
     kls._metadata = dict(
         bases=bases,
         code=kls_code,
@@ -95,14 +95,14 @@ def module(name, module, working_dir=None) -> None:
     LOGGER.debug(f"annotating module: {name}")
     working_dir = (working_dir or abcs.Path('.')).absolute()
     tmp = module.filepath.relative_to(working_dir)
-    module._metadata = dict(
-        base_url=str(tmp))
+    module._metadata = dict(base_url=str(tmp))
 
 
 def should_skip(name: str):
     """ """
     from pynchon.config import pynchon as pynchon_config
     from pynchon.plugins.util import get_plugin_obj
+
     should_skip = get_plugin_obj('python-api')['skip_private_methods']
     should_skip = should_skip and name.startswith("_")
     LOGGER.warning(

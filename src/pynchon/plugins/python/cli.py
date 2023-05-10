@@ -21,6 +21,7 @@ class PythonCliConfig(abcs.Config):
     def src_root(self):
         """ """
         from pynchon.config import src
+
         src_root = src['root']
         # FIXME: support for subprojects
         # # src_root = abcs.Path(

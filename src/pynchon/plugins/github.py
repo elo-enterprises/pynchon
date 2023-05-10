@@ -1,5 +1,7 @@
 """ pynchon.plugins.github
 """
+import webbrowser
+
 from pynchon import abcs, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
 
@@ -28,11 +30,21 @@ class GitHub(models.ToolPlugin):
 
             return git.get('github_org')
 
+    @cli.click.option('--org', '-o')
+    def open(self, org=None):
+        """Opens project github in a webbrowser"""
+        org_name = self['org_name']
+        url = f'https://github.com/{org_name}'
+        if not org:
+            repo_name = self[:'git.repo_name':]
+            url = f'{url}/{repo_name}'
+        return webbrowser.open(url)
+
     @cli.click.option(
         '--org-name', '-o', default='', help='defaults to {github.org_name}'
     )
     @option_api_token
-    def clone_org(self, token: str = None):
+    def clone_org(self, org_name: str = None, token: str = None):
         """Clones an entire github-org"""
         raise NotImplementedError()
 
