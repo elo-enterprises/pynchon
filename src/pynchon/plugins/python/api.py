@@ -1,17 +1,10 @@
 """ pynchon.plugins.python.api
 """
 from pynchon import abcs, cli, models
-from pynchon.util import typing, tagging, lme
+from pynchon.api import render
+from pynchon.util import typing, tagging, lme, complexity
 
 LOGGER = lme.get_logger(__name__)
-
-
-class PythonApiConfig(abcs.Config):
-    config_key = "python-cli"
-    defaults = dict(
-        skip_private_methods=True,
-        skip_patterns=[],
-    )
 
 
 @tagging.tags(click_aliases=['pa'])
@@ -19,19 +12,20 @@ class PythonAPI(models.ShyPlanner):
     """Tools for generating python-api docs"""
 
     name = "python-api"
-    config_class = PythonApiConfig
 
-    @cli.click.group
+    class config_class(abcs.Config):
+        config_key = "python-api"
+        defaults = dict(
+            skip_private_methods=True,
+            skip_patterns=[],
+        )
+
+    @cli.click.group('gen')
     def gen(self):
         """Generates API docs from python modules, packages, etc"""
 
-    class config_class(abcs.Config):
-        config_key = 'python-api'
-        defaults = dict()
-
     @cli.options.file
     @cli.options.header
-    # @options.output
     @cli.options.should_print
     @cli.options.package
     @cli.click.option(
@@ -45,6 +39,8 @@ class PythonAPI(models.ShyPlanner):
         default="",
         help=("comma-separated list of modules to exclude (optional)"),
     )
+    # FIXME: not bound correctly: missing 1 req pos arg 'self'
+    # @gen.command('toc')
     def toc(
         self,
         package=None,
@@ -58,8 +54,6 @@ class PythonAPI(models.ShyPlanner):
         """
         Generate table-of-contents
         """
-        from pynchon.api import render
-        from pynchon.util import complexity
 
         T_TOC_API = render.get_template("pynchon/plugins/python/api/TOC.md.j2")
         module = complexity.get_module(package=package, file=file)
@@ -83,18 +77,26 @@ class PythonAPI(models.ShyPlanner):
         """ """
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
-        api_root = f"{config.pynchon['docs_root']}/api"
-        plan.append(
-            models.Goal(command=f"mkdir -p {api_root}", resource=None, type='gen')
-        )
-
-        tmp = config.python["package"]["name"]
+        docs_root = self[:'docs.root':]
+        api_docs_root = f"{docs_root}/api"
+        if not abcs.Path(api_docs_root).exists():
+            plan.append(
+                models.Goal(
+                    command=f"mkdir -p {api_docs_root}", resource=None, type='gen'
+                )
+            )
+        pkg = self[:"python.package.name":None]
+        pkg_arg = pkg and f'--package {pkg}'
+        src_root = self[:"src.root":]
+        src_arg = src_root and f'--file {src_root}'
+        input = f"{pkg_arg or src_arg}"
+        outputf = f"{api_docs_root}/README.md"
+        output = f"--output {outputf}"
+        cmd_t = "pynchon python-api gen toc"
         plan.append(
             models.Goal(
-                command="pynchon gen api toc"
-                + f' --package {tmp}'
-                + f" --output {api_root}/README.md",
-                resource=None,
+                resource=outputf,
+                command=f"{cmd_t} {input} {output}",
                 type='gen',
             )
         )

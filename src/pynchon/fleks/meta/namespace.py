@@ -1,15 +1,5 @@
-""" {{pkg}}.abcs.namespace
-"""
-
-import typing  # noqa
-
-
 class Namespace:
     """ """
-
-    # @classmethod
-    # def __instancecheck__(cls, instance):
-    #     if return isinstance(instance, User)
 
     def toJSON(self, *args):
         """ """

@@ -32,7 +32,7 @@ class GitHub(models.ToolPlugin):
 
     @cli.click.option('--org', '-o')
     def open(self, org=None):
-        """Opens project github in a webbrowser"""
+        """Opens org/repo github in a webbrowser"""
         org_name = self['org_name']
         url = f'https://github.com/{org_name}'
         if not org:
@@ -40,9 +40,7 @@ class GitHub(models.ToolPlugin):
             url = f'{url}/{repo_name}'
         return webbrowser.open(url)
 
-    @cli.click.option(
-        '--org-name', '-o', default='', help='defaults to {github.org_name}'
-    )
+    @cli.options.org_name
     @option_api_token
     def clone_org(self, org_name: str = None, token: str = None):
         """Clones an entire github-org"""

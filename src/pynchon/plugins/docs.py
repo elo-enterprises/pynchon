@@ -25,7 +25,7 @@ class DocsMan(models.Planner):
     class config_class(abcs.Config):
         config_key = 'docs'
 
-    @cli.click.group('gen', hidden=True)
+    @cli.click.group('gen')
     def gen(self):
         """Generator subcommands"""
 

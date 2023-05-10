@@ -16,6 +16,10 @@ strict = click.option(
     help=("if true, runs in strict mode"),
 )
 
+org_name = click.option(
+    '--org-name', '-o', default='', help='defaults to {github.org_name}'
+)
+
 inplace = in_place = click.option(
     "--in-place",
     is_flag=True,
