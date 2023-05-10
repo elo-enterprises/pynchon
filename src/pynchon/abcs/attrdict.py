@@ -32,13 +32,19 @@ class AttrDictBase:
         try:
             return super(AttrDictBase, self).__getitem__(name)
         except (KeyError,) as exc:
-            LOGGER.debug(f"AttrDict: KeyError accessing {name}")
-            raise
+            LOGGER.info(f"AttrDict: KeyError accessing {name}")
+            raise KeyError(exc)
+
+    def __getattr__(self, name: str) -> typing.Any:
+        try:
+            return super(AttrDictBase, self).__getitem__(name)
+        except (KeyError,) as exc:
+            LOGGER.info(f"AttrDict: KeyError accessing {name}")
+            raise AttributeError(exc)
 
     def __delitem__(self, name: str) -> typing.Any:
         return super(AttrDictBase, self).__delitem__(name)
 
-    __getattr__ = __getitem__
     __setattr__ = __setitem__
 
 

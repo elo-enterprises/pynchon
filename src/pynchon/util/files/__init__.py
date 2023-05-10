@@ -41,6 +41,7 @@ def prepend(
 
 
 def find_suffix(root: str = '', suffix: str = '') -> typing.StringMaybe:
+    """ """
     assert root and suffix
     return os.invoke(f"{root} -type f -name *.{suffix}").stdout.split("\n")
 
@@ -138,11 +139,14 @@ def ansible_docker(
     return cmd + extra
 
 
-def dumps(content: str = None, file: str = None, logger=LOGGER.info):
-    logger(f"\n{content}")
+def dumps(
+    content: str = None, file: str = None, quiet: bool = True, logger=LOGGER.info
+):
+    """ """
+    quiet or logger(f"\n{content}")
     with open(file, 'w') as fhandle:
         fhandle.write(content)
-    logger(f'Wrote "{file}"')
+    quiet or logger(f'Wrote "{file}"')
 
 
 def block_in_file(
@@ -152,9 +156,9 @@ def block_in_file(
     insertbefore: str = "BOF",
     backup: str = "yes",
     marker: str = '# {mark} ANSIBLE MANAGED BLOCK - pynchon',
+    dest=".tmp.ansible.blockinfile.out",
 ):
     """ """
-    dest = ".tmp.ansible.blockinfile.out"
     assert "'" not in marker
     target_file = abcs.Path(target_file).absolute()
     block_file = abcs.Path(block_file).absolute()
@@ -162,17 +166,23 @@ def block_in_file(
     assert block_file.exists()
     os.invoke(f'cp {target_file} {dest}')
     blockinfile_args = [
+        "dest={{dest}}",
         f"marker='{marker}'",
-        f"dest={dest}",
-        f"backup={backup}",
-        'block=\\"{{ lookup(\'file\', fname)}}\\"',
-        f"create={create} insertbefore={insertbefore} ",
+        "backup={{backup}}",
+        'block=\\"{{ lookup(\'file\', block_file)}}\\"',
+        "create={{create}} insertbefore={{insertbefore}} ",
     ]
     blockinfile_args = ' '.join(blockinfile_args)
     cmd_components = ansible_docker(
         local=True,
         volumes={block_file: block_file},
-        e=dict(fname=block_file),
+        e=dict(
+            dest=dest,
+            insertbefore=insertbefore,
+            backup=backup,
+            create=create,
+            block_file=block_file,
+        ),
         module_name='blockinfile',
         extra=[
             f'--args "{blockinfile_args}"',
@@ -182,10 +192,5 @@ def block_in_file(
     result = os.invoke(cmd, system=True)
     assert result.succeeded, result.stderr
     os.invoke(f'mv {dest} {target_file}')
-    # result = os.invoke(cmd,load_json=True)
-    # return dict(ansible=dict(stats=result.json['stats']))
-    # LOGGER.debug(result.stdout)
-    # LOGGER.debug(result.stderr)
-    # return result.json['stats']
     assert result.succeeded, result.stderr
     return True

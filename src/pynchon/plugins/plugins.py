@@ -26,6 +26,6 @@ class PluginsMan(models.Manager):
     def status(self) -> typing.Dict:
         """Returns details about all known plugins"""
         result = typing.OrderedDict()
-        for p in self.active_plugins:
-            result[p.name] = dict(priority=p.priority, key=p.get_config_key())
+        for name, p in self.siblings.items():
+            result[name] = dict(priority=p.priority, key=p.get_config_key())
         return dict(plugins=result)

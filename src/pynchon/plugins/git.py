@@ -3,8 +3,7 @@
 from memoized_property import memoized_property
 
 from pynchon import models, abcs
-from pynchon.abcs import Path
-from pynchon.util import lme, typing, files, os
+from pynchon.util import lme, typing, files, os, tagging
 
 LOGGER = lme.get_logger(__name__)
 
@@ -28,7 +27,7 @@ class GitConfig(abcs.Config):
     @property
     def root(self) -> typing.StringMaybe:
         """ """
-        tmp = files.get_git_root(Path("."))
+        tmp = files.get_git_root(abcs.Path("."))
         return tmp and tmp.parents[0]
 
     @memoized_property
@@ -91,3 +90,21 @@ class Git(models.Provider):
     name = 'git'
     defaults: typing.Dict = dict()
     config_class = GitConfig
+
+    @property
+    def modified(self) -> typing.List[abcs.Path]:
+        """ """
+        return self.status().get('modified', [])
+
+    @tagging.tags(click_aliases=['st', 'stat'])
+    def status(self) -> typing.Dict:
+        """JSON version of `git status` for this project"""
+        cmd = self.config._run('git status --short')
+        lines = [line.lstrip().strip() for line in cmd.stdout.split('\n')]
+        lines = [filter(None, line.split(' ')) for line in lines if line]
+        abspaths = [
+            (code, abcs.Path(self.config.root) / abcs.Path(fname))
+            for code, fname in lines
+        ]
+        modified = [p for (code, p) in abspaths if code.strip() == 'M']
+        return dict(modified=modified)

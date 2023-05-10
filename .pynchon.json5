@@ -58,7 +58,12 @@
   },
   "docs": {
     "root": "{{pynchon.root}}/docs",
-    "pidfile_grip": "/tmp/grip.pid",
+    "include_patterns": [
+        "{{pynchon.root}}/*.md",
+        "{{docs.root}}/*.md",
+      ],
+    // "pidfile_grip": "/tmp/grip.pid",
+    "open_changes": true,
   },
 
   // Tests plugin customization.
@@ -69,6 +74,32 @@
 
   // END: top-level config
   // BEGIN: plugins-config
+
+  // Jinja plugin customization.
+  // Planner for finding/rendering project .j2 files
+  "jinja":{
+    "context_vars": {
+      // extra context-vars passed for renders
+       // allows {tpls|json}
+     },
+
+    "filter_includes": [
+      // where to load jinja filters from
+      // allows {tpls|paths|globs}
+    ],
+
+   "exclude_patterns": [
+     // Describes files that shouldn't show up in plans
+     // `globals.exclude_patterns` will be appended.
+     "**/{{src.root}}/pynchon/templates/**",
+   ],
+
+   "template_includes": [
+     // Paths to load includes from.
+     // (Used in templates as `{% include .. %}`)
+     "{{docs.root}}/includes",
+   ],
+ },
 
   // Hooks plugin customization.
   "hooks": {},
@@ -114,32 +145,6 @@
        },
      ],
    },
-
-   // Jinja plugin customization.
-   // Planner for finding/rendering project .j2 files
-   "jinja":{
-     "context_vars": {
-       // extra context-vars passed for renders
-        // allows {tpls|json}
-      },
-
-     "filter_includes": [
-       // where to load jinja filters from
-       // allows {tpls|paths|globs}
-     ],
-
-    "exclude_patterns": [
-      // Describes files that shouldn't show up in plans
-      // `globals.exclude_patterns` will be appended.
-      "**/{{src.root}}/pynchon/templates/**",
-    ],
-
-    "template_includes": [
-      // Paths to load includes from.
-      // (Used in templates as `{% include .. %}`)
-      "{{docs.root}}/includes",
-    ],
-  },
 
   // PyPI plugin customization.
   // Provider for details about the PyPI this project uses.

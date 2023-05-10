@@ -15,6 +15,7 @@ class DocsMan(models.Planner):
     name = "docs"
     cli_name = 'docs'
     priority = 0
+    serving = None
 
     class config_class(abcs.Config):
 
@@ -29,12 +30,15 @@ class DocsMan(models.Planner):
 
     def list(self):
         """Lists resources associated with this plugin"""
-        include_patterns = self.config.get('include_patterns', ["**"])
-        return files.find_globs(
-            [abcs.Path(self.config['root']) / p for p in include_patterns]
-        )
+        include_patterns = self.config.get('include_patterns', ["**.j2"])
+        root = abcs.Path(self.config['root'])
+        proot = self.project_config['pynchon']['root']
+        tmp = [p for p in include_patterns if abcs.Path(p).is_absolute()]
+        tmp += [root / p for p in include_patterns if not abcs.Path(p).is_absolute()]
+        tmp += [proot / p for p in include_patterns if not abcs.Path(p).is_absolute()]
+        return files.find_globs(tmp)
 
-    @cli.click.group('gen')
+    @cli.click.group('gen', hidden=True)
     def gen(self):
         """Generator subcommands"""
 
@@ -47,7 +51,8 @@ class DocsMan(models.Planner):
         logfile: str = '.tmp.grip.log',
     ):
         """Runs a `grip` server for this project"""
-        return grip.serve(background=background, force=force, logfile=logfile)
+        self.serving = grip.serve(background=background, force=force, logfile=logfile)
+        return self.serving
 
     @cli.options.output
     @cli.options.should_print
@@ -56,26 +61,49 @@ class DocsMan(models.Planner):
         """Creates {docs.root}/VERSION.md file"""
         raise NotImplementedError()
 
-    def _open_md(self, file: str = None):
+    def _open_md(self, file: str = None, server=None):
         """ """
         import webbrowser
 
-        if not self.serving:
-            self.serve()
-        g = self._is_my_grip()
-        port = g.connections()[0].laddr.port
-        webbrowser.open(f'http://localhost:{port}/{file}')
+        pfile = abcs.Path(file).absolute()
+        groot = self.project_config['git']['root']
+        relf = pfile.relative_to(abcs.Path(groot))
+        grip_url = f'http://localhost:{self.server.port}/{relf}'
+        LOGGER.warning(f'opening {grip_url}')
+        return dict(url=grip_url, browser=webbrowser.open(grip_url))
 
     @cli.click.argument(
         'file',
     )
-    def open(self, file):
+    def open(self, file, server=None):
         """Open a docs-artifact (based on file type)"""
         file = abcs.Path(file)
         if not file.exists():
             raise ValueError(f'File @ `{file}` does not exist')
         if file.endswith('.md'):
-            self._open_md(file)
+            return self._open_md(file, server=server)
+        else:
+            raise NotImplementedError(f'dont know how to open {file}')
+
+    def open_changes(self, server=None):
+        """Open changed files"""
+        result = []
+        changes = self.changes
+        if not self.changes:
+            LOGGER.warning("No changes to open")
+            return []
+        if not server and not grip.serving():
+            grip.serve()
+        self.server = grip.server()
+        self.server.port = grip.port()
+        LOGGER.warning(f"opening {len(changes)} changed files..")
+        if len(changes) > 10:
+            LOGGER.critical('10+ changes; refusing to open this many.')
+            return result
+        for ch in changes:
+            LOGGER.warning(f'opening {ch}')
+            result.append(self.open(ch, server=server))
+        return result
 
     def plan(self, config=None):
         """Creates a plan for this plugin"""

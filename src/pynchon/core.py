@@ -2,13 +2,10 @@
 """
 import os
 
-from pynchon import __version__, abcs
-from pynchon.util import lme, typing
+from pynchon import constants, __version__, abcs
+from pynchon.util import tagging, lme, typing
 
 LOGGER = lme.get_logger(__name__)
-
-from pynchon import constants
-from pynchon.util import tagging
 
 
 class Config(abcs.Config):
@@ -18,9 +15,10 @@ class Config(abcs.Config):
     config_key = "pynchon"
     defaults = dict(
         version=__version__,
-        # src_root=abcs.Path("."),
         plugins=list(set(constants.DEFAULT_PLUGINS)),
     )
+    __class_validators__ = []
+    __instance_validators__ = []
 
     def validate_plugins(self, plugin_list: typing.List = []):
         """ """
@@ -58,7 +56,7 @@ class Config(abcs.Config):
     @property
     def root(self) -> str:
         """
-        pynchon root:
+        {pynchon.root}:
             * user-config
             * os-env
             * {{git.root}}
@@ -72,21 +70,17 @@ class Config(abcs.Config):
 
     @tagging.tagged_property(conflict_strategy='override')
     def plugins(self):
-        result = sorted(
-            list(set(self.get('plugins', []) + self.__class__.defaults['plugins']))
-        )
+        """
+        {pynchon.plugins}:
+            value here ultimately determines much of the
+            rest of the apps bootstrap/runtime. value is
+            always decided here, and must merge user-input
+            from config files, plus any overrides on cli,
+            plus pynchon's core set of default plugins.
+        """
+        defaults = self.__class__.defaults['plugins']
+        result = sorted(list(set(self.get('plugins', []) + defaults)))
         self['plugins'] = result
-        return result
-
-    @property
-    def docs_root(self) -> typing.StringMaybe:
-        """
-        where documents go by default
-            * user-config
-            * {{pynchon.root}}/docs
-        """
-        result = self.get("docs_root")
-        result = result or (self.root and self.root / "docs")
         return result
 
     @property

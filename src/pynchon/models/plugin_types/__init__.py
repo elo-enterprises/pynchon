@@ -1,14 +1,15 @@
 """
 """
 import typing
+import collections
 
-from pynchon import api, cli, shimport
+from pynchon import fleks, events, api, cli, shimport
 from pynchon.bin import entry
-from pynchon.fleks.plugin import Plugin as AbstractPlugin
-from pynchon.plugins.util import get_plugin_obj
-from pynchon.util.tagging import tags
+from pynchon.plugins import util as plugins_util
 
-from pynchon.util import typing, lme  # noqa
+from . import validators
+
+from pynchon.util import typing, tagging, lme  # noqa
 
 
 config_mod = shimport.lazy(
@@ -18,30 +19,8 @@ config_mod = shimport.lazy(
 LOGGER = lme.get_logger(__name__)
 
 
-import collections
-
-
-def v_require_conf_key(kls, **vdata):
-    """ """
-    pconf_kls = getattr(kls, 'config_class', None)
-    conf_key = getattr(pconf_kls, 'config_key', kls.name.replace('-', '_'))
-    if not conf_key:
-        msg = f'failed to determine conf-key for {kls}'
-        LOGGER.critical(msg)
-        raise PynchonPlugin.PluginMalformed(msg)
-    return vdata
-
-
-def v_warn_config_kls(kls, warnings=collections.defaultdict(list), **vdata):
-    pconf_kls = getattr(kls, 'config_class', None)
-    if pconf_kls is None:
-        warnings["`config_kls` not set!"].append(kls)
-    vdata.update(warnings=warnings)
-    return vdata
-
-
-@tags(cli_label='<<Abstract>>')
-class PynchonPlugin(AbstractPlugin):
+@tagging.tags(cli_label='<<Abstract>>')
+class PynchonPlugin(fleks.Plugin):
     """
     Pynchon-specific plugin-functionality
     """
@@ -49,14 +28,14 @@ class PynchonPlugin(AbstractPlugin):
     name = '<<Abstract>>'
     cli_label = '<<Abstract>>'
     __class_validators__ = [
-        v_require_conf_key,
-        v_warn_config_kls,
+        validators.require_conf_key,
+        validators.warn_config_kls,
     ]
 
     @typing.classproperty
     def instance(kls):
         """class-property: the instance for this plugin"""
-        return get_plugin_obj(kls.name)
+        return plugins_util.get_plugin_obj(kls.name)
 
     @typing.classproperty
     def project_config(self):
@@ -86,22 +65,17 @@ class PynchonPlugin(AbstractPlugin):
         return self.get_current_config()
 
     @property
-    def active_plugins(self):
+    def siblings(self):
         """ """
         result = []
-        from pynchon.plugins import util as plugins_util
         from pynchon.plugins import registry
 
         for plugin in registry.keys():
             if plugin == self.name:
                 continue
             result.append(plugins_util.get_plugin_obj(plugin))
-        return sorted(result, key=lambda p: p.priority)
-
-    @property
-    def config(self):
-        """ """
-        return self.cfg()
+        result = sorted(result, key=lambda p: p.priority)
+        return collections.OrderedDict([p.name, p] for p in result)
 
     def cfg(self):
         """Shows current config for this plugin"""
@@ -113,8 +87,18 @@ class PynchonPlugin(AbstractPlugin):
         result = kls.get_current_config()
         return result
 
+    @property
+    def changes(self):
+        """
+        set(git_changes).intersection(plugin_resources)
+        """
+        git = self.siblings['git']
+        changes = git.modified
+        these_changes = set(changes).intersection(set(self.list()))
+        return these_changes
 
-@tags(cli_label='<<Default>>')
+
+@tagging.tags(cli_label='<<Default>>')
 class CliPlugin(PynchonPlugin):
     cli_label = '<<Default>>'
     _finalized_click_groups = dict()
@@ -143,14 +127,13 @@ class CliPlugin(PynchonPlugin):
         return plugin_main
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
-    def click_acquire(kls, grp: cli.click.Group):  # noqa F811
+    def click_acquire(kls, group: cli.click.Group):  # noqa F811
         """ """
         parent = kls.click_group
-        LOGGER.critical(
-            f"{kls.__name__} acquires group@`{grp.name}` to: parent@`{parent.name}`"
+        LOGGER.info(
+            f"{kls.__name__} acquires group@`{group.name}` to: parent@`{parent.name}`"
         )
-        return cli.click.group_merge(grp, parent)
-        # raise NotImplementedError("groups are not supported yet!")
+        return cli.click.group_merge(group, parent)
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
     def click_acquire(kls, fxn: typing.FunctionType):  # noqa F811
@@ -171,11 +154,9 @@ class CliPlugin(PynchonPlugin):
     @classmethod
     def init_cli(kls):
         """ """
-        from pynchon import events
-        from pynchon.util import tagging
-        from pynchon.plugins.core import Core
-
         events.lifecycle.send(kls, plugin='initializing CLI')
+
+        from pynchon.plugins.core import Core  # noqa
 
         if kls != Core:
             config_mod.finalize()
@@ -217,10 +198,6 @@ class CliPlugin(PynchonPlugin):
             publish_to_cli = tags.get('publish_to_cli', True)
             if not publish_to_cli:
                 continue
-            if method_name == 'goal':
-                import IPython
-
-                IPython.embed()
 
             def wrapper(*args, fxn=fxn, **kwargs):
                 LOGGER.debug(f"calling {fxn} from wrapper")
@@ -282,7 +259,7 @@ class CliPlugin(PynchonPlugin):
         return cmd
 
 
-@tags(cli_label='Provider')
+@tagging.tags(cli_label='Provider')
 class Provider(CliPlugin):
     """
     ProviderPlugin provides context-information,
@@ -293,12 +270,12 @@ class Provider(CliPlugin):
     contribute_plan_apply = False
     priority = 2
     __class_validators__ = [
-        v_require_conf_key,
-        # v_warn_config_kls,
+        validators.require_conf_key,
+        # validators.warn_config_kls,
     ]
 
 
-@tags(cli_label='Tool')
+@tagging.tags(cli_label='Tool')
 class ToolPlugin(CliPlugin):
     """
     Tool plugins may have their own config,
@@ -308,8 +285,8 @@ class ToolPlugin(CliPlugin):
     cli_label = 'Tool'
     contribute_plan_apply = False
     __class_validators__ = [
-        # v_require_conf_key,
-        # v_warn_config_kls,
+        # validators.require_conf_key,
+        # validators.warn_config_kls,
     ]
 
 
@@ -321,7 +298,7 @@ class BasePlugin(CliPlugin):
     priority = 10
 
 
-@tags(cli_label='NameSpace')
+@tagging.tags(cli_label='NameSpace')
 class NameSpace(CliPlugin):
     """
     `CliNamespace` collects functionality

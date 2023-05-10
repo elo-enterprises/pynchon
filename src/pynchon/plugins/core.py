@@ -3,7 +3,7 @@
 from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
-from pynchon.util import files, lme, typing
+from pynchon.util import files, lme, typing, tagging
 
 LOGGER = lme.get_logger(__name__)
 
@@ -103,6 +103,13 @@ class Core(models.Planner):
             result = api.render.get_template('pynchon/tox.ini')
             raise NotImplementedError()
 
+    @tagging.tags(click_aliases=['sh'])
+    def shell(self):
+        """drop to debugging shell"""
+        import IPython
+
+        IPython.embed()
+
     def raw(self) -> None:
         """
         Returns (almost) raw config,
@@ -120,7 +127,7 @@ class Core(models.Planner):
 
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
-        plugins = self.active_plugins
+        plugins = self.siblings.values()
         plugins = [
             p
             for p in plugins

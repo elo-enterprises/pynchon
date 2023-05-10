@@ -10,9 +10,15 @@ from pynchon.util import lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
+def port():
+    conn = server()
+    conns = conn and conn.connections()
+    return conns and conns[0].laddr.port
+
+
 def serving():
     """ """
-    return bool(_is_my_grip())
+    return bool(server())
 
 
 def _current_grip_procs() -> typing.List[psutil.Process]:
@@ -20,7 +26,7 @@ def _current_grip_procs() -> typing.List[psutil.Process]:
     return filter_pids(name='grip')
 
 
-def _my_grip() -> psutil.Process:
+def server() -> psutil.Process:
     """ """
     tmp = [g for g in _current_grip_procs() if _is_my_grip(g)]
     if tmp:

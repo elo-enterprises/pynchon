@@ -1,4 +1,4 @@
-""" pynchon.abcs.plugin
+""" pynchon.fleks.plugin
 """
 from memoized_property import memoized_property
 

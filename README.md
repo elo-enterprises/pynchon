@@ -145,3 +145,4 @@ For cyclomatic complexity, we rely on [mccabe](https://github.com/PyCQA/mccabe).
 * Use the [griffe-agent / plugin framework](#FIXME)?
 
 ---------------------------------------------------------------------------------
+ 
