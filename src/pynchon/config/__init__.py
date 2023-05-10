@@ -41,13 +41,17 @@ events.lifecycle.send(
     stage=msg,
 )
 
-pynchon = PYNCHON = CoreConfig(config_files=CONFIG_FILES, **MERGED_CONFIG_FILES)
+pynchon = PYNCHON = CoreConfig(
+    skip_instance_validation=True,  # still bootstrapping..
+    config_files=CONFIG_FILES,
+    **MERGED_CONFIG_FILES
+)
 RAW = PYNCHON.copy()
 PLUGINS = PYNCHON['plugins'] = list(
     set(PYNCHON['plugins'] + PYNCHON.plugins + ['core'])
 )
 
-# FIXME: get from registry
+# FIXME: get from registry or mcls
 _all_names = PLUGINS + Meta.NAMES
 
 msg = "Splitting core config.."

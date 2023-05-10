@@ -7,6 +7,42 @@ from pynchon.util import tagging, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
+count = 0
+
+
+def validate(kls=None, self=None, vdata=None):
+    global count
+    count += 1
+    if count > 1:
+        raise Exception()
+
+    def validate_plugins(self, plugin_list: typing.List = []):
+        """ """
+        defaults = set(constants.DEFAULT_PLUGINS)
+        user_provided = set(plugin_list)
+        intersection = defaults.intersection(user_provided)
+        diff = defaults - intersection
+        if diff:
+            msg = "implied plugins are not mentioned explicitly!"
+            vdata.warnings[msg].append(diff)
+
+    def validate_config(self, k, v):
+        if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
+            raise ValueError(f"Top-level keys should be simple strings! {k}")
+        if isinstance(v, str) and '{{' in v:
+            raise ValueError(f"No templating in top level! {v}")
+        raw_plugin_configs = {}
+        if k == 'plugins':
+            validate_plugins(v)
+        elif isinstance(v, (dict,)):
+            raw_plugin_configs[k] = v
+        else:
+            # LOGGER.info(f'skipping validation for top-level `{k}` @ {v}')
+            pass
+
+    for k, v in dict(self).items():
+        validate_config(self, k, v)
+
 
 class Config(abcs.Config):
     """ """
@@ -18,39 +54,13 @@ class Config(abcs.Config):
         plugins=list(set(constants.DEFAULT_PLUGINS)),
     )
     __class_validators__ = []
-    __instance_validators__ = []
-
-    def validate_plugins(self, plugin_list: typing.List = []):
-        """ """
-        # LOGGER.warning('skipping plugin validation..')
-        defaults = set(constants.DEFAULT_PLUGINS)
-        user_provided = set(plugin_list)
-        intersection = defaults.intersection(user_provided)
-        diff = defaults - intersection
-        if diff:
-            msg = "implied plugins are not mentioned explicitly"
-            self.logger.warning(f"{msg}:\n  {diff}")
-
-    def validate(self, k, v):
-        if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
-            raise ValueError(f"Top-level keys should be simple strings! {k}")
-        if isinstance(v, str) and '{{' in v:
-            raise ValueError(f"No templating in top level! {v}")
-        raw_plugin_configs = {}
-        if k == 'plugins':
-            self.validate_plugins(v)
-        elif isinstance(v, (dict,)):
-            raw_plugin_configs[k] = v
-        else:
-            # LOGGER.info(f'skipping validation for top-level `{k}` @ {v}')
-            pass
+    __instance_validators__ = [
+        validate,
+    ]
 
     def __init__(self, **core_config):
         if not core_config:
             self.logger.critical("core config is empty!")
-        self.logger.debug('Validating..')
-        for k, v in core_config.items():
-            self.validate(k, v)
         super(Config, self).__init__(**core_config)
 
     @property

@@ -9,7 +9,7 @@ LOGGER = lme.get_logger(__name__)
 
 @tagging.tags(click_aliases=['pa'])
 class PythonAPI(models.ShyPlanner):
-    """Tools for generating python-api docs"""
+    """Generators for Python API docs"""
 
     name = "python-api"
 

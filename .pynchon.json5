@@ -8,11 +8,6 @@
   // Everything here is optional.
   // Literals only; no templating please!
   "plugins": [
-    // Plugins that are loaded.
-    // Default plugins are implicitly here, no need to mention them.
-    // Default providers: `python`, `project`, `git`, `globals`
-    // Default namespaces: `gen`, `render`.  Default
-    // Default tools: `json`.
     // Recommended for projects with source-code
     "docs", "src", "tests", "cicd", "fixme", "github",
 
@@ -44,8 +39,33 @@
     ],
   },
 
-  // Config for `github` plugin:
-  "github": {},
+  // Config for `src` plugin:
+  // This provides find/search tooling, plus file-header generators, etc
+  "src": {
+    "root": "{{pynchon.root}}/src",
+    "include_patterns": ["**/*.py",],
+    "headers": {},
+  },
+
+  // Config for `tests` plugin:
+  "tests": {
+    "root": "{{pynchon.root}}/tests",
+    "suite_patterns": [
+      "{{tests.root}}/*/",
+    ],
+    "include_patterns": ["**/*.py",],
+  },
+
+  // Config for `docs` plugin:
+  "docs": {
+    "root": "{{pynchon.root}}/docs",
+    "include_patterns": [
+        "{{pynchon.root}}/*.md",
+        "{{docs.root}}/*.md",
+        "{{docs.root}}/*.html",
+      ],
+    "open_changes": true,
+  },
 
   // Config for `project` plugin:
   "project":{
@@ -60,30 +80,8 @@
     },
   },
 
-  // Config for `src` plugin:
-  // This provides find/search tooling, plus file-header generators, etc
-  "src": {
-    "root": "{{pynchon.root}}/src",
-    "include_patterns": ["**/*.py",],
-    "headers": {},
-  },
-
-  // Config for `docs` plugin:
-  "docs": {
-    "root": "{{pynchon.root}}/docs",
-    "include_patterns": [
-        "{{pynchon.root}}/*.md",
-        "{{docs.root}}/*.md",
-        "{{docs.root}}/*.html",
-      ],
-    "open_changes": true,
-  },
-
-  // Config for `tests` plugin:
-  "tests": {
-    "root": "{{pynchon.root}}/tests",
-    "include_patterns": ["**/*.py",],
-  },
+  // Config for `github` plugin:
+  "github": {},
 
   // Config for `hooks` plugin:
    "hooks": {},

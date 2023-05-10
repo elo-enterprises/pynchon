@@ -26,6 +26,6 @@ def require_conf_key(kls, strict=True, **vdata):
 def warn_config_kls(kls, warnings=collections.defaultdict(list), **vdata):
     pconf_kls = getattr(kls, 'config_class', None)
     if pconf_kls is None:
-        warnings["`config_kls` not set!"].append(kls)
+        warnings["`config_class` not set!"].append(kls)
     vdata.update(warnings=warnings)
     return vdata

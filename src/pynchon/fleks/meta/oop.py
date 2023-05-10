@@ -1,3 +1,6 @@
+"""
+"""
+import functools
 import collections
 
 from pynchon.util import typing, lme
@@ -9,6 +12,14 @@ type_spec = collections.namedtuple('type_spec', 'name bases namespace')
 
 class ClassMalformed(TypeError):
     """ """
+
+
+from .namespace import namespace
+
+
+class ValidationResults(typing.NamedTuple, metaclass=namespace):
+    warnings: typing.Dict[str, typing.List[typing.Any]] = collections.defaultdict(list)
+    errors: typing.Dict = collections.defaultdict(dict)
 
 
 class Meta(type):
@@ -57,59 +68,64 @@ class Meta(type):
         tspec: type_spec = None,
     ) -> typing.Dict:
         """ """
+
         name, bases, namespace = tspec.name, tspec.bases, tspec.namespace  # noqa
 
-        ## BEGIN: validation protocol
-        def __run_validators(kls, *validators, **kwargs):
-            import collections
-
-            vdata = dict(
-                errors=collections.defaultdict(list),
-                warnings=collections.defaultdict(list),
-            )
+        def run_validators(kls, validators: typing.List = [], self=None):
+            vdata = ValidationResults()
             for validator in validators:
-                validator(kls, **vdata)
+                validator(kls, self=self, vdata=vdata)
             return vdata
 
-        def __validation_results_hook(kls, vdata, quiet=True):
-            errors, warnings = vdata['errors'], vdata['warnings']
-            if errors:
+        def validation_results_hook(kls, vdata, quiet=False, strict=True):
+            errors, warnings = vdata.errors, vdata.warnings
+            if errors and strict:
                 raise ClassMalformed(errors)
             if warnings and not quiet:
                 for msg, offenders in warnings.items():
                     LOGGER.warning(f'{msg}')
                     LOGGER.warning(f'  offenders: {offenders}')
+                # raise Exception(warnings)
 
-        def __validate_instance__(kls, quiet=True):
+        def __validate_class__(kls, quiet=True):
+            vdata = run_validators(kls, validators=kls.__class_validators__)
+            advice = validation_results_hook(kls, vdata, quiet=quiet)
+            return advice
+
+        # FIXME: aggregate_across_bases?
+        __class_validators__ = namespace.get('__class_validators__', [])
+        __instance_validators__ = namespace.get('__instance_validators__', [])
+
+        def validate_instance(kls, self=None):
             """
-            __instance_validators__
-            __instance_validation_results__
+            requires: __instance_validators__
+            provides: __instance_validation_results__
             """
-            vdata = __run_validators(kls, *kls.__instance_validators__)
-            advice = __validation_results_hook(kls, vdata, quiet=quiet)
+            vdata = run_validators(
+                kls, validators=kls.__instance_validators__, self=self
+            )
+            advice = validation_results_hook(kls, vdata)
             kls.__instance_validation_results__ = vdata
             return advice
 
-        def __validate_class__(kls, quiet=True):
-            """
-            __class_validators__
-            __class_validation_results__
-            """
-            vdata = __run_validators(kls, *kls.__class_validators__)
-            advice = __validation_results_hook(kls, vdata, quiet=quiet)
-            kls.__class_validation_results__ = vdata
-            return advice
-
         namespace.update(
-            __instance_validators__=namespace.get('__instance_validators__', []),
-            __class_validators__=namespace.get('__class_validators__', []),
-            __run_validators=__run_validators,
-            __validation_results_hook=__validation_results_hook,
-            __validate_instance__=__validate_instance__,
+            __class_validators__=__class_validators__,
             __validate_class__=__validate_class__,
+            __instance_validators__=__instance_validators__,
         )
+
+        original_init = namespace.get('__init__', None)
+        if __instance_validators__ and original_init:
+
+            @functools.wraps(original_init)
+            def wrapped_init(self, *args, **kwargs):
+                skip_instance_validation = kwargs.pop('skip_instance_validation', False)
+                result = original_init(self, *args, **kwargs)
+                skip_instance_validation or validate_instance(self.__class__, self=self)
+                return result
+
+            namespace.update(__init__=wrapped_init)
         return namespace
-        ## END: validation protocol
 
     @classmethod
     def annotate(

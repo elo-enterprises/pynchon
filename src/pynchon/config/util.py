@@ -53,12 +53,18 @@ def finalize():
                 if plugin_kls.name == 'base'
                 else config_module.USER_DEFAULTS.get(plugin_kls.name, {})
             )
-            plugin_config = pconf_kls(
-                **{
-                    # **plugin_defaults,
-                    **user_defaults,
-                }
-            )
+            if plugin_kls.name == 'core':
+                # special case: this is already bootstrapped
+                from pynchon.config import PYNCHON_CORE
+
+                plugin_config = PYNCHON_CORE
+            else:
+                plugin_config = pconf_kls(
+                    **{
+                        # **plugin_defaults,
+                        **user_defaults,
+                    }
+                )
         setattr(config_module, conf_key, plugin_config)
         result.update({conf_key: plugin_config})
         events.lifecycle.send(
@@ -107,7 +113,7 @@ def load_config_from_files() -> typing.Dict[str, str]:
     contents = collections.OrderedDict()
     for config_file in get_config_files():
         if not config_file.exists():
-            LOGGER.warning(f"config_file@`{config_file}` doesn't exist, skipping it")
+            LOGGER.info(f"config_file@`{config_file}` doesn't exist, skipping it")
             continue
         elif config_file.name.endswith('pyproject.toml'):
             LOGGER.info(f"Loading from toml: {config_file}")

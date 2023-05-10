@@ -58,7 +58,7 @@ class PythonCliConfig(abcs.Config):
 
 @tagging.tags(click_aliases=['pc'])
 class PythonCLI(models.ShyPlanner):
-    """Tools for generating CLI docs"""
+    """Generators for Python CLI docs"""
 
     name = "python-cli"
     config_class = PythonCliConfig
