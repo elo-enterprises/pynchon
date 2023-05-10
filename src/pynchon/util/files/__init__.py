@@ -2,12 +2,13 @@
 """
 import re
 import glob
-import difflib
 import functools
 
 from pynchon import abcs, cli
+
 from pynchon.util import lme, typing, os  # noqa
-from .diff import diff_report, diff_percent, diff
+
+from .diff import diff_report, diff_percent, diff  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -37,7 +38,6 @@ def prepend(
         ]
     )
     return os.invoke(cmd)
-
 
 
 def find_suffix(root: str = '', suffix: str = '') -> typing.StringMaybe:
@@ -84,7 +84,8 @@ def find_src(
 @typing.validate_arguments
 def find_globs(
     globs: typing.List[abcs.Path],
-    includes=[], logger:object=None,
+    includes=[],
+    logger: object = None,
     quiet: bool = False,
 ) -> typing.List[str]:
     """ """

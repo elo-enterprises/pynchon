@@ -9,6 +9,7 @@ LOGGER = lme.get_logger(__name__)
 
 from pynchon.fleks import meta
 
+
 class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     cmd: str = ''
     stdin: str = ""
@@ -118,7 +119,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
     success: bool = None
     stdout: str = ""
     stderr: str = ""
-    pid:int = -1
+    pid: int = -1
 
     def __rich__(self):
         from pynchon import app

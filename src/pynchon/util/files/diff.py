@@ -1,14 +1,13 @@
 """ pynchon.util.files.diff
 """
-import re
-import glob
 import difflib
-import functools
 
 from pynchon import cli
+
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
+
 
 def diff_report(diff, logger=LOGGER.debug):
     """ """

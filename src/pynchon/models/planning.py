@@ -74,7 +74,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         )
         [
             [
-                app.table.add_row(x),
+                table.add_row(x),
                 # table.add_row(Align(Emoji("gear"), align='center')),
             ]
             for i, x in enumerate(syntaxes)

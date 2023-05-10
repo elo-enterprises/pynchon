@@ -4,8 +4,7 @@ from memoized_property import memoized_property
 
 from pynchon import models, abcs
 from pynchon.abcs import Path
-from pynchon.util import lme, typing, files
-from pynchon.util import os
+from pynchon.util import lme, typing, files, os
 
 LOGGER = lme.get_logger(__name__)
 

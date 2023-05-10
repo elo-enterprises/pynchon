@@ -2,8 +2,9 @@
 """
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
-from pynchon.util import files
-from pynchon.util.os import invoke
+from pynchon.util import files, grip
+
+# from pynchon.util.os import invoke, filter_pids
 
 LOGGER = lme.get_logger(__name__)
 
@@ -37,6 +38,17 @@ class DocsMan(models.Planner):
     def gen(self):
         """Generator subcommands"""
 
+    @cli.click.option('--background', is_flag=True, default=True)
+    @cli.click.option('--force', is_flag=True, default=False)
+    def serve(
+        self,
+        background: bool = True,
+        force: bool = False,
+        logfile: str = '.tmp.grip.log',
+    ):
+        """Runs a `grip` server for this project"""
+        return grip.serve(background=background, force=force, logfile=logfile)
+
     @cli.options.output
     @cli.options.should_print
     @gen.command('version-file')
@@ -44,59 +56,22 @@ class DocsMan(models.Planner):
         """Creates {docs.root}/VERSION.md file"""
         raise NotImplementedError()
 
-    @property
-    def serving(self):
-        """ """
-        return bool(self._get_grip())
-
-    def _get_grips(self):
-        import psutil
-        import sys
-        this_env = abcs.Path(sys.argv[0]).parents[0]
-        grip=this_env/'grip'
-        procs = [psutil.Process(p) for p in psutil.pids()]
-        grips = [p for p in procs if p.name()=='grip']
-        return grips
-
-    def _get_grip(self):
-        """
-        """
-        tmp = [g for g in self._get_grips() if self._this_grip(g)]
-        if tmp:
-            return tmp[0]
-
-    def _this_grip(self, g) -> bool:
-        """
-        """
-        return g.cwd() == str(abcs.Path('.').absolute())
-
-    @cli.click.option('--background', is_flag=True, default=True)
-    def serve(self, background: bool = True, logfile='.tmp.grip.log'):
-        """Runs a grip server with the global pidfile"""
-        grips = self._get_grips()
-        if grips:
-            LOGGER.warning(f"{len(grips)} copies of grip are already started")
-            for p in grips:
-                # p.cmdline()
-                if self._this_grip(p):
-                    LOGGER.warning(f"grip @ {p.pid} uses the current working-dir")
-                    p.kill()
-        proc = invoke(f'grip >> {logfile} 2>&1 &', system=True)
-        return {}
-
-    def _open_md(self, file:str=None):
+    def _open_md(self, file: str = None):
         """ """
         import webbrowser
+
         if not self.serving:
             self.serve()
-        g = self._get_grip()
+        g = self._is_my_grip()
         port = g.connections()[0].laddr.port
         webbrowser.open(f'http://localhost:{port}/{file}')
 
-    @cli.click.argument('file',)
+    @cli.click.argument(
+        'file',
+    )
     def open(self, file):
         """Open a docs-artifact (based on file type)"""
-        file=abcs.Path(file)
+        file = abcs.Path(file)
         if not file.exists():
             raise ValueError(f'File @ `{file}` does not exist')
         if file.endswith('.md'):
@@ -106,8 +81,11 @@ class DocsMan(models.Planner):
         """Creates a plan for this plugin"""
         plan = super(self.__class__, self).plan(config=config)
         rsrc = self.config['root']
-        plan.append(self.goal(resource=rsrc, type='mkdir', command=f'mkdir -p {rsrc}'))
-        cmd_t = 'pynchon docs gen-version-file'
+        if not abcs.Path(rsrc).exists():
+            plan.append(
+                self.goal(resource=rsrc, type='mkdir', command=f'mkdir -p {rsrc}')
+            )
+        cmd_t = 'pynchon docs gen version-file'
         rsrc = abcs.Path(rsrc) / 'VERSION.md'
         plan.append(
             self.goal(
