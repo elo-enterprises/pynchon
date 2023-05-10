@@ -1,5 +1,7 @@
 """ pynchon.plugins.cicd
 """
+import webbrowser
+
 from pynchon import abcs, models
 
 from pynchon.cli import click, common, options  # noqa
@@ -24,3 +26,15 @@ class CiCd(models.Provider):
             url_deploy=None,
             url_build=None,
         )
+
+    # @cli.click.option()
+    def open(self):
+        """Opens CI/CD URL for this project"""
+        url = self['url_build' :: self['url_base']]
+        return webbrowser.open(url)
+
+    # @cli.click.option()
+    def trigger(self):
+        """Triggers CI/CD job for this project"""
+        url = self['url_build']
+        raise NotImplementedError()

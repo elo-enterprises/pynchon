@@ -29,23 +29,7 @@ See for example [this stack overflow question](https://stackoverflow.com/questio
 
 Popular docs-frameworks also stop short of managing things *besides* docs, although code-gen or code-annotation is a pretty similar task.  After you start thinking about stuff like this, API-docs generation probably can't succeed anyway as long as you have syntax errors, so why not lint files while you're scanning them, and make sure the spec for each is using the *source tree* DRY-ly?
 
-But.. *pynchon is not a build tool, it's a project tool.*  The approach is spiritually related to things like [tox](#), [cog](#), [make](#), [helm](#), [jinja](#), and [cookie-cutter](#).  But it's more likely to orchestrate *across* these things than try to replace them.
-
-Management / generation tasks in source-repositories are usually ongoing iterative processes.  For this kind of work, pynchon's interface choices are heavily influenced by the design of [terraform](#): most things are using a plan/apply workflow, where context information is arrived at via optional "providers".  A plugin/config system then allows for easy expansion on the basic model.
-
-## Overview
-
-Pynchon is a library, tool, and extensible framework for project management.  It's useful in general, but also specializes in autogenerating documentation for python projects.
-
-## Motivation & Design
-
-This project exists because frameworks like [sphinx](#), [pydoc](#), and [mkdocs](#) do a lot, but require quite a bit of opionated/fragile setup, and in the end it's pretty hard to do basic stuff.
-
-See for example [this stack overflow question](https://stackoverflow.com/questions/36237477/python-docstrings-to-github-readme-md).
-
-Popular docs-frameworks also stop short of managing things *besides* docs, although code-gen or code-annotation is a pretty similar task.  After you start thinking about stuff like this, API-docs generation probably can't succeed anyway as long as you have syntax errors, so why not lint files while you're scanning them, and make sure the spec for each is using the *source tree* DRY-ly?
-
-But.. *pynchon is not a build tool, it's a project tool.*  The approach is spiritually related to things like [tox](#), [cog](#), [make](#), [helm](#), [jinja](#), and [cookie-cutter](#).  But it's more likely to orchestrate *across* these things than try to replace them.
+But.. *pynchon is not a build tool, it's a project tool.*  The approach is spiritually related to things like [tox](#), [cog](#), [make](#), [helm](#), [jinja](#), [cookie-cutter](#), or [pyscaffold](#).  But pynchon is much likely to orchestrate *across* these things than try to replace them.
 
 Management / generation tasks in source-repositories are usually ongoing iterative processes.  For this kind of work, pynchon's interface choices are heavily influenced by the design of [terraform](#): most things are using a plan/apply workflow, where context information is arrived at via optional "providers".  A plugin/config system then allows for easy expansion on the basic model.
 
@@ -66,25 +50,64 @@ pip install -e .
 
 ---------------------------------------------------------------------------------
 
-## Pynchon as a Library
-
----------------------------------------------------------------------------------
-
-## Pynchon as a Tool
+## Pynchon as a Suite of Utilities
 
 The modules inside the pynchon library publish several stand-alone tools.
 
----------------------------------------------------------------------------------
-
-## Pynchon as a CLI
+### util.os
+### util.loadf
+### util.json
+### util.jinja
+### util.shfmt
+### util.ansible
 
 ---------------------------------------------------------------------------------
 
 ## Pynchon as a Framework
 
+### Plugins
+#### Plugin Priority
+#### Plugin Config
+#### Plugin CLIs
+#### Plugin Types
+##### Core-Plugins
+##### Provider-Plugins
+##### Planner-Plugins
+##### Manager-Plugins
+##### Tool-Plugins
+##### Namespaces
+### Nested Plugins
+### Rendering Engine
+### Hooks
+### Events
+
 ---------------------------------------------------------------------------------
 
-## Tutorials
+## Pynchon as a Library
+
+### Parsers
+
+### Planners
+
+### Solvers
+
+### Tagging & Typing
+
+### Orchestration
+
+System Command Invocation
+
+### CLI Framework
+
+### Application Framework
+
+### OOP Framework
+
+### Event Framework
+
+---------------------------------------------------------------------------------
+
+## Example Usage
 
 ```
 pynchon gen version-metadata
@@ -92,7 +115,6 @@ pynchon gen api toc
 pynchon gen cli toc
 pynchon gen api detail
 ```
-
 
 ---------------------------------------------------------------------------------
 
@@ -145,5 +167,3 @@ For cyclomatic complexity, we rely on [mccabe](https://github.com/PyCQA/mccabe).
 * Use the [griffe-agent / plugin framework](#FIXME)?
 
 ---------------------------------------------------------------------------------
- 
- 

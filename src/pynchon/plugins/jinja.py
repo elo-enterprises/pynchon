@@ -1,27 +1,12 @@
 """ pynchon.plugins.jinja
 """
 from pynchon.util import lme, typing, tagging  # noqa
-from pynchon import abcs, models
+from pynchon import abcs, models, cli, api
 from pynchon.api import project
 from pynchon.util import files, text
+from pynchon.plugins import util as plugin_util
 
 LOGGER = lme.get_logger(__name__)
-
-# from pynchon.util.text.render import __main__ as render_main
-
-# @property
-# def template_includes(self) -> typing.List:
-#     docs_root = initialized["pynchon"].get("docs_root", None)
-#     docs_root = docs_root and abcs.Path(docs_root)
-#     if docs_root:
-#         extra = [abcs.Path(docs_root.joinpath("templates"))]
-#     else:
-#         LOGGER.warning("`docs_root` is not set; cannot guess `jinja.template_includes`")
-#         extra = []
-#     return extra + self._base.get("template_includes", [])
-
-from pynchon import cli, api
-from pynchon.plugins import util as plugin_util
 
 
 @tagging.tags(click_aliases=['j'])
@@ -60,7 +45,7 @@ class Jinja(models.Planner):
         """ """
         fname = ".tmp.jinja.ctx.json"
         with open(fname, 'w') as fhandle:
-            fhandle.write(text.to_json(self.config))
+            fhandle.write(text.to_json(self.project_config))
         return f"{fname}"
 
     @property

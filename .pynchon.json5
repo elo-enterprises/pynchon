@@ -52,6 +52,7 @@
 
   // Config for `project` plugin:
   "project":{
+    "subproject_patterns": [],
     "shell_aliases":{
       "m":"make",
       "g":"git",
