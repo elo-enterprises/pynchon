@@ -1,15 +1,13 @@
 """ pynchon.config.util
 """
-import os
 import functools
 import collections
 from types import MappingProxyType
 
-import pyjson5
-
-from pynchon import abcs, events
+from pynchon import constants, abcs, events
 from pynchon import config as config_module
 from pynchon.util import typing, lme
+from pynchon.util.text import loadf, loads
 from pynchon.plugins.util import PluginNotRegistered, get_plugin
 
 LOGGER = lme.get_logger(__name__)
@@ -17,7 +15,7 @@ LOGGER = lme.get_logger(__name__)
 
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
-
+    """ """
     result = abcs.AttrDict(
         pynchon=MappingProxyType(
             dict(
@@ -48,7 +46,6 @@ def finalize():
         if pconf_kls is None:
             plugin_config = abcs.Config()
         else:
-            # NB: module access
             user_defaults = (
                 config_module.PYNCHON_CORE
                 if plugin_kls.name == 'base'
@@ -69,24 +66,18 @@ def finalize():
         # plugins_registry.register(plugin_obj)
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
         events.lifecycle.send(plugin_obj, plugin=f'finalized {plugin_kls.__name__}')
-    # for msg, offenders in warnings.items():
-    #     offenders = [x.__name__ for x in offenders]
-    #     LOGGER.warning(f"{msg}")
-    #     LOGGER.warning(f"offenders={offenders}")
     return result
 
 
 def get_config_files():
     """ """
-
-    if os.environ.get('PYNCHON_CONFIG', None):
-        return [abcs.Path(os.environ['PYNCHON_CONFIG'])]
-    files = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
+    if constants.PYNCHON_CONFIG:
+        return [abcs.Path(constants.PYNCHON_CONFIG)]
     result = []
     for folder in config_folders():
-        for file in files:
+        for file in constants.CONF_FILE_SEARCH_ORDER:
             result.append(folder / file)
-    # FIXME: handle sub
+    # FIXME: handle overrides from subproject
     # subproject = project['subproject']
     # subproject_root = subproject and subproject['root']
     # if subproject_root:
@@ -102,29 +93,28 @@ def get_config_files():
 def config_folders():
     from pynchon import config
 
-    folders = list(
-        set(filter(None, [os.environ.get("PYNCHON_ROOT"), config.GIT["root"]]))
-    )
+    folders = list(set(filter(None, [constants.PYNCHON_ROOT, config.GIT["root"]])))
     return [abcs.Path(f) for f in folders]
 
 
 def load_config_from_files() -> typing.Dict[str, str]:
     """ """
-    from pynchon.util import python
-
     contents = collections.OrderedDict()
-    for src in get_config_files():
-        if not src.exists():
-            LOGGER.warning(f"src@`{src}` doesn't exist, skipping it")
+    for config_file in get_config_files():
+        if not config_file.exists():
+            LOGGER.warning(f"config_file@`{config_file}` doesn't exist, skipping it")
             continue
-        if src.name.endswith('pyproject.toml'):
-            LOGGER.info(f"Loading from toml: {src}")
-            tmp = python.load_pyprojecttoml(path=src)
-            tmp = tmp.get("tool", {}).get("pynchon", {})
-            contents[src] = tmp
-        elif src.name.endswith('.json5'):
-            LOGGER.info(f"Loading from json5: {src}")
-            with open(src.absolute(), "r") as fhandle:
-                # contents.append()
-                contents[src] = pyjson5.loads(fhandle.read())
+        elif config_file.name.endswith('pyproject.toml'):
+            LOGGER.info(f"Loading from toml: {config_file}")
+            tmp = loadf.toml(config_file)
+            tmp = tmp.get("tool", {})
+            tmp = tmp.get("pynchon", {})
+            contents[config_file] = tmp
+        elif config_file.name.endswith('.json5'):
+            LOGGER.info(f"Loading from json5: {config_file}")
+            with open(config_file.absolute(), "r") as fhandle:
+                contents[config_file] = loads.json5(fhandle.read())
+        else:
+            err = f"don't know how to load config from {config_file}"
+            raise NotImplementedError(err)
     return contents

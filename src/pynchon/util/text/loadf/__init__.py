@@ -4,6 +4,8 @@
 """
 import os
 
+import tomli as tomllib  # NB: tomllib only available in py3.11
+
 from pynchon.cli import click, options
 from pynchon.util import text
 from pynchon.util.os import invoke
@@ -15,9 +17,15 @@ from pynchon.util import lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-def ini(*args, **kwargs):
-    """parses ini file and returns JSON"""
-    raise NotImplementedError()
+@click.argument("file", nargs=1)
+def ini(file):
+    """Parses ini file and returns JSON"""
+    import configparser
+
+    parser = configparser.ConfigParser()
+    parser.read(file)
+    ini_conf = {section: dict(parser.items(section)) for section in parser.sections()}
+    return ini_conf
 
 
 def yaml(*args, **kwargs):
@@ -25,9 +33,25 @@ def yaml(*args, **kwargs):
     raise NotImplementedError()
 
 
-def toml(*args, **kwargs):
-    """parses toml file and returns JSON"""
-    raise NotImplementedError()
+@click.argument("file", nargs=1)
+def toml(file: str = None, strict: bool = True):
+    """Parses toml file and returns JSON"""
+
+    config = {}
+    if not os.path.exists(file):
+        err = f"Cannot load config from nonexistent path @ `{file}`"
+        LOGGER.critical(err)
+        if strict:
+            raise
+        else:
+            return config
+    with open(file, "rb") as f:
+        try:
+            config = tomllib.load(f)
+        except (tomllib.TOMLDecodeError,) as exc:
+            LOGGER.critical(f"cannot decode data from toml @ {file}")
+            raise
+    return config
 
 
 # @click.argument("file", nargs=1)
@@ -85,29 +109,12 @@ def json5(
     under_key: str = '',
 ) -> None:
     """
-    Parses JSON-5 file(s) and outputs json.
+    Parses JSON-5 file(s) and outputs json. Pipe friendly.
 
     If multiple files are provided, files will
     be merged (with overwrites) in the order provided.
 
-    Pipe friendly.
-
     Several other options are available for common post-processing tasks.
-    """
-    # out = _json5_loadc(
-    #     files=files,
-    #     wrapper_key=wrapper_key,
-    #     pull=pull,
-    #     push_data=push_data,
-    #     push_file_data=push_file_data,
-    #     push_json_data=push_json_data,
-    #     push_command_output=push_command_output,
-    #     under_key=under_key,
-    # )
-    """
-    loads json5 file(s) and outputs json.
-    if multiple files are provided, files will
-    be merged with overwrites in the order provided
     """
     out: typing.Dict[str, typing.Any] = {}
     for file in files:

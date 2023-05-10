@@ -6,7 +6,7 @@ from pynchon import abcs, models
 class GlobalsConfig(abcs.Config):
     """ """
 
-    defaults = dict()
+    defaults = dict(exclude_patterns=[])
     config_key = 'globals'
 
 
@@ -15,5 +15,4 @@ class Globals(models.Provider):
 
     priority = 2
     name = 'globals'
-    defaults = dict()
     config_class = GlobalsConfig

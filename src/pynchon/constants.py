@@ -2,7 +2,11 @@
 """
 import os
 
+PYNCHON_ROOT = os.environ.get("PYNCHON_ROOT", None)
+PYNCHON_CONFIG = os.environ.get('PYNCHON_CONFIG', None)
 LOG_LEVEL = os.environ.get('PYNCHON_LOG_LEVEL', 'WARNING')
+
+CONF_FILE_SEARCH_ORDER = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
 DEFAULT_PLUGINS = [
     # FIXME: docs
     "core",
@@ -17,7 +21,6 @@ DEFAULT_PLUGINS = [
     "jinja",
 ]
 
-# URL_BUILTINS = "https://docs.python.org/3/library/functions.html"
 # TEMPLATE_DIR = os.environ.get(
 #     "PYNCHON_TEMPLATE_DIR",
 #     os.path.join(
@@ -25,9 +28,6 @@ DEFAULT_PLUGINS = [
 #         "templates",
 #     ),
 # )
-# assert os.path.exists(TEMPLATE_DIR), TEMPLATE_DIR
-# import jinja2
-# ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR))
 #
 # # FIXME: reuse parallel jinja env/template stuff in pynchon.util.text.render
 # plugin_base = "pynchon/plugins"

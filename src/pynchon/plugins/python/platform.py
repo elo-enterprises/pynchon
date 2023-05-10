@@ -40,6 +40,10 @@ class PythonPlatform(models.Provider):
 
 
 class PackageConfig(abcs.Config):
+    """
+    WARNING: `parent` below prevents moving this class elsewhere
+    """
+
     parent = PythonPlatform.config_class
     config_key = "package"
 
@@ -48,11 +52,11 @@ class PackageConfig(abcs.Config):
         """ """
         from pynchon.util import python
 
-        return python.load_setupcfg().get("metadata", {}).get("name")
+        result = python.load_setupcfg().get("metadata", {}).get("name")
+        return result
 
     @memoized_property
     def version(self) -> str:
         """ """
-        # self.logger.debug("resolving project version..")
         cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
         return cmd.succeeded and cmd.stdout.strip()

@@ -48,28 +48,45 @@ class DocsMan(models.Planner):
         """Creates {docs.root}/VERSION.md file"""
         raise NotImplementedError()
 
-    def _open_md(self, file: str = None, server=None):
-        """ """
+    # @property
+    # def server(self):
+    #     return grip.server()
 
+    def _open_grip(self, file: str = None, server=None):
+        """ """
         pfile = abcs.Path(file).absolute()
         groot = self.project_config['git']['root']
         relf = pfile.relative_to(abcs.Path(groot))
-        grip_url = f'http://localhost:{self.server.port}/{relf}'
+        grip_url = f'http://localhost:{server.port}/{relf}'
         LOGGER.warning(f'opening {grip_url}')
         return dict(url=grip_url, browser=webbrowser.open(grip_url))
+
+    _open__md = _open_grip
+    _open__html = _open_grip
 
     @cli.click.argument(
         'file',
     )
     def open(self, file, server=None):
         """Open a docs-artifact (based on file type)"""
+        server = server or self.serving
+        if not server and not grip.serving():
+            grip.serve()
+        self.serving = server = grip.server()
         file = abcs.Path(file)
         if not file.exists():
             raise ValueError(f'File @ `{file}` does not exist')
-        if file.endswith('.md'):
-            return self._open_md(file, server=server)
+        ext = file.full_extension().replace('.', '_')
+        name = f'_open_{ext}'
+        try:
+            fxn = getattr(self, name)
+            # return self._open_md(file, server=server)
+        except (AttributeError,) as exc:
+            raise NotImplementedError(
+                f'dont know how to open `{file}`, method `{name}` is missing'
+            )
         else:
-            raise NotImplementedError(f'dont know how to open {file}')
+            return fxn(file, server=server)
 
     def open_changes(self, server=None):
         """Open changed files"""

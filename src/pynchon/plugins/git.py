@@ -15,7 +15,8 @@ class GitConfig(abcs.Config):
 
     def _run(self, cmd, log_command=False, **kwargs):
         """ """
-        return os.invoke(f"cd {self.root} && {cmd}", log_command=log_command, **kwargs)
+        pre = f"cd {self.root} && " if self.root else ""
+        return os.invoke(f"{pre}{cmd}", log_command=log_command, **kwargs)
 
     @memoized_property
     def default_remote_branch(self) -> typing.StringMaybe:

@@ -1,8 +1,6 @@
 """ pynchon.plugins.project
 """
-import os
-
-from pynchon import abcs, config, models
+from pynchon import abcs, config, models, constants
 
 from pynchon.cli import common, options  # noqa
 from pynchon.util import lme, typing  # noqa
@@ -21,30 +19,30 @@ class ProjectConfig(abcs.Config):
     def name(self) -> typing.StringMaybe:
         """ """
         repo_name = config.git.get("repo_name")
-        return repo_name or abcs.Path('.').name()
+        return repo_name or abcs.Path('.').name
+
+    @property
+    def _workdir(self):
+        return abcs.Path('.').absolute()
 
     @property
     def root(self) -> str:
         """ """
         git = config.GIT
-        return (
-            os.environ.get("PYNCHON_ROOT") or (git and git.get("root")) or os.getcwd()
-        )
+        return constants.PYNCHON_ROOT or (git and git.get("root")) or self._workdir
 
     @property
     def subproject(self) -> typing.Dict:
         """ """
-        if os.environ.get("PYNCHON_ROOT"):
+        if constants.PYNCHON_ROOT:
             return {}
         git = config.GIT
         git_root = git["root"]
-        workdir = abcs.Path('.')
-        # workdir = pynchon["working_dir"]
-        r1 = workdir.absolute()
+        r1 = self._workdir
         r2 = git_root and git_root.absolute()
         if r2 and (r1 != r2):
             self.logger.warning("subproject detected ({tmp}!=git[root])")
-            return dict(name=workdir.name, root=workdir.absolute())
+            return dict(name=self._workdir.name, root=self._workdir)
         return {}
 
 

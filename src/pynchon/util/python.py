@@ -1,10 +1,6 @@
 """ pynchon.api.python
 """
-import os
-
-import tomli as tomllib  # tomllib only available in py3.11
-
-from pynchon.util import lme, files
+from pynchon.util import lme, files, text
 
 LOGGER = lme.get_logger(__name__)
 
@@ -16,36 +12,13 @@ def is_package() -> bool:
     return python.is_package
 
 
-def load_setupcfg(path: str = ""):
+def load_setupcfg(file: str = ""):
     """ """
-    path = path or os.path.join(files.get_git_root(), "setup.cfg")
-    from pynchon.util import config
-
-    return config.ini_loads(path)
-
-
-def load_pyprojecttoml(path: str = ""):
-    """ """
-    import tomli
-
-    if not os.path.exists(path):
-        err = f"Cannot load config from nonexistent path @ `{path}`"
-        LOGGER.critical(err)
-        return None, {}
-        # raise RuntimeError(err)
-
-    with open(path, "rb") as f:
-        try:
-            config = tomllib.load(f)
-        except (tomli.TOMLDecodeError,) as exc:
-            LOGGER.critical(f"cannot decode data from toml @ {f}")
-            raise
-    # config = {s: dict(config.items(s)) for s in config.sections()}
-    pynchon_section = config.get("pynchon", {})
-    # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(
-    #     'project', '').split('\n') if x.strip())
-    # config['tool:pynchon'] = pynchon_section
-    return config
+    if not file:
+        file = files.get_git_root().parents[0] / 'setup.cfg'
+    return text.loadf.ini(file)
+    # from pynchon.util import config
+    # return config.ini_loads(file)
 
 
 def load_entrypoints(config=None) -> dict:

@@ -10,8 +10,8 @@ from pynchon.util import lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-def port():
-    conn = server()
+def port(conn=None):
+    conn = conn or server()
     conns = conn and conn.connections()
     return conns and conns[0].laddr.port
 
@@ -30,7 +30,9 @@ def server() -> psutil.Process:
     """ """
     tmp = [g for g in _current_grip_procs() if _is_my_grip(g)]
     if tmp:
-        return tmp[0]
+        result = tmp[0]
+        result.port = port(conn=result)
+        return result
 
 
 def _is_my_grip(g) -> bool:

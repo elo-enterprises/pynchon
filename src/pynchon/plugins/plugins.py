@@ -23,7 +23,7 @@ class PluginsMan(models.Manager):
         template_plugin_f = plugins_d / '__template__.py'
         new_plugin_file = plugins_d / f'{name}.py'
         cmd = f'ls {new_plugin_file} || cp {template_plugin_f} {new_plugin_file} && git status'
-        result = invoke(cmd, system=True).succeeded
+        result = invoke(cmd, system=True)
         if template_skeleton:
             raise NotImplementedError()
         return result.succeeded
