@@ -5,72 +5,74 @@ from pynchon.util import typing, tagging, lme
 
 LOGGER = lme.get_logger(__name__)
 
-
+class PythonApiConfig(abcs.Config):
+    config_key = "python-cli"
+    defaults = dict(
+        skip_private_methods=True,
+        skip_patterns=[],
+    )
 @tagging.tags(click_aliases=['pa'])
 class PythonAPI(models.ShyPlanner):
     """Tools for generating python-api docs"""
+    name = "python-api"
+    config_class = PythonApiConfig
 
     @cli.click.group
     def gen(self):
         """Generates API docs from python modules, packages, etc"""
 
-    name = "python-api"
-
     class config_class(abcs.Config):
         config_key = 'python-api'
         defaults = dict()
 
-    @classmethod
-    def init_cli(kls):
-        """pynchon.bin.api"""
-        # import click
-        #
-        # from pynchon import util
-        # from pynchon.plugins.Core import Core
-        #
-        # LOGGER = lme.get_logger(__name__)
+    @cli.options.file
+    @cli.options.header
+    # @options.output
+    @cli.options.should_print
+    @cli.options.package
+    @cli.click.option(
+        "--output",
+        "-o",
+        default="docs/api/README.md",
+        help=("output file to write.  (optional)"),
+    )
+    @cli.click.option(
+        "--exclude",
+        default="",
+        help=("comma-separated list of modules to exclude (optional)"),
+    )
+    def toc(self,
+    package=None,
+    should_print=None,
+    file=None,
+    exclude=None,
+    output=None,
+    stdout=None,
+    header=None):
+        """
+        Generate table-of-contents
+        """
+        from pynchon.util import complexity
+        from pynchon.api import render
+        T_TOC_API = render.get_template(
+            "pynchon/plugins/python/api/TOC.md.j2")
+        module = complexity.get_module(package=package, file=file)
+        result = complexity.visit_module(
+            module=module,
+            module_name=package,
+            template=T_TOC_API,
+            exclude=exclude.split(","),
+        )
+        header = f"{header}\n\n" if header else ""
+        result = dict(
+            header=f"## API for '{package}' package\n\n{header}" + "-" * 80,
+            blocks=result,
+        )
+        result = result["header"] + "\n".join(result["blocks"])
+        print(result, file=open(output, 'w'))
+        if should_print and output != '/dev/stdout':
+            print(result)
 
-        def markdown(**result):
-            return result["header"] + "\n".join(result["blocks"])
-
-        # @common.kommand(
-        #     name="toc",
-        #     parent=Core.gen_api,
-        #     formatters=dict(markdown=markdown),
-        #     options=[
-        #         options.format_markdown,
-        #         options.package,
-        #         click.option(
-        #             "--output",
-        #             "-o",
-        #             default="docs/api/README.md",
-        #             help=("output file to write.  (optional)"),
-        #         ),
-        #         click.option(
-        #             "--exclude",
-        #             default="",
-        #             help=("comma-separated list of modules to exclude (optional)"),
-        #         ),
-        #         options.file,
-        #         options.stdout,
-        #         options.header,
-        #     ],
-        # )
-        # def toc(package, file, exclude, output, format, stdout, header):
-        #     """
-        #     Generate table-of-contents
-        #     """
-        #     module = util.get_module(package=package, file=file)
-        #     result = util.visit_module(
-        #         module=module,
-        #         module_name=package,
-        #         exclude=exclude.split(","),
-        #     )
-        #     header = f"{header}\n\n" if header else ""
-        #     return dict(
-        #         header=f"## API for '{package}' package\n\n{header}" + "-" * 80,
-        #         blocks=result,
-        #     )
 
     def plan(self, config=None) -> typing.List:
         """ """

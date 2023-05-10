@@ -16,6 +16,8 @@ LOGGER = lme.get_logger(__name__)
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
     """ """
+    from pynchon.plugins import registry as plugins_registry
+
     result = abcs.AttrDict(
         pynchon=MappingProxyType(
             dict(
@@ -30,8 +32,8 @@ def finalize():
     )
     plugins = []
 
-    pnames = result.pynchon['plugins']
-    for pname in pnames:
+    # NB: already sorted by priority
+    for pname in plugins_registry.keys():
         try:
             tmp = get_plugin(pname)
         except (PluginNotRegistered,) as exc:
@@ -59,13 +61,16 @@ def finalize():
             )
         setattr(config_module, conf_key, plugin_config)
         result.update({conf_key: plugin_config})
+        events.lifecycle.send(
+            __name__, config=f'plugin-config@`{plugin_config}` was finalized'
+        )
 
         plugin_obj = plugin_kls(final=plugin_config)
-        from pynchon.plugins import registry as plugins_registry
-
         # plugins_registry.register(plugin_obj)
         plugins_registry[plugin_kls.name]['obj'] = plugin_obj
-        events.lifecycle.send(plugin_obj, plugin=f'finalized {plugin_kls.__name__}')
+        events.lifecycle.send(
+            plugin_obj, plugin=f'plugin@`{plugin_kls.__name__}` was finalized'
+        )
     return result
 
 

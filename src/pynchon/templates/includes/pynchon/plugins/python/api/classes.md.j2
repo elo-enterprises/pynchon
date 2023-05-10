@@ -9,17 +9,19 @@
   {%if obj._metadata.mccabe %}
   {% set admonitions = obj._metadata.mccabe + admonitions %}
   {% endif %}
-  {% if obj._metadata.fixme %}{{rel_url}} "")
-  {% set admonitions = obj._metadata.fixme + admonitions %}
+  {% set fixme=obj._metadata.get('fixme',[])%}
+  {% if fixme %}{{rel_url}} "")
+  {% set admonitions = fixme + admonitions %}
   {% endif %}
   * [`{{qname}}`]({{rel_url}})
     * with bases ({%for e in extras%}{{e}},{%endfor%})
     {% if admonitions %}
     * with admonitions: {% for a in admonitions %} [{{a.glyph}}]({{a.link}} "{{a.hover}}") {% endfor %}
     {% endif %}
-    {%if obj._metadata.properties|default([]) %}
-    * with properties: ({{obj._properties|length}} total)
-      {%for e in obj._metadata.properties%}
+    {% set props = obj._metadata.properties|default([])%}
+    {%if props %}
+    * with properties: ({{props|length}} total)
+      {%for e in props%}
       {% set e_url = "/"+base_url+"#L" + e.start %}
       * {%if e.fixme %}[🚩]({{e_url}} "has FIXMEs"){%endif%} [`{{e.name}}`]({{e_url}}) -> {{e.annotation}}
       {%endfor%}

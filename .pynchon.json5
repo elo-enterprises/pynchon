@@ -7,9 +7,6 @@
   // BEGIN: top-level config
   // Everything here is optional.
   // Literals only; no templating please!
-  // "src_root": "src",
-  "pkg_name": "pynchon",
-  // "docs_root": "docs",
   "plugins": [
     // Plugins that are loaded.
     // Default plugins are implicitly here, no need to mention them.

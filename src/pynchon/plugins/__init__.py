@@ -1,7 +1,8 @@
 """ pynchon.plugins
 """
-from pynchon import fleks, shimport, config, abcs, events  # noqa
+import collections
 
+from pynchon import fleks, shimport, config, abcs, events  # noqa
 from pynchon.util import lme, typing  # noqa
 from .util import get_plugin, get_plugin_obj  # noqa
 
@@ -17,7 +18,6 @@ registry = (
     )
     .namespace
 ).items()
-import collections
 
 registry = collections.OrderedDict(sorted(registry, key=lambda x: x[1].priority))
 registry = collections.OrderedDict(

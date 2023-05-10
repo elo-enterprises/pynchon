@@ -72,8 +72,8 @@ def jinja(
         raise
 
 
-@options.output
 @options.inplace
+@options.output
 @options.should_print
 @options.includes
 # @options.context

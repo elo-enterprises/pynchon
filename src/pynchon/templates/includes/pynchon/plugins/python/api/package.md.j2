@@ -9,13 +9,13 @@
 
 * Overview: {{entrypoint}} [source code](/{{base_url}}), [unit tests]({{utest_root}}/), [integration tests]({{itest_root}}/)
 {% if modules %}
-{% include 'api/classes.md.j2' %}
+{% include "pynchon/plugins/python/api/classes.md.j2" %}
 {% endif %}
 
 {% if classes %}
-{% include 'api/classes.md.j2' %}
+{% include "pynchon/plugins/python/api/classes.md.j2" %}
 {% endif %}
 
 {% if functions %}
-{% include "api/functions.md.j2" %}
+{% include "pynchon/plugins/python/api/functions.md.j2" %}
 {% endif %}

@@ -1,6 +1,8 @@
 """ pynchon.constants
 """
 import os
+from pathlib import Path
+# from pynchon.abcs.path import Path
 
 PYNCHON_ROOT = os.environ.get("PYNCHON_ROOT", None)
 PYNCHON_CONFIG = os.environ.get('PYNCHON_CONFIG', None)
@@ -20,6 +22,12 @@ DEFAULT_PLUGINS = [
     "json",
     "jinja",
 ]
+PYNCHON_EMBEDDED_TEMPLATES_ROOT =Path(__file__).parents[0] / 'templates'
+PYNCHON_CORE_INCLUDES_DIRS = (
+    PYNCHON_EMBEDDED_TEMPLATES_ROOT / 'includes',
+)
+for _p in PYNCHON_CORE_INCLUDES_DIRS:
+    assert _p.exists()
 
 # TEMPLATE_DIR = os.environ.get(
 #     "PYNCHON_TEMPLATE_DIR",
@@ -29,10 +37,11 @@ DEFAULT_PLUGINS = [
 #     ),
 # )
 #
+
+
 # # FIXME: reuse parallel jinja env/template stuff in pynchon.util.text.render
 # plugin_base = "pynchon/plugins"
 # T_DETAIL_CLI = ENV.get_template(f"{plugin_base}/python/cli/detail.md.j2")
-# T_TOC_API = ENV.get_template(f"{plugin_base}/python/api/TOC.md.j2")
 # T_TOC_CLI = ENV.get_template(f"{plugin_base}/python/cli/TOC.md.j2")
 # T_VERSION_METADATA = ENV.get_template(f"{plugin_base}/core/VERSIONS.md.j2")
 # T_CLI_MAIN_MODULE = ENV.get_template(f"{plugin_base}/python/cli/main.module.md.j2")

@@ -5,20 +5,25 @@ from pynchon.util import lme, files, text
 LOGGER = lme.get_logger(__name__)
 
 
-def is_package() -> bool:
-    """ """
-    from pynchon.config import python
+def is_package(folder: str) -> bool:
+    """
+    slightly better than just looking for setup.py-
+    we try to use it to get the current version-string
+    """
+    from pynchon.util.os import invoke
 
-    return python.is_package
+    cmd = invoke(
+        f"cd {folder} && python setup.py --version 2>/dev/null", log_command=False
+    )
+    return cmd.succeeded
 
 
-def load_setupcfg(file: str = ""):
+def load_setupcfg(file: str = "", folder: str = ""):
     """ """
     if not file:
-        file = files.get_git_root().parents[0] / 'setup.cfg'
+        folder = folder or files.get_git_root().parents[0]
+        file = folder / 'setup.cfg'
     return text.loadf.ini(file)
-    # from pynchon.util import config
-    # return config.ini_loads(file)
 
 
 def load_entrypoints(config=None) -> dict:

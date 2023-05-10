@@ -48,8 +48,6 @@ def get_plugin_obj(plugin_name: str) -> object:
     try:
         return meta['obj']
     except KeyError:
-        # LOGGER.critical(
-        #     f"cannot retrieve ['obj'] for `{plugin_name}` from registry; is config finalized?"
-        # )
-        # import IPython; IPython.embed()
+        err = f"cannot retrieve ['obj'] for `{plugin_name}` from registry; is config finalized?"
+        LOGGER.critical(err)
         raise PluginNotInitialized(plugin_name)

@@ -82,7 +82,7 @@ def visit_module(
     output=[],
     stats={},
     module=None,
-    template=constants.T_TOC_API,
+    template=None,
     visited=[],
     exclude: list = [],
     module_name=None,

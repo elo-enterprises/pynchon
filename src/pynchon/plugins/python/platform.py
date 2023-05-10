@@ -26,9 +26,9 @@ class PythonPlatform(models.Provider):
 
         @memoized_property
         def is_package(self) -> bool:
-            # self.logger.debug("checking if this a python package..")
-            cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
-            return cmd.succeeded
+            from pynchon.util import python
+
+            return python.is_package('.')
 
         @property
         def package(self) -> typing.Dict:

@@ -18,6 +18,14 @@ def lifecycle_plugin(sender, plugin):
         lifecycle.send(sender, msg=plugin)
 
 
+def lifecycle_config(sender, config):
+    """ """
+    if config:
+        tmp = getattr(sender, '__name__', str(sender))
+        tmp = f'{tmp}: CONFIG: {config}'
+        lifecycle.send(sender, msg=config)
+
+
 def lifecycle_applying(sender, applying=None, **kwargs):
     """ """
     if applying:

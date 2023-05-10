@@ -50,15 +50,12 @@ def get_jinja_globals():
         env=os.getenv,
     )
 
-
-PYNCHON_CORE_INCLUDES = (
-    abcs.Path(pynchon.__file__).parents[0] / 'templates' / 'includes'
-)
-
+from pynchon import constants
 
 def get_jinja_includes(*includes):
     includes = list(includes)
-    includes.append(PYNCHON_CORE_INCLUDES)
+    includes +=list(constants.PYNCHON_CORE_INCLUDES_DIRS)
+    
     return [abcs.Path(t) for t in includes]
 
 
@@ -89,7 +86,6 @@ def get_jinja_env(*includes, quiet: bool = False):
         tmp = list(set([p.parents[0] for p in known_templates]))
         LOGGER.info(msg + util_text.to_json(tmp))
     return env
-
 
 def get_template(
     template_name: str,

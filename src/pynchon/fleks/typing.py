@@ -50,8 +50,3 @@ CallableNamespace = typing.Dict[str, typing.Callable]
 
 # i.e. `obj,created = model.objects.get_or_create()`
 GetOrCreateResult = typing.Tuple[object, bool]
-
-# isort: off
-from .oop import *  # noqa
-
-# isort: on

@@ -11,23 +11,23 @@ config_mod = shimport.lazy(
 LOGGER = lme.get_logger(__name__)
 
 
-@tagging.tags(click_aliases=['pc'])
 class PythonCliConfig(abcs.Config):
     config_key = "python-cli"
 
+    # @property
+    # def plugin(self):
+    #     return PythonCLI.instance
     @property
     def src_root(self):
         """ """
-        # src_root = abcs.Path(
-        # config_mod.project.get(
-        #     "src_root", config_mod.pynchon.get("src_root")
-        # )).absolute()
-        src_root = abcs.Path("./src").absolute()
-        if not src_root:
-            msg = "`src_root` not set for pynchon or project config; cannot enumerate entrypoints"
-            LOGGER.critical(msg)
-            return []
-        return src_root
+        from pynchon.config import src
+        src_root = src['root']
+        # FIXME: support for subprojects
+        # # src_root = abcs.Path(
+        # # config_mod.project.get(
+        # #     "src_root", config_mod.pynchon.get("src_root")
+        # # )).absolute()
+        return abcs.Path(src_root)
 
     @property
     def entrypoints(self) -> dict:
@@ -55,6 +55,7 @@ class PythonCliConfig(abcs.Config):
         return matches
 
 
+@tagging.tags(click_aliases=['pc'])
 class PythonCLI(models.ShyPlanner):
     """Tools for generating CLI docs"""
 

@@ -3,13 +3,15 @@
   {% set qname = module_name+'.'+name %}
   {% set start, end = obj.lineno | string, obj.endlineno | string %}
   {% set rel_url = '/' + base_url + '#L' + start + '-L' + end %}
-  {% set extras = obj._metadata.signature|string %}
+  {% set extras = obj._metadata.signature|default('')|string %}
   {% set admonitions=[]%}
-  {%if obj._metadata.mccabe %}
-  {% set admonitions = obj._metadata.mccabe + admonitions %}
+  {% set mccabe=obj._metadata.mccabe|default([])%}
+  {%if mccabe %}
+  {% set admonitions = mccabe + admonitions %}
   {% endif %}
-  {% if obj._metadata.fixme %}{{rel_url}} "")
-  {% set admonitions = obj._metadata.fixme + admonitions %}
+  {% set fixme=obj._metadata.fixme|default([])%}
+  {% if fixme %}{{rel_url}} "")
+  {% set admonitions = fixme + admonitions %}
   {% endif %}
   {% if extras|length > 65 %}
   * [`{{qname}}`]({{rel_url}})
