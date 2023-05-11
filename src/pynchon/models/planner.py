@@ -2,6 +2,8 @@
 """
 import typing
 
+from memoized_property import memoized_property
+
 from pynchon import events, cli
 
 # from pynchon.bin import entry
@@ -105,7 +107,70 @@ class AbstractPlanner(BasePlugin):
             )
             results.append(tmp)
         results = planning.ApplyResults(results)
+        hooks = self.apply_hooks
+        if hooks:
+            self.logger.debug(f"{self.__class__} is dispatching hooks: {hooks}")
+            hook_results = []
+            for hook in hooks:
+                hook_results.append(self.run_hook(hook, results))
         return results
+
+    def _validate_hooks(self, hooks):
+        """ """
+        # FIXME: validation elsewhere
+        for x in hooks:
+            assert isinstance(x, (str,))
+            assert ' ' not in x
+            assert x.strip()
+
+    @memoized_property
+    def apply_hooks(self):
+        hooks = [x for x in self.hooks if x.split('-')[-1] == 'apply']
+        apply_hooks = self['apply_hooks'::[]]
+        hooks += [
+            x + ('-apply' if not x.endswith('-apply') else '') for x in apply_hooks
+        ]
+        hooks = list(set(hooks))
+        self._validate_hooks(hooks)
+        return hooks
+
+    @memoized_property
+    def hooks(self):
+        """ """
+        hooks = self['hooks'::[]]
+        self._validate_hooks(hooks)
+        return hooks
+
+    def _hook_open_after_apply(self, result: planning.ApplyResults):
+        """ """
+        changes = self.list(changes=True)
+        changes += [x.resource for x in result if x.result]
+        changes = list(set(changes))
+        # self.logger.critical(f'would have opened- {changes}')
+        for ch in changes:
+            self.siblings['docs'].open(ch)
+        return True
+
+    @typing.validate_arguments
+    def run_hook(self, hook_name: str, results: planning.ApplyResults):
+        """ """
+
+        class HookNotFound(Exception):
+            pass
+
+        class HookFailed(RuntimeError):
+            pass
+
+        norml_hook_name = hook_name.replace('-', '_')
+        fxn_name = f'_hook_{norml_hook_name}'
+        hook_fxn = getattr(self, fxn_name, None)
+        if hook_fxn is None:
+            err = [self.__class__, [hook_name, fxn_name]]
+            self.logger.critical(err)
+            raise HookNotFound(err)
+        hook_result = hook_fxn(results)
+        self.logger.debug(hook_result)
+        return hook_result
 
 
 class ShyPlanner(AbstractPlanner):

@@ -26,6 +26,7 @@
     "scaffolding", // a boilerplate-manager
 
     // Experimental
+    "deck",           // slide-deck tool
     "griffe",         // ast tool
     "cookie-cutter",  // helpers for cookie-cutter
   ],
@@ -65,12 +66,18 @@
     "root": "{{pynchon.root}}/docs",
     "include_patterns": [
         "{{pynchon.root}}/*.md",
-        "{{docs.root}}/*.md",
-        "{{docs.root}}/*.html",
+        "{{docs.root}}/**/*.md",
+        "{{docs.root}}/**/*.html",
       ],
-    "open_changes": true,
+      "apply_hooks": ["open-after"],
   },
-
+  "deck": {
+    "root": "{{docs.root}}/slides",
+    // "include_patterns": [
+    //     "{{deck.root}}/*.md",
+    //   ],
+    "apply_hooks": ["open-after"],
+  },
   // Config for `project` plugin:
   "project":{
     "subproject_patterns": [],

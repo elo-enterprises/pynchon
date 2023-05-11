@@ -1,38 +1,19 @@
-"""
+""" pynchon.util.grip
 """
 import psutil
 
-from pynchon import abcs
+from pynchon import abcs, cli
 from pynchon.util.os import invoke, filter_pids
 
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
+logfile: str = '.tmp.grip.log'
 
 
-def port(conn=None):
-    conn = conn or server()
-    conns = conn and conn.connections()
-    return conns and conns[0].laddr.port
-
-
-def serving():
+def _current_flask_procs() -> typing.List[psutil.Process]:
     """ """
-    return bool(server())
-
-
-def _current_grip_procs() -> typing.List[psutil.Process]:
-    """ """
-    return filter_pids(name='grip')
-
-
-def server() -> psutil.Process:
-    """ """
-    tmp = [g for g in _current_grip_procs() if _is_my_grip(g)]
-    if tmp:
-        result = tmp[0]
-        result.port = port(conn=result)
-        return result
+    return filter_pids(name='flask')
 
 
 def _is_my_grip(g) -> bool:
@@ -40,30 +21,104 @@ def _is_my_grip(g) -> bool:
     return g.cwd() == str(abcs.Path('.').absolute())
 
 
+class Server:
+    def serve(self, background=True) -> psutil.Process:
+        if self.proc:
+            return self.proc
+
+    @property
+    def proc(self) -> psutil.Process:
+        tmp = [g for g in _current_flask_procs() if _is_my_grip(g)]
+        if tmp:
+            result = tmp[0]
+            return result
+
+    @property
+    def live(self) -> bool:
+        return bool(self.proc)
+
+    @property
+    def port(self):
+        if self.proc:
+            conns = self.proc.connections()
+            return conns and conns[0].laddr.port
+
+
+server = Server()
+
+
+import pathlib
+
+from grip import create_app
+from flask import Flask, send_from_directory
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+
+grip_app = create_app(
+    user_content=True,
+)
+
+raw_file_server = Flask(__name__)
+raw_file_server.debug = True
+
+
+@raw_file_server.route('/<path:path>')
+def raw(path):
+    raw_file_server.logger.critical(path)
+    return send_from_directory(pathlib.Path('.').absolute(), path)
+
+
+compound = Flask(__name__)
+compound.wsgi_app = DispatcherMiddleware(grip_app, {'/__raw__': raw_file_server})
+
+
+@cli.click.group
+def entry():
+    """ """
+
+
+@entry.command('serve')
+@cli.click.option('--fg', is_flag=True, default=False)
+@cli.click.option('--force', is_flag=True, default=False)
+@cli.click.option('--ls', is_flag=True, default=False)
+@cli.click.option('--port', default='6149')
 def serve(
-    background: bool = True, force: bool = False, logfile: str = '.tmp.grip.log'
+    fg: bool = None, ls: bool = None, force: bool = None, port: str = None
 ) -> object:
     """ """
 
     def _do_serve():
         bg = '&' if background else ''
-        invoke(f'grip >> {logfile} 2>&1 {bg}', system=True)
+        # return invoke(f'grip >> {logfile} 2>&1 {bg}', system=True)
+        return invoke(
+            f'flask --app pynchon.util.grip:compound run --port {port}>> {logfile} 2>&1 {bg}',
+            system=True,
+        )
 
-    grips = _current_grip_procs()
+    LOGGER.critical("trying to serve files")
+    background = not fg
+    should_start = ls or True
+    grips = _current_flask_procs()
+    # if ls:
+    #     LOGGER.critical(f'{grips}')
+    #     return
     if grips:
-        LOGGER.warning(f"{len(grips)} copies of grip are already started")
+        LOGGER.critical(f"{len(grips)} copies of flask are already started")
         for p in grips:
-            # p.cmdline()
             if _is_my_grip(p):
-                LOGGER.warning(f"grip @ {p.pid} already serving this project")
+                LOGGER.critical(f"flask @ pid {p.pid} is already serving this project")
                 if force:
                     LOGGER.critical("`force` was passed; killing it anyway..")
                     p.kill()
                 else:
-                    LOGGER.debug("Skipping startup.")
+                    LOGGER.critical("Skipping startup.")
+                    should_start = False
                 break
         else:
-            LOGGER.warning("No grips are serving this project.")
-            return _do_serve()
-    else:
-        return _do_serve()
+            LOGGER.critical("No flasks are serving this project.")
+    result = should_start and _do_serve()
+    LOGGER.critical(result)
+    return result
+
+
+if __name__ == '__main__':
+    entry()

@@ -11,6 +11,8 @@ from pynchon.util import lme, typing, tagging  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+from memoized_property import memoized_property
+
 
 @tagging.tags(click_aliases=['d'])
 class DocsMan(models.Planner):
@@ -35,11 +37,28 @@ class DocsMan(models.Planner):
         self,
         background: bool = True,
         force: bool = False,
-        logfile: str = '.tmp.grip.log',
     ):
         """Runs a `grip` server for this project"""
-        self.serving = grip.serve(background=background, force=force, logfile=logfile)
-        return self.serving
+        args = '--force' if force else ''
+        if not self.server.live or force:
+            from pynchon.util.os import invoke
+
+            invoke(f'python -m pynchon.util.grip serve {args}').succeeded
+        return dict(url=self.server_url, pid=self.server_pid)
+
+    @property
+    def server_pid(self):
+        return self.server.proc.pid
+
+    @property
+    def server_url(self):
+        return f'http://localhost:{self.server.port}'
+
+    @memoized_property
+    def server(self):
+        from pynchon.util.grip import server
+
+        return server
 
     @cli.options.output
     @cli.options.should_print
@@ -51,28 +70,31 @@ class DocsMan(models.Planner):
     # @property
     # def server(self):
     #     return grip.server()
+    @property
+    def git_root(self):
+        return self[:'git.root':self[:'pynchon.working_dir']]
 
-    def _open_grip(self, file: str = None, server=None):
+    def _open_grip(self, file: str = None):
         """ """
         pfile = abcs.Path(file).absolute()
-        groot = self.project_config['git']['root']
-        relf = pfile.relative_to(abcs.Path(groot))
-        grip_url = f'http://localhost:{server.port}/{relf}'
+        relf = pfile.relative_to(abcs.Path(self.git_root))
+        grip_url = f'http://localhost:{self.server.port}/{relf}'
         LOGGER.warning(f'opening {grip_url}')
         return dict(url=grip_url, browser=webbrowser.open(grip_url))
 
     _open__md = _open_grip
-    _open__html = _open_grip
+
+    def _open__html(self, file: str = None, server=None):
+        """ """
+        relf = file.absolute().relative_to(abcs.Path(self.git_root))
+        return self._open_grip(abcs.Path('__raw__') / relf)
 
     @cli.click.argument(
         'file',
     )
     def open(self, file, server=None):
         """Open a docs-artifact (based on file type)"""
-        server = server or self.serving
-        if not server and not grip.serving():
-            grip.serve()
-        self.serving = server = grip.server()
+        self.serve()
         file = abcs.Path(file)
         if not file.exists():
             raise ValueError(f'File @ `{file}` does not exist')
@@ -95,10 +117,6 @@ class DocsMan(models.Planner):
         if not changes:
             LOGGER.warning("No changes to open")
             return []
-        if not server and not grip.serving():
-            grip.serve()
-        self.server = grip.server()
-        self.server.port = grip.port()
         LOGGER.warning(f"opening {len(changes)} changed files..")
         if len(changes) > 10:
             LOGGER.critical('10+ changes; refusing to open this many.')
