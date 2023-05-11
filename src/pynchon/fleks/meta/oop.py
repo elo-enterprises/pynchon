@@ -6,6 +6,7 @@ import collections
 from pynchon.util import typing, lme
 
 LOGGER = lme.get_logger(__name__)
+VLOGGER = lme.get_logger('fleks::validation')
 
 type_spec = collections.namedtuple('type_spec', 'name bases namespace')
 
@@ -18,6 +19,7 @@ from .namespace import namespace
 
 
 class ValidationResults(typing.NamedTuple, metaclass=namespace):
+    suite: str = 'default'
     warnings: typing.Dict[str, typing.List[typing.Any]] = collections.defaultdict(list)
     errors: typing.Dict = collections.defaultdict(dict)
 
@@ -71,24 +73,29 @@ class Meta(type):
 
         name, bases, namespace = tspec.name, tspec.bases, tspec.namespace  # noqa
 
-        def run_validators(kls, validators: typing.List = [], self=None):
-            vdata = ValidationResults()
+        def run_validators(kls, validators: typing.List = [], self=None, suite=None):
+            vdata = ValidationResults(suite=suite)
             for validator in validators:
                 validator(kls, self=self, vdata=vdata)
             return vdata
 
         def validation_results_hook(kls, vdata, quiet=False, strict=True):
             errors, warnings = vdata.errors, vdata.warnings
+            suite = vdata.suite
+            lname = f'flex::validation::{suite}'
+            logger = lme.get_logger(lname)
             if errors and strict:
                 raise ClassMalformed(errors)
             if warnings and not quiet:
                 for msg, offenders in warnings.items():
-                    LOGGER.warning(f'{msg}')
-                    LOGGER.warning(f'  offenders: {offenders}')
-                # raise Exception(warnings)
+                    logger.warning(f'{msg}')
+                    logger.warning(f'  offenders: {offenders}')
+                # if strict: raise Exception(warnings)
 
         def __validate_class__(kls, quiet=True):
-            vdata = run_validators(kls, validators=kls.__class_validators__)
+            vdata = run_validators(
+                kls, validators=kls.__class_validators__, suite='class'
+            )
             advice = validation_results_hook(kls, vdata, quiet=quiet)
             return advice
 
@@ -102,7 +109,10 @@ class Meta(type):
             provides: __instance_validation_results__
             """
             vdata = run_validators(
-                kls, validators=kls.__instance_validators__, self=self
+                kls,
+                validators=kls.__instance_validators__,
+                self=self,
+                suite='instance',
             )
             advice = validation_results_hook(kls, vdata)
             kls.__instance_validation_results__ = vdata

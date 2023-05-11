@@ -16,7 +16,7 @@ def validate(kls=None, self=None, vdata=None):
     if count > 1:
         raise Exception()
 
-    def validate_plugins(self, plugin_list: typing.List = []):
+    def validate_plugins(plugin_list: typing.List = []):
         """ """
         defaults = set(constants.DEFAULT_PLUGINS)
         user_provided = set(plugin_list)
@@ -26,7 +26,7 @@ def validate(kls=None, self=None, vdata=None):
             msg = "implied plugins are not mentioned explicitly!"
             vdata.warnings[msg].append(diff)
 
-    def validate_config(self, k, v):
+    def validate_config(k, v):
         if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
             raise ValueError(f"Top-level keys should be simple strings! {k}")
         if isinstance(v, str) and '{{' in v:
@@ -41,7 +41,7 @@ def validate(kls=None, self=None, vdata=None):
             pass
 
     for k, v in dict(self).items():
-        validate_config(self, k, v)
+        validate_config(k, v)
 
 
 class Config(abcs.Config):

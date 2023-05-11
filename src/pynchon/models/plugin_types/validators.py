@@ -2,7 +2,7 @@
 
     FIXME: ntuple struct for vdata
 """
-import collections
+# import collections
 
 from pynchon import fleks
 
@@ -31,7 +31,7 @@ def require_conf_key(
 
 # @validator
 def warn_config_kls(kls, self=None, vdata=None):
-    pconf_kls = getattr(kls, 'config_class', None)
-    if pconf_kls is None:
+    pconf_kls = getattr(kls, 'config_class', 'NOTSET')
+    if pconf_kls == 'NOTSET':
         vdata.warnings["`config_class` not set!"].append(kls)
     return vdata

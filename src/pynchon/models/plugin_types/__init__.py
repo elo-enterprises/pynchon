@@ -27,6 +27,7 @@ class PynchonPlugin(fleks.Plugin):
 
     name = '<<Abstract>>'
     cli_label = '<<Abstract>>'
+    config_class = None
     __class_validators__ = [
         validators.require_conf_key,
         validators.warn_config_kls,

@@ -1,6 +1,11 @@
 """ pynchon.util.grip
 """
+import pathlib
+
 import psutil
+from grip import create_app
+from flask import Flask, send_from_directory
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 from pynchon import abcs, cli
 from pynchon.util.os import invoke, filter_pids
@@ -46,12 +51,6 @@ class Server:
 
 server = Server()
 
-
-import pathlib
-
-from grip import create_app
-from flask import Flask, send_from_directory
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 grip_app = create_app(
     user_content=True,

@@ -2,16 +2,16 @@
 """
 import webbrowser
 
+from memoized_property import memoized_property
+
+from pynchon import shimport
 from pynchon.util import files, grip
 
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
 
-# from pynchon.util.os import invoke, filter_pids
-
+grip = shimport.lazy('pynchon.util.grip')
 LOGGER = lme.get_logger(__name__)
-
-from memoized_property import memoized_property
 
 
 @tagging.tags(click_aliases=['d'])
@@ -26,6 +26,22 @@ class DocsMan(models.Planner):
 
     class config_class(abcs.Config):
         config_key = 'docs'
+
+    @property
+    def server_pid(self):
+        return self.server.proc.pid
+
+    @property
+    def server_url(self):
+        return f'http://localhost:{self.server.port}'
+
+    @property
+    def git_root(self):
+        return self[: 'git.root' : self[:'pynchon.working_dir']]
+
+    @memoized_property
+    def server(self):
+        return grip.server
 
     @cli.click.group('gen')
     def gen(self):
@@ -46,33 +62,12 @@ class DocsMan(models.Planner):
             invoke(f'python -m pynchon.util.grip serve {args}').succeeded
         return dict(url=self.server_url, pid=self.server_pid)
 
-    @property
-    def server_pid(self):
-        return self.server.proc.pid
-
-    @property
-    def server_url(self):
-        return f'http://localhost:{self.server.port}'
-
-    @memoized_property
-    def server(self):
-        from pynchon.util.grip import server
-
-        return server
-
     @cli.options.output
     @cli.options.should_print
     @gen.command('version-file')
     def version_file(self, output, should_print):
         """Creates {docs.root}/VERSION.md file"""
         raise NotImplementedError()
-
-    # @property
-    # def server(self):
-    #     return grip.server()
-    @property
-    def git_root(self):
-        return self[:'git.root':self[:'pynchon.working_dir']]
 
     def _open_grip(self, file: str = None):
         """ """
@@ -89,6 +84,7 @@ class DocsMan(models.Planner):
         relf = file.absolute().relative_to(abcs.Path(self.git_root))
         return self._open_grip(abcs.Path('__raw__') / relf)
 
+    @tagging.tags(click_aliases=['op', 'opn'])
     @cli.click.argument(
         'file',
     )
@@ -99,13 +95,12 @@ class DocsMan(models.Planner):
         if not file.exists():
             raise ValueError(f'File @ `{file}` does not exist')
         ext = file.full_extension().replace('.', '_')
-        name = f'_open_{ext}'
+        opener = f'_open_{ext}'
         try:
-            fxn = getattr(self, name)
-            # return self._open_md(file, server=server)
+            fxn = getattr(self, opener)
         except (AttributeError,) as exc:
             raise NotImplementedError(
-                f'dont know how to open `{file}`, method `{name}` is missing'
+                f'dont know how to open `{file}`, ' f'method `{opener}` is missing'
             )
         else:
             return fxn(file, server=server)
