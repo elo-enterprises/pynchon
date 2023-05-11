@@ -8,6 +8,10 @@
   // Everything here is optional.
   // Literals only; no templating please!
   "plugins": [
+    // defaults; these are included anyway
+    'globals', 'render', 'gen', 'project', 'plugins',
+    'jinja', 'json', 'git', 'core', 'python',
+
     // Recommended for projects with source-code
     "docs", "src", "tests", "cicd", "fixme", "github",
 

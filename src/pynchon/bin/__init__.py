@@ -4,14 +4,13 @@ pynchon: a utility for docs generation and template-rendering
 import collections
 from gettext import gettext as _
 
+from pynchon.util import lme, typing  # noqa
 from pynchon import fleks, cli, shimport
 
-from pynchon.util import lme, typing  # noqa
+LOGGER = lme.get_logger(__name__)
 
 click = cli.click
-plugins = shimport.lazy(
-    'pynchon.plugins',
-)
+plugins = shimport.lazy('pynchon.plugins')
 
 
 class RootGroup(click.Group):
@@ -79,18 +78,14 @@ class RootGroup(click.Group):
         terminal_width = 30
         click.echo('-' * terminal_width)
         super(RootGroup, self).format_usage(ctx, formatter)
-    #
-    # def get_command(self, *args, **kwargs):
-    #     tmp = super(RootGroup, self).get_command(*args, **kwargs)
-    #     return tmp
 
     def parse_args(self, ctx, args):
         originals = [args.copy(), ctx.__dict__.copy()]
-        ctx2 = default.make_context('default', args.copy())
+        copy=[ x for x in args.copy() if x!='--help']
+        ctx2 = default.make_context('default', copy)
         with ctx2:
             default.invoke(ctx2)
         return super(click.Group, self).parse_args(ctx, args)
-
 
 @click.version_option()
 @click.option('--plugins', help='shortcut for `--set plugins=...`')
@@ -108,7 +103,9 @@ def entry(
     """ """
 
 
-@entry.command('default')
+@entry.command('default',context_settings=dict(
+    ignore_unknown_options=True,
+))
 @click.option('--plugins', help='shortcut for `--set plugins=...`')
 @click.option('--set', 'set_config', help='config overrides')
 @click.option('--get', 'get_config', help='config retrieval')
@@ -117,18 +114,12 @@ def entry(
 def default(
     ctx, plugins: str = '', set_config: str = '', get_config: str = '', **kwargs  # noqa
 ):
-    from pynchon.util import lme
-
-    LOGGER = lme.get_logger(__name__)
     LOGGER.critical('top-level')
     setters = ctx.params.get('set_config', []) or []
     plugins = ctx.params.get('plugins', '')
     plugins and setters.append([f'pynchon.plugins={plugins.split(",")}'])
     setters and LOGGER.critical(f'--set: {setters}')
     bootstrap()
-
-from pynchon.util import lme
-LOGGER = lme.get_logger(__name__)
 
 def bootstrap():
     from pynchon.app import app
@@ -151,9 +142,6 @@ def bootstrap():
         except (Exception,) as exc:
             LOGGER.critical(f"  failed to initialize cli for {plugin_kls.__name__}:")
             LOGGER.critical(f"    {exc}")
-            if name == 'core':
-                raise
-            else:
-                raise
+            raise
         else:
             registry[name] = dict(plugin=plugin_kls, entry=p_entry)
