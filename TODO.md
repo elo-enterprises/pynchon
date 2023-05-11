@@ -4,6 +4,10 @@ release:
   * shimport.wrapper
   * shimport.filter_module
 
+research:
+  https://crosshair.readthedocs.io/en/latest/contracts.html
+  https://github.com/life4/deal
+
 refactor:
   app model
   `cli_label` with tags- works with:
