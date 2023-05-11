@@ -1,2 +1,0 @@
-""" pynchon.bin.dot
-"""

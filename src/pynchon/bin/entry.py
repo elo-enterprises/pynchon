@@ -84,15 +84,77 @@ class RootGroup(click.Group):
         tmp = super(RootGroup, self).get_command(*args, **kwargs)
         return tmp
 
+    def parse_args(self, ctx, args):
+        originals = [args.copy(), ctx.__dict__.copy()]
+        ctx2 = default.make_context('default', args.copy())
+        with ctx2:
+            default.invoke(ctx2)
+        return super(click.Group, self).parse_args(ctx, args)
+
 
 @click.version_option()
 @click.option('--plugins', help='shortcut for `--set plugins=...`')
 @click.option('--set', 'set_config', help='config overrides')
 @click.option('--get', 'get_config', help='config retrieval')
-@click.group("pynchon", cls=RootGroup)
+@click.group(
+    "pynchon",
+    cls=RootGroup,
+)
 def entry(
     plugins: str = '',
-    set_config: str = '',  # noqa
+    set_config: str = '',
     get_config: str = '',
 ):
     """ """
+
+
+@entry.command('default')
+@click.option('--plugins', help='shortcut for `--set plugins=...`')
+@click.option('--set', 'set_config', help='config overrides')
+@click.option('--get', 'get_config', help='config retrieval')
+@click.argument('extra', nargs=-1)
+@click.pass_context
+def default(
+    ctx, plugins: str = '', set_config: str = '', get_config: str = '', **kwargs  # noqa
+):
+    from pynchon.util import lme
+
+    LOGGER = lme.get_logger(__name__)
+    LOGGER.critical('top-level')
+    setters = ctx.params.get('set_config', []) or []
+    plugins = ctx.params.get('plugins', '')
+    plugins and setters.append([f'pynchon.plugins={plugins.split(",")}'])
+    setters and LOGGER.critical(f'--set: {setters}')
+    bootstrap()
+
+
+def bootstrap():
+    from pynchon.app import app
+    from pynchon.util import lme
+    from pynchon.plugins import registry as plugin_registry
+
+    from pynchon import config  # isort: skip
+
+    LOGGER = lme.get_logger(__name__)
+    events = app.events
+    events.lifecycle.send(__name__, stage='Building CLIs from plugins..')
+    registry = click_registry = {}
+    loop = plugin_registry.items()
+    for name, plugin_meta in loop:
+        if name not in config.PLUGINS:
+            LOGGER.warning(f"skipping `{name}`")
+            continue
+        plugin_kls = plugin_meta['kls']
+        init_fxn = plugin_kls.init_cli
+        # LOGGER.critical(f'\t{name}.init_cli: {init_fxn}')
+        try:
+            p_entry = init_fxn()
+        except (Exception,) as exc:
+            LOGGER.critical(f"  failed to initialize cli for {plugin_kls.__name__}:")
+            LOGGER.critical(f"    {exc}")
+            if name == 'core':
+                raise
+            else:
+                raise
+        else:
+            registry[name] = dict(plugin=plugin_kls, entry=p_entry)

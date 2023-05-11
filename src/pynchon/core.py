@@ -9,7 +9,7 @@ LOGGER = lme.get_logger(__name__)
 
 count = 0
 
-
+# @validator
 def validate(kls=None, self=None, vdata=None):
     global count
     count += 1

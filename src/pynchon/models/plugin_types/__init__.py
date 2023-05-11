@@ -145,7 +145,7 @@ class CliPlugin(PynchonPlugin):
     @typing.classproperty
     def click_entry(kls):
         """ """
-        return entry.entry
+        return entry
 
     @typing.classproperty
     def click_group(kls):

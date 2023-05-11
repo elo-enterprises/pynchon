@@ -22,7 +22,7 @@ class Core(models.Planner):
     @typing.classproperty
     def click_group(kls):
         """ """
-        kls._finalized_click_groups[kls] = entry.entry
+        kls._finalized_click_groups[kls] = entry
         return kls._finalized_click_groups[kls]
 
     @classmethod

@@ -10,8 +10,13 @@ from pynchon.util import typing, lme  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-
-def require_conf_key(kls, strict=True, **vdata):
+# @validator
+def require_conf_key(
+    kls,
+    self=None,
+    vdata=None,
+    strict=True,
+):
     """ """
     pconf_kls = getattr(kls, 'config_class', None)
     conf_key = getattr(pconf_kls, 'config_key', kls.name.replace('-', '_'))
@@ -19,13 +24,14 @@ def require_conf_key(kls, strict=True, **vdata):
         msg = f'failed to determine conf-key for {kls}'
         LOGGER.critical(msg)
         if strict:
+            # raise vdata.error_class(msg)
             raise fleks.meta.ClassMalformed(msg)
     return vdata
 
 
-def warn_config_kls(kls, warnings=collections.defaultdict(list), **vdata):
+# @validator
+def warn_config_kls(kls, self=None, vdata=None):
     pconf_kls = getattr(kls, 'config_class', None)
     if pconf_kls is None:
-        warnings["`config_class` not set!"].append(kls)
-    vdata.update(warnings=warnings)
+        vdata.warnings["`config_class` not set!"].append(kls)
     return vdata
