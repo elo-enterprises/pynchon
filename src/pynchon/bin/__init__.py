@@ -79,10 +79,10 @@ class RootGroup(click.Group):
         terminal_width = 30
         click.echo('-' * terminal_width)
         super(RootGroup, self).format_usage(ctx, formatter)
-
-    def get_command(self, *args, **kwargs):
-        tmp = super(RootGroup, self).get_command(*args, **kwargs)
-        return tmp
+    #
+    # def get_command(self, *args, **kwargs):
+    #     tmp = super(RootGroup, self).get_command(*args, **kwargs)
+    #     return tmp
 
     def parse_args(self, ctx, args):
         originals = [args.copy(), ctx.__dict__.copy()]
@@ -127,15 +127,14 @@ def default(
     setters and LOGGER.critical(f'--set: {setters}')
     bootstrap()
 
+from pynchon.util import lme
+LOGGER = lme.get_logger(__name__)
 
 def bootstrap():
     from pynchon.app import app
-    from pynchon.util import lme
     from pynchon.plugins import registry as plugin_registry
-
     from pynchon import config  # isort: skip
 
-    LOGGER = lme.get_logger(__name__)
     events = app.events
     events.lifecycle.send(__name__, stage='Building CLIs from plugins..')
     registry = click_registry = {}
