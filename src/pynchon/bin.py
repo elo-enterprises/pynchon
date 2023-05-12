@@ -20,7 +20,14 @@ class RootGroup(click.Group):
     def format_commands(
         self, ctx: click.Context, formatter: click.HelpFormatter
     ) -> None:
-        """ """
+        """
+
+        :param ctx: click.Context:
+        :param formatter: click.HelpFormatter:
+        :param ctx: click.Context: 
+        :param formatter: click.HelpFormatter: 
+
+        """
         commands = []
         for subcommand in self.list_commands(ctx):
             cmd = self.get_command(ctx, subcommand)
@@ -74,7 +81,12 @@ class RootGroup(click.Group):
                     formatter.write_dl(toplevel['plugins'][label])
 
     def format_usage(self, ctx, formatter):
-        """ """
+        """
+
+        :param ctx: param formatter:
+        :param formatter: 
+
+        """
         # terminal_width, _ = click.get_terminal_size()
         terminal_width = 30
         click.echo('-' * terminal_width)
@@ -102,7 +114,16 @@ def entry(
     set_config: str = '',
     get_config: str = '',
 ):
-    """ """
+    """
+
+    :param plugins: str:  (Default value = '')
+    :param set_config: str:  (Default value = '')
+    :param get_config: str:  (Default value = '')
+    :param plugins: str:  (Default value = '')
+    :param set_config: str:  (Default value = '')
+    :param get_config: str:  (Default value = '')
+
+    """
 
 
 @entry.command(

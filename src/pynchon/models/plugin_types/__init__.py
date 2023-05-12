@@ -20,10 +20,14 @@ LOGGER = lme.get_logger(__name__)
 
 
 def bind(instance, func, as_name=None):
-    """
-    Bind the function *func* to *instance*, with either provided name *as_name*
+    """Bind the function *func* to *instance*, with either provided name *as_name*
     or the existing name of *func*. The provided *func* should accept the
     instance as the first argument, i.e. "self".
+
+    :param instance: param func:
+    :param as_name: Default value = None)
+    :param func: 
+
     """
     if as_name is None:
         as_name = func.__name__
@@ -34,9 +38,7 @@ def bind(instance, func, as_name=None):
 
 @tagging.tags(cli_label='<<Abstract>>')
 class PynchonPlugin(fleks.Plugin):
-    """
-    Pynchon-specific plugin-functionality
-    """
+    """Pynchon-specific plugin-functionality"""
 
     name = '<<Abstract>>'
     cli_label = '<<Abstract>>'
@@ -48,7 +50,11 @@ class PynchonPlugin(fleks.Plugin):
 
     @typing.classproperty
     def instance(kls):
-        """class-property: the instance for this plugin"""
+        """class-property: the instance for this plugin
+
+        :param kls: 
+
+        """
         return plugins_util.get_plugin_obj(kls.name)
 
     @typing.classproperty
@@ -58,14 +64,22 @@ class PynchonPlugin(fleks.Plugin):
 
     @classmethod
     def get_config_key(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         default = kls.name.replace('-', '_')
         config_kls = getattr(kls, 'config_class', None)
         return getattr(config_kls, 'config_key', default) or default
 
     @classmethod
     def get_current_config(kls):
-        """class-method: get the current config for this plugin"""
+        """class-method: get the current config for this plugin
+
+        :param kls: 
+
+        """
         conf_class = getattr(kls, 'config_class', None)
         if conf_class is None:
             return {}
@@ -107,7 +121,13 @@ class PynchonPlugin(fleks.Plugin):
         return self.cfg()
 
     def __mod__(self, key: str, strict=True):
-        """shortcut for accessing global pynchon-config"""
+        """shortcut for accessing global pynchon-config
+
+        :param key: str:
+        :param strict: Default value = True)
+        :param key: str: 
+
+        """
         try:
             return self.project_config[key]
         except (KeyError,) as exc:
@@ -119,11 +139,22 @@ class PynchonPlugin(fleks.Plugin):
                     raise
 
     def __floordiv__(self, key: str, strict=False):
-        """ """
+        """
+
+        :param key: str:
+        :param strict: Default value = False)
+        :param key: str: 
+
+        """
         return self.__mod__(key, strict=strict)
 
     def __getitem__(self, key: str):
-        """shortcut for accessing local plugin-config"""
+        """shortcut for accessing local plugin-config
+
+        :param key: str:
+        :param key: str: 
+
+        """
         if isinstance(key, (slice,)):
             start, stop, step = key.start, key.stop, key.step
             try:
@@ -156,12 +187,20 @@ class CliPlugin(PynchonPlugin):
 
     @typing.classproperty
     def click_entry(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         return entry
 
     @typing.classproperty
     def click_group(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         cached = kls._finalized_click_groups.get(kls, None)
         grp_name=getattr(kls, 'cli_name', kls.name)
         if cached is not None:
@@ -184,7 +223,12 @@ class CliPlugin(PynchonPlugin):
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
     def click_acquire(kls, group: cli.click.Group):  # noqa F811
-        """ """
+        """
+
+        :param kls: param group: cli.click.Group:
+        :param group: cli.click.Group: 
+
+        """
         parent = kls.click_group
         LOGGER.info(
             f"{kls.__name__} acquires group@`{group.name}` to: parent@`{parent.name}`"
@@ -193,7 +237,12 @@ class CliPlugin(PynchonPlugin):
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
     def click_acquire(kls, fxn: typing.FunctionType):  # noqa F811
-        """ """
+        """
+
+        :param kls: param fxn: typing.FunctionType:
+        :param fxn: typing.FunctionType: 
+
+        """
         msg = f'{kls.__name__} acquires naked fxn: {fxn.__name__}'
         assert fxn.__annotations__
         cmd_name = f'{fxn.__name__}'.replace('_', '-')
@@ -201,7 +250,12 @@ class CliPlugin(PynchonPlugin):
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Command)
     def click_acquire(kls, cmd: cli.click.Command):  # noqa F811
-        """ """
+        """
+
+        :param kls: param cmd: cli.click.Command:
+        :param cmd: cli.click.Command: 
+
+        """
         parent = kls.click_group
         LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")
         parent.add_command(cmd)
@@ -209,7 +263,11 @@ class CliPlugin(PynchonPlugin):
 
     @classmethod
     def init_cli(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         events.lifecycle.send(kls, plugin='initializing CLI')
 
         from pynchon.plugins.core import Core  # noqa
@@ -310,7 +368,11 @@ class CliPlugin(PynchonPlugin):
 
     @classmethod
     def init_cli_children(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         cli_subsumes = getattr(kls, 'cli_subsumes', [])
         cli_subsumes and LOGGER.info(
             f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}"
@@ -322,7 +384,16 @@ class CliPlugin(PynchonPlugin):
     def click_create_cmd(
         kls, fxn: typing.Callable, wrapper=None, alias: str = None, **click_kwargs
     ) -> cli.click.Command:
-        """ """
+        """
+
+        :param kls: param fxn: typing.Callable:
+        :param wrapper: Default value = None)
+        :param alias: str:  (Default value = None)
+        :param fxn: typing.Callable: 
+        :param alias: str:  (Default value = None)
+        :param **click_kwargs: 
+
+        """
         assert fxn
         assert wrapper
         name = alias or fxn.__name__
@@ -342,7 +413,12 @@ class CliPlugin(PynchonPlugin):
     )
     @cli.click.option('--command', '-c', default='')
     def shell(self, command: str = '') -> None:
-        """drop to debugging shell"""
+        """drop to debugging shell
+
+        :param command: str:  (Default value = '')
+        :param command: str:  (Default value = '')
+
+        """
         before = locals()
         if command:
             self.logger.warning(f'executing command: {command} ')
@@ -357,9 +433,10 @@ class CliPlugin(PynchonPlugin):
 
 @tagging.tags(cli_label='Provider')
 class Provider(CliPlugin):
-    """
-    ProviderPlugin provides context-information,
+    """ProviderPlugin provides context-information,
     but little other functionality
+
+
     """
 
     cli_label = 'Provider'
@@ -373,9 +450,10 @@ class Provider(CliPlugin):
 
 @tagging.tags(cli_label='Tool')
 class ToolPlugin(CliPlugin):
-    """
-    Tool plugins may have their own config,
+    """Tool plugins may have their own config,
     but generally should not need project-config.
+
+
     """
 
     cli_label = 'Tool'
@@ -387,18 +465,17 @@ class ToolPlugin(CliPlugin):
 
 
 class BasePlugin(CliPlugin):
-    """
-    The default plugin-type most new plugins will use
-    """
+    """The default plugin-type most new plugins will use"""
 
     priority = 10
 
 
 @tagging.tags(cli_label='NameSpace')
 class NameSpace(CliPlugin):
-    """
-    `CliNamespace` collects functionality
+    """`CliNamespace` collects functionality
     from elsewhere under a single namespace
+
+
     """
 
     cli_label = 'NameSpace'

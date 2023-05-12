@@ -40,9 +40,7 @@ class PythonPlatform(models.Provider):
 
 
 class PackageConfig(abcs.Config):
-    """
-    WARNING: `parent` below prevents moving this class elsewhere
-    """
+    """WARNING: `parent` below prevents moving this class elsewhere"""
 
     parent = PythonPlatform.config_class
     config_key = "package"

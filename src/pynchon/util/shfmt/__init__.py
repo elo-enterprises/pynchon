@@ -7,10 +7,11 @@ from .grammar import bashParser
 
 
 class Semantics:
-    """
-    a value, for simple elements such as token, pattern, or constant
+    """a value, for simple elements such as token, pattern, or constant
     a tuple, for closures, gatherings, and the right-hand-side of rules with more than one element but without named elements
     a dict-derived object (AST) that contains one item for every named element in the grammar rule, with items can be accessed through the standard dict syntax (ast['key']), or as attributes (ast.key).
+
+
     """
 
     def __init__(self):

@@ -36,7 +36,7 @@ class SourceMan(models.Manager):
     class config_class(abcs.Config):
 
         config_key = 'src'
-
+        defaults=dict(goals=[],)
         # @tagging.tagged_property(conflict_strategy='override')
         # def exclude_patterns(self):
         #     globals = plugin_util.get_plugin('globals').get_current_config()
@@ -52,7 +52,11 @@ class SourceMan(models.Manager):
     #     return files.find_globs(include_patterns)
 
     def _get_missing_headers(self, resources):
-        """ """
+        """
+
+        :param resources:
+
+        """
         result = dict(extensions=set([]), files=[])
         for p_rsrc in resources:
             if not p_rsrc.is_file() or not p_rsrc.exists():
@@ -77,12 +81,21 @@ class SourceMan(models.Manager):
         return result
 
     def _plan_empties(self, resources):
-        """ """
+        """
+
+        :param resources:
+
+        """
         result = []
         return result
 
     def _render_header_file(self, rsrc: abcs.Path = None):
-        """ """
+        """
+
+        :param rsrc: abcs.Path:  (Default value = None)
+        :param rsrc: abcs.Path:  (Default value = None)
+
+        """
         ext = rsrc.full_extension()
         templatef = EXT_MAP[ext]['template']
         tpl = api.render.get_template(templatef)
@@ -111,31 +124,38 @@ class SourceMan(models.Manager):
         return fname
 
     def plan(self, config=None):
-        """ """
+        """
+
+        :param config: Default value = None)
+
+        """
         plan = super(SourceMan, self).plan(config=config)
         resources = [abcs.Path(fsrc) for fsrc in self.list()]
-        cmd_t = 'python -mpynchon.util.files prepend --clean '
-        loop = self._get_missing_headers(resources)
-        for rsrc in loop['files']:
-            ext = rsrc.full_extension()
-            ext = ext[1:] if ext.startswith('.') else ext
-            # fhdr = header_files[ext]
-            fhdr = self._render_header_file(rsrc)
-            plan.append(
-                self.goal(
-                    resource=rsrc,
-                    type='change',
-                    command=f"{cmd_t} {fhdr} {rsrc}",
-                )
-            )
-        for rsrc in self._plan_empties(resources):
-            plan.append(
-                self.goal(
-                    resource=rsrc,
-                    type='delete',
-                    command=f'rm {rsrc}',
-                )
-            )
+        for g in self['goals']:
+            plan.append(self.goal(command=g,resource='?',type='user-config'))
+
+        # cmd_t = 'python -mpynchon.util.files prepend --clean '
+        # loop = self._get_missing_headers(resources)
+        # for rsrc in loop['files']:
+        #     ext = rsrc.full_extension()
+        #     ext = ext[1:] if ext.startswith('.') else ext
+        #     # fhdr = header_files[ext]
+        #     fhdr = self._render_header_file(rsrc)
+        #     plan.append(
+        #         self.goal(
+        #             resource=rsrc,
+        #             type='change',
+        #             command=f"{cmd_t} {fhdr} {rsrc}",
+        #         )
+        #     )
+        # for rsrc in self._plan_empties(resources):
+        #     plan.append(
+        #         self.goal(
+        #             resource=rsrc,
+        #             type='delete',
+        #             command=f'rm {rsrc}',
+        #         )
+        #     )
         return plan
 
     def find(self):

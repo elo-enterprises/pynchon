@@ -20,7 +20,12 @@ from jinja2 import FileSystemLoader, StrictUndefined
 
 
 def dictionary(input, context):
-    """ """
+    """
+
+    :param input: param context:
+    :param context: 
+
+    """
     from pynchon.abcs.visitor import JinjaDict
 
     return JinjaDict(input).render(context)
@@ -34,15 +39,24 @@ def get_jinja_globals():
     from pynchon.util.os import invoke
 
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
-        """
-        A jinja filter/extension
+        """A jinja filter/extension
+
+        :param *args: 
+        :param **kwargs: 
+
         """
         out = invoke(*args, **kwargs)
         assert out.succeeded
         return out.stdout
 
     def markdown_toc(fname: str, level=None):
-        """ """
+        """
+
+        :param fname: str:
+        :param level: Default value = None)
+        :param fname: str: 
+
+        """
         fname = abcs.Path(fname)
         assert fname.exists()
         import pynchon
@@ -75,7 +89,12 @@ def get_jinja_includes(*includes):
 
 @functools.lru_cache(maxsize=None)
 def get_jinja_env(*includes, quiet: bool = False):
-    """ """
+    """
+
+    :param *includes: 
+    :param quiet: bool:  (Default value = False)
+
+    """
     events.lifecycle.send(__name__, msg='finalizing jinja-Env')
     includes = get_jinja_includes(*includes)
     for template_dir in includes:
@@ -107,7 +126,15 @@ def get_template(
     env=None,
     from_string: str = None,
 ):
-    """ """
+    """
+
+    :param template_name: str:  (Default value = None)
+    :param env: Default value = None)
+    :param from_string: str:  (Default value = None)
+    :param template_name: str:  (Default value = None)
+    :param from_string: str:  (Default value = None)
+
+    """
     env = env or get_jinja_env()
     try:
         if from_string:

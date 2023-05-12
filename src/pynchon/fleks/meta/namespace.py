@@ -2,7 +2,11 @@ class Namespace:
     """ """
 
     def toJSON(self, *args):
-        """ """
+        """
+
+        :param *args: 
+
+        """
         from pynchon.util import text
 
         return text.to_json(self._dict, *args)
@@ -26,7 +30,13 @@ class Namespace:
 
 
 def namespace(name, bases, namespace):
-    """ """
+    """
+
+    :param name: param bases:
+    :param namespace: 
+    :param bases: 
+
+    """
     for k in dir(Namespace):
         if k.startswith('__'):
             continue

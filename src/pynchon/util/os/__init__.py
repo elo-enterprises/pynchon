@@ -4,7 +4,11 @@ from . import models
 
 
 def filter_pids(**kwargs):
-    """ """
+    """
+
+    :param **kwargs: 
+
+    """
     import psutil
 
     procs = [psutil.Process(p) for p in psutil.pids()]
@@ -22,9 +26,13 @@ def filter_pids(**kwargs):
 
 
 def invoke(cmd: str, **kwargs):
-    """
-    dependency-free replacement for the `invoke` module,
+    """dependency-free replacement for the `invoke` module,
     which fixes problems with subprocess.POpen and os.system.
+
+    :param cmd: str:
+    :param cmd: str: 
+    :param **kwargs: 
+
     """
     invoc = models.Invocation(cmd=cmd, **kwargs)
     result = invoc()

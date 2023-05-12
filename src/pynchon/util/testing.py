@@ -7,7 +7,12 @@ from pynchon.abcs import AttrDict
 
 
 def get_test_info(fname: str) -> dict:
-    """ """
+    """
+
+    :param fname: str:
+    :param fname: str: 
+
+    """
     suite_dir = Path(fname).relative_to(Path.cwd()).parents[0]
     test_root = suite_dir.parents[0]
     return AttrDict(

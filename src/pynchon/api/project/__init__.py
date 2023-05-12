@@ -13,7 +13,12 @@ def get_config() -> dict:
 
 
 def plan(config: dict = {}) -> dict:
-    """ """
+    """
+
+    :param config: dict:  (Default value = {})
+    :param config: dict:  (Default value = {})
+
+    """
     plan = []
     config = config or get_config()
     project = config['project']

@@ -48,9 +48,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Json(models.ToolPlugin):
-    """
-    Tools for working with JSON & JSON5
-    """
+    """Tools for working with JSON & JSON5"""
 
     name = 'json'
     priority = 1

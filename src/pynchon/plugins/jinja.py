@@ -61,7 +61,12 @@ class Jinja(models.Planner):
         self,
         local: bool = False,
     ):
-        """Lists full path of each include-file"""
+        """Lists full path of each include-file
+
+        :param local: bool:  (Default value = False)
+        :param local: bool:  (Default value = False)
+
+        """
         includes = self._include_folders
         if local:
             includes.remove(api.render.PYNCHON_CORE_INCLUDES)
@@ -75,7 +80,12 @@ class Jinja(models.Planner):
         self,
         local: bool = False,
     ):
-        """Lists all usable {% include ... %} values"""
+        """Lists all usable {% include ... %} values
+
+        :param local: bool:  (Default value = False)
+        :param local: bool:  (Default value = False)
+
+        """
         includes = self.list_includes(local=local)
         out = []
         for fname in includes:
@@ -93,7 +103,11 @@ class Jinja(models.Planner):
         return out
 
     def list(self, changes=False):
-        """Lists affected resources in this project"""
+        """Lists affected resources in this project
+
+        :param changes: Default value = False)
+
+        """
         default = self[:'project']
         proj_conf = self[:'project.subproject':default]
         default = self[:'git.root']
@@ -117,7 +131,11 @@ class Jinja(models.Planner):
         self,
         config=None,
     ) -> typing.List:
-        """Creates a plan for this plugin"""
+        """Creates a plan for this plugin
+
+        :param config: Default value = None)
+
+        """
 
         def _get_template_args():
             """ """

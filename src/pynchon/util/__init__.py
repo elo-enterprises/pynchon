@@ -10,7 +10,12 @@ LOGGER = lme.get_logger(__name__)
 
 
 def get_root(path: str = ".") -> str:
-    """ """
+    """
+
+    :param path: str:  (Default value = ".")
+    :param path: str:  (Default value = ".")
+
+    """
     import os
 
     from pynchon.abcs import Path
@@ -34,7 +39,12 @@ def is_python_project() -> bool:
 
 
 def find_src_root(config: dict) -> str:
-    """ """
+    """
+
+    :param config: dict:
+    :param config: dict: 
+
+    """
     from pynchon.abcs import Path
 
     pconf = config.get("project", {})
@@ -45,7 +55,14 @@ def find_src_root(config: dict) -> str:
 
 
 def click_recursive_help(cmd, parent=None, out={}, file=sys.stdout):
-    """ """
+    """
+
+    :param cmd: param parent:  (Default value = None)
+    :param out: Default value = {})
+    :param file: Default value = sys.stdout)
+    :param parent:  (Default value = None)
+
+    """
     # source: adapted from https://stackoverflow.com/questions/57810659/automatically-generate-all-help-documentation-for-click-commands
     from pynchon.cli.click import Context as ClickContext
 

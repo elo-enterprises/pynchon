@@ -19,12 +19,14 @@ LOGGER = lme.get_logger(__name__)
 
 
 def tagged_property(**ftags):
-    """
-    Equivalent to:
+    """Equivalent to:
         @tagging.tags(foo=bar)
         @property
         def method(self):
             ...
+
+    :param **ftags: 
+
     """
 
     def dec(fxn):
@@ -39,7 +41,11 @@ def tagged_property(**ftags):
 
 
 def tag_factory(*args) -> typing.Any:
-    """ """
+    """
+
+    :param *args: 
+
+    """
 
     class tagger(dict):
         # def tag(self, **tags):

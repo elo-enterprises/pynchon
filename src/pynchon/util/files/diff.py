@@ -10,7 +10,12 @@ LOGGER = lme.get_logger(__name__)
 
 
 def diff_report(diff, logger=LOGGER.debug):
-    """ """
+    """
+
+    :param diff: param logger:  (Default value = LOGGER.debug)
+    :param logger:  (Default value = LOGGER.debug)
+
+    """
     # FIXME: use rich.syntax
     import pygments
     import pygments.lexers
@@ -27,8 +32,13 @@ def diff_report(diff, logger=LOGGER.debug):
 @cli.arguments.file1
 @cli.arguments.file2
 def diff_percent(file1: str = None, file2: str = None):
-    """
-    calculates file-delta, returning a percentage
+    """calculates file-delta, returning a percentage
+
+    :param file1: str:  (Default value = None)
+    :param file2: str:  (Default value = None)
+    :param file1: str:  (Default value = None)
+    :param file2: str:  (Default value = None)
+
     """
     with open(file1, 'r') as src:
         with open(file2, 'r') as dest:
@@ -41,8 +51,13 @@ def diff_percent(file1: str = None, file2: str = None):
 @cli.arguments.file1
 @cli.arguments.file2
 def diff(file1: str = None, file2: str = None):
-    """
-    calculates a file-delta, returning a unified diff
+    """calculates a file-delta, returning a unified diff
+
+    :param file1: str:  (Default value = None)
+    :param file2: str:  (Default value = None)
+    :param file1: str:  (Default value = None)
+    :param file2: str:  (Default value = None)
+
     """
     with open(file1, 'r') as src:
         with open(file2, 'r') as dest:

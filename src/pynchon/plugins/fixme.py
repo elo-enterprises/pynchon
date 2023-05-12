@@ -23,7 +23,12 @@ class FixMe(models.Planner):
     defaults = dict()
 
     def plan(self, config: dict = None) -> typing.List:
-        """...."""
+        """....
+
+        :param config: dict:  (Default value = None)
+        :param config: dict:  (Default value = None)
+
+        """
         config = config or self.__class__.get_current_config()
         plan = super(self.__class__, self).plan(config)
         target = abcs.Path(self.project_config['docs']['root']) / 'FIXME.md'
@@ -50,8 +55,12 @@ class FixMe(models.Planner):
         should_print,
         header,
     ):
-        """
-        Generate FIXME.md files, aggregating references to all FIXME's in code-base
+        """Generate FIXME.md files, aggregating references to all FIXME's in code-base
+
+        :param output: param should_print:
+        :param header: 
+        :param should_print: 
+
         """
         from pynchon import api
 
@@ -97,7 +106,11 @@ class FixMe(models.Planner):
 
     @classmethod
     def asdasdinit_cli(kls):
-        """"""
+        """
+
+        :param kls: 
+
+        """
         parent = kls.click_group
         T_FIXME = constants.ENV.get_template(
             "pynchon/plugins/plugins/fixme/FIXME.md.j2"

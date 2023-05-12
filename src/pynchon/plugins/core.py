@@ -21,13 +21,21 @@ class Core(models.Planner):
 
     @typing.classproperty
     def click_group(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         kls._finalized_click_groups[kls] = entry
         return kls._finalized_click_groups[kls]
 
     @classmethod
     def get_current_config(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         from pynchon import config as config_mod
 
         result = getattr(config_mod, kls.get_config_key())
@@ -46,8 +54,15 @@ class Core(models.Planner):
         bashrc: bool = False,
         tox: bool = False,
     ) -> None:
-        """
-        Bootstrap for shell integration, etc
+        """Bootstrap for shell integration, etc
+
+        :param bash: bool:  (Default value = False)
+        :param bashrc: bool:  (Default value = False)
+        :param tox: bool:  (Default value = False)
+        :param bash: bool:  (Default value = False)
+        :param bashrc: bool:  (Default value = False)
+        :param tox: bool:  (Default value = False)
+
         """
         pynchon_completions_script = '.tmp.pynchon.completions.sh'
         bashrc_snippet = '.tmp.pynchon.bashrc'
@@ -105,9 +120,10 @@ class Core(models.Planner):
             raise NotImplementedError()
 
     def raw(self) -> None:
-        """
-        Returns (almost) raw config,
+        """Returns (almost) raw config,
         without interpolation
+
+
         """
         from pynchon.config import RAW
 
@@ -117,7 +133,11 @@ class Core(models.Planner):
         self,
         config=None,
     ) -> models.Plan:
-        """Runs plan for all plugins"""
+        """Runs plan for all plugins
+
+        :param config: Default value = None)
+
+        """
 
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)

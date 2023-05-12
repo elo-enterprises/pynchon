@@ -8,9 +8,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Renderers(models.NameSpace):
-    """
-    Collects `render` commands from other plugins
-    """
+    """Collects `render` commands from other plugins"""
 
     name = cli_name = 'render'
     defaults = dict()

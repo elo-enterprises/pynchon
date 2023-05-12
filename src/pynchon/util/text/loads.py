@@ -12,39 +12,55 @@ LOGGER = lme.get_logger(__name__)
 
 
 def ini(content: str) -> typing.StringMaybe:
-    """
-    Parses `content` as ini-file.
+    """Parses `content` as ini-file.
+
+    :param content: str:
+    :param content: str: 
+
     """
     raise NotImplementedError()
 
 
 def yaml(content: str) -> typing.StringMaybe:
-    """
-    Parses `content` as yaml.
+    """Parses `content` as yaml.
+
+    :param content: str:
+    :param content: str: 
+
     """
     raise NotImplementedError()
 
 
 def toml(content: str) -> typing.StringMaybe:
-    """
-    Parses `content` as toml.
+    """Parses `content` as toml.
+
+    :param content: str:
+    :param content: str: 
+
     """
     raise NotImplementedError()
 
 
 def json(content: str = '') -> typing.StringMaybe:
-    """
-    Parses `content` as JSON (strict).
+    """Parses `content` as JSON (strict).
     For most things, you're better using `loads.json5()`,
     since that's just a JSON superset with a more relaxed parser.
+
+    :param content: str:  (Default value = '')
+    :param content: str:  (Default value = '')
+
     """
     return json_mod.loads(content)
 
 
 def json5(content: str = '', quiet=True) -> typing.StringMaybe:
-    """
-    Parses `content` as JSON5.
+    """Parses `content` as JSON5.
     This tries to give a better error message than defaults.
+
+    :param content: str:  (Default value = '')
+    :param quiet: Default value = True)
+    :param content: str:  (Default value = '')
+
     """
     try:
         return json5_mod.loads(content)

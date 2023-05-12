@@ -14,7 +14,13 @@ class GitConfig(abcs.Config):
     config_key = "git"
 
     def _run(self, cmd, log_command=False, **kwargs):
-        """ """
+        """
+
+        :param cmd: param log_command:  (Default value = False)
+        :param log_command:  (Default value = False)
+        :param **kwargs: 
+
+        """
         pre = f"cd {self.root} && " if self.root else ""
         return os.invoke(f"{pre}{cmd}", log_command=log_command, **kwargs)
 

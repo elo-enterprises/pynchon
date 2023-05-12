@@ -50,6 +50,9 @@
     "root": "{{pynchon.root}}/src",
     "include_patterns": ["**/*.py",],
     "headers": {},
+    "goals": [
+      'pyment -q \'"""\' -t --first-line True --ignore-private False src/ --write',
+    ],
   },
 
   // Config for `tests` plugin:

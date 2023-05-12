@@ -27,7 +27,11 @@ class Config(
 
     @typing.classproperty
     def logger(kls):
-        """ """
+        """
+
+        :param kls: 
+
+        """
         return lme.get_logger(f"{kls._logging_name}")
 
     def __repr__(self):
@@ -36,7 +40,11 @@ class Config(
     __str__ = __repr__
 
     def __init__(self, **this_config) -> None:
-        """ """
+        """
+
+        :param **this_config: 
+
+        """
         called_defaults = this_config
         kls_defaults = getattr(self.__class__, 'defaults', {})
         super(Config, self).__init__(**{**kls_defaults, **called_defaults})
@@ -50,7 +58,12 @@ class Config(
         self.resolve_conflicts(conflicts)
 
     def resolve_conflicts(self, conflicts: typing.List) -> None:
-        """ """
+        """
+
+        :param conflicts: typing.List:
+        :param conflicts: typing.List: 
+
+        """
         conflicts and LOGGER.info(
             f"'{self.config_key}' is resolving {len(conflicts)} conflicts.."
         )

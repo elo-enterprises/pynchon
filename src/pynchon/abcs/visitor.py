@@ -21,7 +21,20 @@ class Visitor:
         obj=None,
         **kwargs,
     ):
-        """ """
+        """
+
+        :param filter_path: Default value = lambda _: True)
+        :param filter_value: Default value = lambda _: True)
+        :param trigger: Default value = lambda p)
+        :param v: p:
+        :param v: param paths:  (Default value = [])
+        :param obj: Default value = None)
+        :param v: (p: 
+        :param v): 
+        :param paths:  (Default value = [])
+        :param **kwargs: 
+
+        """
         self.conf = kwargs
         self.filter_path = filter_path
         self.filter_value = filter_value
@@ -32,12 +45,22 @@ class Visitor:
         path=None,
         value=None,
     ):
-        """ """
+        """
+
+        :param path: Default value = None)
+        :param value: Default value = None)
+
+        """
         if all([self.filter_path(path), self.filter_value(value)]):
             return self.matched(path=path, value=value)
 
     def matched(self, path=None, value=None):
-        """ """
+        """
+
+        :param path: Default value = None)
+        :param value: Default value = None)
+
+        """
         default = self.trigger(path, value)
         if 'accumulate_paths' in self.conf:
             return path
@@ -48,12 +71,17 @@ class Visitor:
 
 
 def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):
-    """
-    # example `visitor`:
+    """# example `visitor`:
     #
     # def visit(value=None, path=None):
     #     LOGGER.debug(f"[{path}: {value}]")
     #     return value
+
+    :param obj: param visitor:  (Default value = None)
+    :param visitor_kls: Default value = None)
+    :param visitor_kwargs: Default value = {})
+    :param visitor:  (Default value = None)
+
     """
     assert bool(visitor) ^ bool(visitor_kls) ^ bool(visitor_kwargs)
     paths = []
@@ -96,16 +124,29 @@ class TemplatedDict(dict):
     """ """
 
     def __init__(self, dct):
-        """ """
+        """
+
+        :param dct: 
+
+        """
         super(TemplatedDict, self).__init__(dct.copy())
         self.logger = lme.get_logger(self.__class__.__name__)
 
     def get_path(self, path):
-        """ """
+        """
+
+        :param path: 
+
+        """
         return pydash.get(self, path)
 
     def set_path(self, path, val):
-        """ """
+        """
+
+        :param path: param val:
+        :param val: 
+
+        """
         return pydash.set_with(self, path, val)
 
     @property
@@ -132,7 +173,11 @@ class JinjaDict(TemplatedDict):
     """ """
 
     def render(self, ctx={}):
-        """ """
+        """
+
+        :param ctx: Default value = {})
+
+        """
         tmp = copy.deepcopy(self)
         while tmp.unresolved:
             templated = tmp.unresolved
@@ -157,7 +202,13 @@ class JinjaDict(TemplatedDict):
         return MappingProxyType(tmp)
 
     def render_path(self, path, ctx={}, strict=False):
-        """ """
+        """
+
+        :param path: param ctx:  (Default value = {})
+        :param strict: Default value = False)
+        :param ctx:  (Default value = {})
+
+        """
         # from pynchon.api import render
         from pynchon.util.text import render
 
@@ -172,5 +223,9 @@ class JinjaDict(TemplatedDict):
         return resolved
 
     def is_templated(self, v):
-        """ """
+        """
+
+        :param v: 
+
+        """
         return isinstance(v, (str,)) and '{{' in v

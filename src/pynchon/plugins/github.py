@@ -32,7 +32,11 @@ class GitHub(models.ToolPlugin):
 
     @cli.click.option('--org', '-o')
     def open(self, org=None):
-        """Opens org/repo github in a webbrowser"""
+        """Opens org/repo github in a webbrowser
+
+        :param org: Default value = None)
+
+        """
         org_name = self['org_name']
         url = f'https://github.com/{org_name}'
         if not org:
@@ -43,24 +47,52 @@ class GitHub(models.ToolPlugin):
     @cli.options.org_name
     @option_api_token
     def clone_org(self, org_name: str = None, token: str = None):
-        """Clones an entire github-org"""
+        """Clones an entire github-org
+
+        :param org_name: str:  (Default value = None)
+        :param token: str:  (Default value = None)
+        :param org_name: str:  (Default value = None)
+        :param token: str:  (Default value = None)
+
+        """
         raise NotImplementedError()
 
     @cli.click.argument('repo')
     @option_api_token
     def clone(self, repo: str, token: str = None):
-        """Clones a single repo from this project's org"""
+        """Clones a single repo from this project's org
+
+        :param repo: str:
+        :param token: str:  (Default value = None)
+        :param repo: str: 
+        :param token: str:  (Default value = None)
+
+        """
         raise NotImplementedError()
 
     # @cli.click.argument('repo')
     @tagging.tags(click_aliases=['pr'])
     @option_api_token
     def pull_request(self, repo: str, token: str = None):
-        """Creates a pull-request from this branch"""
+        """Creates a pull-request from this branch
+
+        :param repo: str:
+        :param token: str:  (Default value = None)
+        :param repo: str: 
+        :param token: str:  (Default value = None)
+
+        """
         raise NotImplementedError()
 
     @tagging.tags(click_aliases=['codeowners'])
     # @option_api_token
     def code_owners(self, repo: str, token: str = None):
-        """Describes code-owners for changes or for working-dir"""
+        """Describes code-owners for changes or for working-dir
+
+        :param repo: str:
+        :param token: str:  (Default value = None)
+        :param repo: str: 
+        :param token: str:  (Default value = None)
+
+        """
         raise NotImplementedError()

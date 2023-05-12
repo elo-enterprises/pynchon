@@ -16,17 +16,35 @@ class FilterResult(typing.List[typing.Any]):
     __repr__ = __str__
 
     def map(self, fxn, logger: object = None):
-        """ """
+        """
+
+        :param fxn: param logger: object:  (Default value = None)
+        :param logger: object:  (Default value = None)
+
+        """
         return FilterResult(list(map(fxn, self)))
 
     def starmap(self, fxn, logger: object = None):
-        """ """
+        """
+
+        :param fxn: param logger: object:  (Default value = None)
+        :param logger: object:  (Default value = None)
+
+        """
         return FilterResult(list(itertools.starmap(fxn, self)))
 
     def prune(self, **kwargs):
-        """ """
+        """
+
+        :param **kwargs: 
+
+        """
         return FilterResult(filter(None, [x.prune(**kwargs) for x in self]))
 
     def filter(self, **kwargs):
-        """ """
+        """
+
+        :param **kwargs: 
+
+        """
         return FilterResult([x.filter(**kwargs) for x in self])

@@ -30,7 +30,18 @@ class Meta(type):
     NAMES = []
 
     def __new__(mcls: type, name: str, bases: typing.List, namespace: typing.Dict):
-        """ """
+        """
+
+        :param mcls: type:
+        :param name: str:
+        :param bases: typing.List:
+        :param namespace: typing.Dict:
+        :param mcls: type: 
+        :param name: str: 
+        :param bases: typing.List: 
+        :param namespace: typing.Dict: 
+
+        """
         tspec = type_spec(name=name, bases=bases, namespace=namespace)
         mcls.register(tspec)
         namespace = mcls.annotate(tspec)
@@ -44,8 +55,13 @@ class Meta(type):
         var: str = '',
         tspec: type_spec = None,
     ):
-        """
-        aggregates values at `var` across all bases
+        """aggregates values at `var` across all bases
+
+        :param var: str:  (Default value = '')
+        :param tspec: type_spec:  (Default value = None)
+        :param var: str:  (Default value = '')
+        :param tspec: type_spec:  (Default value = None)
+
         """
         tracked = tspec.namespace.get(var, [])
         for b in tspec.bases:
@@ -59,7 +75,14 @@ class Meta(type):
         mcls: type,
         tspec: type_spec = None,
     ) -> None:
-        """ """
+        """
+
+        :param mcls: type:
+        :param tspec: type_spec:  (Default value = None)
+        :param mcls: type: 
+        :param tspec: type_spec:  (Default value = None)
+
+        """
         name, bases, namespace = tspec.name, tspec.bases, tspec.namespace
         this_name = namespace.get('name', None)
         this_name and Meta.NAMES.append(this_name)
@@ -69,7 +92,14 @@ class Meta(type):
         mcls: type,
         tspec: type_spec = None,
     ) -> typing.Dict:
-        """ """
+        """
+
+        :param mcls: type:
+        :param tspec: type_spec:  (Default value = None)
+        :param mcls: type: 
+        :param tspec: type_spec:  (Default value = None)
+
+        """
 
         name, bases, namespace = tspec.name, tspec.bases, tspec.namespace  # noqa
 
@@ -104,9 +134,12 @@ class Meta(type):
         __instance_validators__ = namespace.get('__instance_validators__', [])
 
         def validate_instance(kls, self=None):
-            """
-            requires: __instance_validators__
+            """requires: __instance_validators__
             provides: __instance_validation_results__
+
+            :param kls: param self:  (Default value = None)
+            :param self:  (Default value = None)
+
             """
             vdata = run_validators(
                 kls,
@@ -142,10 +175,15 @@ class Meta(type):
         mcls: type,
         tspec: type_spec = None,
     ) -> typing.Dict:
-        """
-        Classes that are created by this metaclass will track
+        """Classes that are created by this metaclass will track
         various extra state by default; mostly this is for defining
         protocols that help with reflection
+
+        :param mcls: type:
+        :param tspec: type_spec:  (Default value = None)
+        :param mcls: type: 
+        :param tspec: type_spec:  (Default value = None)
+
         """
         name, bases, namespace = tspec.name, tspec.bases, tspec.namespace
         # __class_properties__ tracks class-properties[1]

@@ -20,17 +20,13 @@ from pynchon.util import typing, lme  # noqa
 
 @tags(cli_label='Planner')
 class AbstractPlanner(BasePlugin):
-    """
-    AbstractPlanner is a plugin-type that provides plan/apply basics
-    """
+    """A plugin-type that provides plan/apply basics"""
 
     cli_label = 'Planner'
 
     @property
     def changes(self):
-        """
-        Set(git_changes).intersection(plugin_resources)
-        """
+        """Set(git_changes).intersection(plugin_resources)"""
         git = self.siblings['git']
         changes = git.modified
         these_changes = set(changes).intersection(set(self.list(changes=False)))
@@ -45,7 +41,11 @@ class AbstractPlanner(BasePlugin):
         help='returns the git-modified subset',
     )
     def list(self, changes: bool = False):
-        """Lists resources associated with this plugin"""
+        """Lists resources associated with this plugin
+
+        :param changes: bool:  (Default value = False)
+
+        """
         if changes:
             return self.changes['modified']
         from pynchon import abcs
@@ -71,13 +71,21 @@ class AbstractPlanner(BasePlugin):
 
     @tags(publish_to_cli=False)
     def goal(self, **kwargs):
-        """ """
+        """
+
+        :param **kwargs:
+
+        """
         return planning.Goal(
             owner=f"{self.__class__.__module__}.{self.__class__.__name__}", **kwargs
         )
 
     def plan(self, config=None) -> planning.Plan:
-        """Creates a plan for this plugin"""
+        """Creates a plan for this plugin
+
+        :param config:  (Default value = None)
+
+        """
         config = config or self.cfg()
         events.lifecycle.send(
             # writes status event (used by the app-console)
@@ -87,7 +95,11 @@ class AbstractPlanner(BasePlugin):
         return plan
 
     def apply(self, config=None) -> planning.ApplyResults:
-        """Executes the plan for this plugin"""
+        """Executes the plan for this plugin
+
+        :param config:  (Default value = None)
+
+        """
         from pynchon.util.os import invoke
 
         events.lifecycle.send(
@@ -116,7 +128,11 @@ class AbstractPlanner(BasePlugin):
         return results
 
     def _validate_hooks(self, hooks):
-        """ """
+        """
+
+        :param hooks:
+
+        """
         # FIXME: validation elsewhere
         for x in hooks:
             assert isinstance(x, (str,))
@@ -142,7 +158,11 @@ class AbstractPlanner(BasePlugin):
         return hooks
 
     def _hook_open_after_apply(self, result: planning.ApplyResults):
-        """ """
+        """
+
+        :param result: planning.ApplyResults:
+
+        """
         changes = self.list(changes=True)
         changes += [x.resource for x in result if x.result]
         changes = list(set(changes))
@@ -153,7 +173,12 @@ class AbstractPlanner(BasePlugin):
 
     @typing.validate_arguments
     def run_hook(self, hook_name: str, results: planning.ApplyResults):
-        """ """
+        """
+
+        :param hook_name: str:
+        :param results: planning.ApplyResults:
+
+        """
 
         class HookNotFound(Exception):
             pass
@@ -174,10 +199,11 @@ class AbstractPlanner(BasePlugin):
 
 
 class ShyPlanner(AbstractPlanner):
-    """
-    ShyPlanner uses plan/apply workflows, but they must be
+    """ShyPlanner uses plan/apply workflows, but they must be
     executed directly.  ProjectPlugin (or any other parent plugins)
     won't include this as a sub-plan.
+
+
     """
 
     contribute_plan_apply = False
@@ -189,9 +215,10 @@ class Manager(ShyPlanner):
 
 
 class Planner(ShyPlanner):
-    """
-    Planner uses plan/apply workflows, and contributes it's plans
+    """Planner uses plan/apply workflows, and contributes it's plans
     to ProjectPlugin (or any other parent plugins).
+
+
     """
 
     contribute_plan_apply = True

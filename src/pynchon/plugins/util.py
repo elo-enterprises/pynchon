@@ -31,7 +31,12 @@ def get_plugin_meta(plugin_name: str) -> typing.Dict:
 
 
 def get_plugin_class(plugin_name: str) -> typing.Type:
-    """ """
+    """
+
+    :param plugin_name: str:
+    :param plugin_name: str: 
+
+    """
     meta = get_plugin_meta(plugin_name)
     try:
         return meta['kls']
@@ -43,7 +48,12 @@ get_plugin = get_plugin_class
 
 
 def get_plugin_obj(plugin_name: str) -> object:
-    """ """
+    """
+
+    :param plugin_name: str:
+    :param plugin_name: str: 
+
+    """
     meta = get_plugin_meta(plugin_name)
     try:
         return meta['obj']

@@ -53,7 +53,12 @@ class DocsMan(models.Planner):
     @gen.command('version-file')
     # @cli.common.kommand(parent=gen)
     def version_file(self, output, should_print):
-        """Creates {docs.root}/VERSION.md file"""
+        """Creates {docs.root}/VERSION.md file
+
+        :param output: param should_print:
+        :param should_print: 
+
+        """
         from pynchon.api import render
 
         tmpl = render.get_template('pynchon/plugins/core/VERSIONS.md.j2')
@@ -70,7 +75,14 @@ class DocsMan(models.Planner):
         background: bool = True,
         force: bool = False,
     ):
-        """Runs a `grip` server for this project"""
+        """Runs a `grip` server for this project
+
+        :param background: bool:  (Default value = True)
+        :param force: bool:  (Default value = False)
+        :param background: bool:  (Default value = True)
+        :param force: bool:  (Default value = False)
+
+        """
         args = '--force' if force else ''
         if not self.server.live or force:
             from pynchon.util.os import invoke
@@ -79,7 +91,12 @@ class DocsMan(models.Planner):
         return dict(url=self.server_url, pid=self.server_pid)
 
     def _open_grip(self, file: str = None):
-        """ """
+        """
+
+        :param file: str:  (Default value = None)
+        :param file: str:  (Default value = None)
+
+        """
         pfile = abcs.Path(file).absolute()
         relf = pfile.relative_to(abcs.Path(self.git_root))
         grip_url = f'http://localhost:{self.server.port}/{relf}'
@@ -89,7 +106,13 @@ class DocsMan(models.Planner):
     _open__md = _open_grip
 
     def _open__html(self, file: str = None, server=None):
-        """ """
+        """
+
+        :param file: str:  (Default value = None)
+        :param server: Default value = None)
+        :param file: str:  (Default value = None)
+
+        """
         relf = file.absolute().relative_to(abcs.Path(self.git_root))
         return self._open_grip(abcs.Path('__raw__') / relf)
 
@@ -98,7 +121,12 @@ class DocsMan(models.Planner):
         'file',
     )
     def open(self, file, server=None):
-        """Open a docs-artifact (based on file type)"""
+        """Open a docs-artifact (based on file type)
+
+        :param file: param server:  (Default value = None)
+        :param server:  (Default value = None)
+
+        """
         self.serve()
         file = abcs.Path(file)
         if not file.exists():
@@ -131,7 +159,11 @@ class DocsMan(models.Planner):
         return result
 
     def plan(self, config=None):
-        """Creates a plan for this plugin"""
+        """Creates a plan for this plugin
+
+        :param config: Default value = None)
+
+        """
         plan = super(self.__class__, self).plan(config=config)
         rsrc = self.config['root']
         if not abcs.Path(rsrc).exists():

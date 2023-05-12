@@ -22,7 +22,11 @@ def _current_flask_procs() -> typing.List[psutil.Process]:
 
 
 def _is_my_grip(g) -> bool:
-    """ """
+    """
+
+    :param g: 
+
+    """
     return g.cwd() == str(abcs.Path('.').absolute())
 
 
@@ -83,7 +87,18 @@ def entry():
 def serve(
     fg: bool = None, ls: bool = None, force: bool = None, port: str = None
 ) -> object:
-    """ """
+    """
+
+    :param fg: bool:  (Default value = None)
+    :param ls: bool:  (Default value = None)
+    :param force: bool:  (Default value = None)
+    :param port: str:  (Default value = None)
+    :param fg: bool:  (Default value = None)
+    :param ls: bool:  (Default value = None)
+    :param force: bool:  (Default value = None)
+    :param port: str:  (Default value = None)
+
+    """
 
     def _do_serve():
         bg = '&' if background else ''

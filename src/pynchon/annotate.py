@@ -11,7 +11,12 @@ LOGGER = lme.get_logger(__name__)
 
 
 def klass(name, kls) -> None:
-    """annotates a class"""
+    """annotates a class
+
+    :param name: param kls:
+    :param kls: 
+
+    """
     LOGGER.debug(f"annotating class: {name}")
     mod = importlib.import_module(kls.parent.canonical_path)
     kls._handle = getattr(mod, name)
@@ -91,7 +96,13 @@ def klass(name, kls) -> None:
 
 
 def module(name, module, working_dir=None) -> None:
-    """annotates a module"""
+    """annotates a module
+
+    :param name: param module:
+    :param working_dir: Default value = None)
+    :param module: 
+
+    """
     LOGGER.debug(f"annotating module: {name}")
     working_dir = (working_dir or abcs.Path('.')).absolute()
     tmp = module.filepath.relative_to(working_dir)
@@ -99,7 +110,12 @@ def module(name, module, working_dir=None) -> None:
 
 
 def should_skip(name: str):
-    """ """
+    """
+
+    :param name: str:
+    :param name: str: 
+
+    """
     from pynchon.config import pynchon as pynchon_config
     from pynchon.plugins.util import get_plugin_obj
 
@@ -112,7 +128,12 @@ def should_skip(name: str):
 
 
 def function(name, fxn) -> None:
-    """annotates a function"""
+    """annotates a function
+
+    :param name: param fxn:
+    :param fxn: 
+
+    """
     LOGGER.debug(f"annotating fxn: {name}")
     fxn._metadata = dict()
     if should_skip(name):

@@ -19,7 +19,12 @@ import_spec = collections.namedtuple(
 class Base(object):
     @classmethod
     def classmethod_dispatch(kls, *args):
-        """ """
+        """
+
+        :param kls: param *args:
+        :param *args: 
+
+        """
         from multipledispatch import dispatch
 
         def dec(fxn):
@@ -42,7 +47,11 @@ class ModulesWrapper(Base):
     __repr__ = __str__
 
     def map_ns(self, fxn):
-        """ """
+        """
+
+        :param fxn: 
+
+        """
         return FilterResult(itertools.starmap(fxn, self.namespace.items()))
         # out = []
         # for k,v in self.namespace.items():
@@ -50,7 +59,11 @@ class ModulesWrapper(Base):
         # return out
 
     def normalize_import(self, name):
-        """ """
+        """
+
+        :param name: 
+
+        """
         assignment = None
         if ' as ' in name:
             name, assignment = name.split(' as ')
@@ -85,7 +98,24 @@ class ModulesWrapper(Base):
         logger=None,
         **kwargs,
     ):
-        """ """
+        """
+
+        :param name: str:  (Default value = '')
+        :param import_mods: typing.List[str]:  (Default value = [])
+        :param import_names: typing.List[str]:  (Default value = [])
+        :param import_subs: typing.List[str]:  (Default value = [])
+        :param import_children: bool:  (Default value = False)
+        :param name: str:  (Default value = '')
+        :param import_mods: typing.List[str]:  (Default value = [])
+        :param import_names: typing.List[str]:  (Default value = [])
+        :param import_subs: typing.List[str]:  (Default value = [])
+        :param import_children: bool:  (Default value = False)
+        :param # lazy: bool:  (Default value = False)
+        :param filter_failure_raises: bool:  (Default value = True)
+        :param logger:  (Default value = None)
+        :param **kwargs: 
+
+        """
         assert name
         self.name = name
         self.import_mods = import_mods
@@ -105,7 +135,11 @@ class ModulesWrapper(Base):
         return result
 
     def do_import(self, package):
-        """ """
+        """
+
+        :param package: 
+
+        """
         return importlib.import_module(package)
 
     @property
@@ -119,13 +153,21 @@ class ModulesWrapper(Base):
         return self.__class__(name='.'.join(self.name.split('.')[:-1]))
 
     def select(self, **filter_kwargs):
-        """ """
+        """
+
+        :param **filter_kwargs: 
+
+        """
         tmp = list(self.filter(**filter_kwargs))
         assert len(tmp) == 1
         return tmp[0]
 
     def validate_assignment(self, assignment):
-        """ """
+        """
+
+        :param assignment: 
+
+        """
         if assignment in dir(self.module):
             msg = f'refusing to override existing value in target module: {assignment}'
             self.logger.critical(msg)
@@ -139,7 +181,11 @@ class ModulesWrapper(Base):
             setattr(self.module, assignment, self.namespace[assignment])
 
     def prune(self, **filters):
-        """ """
+        """
+
+        :param **filters: 
+
+        """
         # self.logger.critical(f"prune: {filters}")
         self.namespace = self.filter(**filters)
         return self if self.namespace else None
@@ -155,7 +201,13 @@ class ModulesWrapper(Base):
         include_main: str = True,
         exclude_private=True,
     ):
-        """ """
+        """
+
+        :param include_main: str:  (Default value = True)
+        :param exclude_private: Default value = True)
+        :param include_main: str:  (Default value = True)
+
+        """
         import os
         import glob
 
@@ -189,7 +241,20 @@ class ModulesWrapper(Base):
         # return_values=None,
         **kwargs,
     ):
-        """ """
+        """
+
+        :param prune: typing.Dict:  (Default value = {})
+        :param filter: typing.Dict:  (Default value = {})
+        :param select: typing.Dict:  (Default value = {})
+        :param prune: typing.Dict:  (Default value = {})
+        :param filter: typing.Dict:  (Default value = {})
+        :param select: typing.Dict:  (Default value = {})
+        :param # merge_filters:  (Default value = False)
+        :param # rekey:  (Default value = None)
+        :param # return_values:  (Default value = None)
+        :param **kwargs: 
+
+        """
         # self.logger.critical(f"filter_folder: {locals()}")
         children = FilterResult(self.get_folder_children(**kwargs))
         if sum([1 for choice in map(bool, [filter, select, prune]) if choice]) == 0:
@@ -250,7 +315,27 @@ class ModulesWrapper(Base):
         exclude_names: typing.List[str] = [],
         **kwargs,
     ) -> typing.Dict:
-        """ """
+        """
+
+        :param exclude_private: bool:  (Default value = True)
+        :param name_is: str:  (Default value = '')
+        :param filter_names: typing.List[typing.Callable]:  (Default value = [])
+        :param filter_vals: typing.List[typing.Callable]:  (Default value = [])
+        :param types_in: typing.List[type(type)]:  (Default value = [])
+        :param filter_module_origin: str:  (Default value = '')
+        :param filter_instances: typing.List[type(type)]:  (Default value = [])
+        :param exclude_names: typing.List[str]:  (Default value = [])
+        :param exclude_private: bool:  (Default value = True)
+        :param name_is: str:  (Default value = '')
+        :param filter_names: typing.List[typing.Callable]:  (Default value = [])
+        :param filter_vals: typing.List[typing.Callable]:  (Default value = [])
+        :param types_in: typing.List[type(type)]:  (Default value = [])
+        :param filter_module_origin: str:  (Default value = '')
+        :param filter_instances: typing.List[type(type)]:  (Default value = [])
+        :param exclude_names: typing.List[str]:  (Default value = [])
+        :param **kwargs: 
+
+        """
         if name_is:
             filter_names = [lambda name: name == name_is] + filter_names
         if exclude_private:
@@ -280,8 +365,11 @@ class ModulesWrapper(Base):
         )
 
     def run_filter(self, validator, arg) -> typing.BoolMaybe:
-        """
-        wrapper to honor `filter_failure_raises`
+        """wrapper to honor `filter_failure_raises`
+
+        :param validator: param arg:
+        :param arg: 
+
         """
         test = False
         try:
@@ -292,7 +380,12 @@ class ModulesWrapper(Base):
         return test
 
     def namespace_modified_hook(self, assignment, val) -> typing.NoneType:
-        """ """
+        """
+
+        :param assignment: param val:
+        :param val: 
+
+        """
 
     def do_import_name(self, arg) -> object:
         tmp = self.normalize_import(arg)
@@ -338,7 +431,16 @@ class ModulesWrapper(Base):
         # return_values=False,
         rekey: typing.Callable = None,
     ) -> typing.Dict:
-        """ """
+        """
+
+        :param # import_names:  (Default value = [])
+        :param import_statements:  (Default value = [])
+        :param filter_vals:  (Default value = [])
+        :param filter_names:  (Default value = [])
+        :param # return_values:  (Default value = False)
+        :param rekey: typing.Callable:  (Default value = None)
+
+        """
         # if kwargs:
         #     raise ValueError(f'unused kwargs {kwargs}')
         module = self.module
@@ -376,7 +478,12 @@ class LazyModule:
         pass
 
     def __init__(self, module_name: str = ''):
-        """ """
+        """
+
+        :param module_name: str:  (Default value = '')
+        :param module_name: str:  (Default value = '')
+
+        """
         assert module_name
         self.module_name = module_name
         self.module = None
@@ -395,6 +502,10 @@ class LazyModule:
     __str__ = __repr__
 
     def __getattr__(self, var_name):
-        """ """
+        """
+
+        :param var_name: 
+
+        """
         self.resolve()
         return getattr(self.module, var_name)

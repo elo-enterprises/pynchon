@@ -17,7 +17,12 @@ def validate(kls=None, self=None, vdata=None):
         raise Exception()
 
     def validate_plugins(plugin_list: typing.List = []):
-        """ """
+        """
+
+        :param plugin_list: typing.List:  (Default value = [])
+        :param plugin_list: typing.List:  (Default value = [])
+
+        """
         defaults = set(constants.DEFAULT_PLUGINS)
         user_provided = set(plugin_list)
         intersection = defaults.intersection(user_provided)
@@ -65,11 +70,12 @@ class Config(abcs.Config):
 
     @property
     def root(self) -> str:
-        """
-        {pynchon.root}:
+        """{pynchon.root}:
             * user-config
             * os-env
             * {{git.root}}
+
+
         """
         from pynchon import config
 
@@ -80,13 +86,14 @@ class Config(abcs.Config):
 
     @tagging.tagged_property(conflict_strategy='override')
     def plugins(self):
-        """
-        {pynchon.plugins}:
+        """{pynchon.plugins}:
             value here ultimately determines much of the
             rest of the apps bootstrap/runtime. value is
             always decided here, and must merge user-input
             from config files, plus any overrides on cli,
             plus pynchon's core set of default plugins.
+
+
         """
         defaults = self.__class__.defaults['plugins']
         result = sorted(list(set(self.get('plugins', []) + defaults)))
@@ -95,7 +102,5 @@ class Config(abcs.Config):
 
     @property
     def working_dir(self):
-        """
-        working dir at the time of CLI invocation
-        """
+        """working dir at the time of CLI invocation"""
         return abcs.Path(".").absolute()

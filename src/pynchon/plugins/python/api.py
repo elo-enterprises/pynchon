@@ -51,8 +51,16 @@ class PythonAPI(models.ShyPlanner):
         stdout=None,
         header=None,
     ):
-        """
-        Generate table-of-contents
+        """Generate table-of-contents
+
+        :param package: Default value = None)
+        :param should_print: Default value = None)
+        :param file: Default value = None)
+        :param exclude: Default value = None)
+        :param output: Default value = None)
+        :param stdout: Default value = None)
+        :param header: Default value = None)
+
         """
 
         T_TOC_API = render.get_template("pynchon/plugins/python/api/TOC.md.j2")
@@ -74,7 +82,11 @@ class PythonAPI(models.ShyPlanner):
             print(result)
 
     def plan(self, config=None) -> typing.List:
-        """ """
+        """
+
+        :param config: Default value = None)
+
+        """
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
         docs_root = self[:'docs.root':]

@@ -24,9 +24,7 @@ class Path(typing.PathType):
         return self.parents[0] / self.stem_truncated()
 
     def full_extension(self):
-        """
-        no extension truncation, i.e. `.tar.gz`
-        """
+        """no extension truncation, i.e. `.tar.gz`"""
         return self.name[self.name.find('.') :]
 
     def stem_truncated(self):
@@ -44,11 +42,19 @@ class Path(typing.PathType):
                 return match
 
     def match_glob(self, pattern):
-        """ """
+        """
+
+        :param pattern: 
+
+        """
         return fnmatch(str(self), str(pattern)) and pattern
 
     def has_file(self, fname) -> bool:
-        """ """
+        """
+
+        :param fname: 
+
+        """
         return self.absolute() in [p.absolute() for p in Path(fname).parents]
 
     def list(self) -> typing.List[str]:
@@ -59,7 +65,11 @@ class JSONEncoder(json.JSONEncoder):
     """ """
 
     def encode(self, obj):
-        """ """
+        """
+
+        :param obj: 
+
+        """
         result = None
 
         def default():

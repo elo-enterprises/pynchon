@@ -17,7 +17,12 @@ class Engine(object):
         raise NotImplementedError(event)
 
     def subscribe(self, fxn, type: str = None):
-        """ """
+        """
+
+        :param fxn: param type: str:  (Default value = None)
+        :param type: str:  (Default value = None)
+
+        """
 
 
 DEFAULT_ENGINE = Engine()

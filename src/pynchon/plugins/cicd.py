@@ -13,9 +13,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class CiCd(models.Provider):
-    """
-    Context for CI/CD
-    """
+    """Context for CI/CD"""
 
     name = "cicd"
 

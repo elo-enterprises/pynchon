@@ -7,9 +7,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Generators(models.NameSpace):
-    """
-    Collects `gen` commands from other plugins
-    """
+    """Collects `gen` commands from other plugins"""
 
     name = cli_name = 'gen'
     priority = 1

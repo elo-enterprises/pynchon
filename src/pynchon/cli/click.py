@@ -19,7 +19,13 @@ from click import (  # noqa
 
 
 def walk_group(parent, path='', tree={}):
-    """ """
+    """
+
+    :param parent: param path:  (Default value = '')
+    :param tree: Default value = {})
+    :param path:  (Default value = '')
+
+    """
     tree = {
         **tree,
         **{
@@ -35,7 +41,14 @@ def walk_group(parent, path='', tree={}):
 
 
 def group_merge(g1: click.Group, g2: click.Group):
-    """ """
+    """
+
+    :param g1: click.Group:
+    :param g2: click.Group:
+    :param g1: click.Group: 
+    :param g2: click.Group: 
+
+    """
 
     def fxn():
         pass
@@ -47,7 +60,13 @@ def group_merge(g1: click.Group, g2: click.Group):
 
 
 def group_copy(g1:click.Group, **kwargs):
-    """ """
+    """
+
+    :param g1: click.Group:
+    :param g1:click.Group: 
+    :param **kwargs: 
+
+    """
     tmp = [[k,v] for k,v in g1.__dict__.copy().items() if not k.startswith('_')]
     tmp=dict(tmp)
     # [tmp.pop(x) for x in tmp if x.startswith('_')]

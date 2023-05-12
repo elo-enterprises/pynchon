@@ -11,7 +11,12 @@ bootstrap = blinker.signal('bootstrap')
 
 # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
 def lifecycle_plugin(sender, plugin):
-    """ """
+    """
+
+    :param sender: param plugin:
+    :param plugin: 
+
+    """
     if plugin:
         tmp = getattr(sender, '__name__', str(sender))
         tmp = f'{tmp}: PLUGIN: {plugin}'
@@ -19,7 +24,12 @@ def lifecycle_plugin(sender, plugin):
 
 
 def lifecycle_config(sender, config):
-    """ """
+    """
+
+    :param sender: param config:
+    :param config: 
+
+    """
     if config:
         tmp = getattr(sender, '__name__', str(sender))
         tmp = f'{tmp}: CONFIG: {config}'
@@ -27,7 +37,13 @@ def lifecycle_config(sender, config):
 
 
 def lifecycle_applying(sender, applying=None, **kwargs):
-    """ """
+    """
+
+    :param sender: param applying:  (Default value = None)
+    :param applying:  (Default value = None)
+    :param **kwargs: 
+
+    """
     if applying:
         tmp = getattr(sender, '__name__', str(sender))
         tmp = f'{tmp}: APPLY: {applying}'
@@ -35,7 +51,13 @@ def lifecycle_applying(sender, applying=None, **kwargs):
 
 
 def lifecycle_stage(sender, stage=None, **kwargs):
-    """ """
+    """
+
+    :param sender: param stage:  (Default value = None)
+    :param stage:  (Default value = None)
+    :param **kwargs: 
+
+    """
     if stage:
         tmp = getattr(sender, '__name__', str(sender))
         from pynchon.app import app
@@ -44,7 +66,13 @@ def lifecycle_stage(sender, stage=None, **kwargs):
 
 
 def lifecycle_msg(sender, msg=None, **kwargs):
-    """ """
+    """
+
+    :param sender: param msg:  (Default value = None)
+    :param msg:  (Default value = None)
+    :param **kwargs: 
+
+    """
     if msg:
         tmp = getattr(sender, 'name', getattr(sender, '__name__', str(sender)))
         LOGGER.info(f'lifecycle :{tmp}: {msg}')

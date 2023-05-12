@@ -38,7 +38,11 @@ class AppConsole(AppBase):
     #     'Read the Docs')
 
     def __init__(self, **kwargs):
-        """ """
+        """
+
+        :param **kwargs: 
+
+        """
         self.console = Console()
 
     # # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
@@ -144,13 +148,21 @@ class AppExitHooks(AppBase):
 
 class AppEvents(AppBase):
     def __init__(self, **kwargs):
-        """ """
+        """
+
+        :param **kwargs: 
+
+        """
         self.events = events
 
 
 class App(AppConsole, AppEvents, AppExitHooks):
     def __init__(self, **kwargs):
-        """ """
+        """
+
+        :param **kwargs: 
+
+        """
         AppConsole.__init__(self, **kwargs)
         AppEvents.__init__(self, **kwargs)
         self.exit_code = None

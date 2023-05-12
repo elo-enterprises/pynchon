@@ -19,7 +19,11 @@ LOGGER = lme.get_logger(__name__)
 
 @click.argument("file", nargs=1)
 def ini(file):
-    """Parses ini file and returns JSON"""
+    """Parses ini file and returns JSON
+
+    :param file: 
+
+    """
     import configparser
 
     parser = configparser.ConfigParser()
@@ -29,13 +33,25 @@ def ini(file):
 
 
 def yaml(*args, **kwargs):
-    """parses yaml file and returns JSON"""
+    """parses yaml file and returns JSON
+
+    :param *args: 
+    :param **kwargs: 
+
+    """
     raise NotImplementedError()
 
 
 @click.argument("file", nargs=1)
 def toml(file: str = None, strict: bool = True):
-    """Parses toml file and returns JSON"""
+    """Parses toml file and returns JSON
+
+    :param file: str:  (Default value = None)
+    :param strict: bool:  (Default value = True)
+    :param file: str:  (Default value = None)
+    :param strict: bool:  (Default value = True)
+
+    """
 
     config = {}
     if not os.path.exists(file):
@@ -108,13 +124,36 @@ def json5(
     push_command_output: str = '',
     under_key: str = '',
 ) -> None:
-    """
-    Parses JSON-5 file(s) and outputs json. Pipe friendly.
-
+    """Parses JSON-5 file(s) and outputs json. Pipe friendly.
+    
     If multiple files are provided, files will
     be merged (with overwrites) in the order provided.
-
+    
     Several other options are available for common post-processing tasks.
+
+    :param output: str:  (Default value = '')
+    :param should_print: bool:  (Default value = False)
+    :param file: str:  (Default value = '')
+    :param files: typing.List[str]:  (Default value = [])
+    :param wrapper_key: str:  (Default value = '')
+    :param pull: str:  (Default value = '')
+    :param push_data: str:  (Default value = '')
+    :param push_file_data: str:  (Default value = '')
+    :param push_json_data: str:  (Default value = '')
+    :param push_command_output: str:  (Default value = '')
+    :param under_key: str:  (Default value = '')
+    :param output: str:  (Default value = '')
+    :param should_print: bool:  (Default value = False)
+    :param file: str:  (Default value = '')
+    :param files: typing.List[str]:  (Default value = [])
+    :param wrapper_key: str:  (Default value = '')
+    :param pull: str:  (Default value = '')
+    :param push_data: str:  (Default value = '')
+    :param push_file_data: str:  (Default value = '')
+    :param push_json_data: str:  (Default value = '')
+    :param push_command_output: str:  (Default value = '')
+    :param under_key: str:  (Default value = '')
+
     """
     out: typing.Dict[str, typing.Any] = {}
     for file in files:
@@ -173,8 +212,15 @@ def json5(
 @options.strict
 @click.argument("file", nargs=1)
 def json(file: str = '', content: str = '', strict: bool = True) -> dict:
-    """
-    loads json to python dictionary from given file or string
+    """loads json to python dictionary from given file or string
+
+    :param file: str:  (Default value = '')
+    :param content: str:  (Default value = '')
+    :param strict: bool:  (Default value = True)
+    :param file: str:  (Default value = '')
+    :param content: str:  (Default value = '')
+    :param strict: bool:  (Default value = True)
+
     """
     if file:
         assert not content

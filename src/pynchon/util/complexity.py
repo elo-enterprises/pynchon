@@ -19,12 +19,24 @@ LOGGER = lme.get_logger(__name__)
 
 
 def clean_text(txt: str) -> str:
-    """ """
+    """
+
+    :param txt: str:
+    :param txt: str: 
+
+    """
     return "\n".join([line for line in txt.split("\n") if line.strip()])
 
 
 def get_module(package: str = "", file: str = ""):
-    """ """
+    """
+
+    :param package: str:  (Default value = "")
+    :param file: str:  (Default value = "")
+    :param package: str:  (Default value = "")
+    :param file: str:  (Default value = "")
+
+    """
     if not bool(package) ^ bool(file):
         err = "Expected --file or --package, but not both"
         raise RuntimeError(err)
@@ -45,7 +57,12 @@ def get_module(package: str = "", file: str = ""):
 
 
 def get_refs(working_dir=None, module=None) -> dict:
-    """ """
+    """
+
+    :param working_dir: Default value = None)
+    :param module: Default value = None)
+
+    """
     refs = dict(
         classes=dict(
             [
@@ -88,7 +105,19 @@ def visit_module(
     module_name=None,
     working_dir=WORKING_DIR,
 ):
-    """recursive visitor for this package, submodules, classes, functions, etc"""
+    """recursive visitor for this package, submodules, classes, functions, etc
+
+    :param output: Default value = [])
+    :param stats: Default value = {})
+    :param module: Default value = None)
+    :param template: Default value = None)
+    :param visited: Default value = [])
+    :param exclude: list:  (Default value = [])
+    :param module_name: Default value = None)
+    :param working_dir: Default value = WORKING_DIR)
+    :param exclude: list:  (Default value = [])
+
+    """
     if module_name in exclude:
         LOGGER.debug(f"skipping module: {module_name}")
         return output
@@ -136,7 +165,16 @@ class Checker(mccabe.McCabeChecker):
 
 
 def complexity(code: str = None, fname: str = None, threshold: int = 7):
-    """ """
+    """
+
+    :param code: str:  (Default value = None)
+    :param fname: str:  (Default value = None)
+    :param threshold: int:  (Default value = 7)
+    :param code: str:  (Default value = None)
+    :param fname: str:  (Default value = None)
+    :param threshold: int:  (Default value = 7)
+
+    """
     threshold = 7
     try:
         tree = compile(code, fname, "exec", ast.PyCF_ONLY_AST)

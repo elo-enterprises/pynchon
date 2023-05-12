@@ -7,9 +7,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Griffe(models.ToolPlugin):
-    """
-    Tools for working with Python ASTs
-    """
+    """Tools for working with Python ASTs"""
 
     name = "griffe"
     cli_name = 'griffe'

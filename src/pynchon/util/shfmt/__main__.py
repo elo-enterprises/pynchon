@@ -15,7 +15,12 @@ LOGGER = lme.get_logger(__name__)
 )
 @cli.click.command
 def entry(filename: str = '/dev/stdin'):
-    """ """
+    """
+
+    :param filename: str:  (Default value = '/dev/stdin')
+    :param filename: str:  (Default value = '/dev/stdin')
+
+    """
     LOGGER.debug(f'reading from file: {filename}')
     if filename == '-':
         filename = '/dev/stdin'

@@ -17,7 +17,14 @@ def require_conf_key(
     vdata=None,
     strict=True,
 ):
-    """ """
+    """
+
+    :param kls: param self:  (Default value = None)
+    :param vdata: Default value = None)
+    :param strict: Default value = True)
+    :param self:  (Default value = None)
+
+    """
     pconf_kls = getattr(kls, 'config_class', None)
     conf_key = getattr(pconf_kls, 'config_key', kls.name.replace('-', '_'))
     if not conf_key:

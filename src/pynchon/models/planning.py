@@ -98,7 +98,11 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         return panel
 
     def __init__(self, *args):
-        """ """
+        """
+
+        :param *args: 
+
+        """
         for arg in args:
             if not isinstance(arg, (Goal,)):
                 err = f'plan can only include goals, got {arg} with type={type(arg)}'
@@ -121,7 +125,11 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
     # @typing.validate_arguments
     def __add__(self, other):
-        """ """
+        """
+
+        :param other: 
+
+        """
         assert isinstance(other, (Plan,))
         return Plan(*(other + self))
 
@@ -129,13 +137,22 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
     # @typing.validate_arguments
     def append(self, other: Goal):
-        """ """
+        """
+
+        :param other: Goal:
+        :param other: Goal: 
+
+        """
         assert isinstance(other, (Goal,))
         return super(Plan, self).append(other)
 
     # @typing.validate_arguments
     def extend(self, other):
-        """ """
+        """
+
+        :param other: 
+
+        """
         assert isinstance(other, (Goal,))
         return super(Plan, self).extend(other)
 

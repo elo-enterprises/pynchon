@@ -7,9 +7,10 @@ LOGGER = lme.get_logger(__name__)
 
 
 class AttrDictBase:
-    """
-    A dictionary with attribute-style access.
+    """A dictionary with attribute-style access.
     It maps attribute access to the real dictionary.
+
+
     """
 
     def __init__(self, **init: typing.OptionalAny):

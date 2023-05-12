@@ -39,8 +39,10 @@ CONSOLE = Console(theme=THEME, stderr=True)
 
 
 def set_global_level(level):
-    """
-    https://stackoverflow.com/questions/19617355/dynamically-changing-log-level-without-restarting-the-application
+    """https://stackoverflow.com/questions/19617355/dynamically-changing-log-level-without-restarting-the-application
+
+    :param level: 
+
     """
     logger = logging.getLogger()
     logger.setLevel(level)
@@ -52,9 +54,12 @@ def set_global_level(level):
 
 
 def get_logger(name, console=CONSOLE):
-    """
-    utility function for returning a logger
+    """utility function for returning a logger
     with standard formatting patterns, etc
+
+    :param name: param console:  (Default value = CONSOLE)
+    :param console:  (Default value = CONSOLE)
+
     """
 
     log_handler = RichHandler(

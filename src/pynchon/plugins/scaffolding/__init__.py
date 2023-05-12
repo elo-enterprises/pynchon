@@ -22,8 +22,10 @@ class Scaffolding(models.ShyPlanner):
     config_class = ScaffoldingConfig
 
     def match(self, pattern=None):
-        """
-        returns files that match for all scaffolds
+        """returns files that match for all scaffolds
+
+        :param pattern: Default value = None)
+
         """
         if pattern:
             return files.find_globs([pattern], quiet=True)
@@ -70,7 +72,12 @@ class Scaffolding(models.ShyPlanner):
         return self.scaffolds
 
     def diff(self, quiet: bool = False):
-        """diff with known scaffolding"""
+        """diff with known scaffolding
+
+        :param quiet: bool:  (Default value = False)
+        :param quiet: bool:  (Default value = False)
+
+        """
         result = dict(errors=[], modified=[])
         for matched_scaffold in self.matches:
             for fname in matched_scaffold.matches:
@@ -96,7 +103,11 @@ class Scaffolding(models.ShyPlanner):
         return result
 
     def plan(self, config=None) -> typing.List[str]:
-        """ """
+        """
+
+        :param config: Default value = None)
+
+        """
         config or self.plugin_config
         plan = super(Scaffolding, self).plan(config)
         for delta in self.diff()['modified']:

@@ -16,7 +16,12 @@ class Plugin(object, metaclass=Meta):
 
     @classmethod
     def classmethod_dispatch(kls, *args):
-        """ """
+        """
+
+        :param kls: param *args:
+        :param *args: 
+
+        """
         from multipledispatch import dispatch
 
         def dec(fxn):
@@ -25,7 +30,11 @@ class Plugin(object, metaclass=Meta):
         return dec
 
     def __init__(self, final=None) -> typing.NoneType:
-        """ """
+        """
+
+        :param final: Default value = None)
+
+        """
         self.final = final
 
     @memoized_property

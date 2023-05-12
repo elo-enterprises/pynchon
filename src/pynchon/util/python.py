@@ -6,9 +6,12 @@ LOGGER = lme.get_logger(__name__)
 
 
 def is_package(folder: str) -> bool:
-    """
-    slightly better than just looking for setup.py-
+    """slightly better than just looking for setup.py-
     we try to use it to get the current version-string
+
+    :param folder: str:
+    :param folder: str: 
+
     """
     from pynchon.util.os import invoke
 
@@ -19,7 +22,14 @@ def is_package(folder: str) -> bool:
 
 
 def load_setupcfg(file: str = "", folder: str = ""):
-    """ """
+    """
+
+    :param file: str:  (Default value = "")
+    :param folder: str:  (Default value = "")
+    :param file: str:  (Default value = "")
+    :param folder: str:  (Default value = "")
+
+    """
     if not file:
         folder = folder or files.get_git_root().parents[0]
         file = folder / 'setup.cfg'
@@ -27,7 +37,11 @@ def load_setupcfg(file: str = "", folder: str = ""):
 
 
 def load_entrypoints(config=None) -> dict:
-    """ """
+    """
+
+    :param config: Default value = None)
+
+    """
     if not config:
         LOGGER.critical("no config provided!")
         return {}
