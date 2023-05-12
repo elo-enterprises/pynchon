@@ -41,7 +41,7 @@ CONSOLE = Console(theme=THEME, stderr=True)
 def set_global_level(level):
     """https://stackoverflow.com/questions/19617355/dynamically-changing-log-level-without-restarting-the-application
 
-    :param level: 
+    :param level:
 
     """
     logger = logging.getLogger()

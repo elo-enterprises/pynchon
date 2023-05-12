@@ -36,7 +36,7 @@ class FilterResult(typing.List[typing.Any]):
     def prune(self, **kwargs):
         """
 
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         return FilterResult(filter(None, [x.prune(**kwargs) for x in self]))
@@ -44,7 +44,7 @@ class FilterResult(typing.List[typing.Any]):
     def filter(self, **kwargs):
         """
 
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         return FilterResult([x.filter(**kwargs) for x in self])

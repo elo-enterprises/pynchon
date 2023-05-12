@@ -90,7 +90,7 @@ def find_src(
     :param src_root: str:
     :param exclude_patterns: Default value = [])
     :param quiet: bool:  (Default value = False)
-    :param src_root: str: 
+    :param src_root: str:
     :param quiet: bool:  (Default value = False)
 
     """
@@ -122,7 +122,7 @@ def find_globs(
     :param includes: Default value = [])
     :param logger: object:  (Default value = None)
     :param quiet: bool:  (Default value = False)
-    :param globs: typing.List[abcs.Path]: 
+    :param globs: typing.List[abcs.Path]:
     :param logger: object:  (Default value = None)
     :param quiet: bool:  (Default value = False)
 
@@ -178,7 +178,8 @@ def ansible_docker(
             "-v `pwd`:/workspace",
         ]
         + vextras
-        + [ "-e ANSIBLE_STDOUT_CALLBACK=json",
+        + [
+            "-e ANSIBLE_STDOUT_CALLBACK=json",
             "-e ANSIBLE_CALLBACKS_ENABLED=json",
             "-e ANSIBLE_LOAD_CALLBACK_PLUGINS=1",
             f"--entrypoint {entrypoint} ",
@@ -230,8 +231,8 @@ def block_in_file(
     :param backup: str:  (Default value = "yes")
     :param marker: str:  (Default value = '# {mark} ANSIBLE MANAGED BLOCK - pynchon')
     :param dest: Default value = ".tmp.ansible.blockinfile.out")
-    :param target_file: str: 
-    :param block_file: str: 
+    :param target_file: str:
+    :param block_file: str:
     :param create: str:  (Default value = "no")
     :param insertbefore: str:  (Default value = "BOF")
     :param backup: str:  (Default value = "yes")

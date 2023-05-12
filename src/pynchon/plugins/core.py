@@ -21,15 +21,13 @@ class Core(models.Planner):
 
     @typing.classproperty
     def click_group(kls):
-        """
-        """
+        """ """
         kls._finalized_click_groups[kls] = entry
         return kls._finalized_click_groups[kls]
 
     @classmethod
     def get_current_config(kls):
-        """
-        """
+        """ """
         from pynchon import config as config_mod
 
         result = getattr(config_mod, kls.get_config_key())
@@ -41,11 +39,15 @@ class Core(models.Planner):
 
     @cli.click.option('--bash', default=False, is_flag=True, help='bootstrap bash')
     @cli.click.option('--bashrc', default=False, is_flag=True, help='bootstrap bashrc')
+    @cli.click.option(
+        '--makefile', default=False, is_flag=True, help='bootstrap Makefile'
+    )
     @cli.click.option('--tox', default=False, is_flag=True, help='bootstrap tox')
     def bootstrap(
         self,
         bash: bool = False,
         bashrc: bool = False,
+        makefile: bool = False,
         tox: bool = False,
     ) -> None:
         """Bootstrap for shell integration, etc
@@ -58,7 +60,7 @@ class Core(models.Planner):
         template_prefix = 'pynchon/bootstrap'
         pynchon_completions_script = '.tmp.pynchon.completions.sh'
         bashrc_snippet = '.tmp.pynchon.bashrc'
-        template_prefix='pynchon/bootstrap/'
+        template_prefix = 'pynchon/bootstrap/'
         if bash:
             import collections
 
@@ -111,11 +113,10 @@ class Core(models.Planner):
             tmpl = api.render.get_template(f'{template_prefix}/tox.ini')
             content = tmpl.render(**self.project_config)
             print(content)
-        elif Makefile:
-            tmpl = api.render.get_template(f'{template_prefix}/tox.ini')
+        elif makefile:
+            tmpl = api.render.get_template(f'{template_prefix}/Makefile')
             content = tmpl.render(**self.project_config)
             print(content)
-
 
     def raw(self) -> None:
         """Returns (almost) raw config,

@@ -32,7 +32,7 @@ def jinja_loadf(
     :param includes: typing.List[str]:  (Default value = [])
     :param strict: bool:  (Default value = True)
     :param quiet: bool:  (Default value = False)
-    :param file: str: 
+    :param file: str:
     :param context: typing.Dict:  (Default value = {})
     :param includes: typing.List[str]:  (Default value = [])
     :param strict: bool:  (Default value = True)
@@ -132,7 +132,7 @@ def jinja_file(
     :param context_file: typing.Dict:  (Default value = {})
     :param includes: typing.List[str]:  (Default value = [])
     :param strict: bool:  (Default value = True)
-    :param file: str: 
+    :param file: str:
     :param output: typing.StringMaybe:  (Default value = "")
     :param should_print: typing.Bool:  (Default value = False)
     :param in_place: typing.Bool:  (Default value = False)
@@ -194,7 +194,7 @@ def j2cli(
 ) -> None:
     """A wrapper on the `j2` command (j2cli must be installed)
     Renders the named file, using the given context-file.
-    
+
     NB: No support for jinja-includes or custom filters.
 
     :param output: str:
@@ -202,10 +202,10 @@ def j2cli(
     :param file: str:
     :param context: str:
     :param format: str:  (Default value = 'json')
-    :param output: str: 
-    :param should_print: bool: 
-    :param file: str: 
-    :param context: str: 
+    :param output: str:
+    :param should_print: bool:
+    :param file: str:
+    :param context: str:
     :param format: str:  (Default value = 'json')
 
     """

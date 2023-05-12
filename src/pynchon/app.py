@@ -40,7 +40,7 @@ class AppConsole(AppBase):
     def __init__(self, **kwargs):
         """
 
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         self.console = Console()
@@ -150,7 +150,7 @@ class AppEvents(AppBase):
     def __init__(self, **kwargs):
         """
 
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         self.events = events
@@ -160,7 +160,7 @@ class App(AppConsole, AppEvents, AppExitHooks):
     def __init__(self, **kwargs):
         """
 
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         AppConsole.__init__(self, **kwargs)

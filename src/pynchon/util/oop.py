@@ -9,8 +9,8 @@ def new_in_class(name: str, kls: typing.Type):
 
     :param name: str:
     :param kls: typing.Type:
-    :param name: str: 
-    :param kls: typing.Type: 
+    :param name: str:
+    :param kls: typing.Type:
 
     """
     return name in dir(kls) and not any([name in dir(base) for base in kls.__bases__])
@@ -21,7 +21,7 @@ def is_subclass(x, y, strict=True):
 
     :param x: param y:
     :param strict: Default value = True)
-    :param y: 
+    :param y:
 
     """
     if isinstance(x, (typing.Type)) and issubclass(x, y):

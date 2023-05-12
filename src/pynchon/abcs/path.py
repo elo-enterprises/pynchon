@@ -44,7 +44,7 @@ class Path(typing.PathType):
     def match_glob(self, pattern):
         """
 
-        :param pattern: 
+        :param pattern:
 
         """
         return fnmatch(str(self), str(pattern)) and pattern
@@ -52,7 +52,7 @@ class Path(typing.PathType):
     def has_file(self, fname) -> bool:
         """
 
-        :param fname: 
+        :param fname:
 
         """
         return self.absolute() in [p.absolute() for p in Path(fname).parents]
@@ -67,7 +67,7 @@ class JSONEncoder(json.JSONEncoder):
     def encode(self, obj):
         """
 
-        :param obj: 
+        :param obj:
 
         """
         result = None

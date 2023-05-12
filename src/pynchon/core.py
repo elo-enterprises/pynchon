@@ -71,9 +71,9 @@ class Config(abcs.Config):
     @property
     def root(self) -> str:
         """{pynchon.root}:
-            * user-config
-            * os-env
-            * {{git.root}}
+        * user-config
+        * os-env
+        * {{git.root}}
 
 
         """
@@ -87,11 +87,11 @@ class Config(abcs.Config):
     @tagging.tagged_property(conflict_strategy='override')
     def plugins(self):
         """{pynchon.plugins}:
-            value here ultimately determines much of the
-            rest of the apps bootstrap/runtime. value is
-            always decided here, and must merge user-input
-            from config files, plus any overrides on cli,
-            plus pynchon's core set of default plugins.
+        value here ultimately determines much of the
+        rest of the apps bootstrap/runtime. value is
+        always decided here, and must merge user-input
+        from config files, plus any overrides on cli,
+        plus pynchon's core set of default plugins.
 
 
         """

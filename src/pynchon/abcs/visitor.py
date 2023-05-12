@@ -29,10 +29,10 @@ class Visitor:
         :param v: p:
         :param v: param paths:  (Default value = [])
         :param obj: Default value = None)
-        :param v: (p: 
-        :param v): 
+        :param v: (p:
+        :param v):
         :param paths:  (Default value = [])
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         self.conf = kwargs
@@ -126,7 +126,7 @@ class TemplatedDict(dict):
     def __init__(self, dct):
         """
 
-        :param dct: 
+        :param dct:
 
         """
         super(TemplatedDict, self).__init__(dct.copy())
@@ -135,7 +135,7 @@ class TemplatedDict(dict):
     def get_path(self, path):
         """
 
-        :param path: 
+        :param path:
 
         """
         return pydash.get(self, path)
@@ -144,7 +144,7 @@ class TemplatedDict(dict):
         """
 
         :param path: param val:
-        :param val: 
+        :param val:
 
         """
         return pydash.set_with(self, path, val)
@@ -225,7 +225,7 @@ class JinjaDict(TemplatedDict):
     def is_templated(self, v):
         """
 
-        :param v: 
+        :param v:
 
         """
         return isinstance(v, (str,)) and '{{' in v

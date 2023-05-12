@@ -64,7 +64,7 @@ class GitHub(models.ToolPlugin):
 
         :param repo: str:
         :param token: str:  (Default value = None)
-        :param repo: str: 
+        :param repo: str:
         :param token: str:  (Default value = None)
 
         """
@@ -78,7 +78,7 @@ class GitHub(models.ToolPlugin):
 
         :param repo: str:
         :param token: str:  (Default value = None)
-        :param repo: str: 
+        :param repo: str:
         :param token: str:  (Default value = None)
 
         """
@@ -91,7 +91,7 @@ class GitHub(models.ToolPlugin):
 
         :param repo: str:
         :param token: str:  (Default value = None)
-        :param repo: str: 
+        :param repo: str:
         :param token: str:  (Default value = None)
 
         """

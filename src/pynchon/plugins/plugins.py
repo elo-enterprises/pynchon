@@ -38,7 +38,7 @@ class PluginsMan(models.Manager):
     def list(self, **kwargs):
         """List all plugins
 
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         return list(self.status()['plugins'].keys())

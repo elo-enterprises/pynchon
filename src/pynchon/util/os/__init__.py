@@ -6,7 +6,7 @@ from . import models
 def filter_pids(**kwargs):
     """
 
-    :param **kwargs: 
+    :param **kwargs:
 
     """
     import psutil
@@ -30,8 +30,8 @@ def invoke(cmd: str, **kwargs):
     which fixes problems with subprocess.POpen and os.system.
 
     :param cmd: str:
-    :param cmd: str: 
-    :param **kwargs: 
+    :param cmd: str:
+    :param **kwargs:
 
     """
     invoc = models.Invocation(cmd=cmd, **kwargs)

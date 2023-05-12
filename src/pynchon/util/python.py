@@ -10,7 +10,7 @@ def is_package(folder: str) -> bool:
     we try to use it to get the current version-string
 
     :param folder: str:
-    :param folder: str: 
+    :param folder: str:
 
     """
     from pynchon.util.os import invoke

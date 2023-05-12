@@ -6,7 +6,7 @@ import importlib
 def get_namespace(name):
     """FIXME: use FakeModule?
 
-    :param name: 
+    :param name:
 
     """
     from pynchon.abcs.attrdict import AttrDict

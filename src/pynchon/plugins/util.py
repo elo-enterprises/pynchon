@@ -34,7 +34,7 @@ def get_plugin_class(plugin_name: str) -> typing.Type:
     """
 
     :param plugin_name: str:
-    :param plugin_name: str: 
+    :param plugin_name: str:
 
     """
     meta = get_plugin_meta(plugin_name)
@@ -51,7 +51,7 @@ def get_plugin_obj(plugin_name: str) -> object:
     """
 
     :param plugin_name: str:
-    :param plugin_name: str: 
+    :param plugin_name: str:
 
     """
     meta = get_plugin_meta(plugin_name)

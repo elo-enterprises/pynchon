@@ -37,7 +37,7 @@ def indent(txt: str, level: int = 2) -> str:
 
     :param txt: str:
     :param level: int:  (Default value = 2)
-    :param txt: str: 
+    :param txt: str:
     :param level: int:  (Default value = 2)
 
     """

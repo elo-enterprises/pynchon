@@ -22,7 +22,7 @@ class Base(object):
         """
 
         :param kls: param *args:
-        :param *args: 
+        :param *args:
 
         """
         from multipledispatch import dispatch
@@ -49,7 +49,7 @@ class ModulesWrapper(Base):
     def map_ns(self, fxn):
         """
 
-        :param fxn: 
+        :param fxn:
 
         """
         return FilterResult(itertools.starmap(fxn, self.namespace.items()))
@@ -61,7 +61,7 @@ class ModulesWrapper(Base):
     def normalize_import(self, name):
         """
 
-        :param name: 
+        :param name:
 
         """
         assignment = None
@@ -113,7 +113,7 @@ class ModulesWrapper(Base):
         :param # lazy: bool:  (Default value = False)
         :param filter_failure_raises: bool:  (Default value = True)
         :param logger:  (Default value = None)
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         assert name
@@ -137,7 +137,7 @@ class ModulesWrapper(Base):
     def do_import(self, package):
         """
 
-        :param package: 
+        :param package:
 
         """
         return importlib.import_module(package)
@@ -155,7 +155,7 @@ class ModulesWrapper(Base):
     def select(self, **filter_kwargs):
         """
 
-        :param **filter_kwargs: 
+        :param **filter_kwargs:
 
         """
         tmp = list(self.filter(**filter_kwargs))
@@ -165,7 +165,7 @@ class ModulesWrapper(Base):
     def validate_assignment(self, assignment):
         """
 
-        :param assignment: 
+        :param assignment:
 
         """
         if assignment in dir(self.module):
@@ -183,7 +183,7 @@ class ModulesWrapper(Base):
     def prune(self, **filters):
         """
 
-        :param **filters: 
+        :param **filters:
 
         """
         # self.logger.critical(f"prune: {filters}")
@@ -252,7 +252,7 @@ class ModulesWrapper(Base):
         :param # merge_filters:  (Default value = False)
         :param # rekey:  (Default value = None)
         :param # return_values:  (Default value = None)
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         # self.logger.critical(f"filter_folder: {locals()}")
@@ -333,7 +333,7 @@ class ModulesWrapper(Base):
         :param filter_module_origin: str:  (Default value = '')
         :param filter_instances: typing.List[type(type)]:  (Default value = [])
         :param exclude_names: typing.List[str]:  (Default value = [])
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         if name_is:
@@ -368,7 +368,7 @@ class ModulesWrapper(Base):
         """wrapper to honor `filter_failure_raises`
 
         :param validator: param arg:
-        :param arg: 
+        :param arg:
 
         """
         test = False
@@ -383,7 +383,7 @@ class ModulesWrapper(Base):
         """
 
         :param assignment: param val:
-        :param val: 
+        :param val:
 
         """
 
@@ -504,7 +504,7 @@ class LazyModule:
     def __getattr__(self, var_name):
         """
 
-        :param var_name: 
+        :param var_name:
 
         """
         self.resolve()

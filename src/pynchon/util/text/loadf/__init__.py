@@ -21,7 +21,7 @@ LOGGER = lme.get_logger(__name__)
 def ini(file):
     """Parses ini file and returns JSON
 
-    :param file: 
+    :param file:
 
     """
     import configparser
@@ -35,8 +35,8 @@ def ini(file):
 def yaml(*args, **kwargs):
     """parses yaml file and returns JSON
 
-    :param *args: 
-    :param **kwargs: 
+    :param *args:
+    :param **kwargs:
 
     """
     raise NotImplementedError()
@@ -125,10 +125,10 @@ def json5(
     under_key: str = '',
 ) -> None:
     """Parses JSON-5 file(s) and outputs json. Pipe friendly.
-    
+
     If multiple files are provided, files will
     be merged (with overwrites) in the order provided.
-    
+
     Several other options are available for common post-processing tasks.
 
     :param output: str:  (Default value = '')

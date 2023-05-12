@@ -18,7 +18,7 @@ class GitConfig(abcs.Config):
 
         :param cmd: param log_command:  (Default value = False)
         :param log_command:  (Default value = False)
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         pre = f"cd {self.root} && " if self.root else ""

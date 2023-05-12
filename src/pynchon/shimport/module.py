@@ -23,7 +23,7 @@ class ModuleBuilder(models.ModulesWrapper):
     def initialize(self, **filters):
         """
 
-        :param **filters: 
+        :param **filters:
 
         """
         # FIXME: leaky abstraction
@@ -39,7 +39,7 @@ class ModuleBuilder(models.ModulesWrapper):
     def filter(self, **filter):
         """
 
-        :param **filter: 
+        :param **filter:
 
         """
         models.ModulesWrapper.filter(self, **filter)
@@ -59,10 +59,10 @@ def module_builder(
     :param return_objects: Default value = False)
     :param assign_objects: bool:  (Default value = True)
     :param sort_objects: typing.Dict:  (Default value = {})
-    :param name: str: 
+    :param name: str:
     :param assign_objects: bool:  (Default value = True)
     :param sort_objects: typing.Dict:  (Default value = {})
-    :param **kwargs: 
+    :param **kwargs:
 
     """
     if name not in MODULE_REGISTRY:
@@ -98,7 +98,7 @@ def lazy(
     """
 
     :param module_name: str:
-    :param module_name: str: 
+    :param module_name: str:
 
     """
     assert module_name

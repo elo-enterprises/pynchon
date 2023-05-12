@@ -26,7 +26,7 @@ def bind(instance, func, as_name=None):
 
     :param instance: param func:
     :param as_name: Default value = None)
-    :param func: 
+    :param func:
 
     """
     if as_name is None:
@@ -52,7 +52,7 @@ class PynchonPlugin(fleks.Plugin):
     def instance(kls):
         """class-property: the instance for this plugin
 
-        :param kls: 
+        :param kls:
 
         """
         return plugins_util.get_plugin_obj(kls.name)
@@ -66,7 +66,7 @@ class PynchonPlugin(fleks.Plugin):
     def get_config_key(kls):
         """
 
-        :param kls: 
+        :param kls:
 
         """
         default = kls.name.replace('-', '_')
@@ -77,7 +77,7 @@ class PynchonPlugin(fleks.Plugin):
     def get_current_config(kls):
         """class-method: get the current config for this plugin
 
-        :param kls: 
+        :param kls:
 
         """
         conf_class = getattr(kls, 'config_class', None)
@@ -125,7 +125,7 @@ class PynchonPlugin(fleks.Plugin):
 
         :param key: str:
         :param strict: Default value = True)
-        :param key: str: 
+        :param key: str:
 
         """
         try:
@@ -143,7 +143,7 @@ class PynchonPlugin(fleks.Plugin):
 
         :param key: str:
         :param strict: Default value = False)
-        :param key: str: 
+        :param key: str:
 
         """
         return self.__mod__(key, strict=strict)
@@ -152,7 +152,7 @@ class PynchonPlugin(fleks.Plugin):
         """shortcut for accessing local plugin-config
 
         :param key: str:
-        :param key: str: 
+        :param key: str:
 
         """
         if isinstance(key, (slice,)):
@@ -189,7 +189,7 @@ class CliPlugin(PynchonPlugin):
     def click_entry(kls):
         """
 
-        :param kls: 
+        :param kls:
 
         """
         return entry
@@ -198,27 +198,31 @@ class CliPlugin(PynchonPlugin):
     def click_group(kls):
         """
 
-        :param kls: 
+        :param kls:
 
         """
         cached = kls._finalized_click_groups.get(kls, None)
-        grp_name=getattr(kls, 'cli_name', kls.name)
+        grp_name = getattr(kls, 'cli_name', kls.name)
         if cached is not None:
             return cached
+
         def plugin_main():
             pass
+
         plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
-        groop=cli.common.groop(
-            grp_name, parent=kls.click_entry,)
+        groop = cli.common.groop(
+            grp_name,
+            parent=kls.click_entry,
+        )
         plugin_main = groop(plugin_main)
         kls._finalized_click_groups[kls] = plugin_main
 
         tags = tagging.tags.get(kls) or {}
-        gr_aliases = list(set(tags.get('click_aliases',[])))
+        gr_aliases = list(set(tags.get('click_aliases', [])))
         for alias in gr_aliases:
-            g2 = cli.click.group_copy(plugin_main,name=alias,hidden=True)
+            g2 = cli.click.group_copy(plugin_main, name=alias, hidden=True)
             kls.click_entry.add_command(g2)
-        
+
         return plugin_main
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
@@ -226,7 +230,7 @@ class CliPlugin(PynchonPlugin):
         """
 
         :param kls: param group: cli.click.Group:
-        :param group: cli.click.Group: 
+        :param group: cli.click.Group:
 
         """
         parent = kls.click_group
@@ -240,7 +244,7 @@ class CliPlugin(PynchonPlugin):
         """
 
         :param kls: param fxn: typing.FunctionType:
-        :param fxn: typing.FunctionType: 
+        :param fxn: typing.FunctionType:
 
         """
         msg = f'{kls.__name__} acquires naked fxn: {fxn.__name__}'
@@ -253,7 +257,7 @@ class CliPlugin(PynchonPlugin):
         """
 
         :param kls: param cmd: cli.click.Command:
-        :param cmd: cli.click.Command: 
+        :param cmd: cli.click.Command:
 
         """
         parent = kls.click_group
@@ -265,7 +269,7 @@ class CliPlugin(PynchonPlugin):
     def init_cli(kls):
         """
 
-        :param kls: 
+        :param kls:
 
         """
         events.lifecycle.send(kls, plugin='initializing CLI')
@@ -309,7 +313,8 @@ class CliPlugin(PynchonPlugin):
             kls.click_acquire(grp)
             tags = tagging.tags.get(grp) or {}
             click_aliases = tags.get('click_aliases', [])
-            if click_aliases: raise NotImplementedError()
+            if click_aliases:
+                raise NotImplementedError()
 
         # create commands from commands
         # these command-callbacks are bound to non-methods,
@@ -370,7 +375,7 @@ class CliPlugin(PynchonPlugin):
     def init_cli_children(kls):
         """
 
-        :param kls: 
+        :param kls:
 
         """
         cli_subsumes = getattr(kls, 'cli_subsumes', [])
@@ -389,9 +394,9 @@ class CliPlugin(PynchonPlugin):
         :param kls: param fxn: typing.Callable:
         :param wrapper: Default value = None)
         :param alias: str:  (Default value = None)
-        :param fxn: typing.Callable: 
+        :param fxn: typing.Callable:
         :param alias: str:  (Default value = None)
-        :param **click_kwargs: 
+        :param **click_kwargs:
 
         """
         assert fxn

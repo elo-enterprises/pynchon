@@ -100,7 +100,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
     def __init__(self, *args):
         """
 
-        :param *args: 
+        :param *args:
 
         """
         for arg in args:
@@ -127,7 +127,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
     def __add__(self, other):
         """
 
-        :param other: 
+        :param other:
 
         """
         assert isinstance(other, (Plan,))
@@ -140,7 +140,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         """
 
         :param other: Goal:
-        :param other: Goal: 
+        :param other: Goal:
 
         """
         assert isinstance(other, (Goal,))
@@ -150,7 +150,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
     def extend(self, other):
         """
 
-        :param other: 
+        :param other:
 
         """
         assert isinstance(other, (Goal,))

@@ -56,7 +56,7 @@ class DocsMan(models.Planner):
         """Creates {docs.root}/VERSION.md file
 
         :param output: param should_print:
-        :param should_print: 
+        :param should_print:
 
         """
         from pynchon.api import render

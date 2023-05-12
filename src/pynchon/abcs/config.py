@@ -29,7 +29,7 @@ class Config(
     def logger(kls):
         """
 
-        :param kls: 
+        :param kls:
 
         """
         return lme.get_logger(f"{kls._logging_name}")
@@ -42,7 +42,7 @@ class Config(
     def __init__(self, **this_config) -> None:
         """
 
-        :param **this_config: 
+        :param **this_config:
 
         """
         called_defaults = this_config
@@ -61,7 +61,7 @@ class Config(
         """
 
         :param conflicts: typing.List:
-        :param conflicts: typing.List: 
+        :param conflicts: typing.List:
 
         """
         conflicts and LOGGER.info(

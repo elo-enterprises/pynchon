@@ -25,7 +25,7 @@ def tagged_property(**ftags):
         def method(self):
             ...
 
-    :param **ftags: 
+    :param **ftags:
 
     """
 
@@ -43,7 +43,7 @@ def tagged_property(**ftags):
 def tag_factory(*args) -> typing.Any:
     """
 
-    :param *args: 
+    :param *args:
 
     """
 

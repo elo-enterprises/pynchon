@@ -9,7 +9,7 @@ def snake_case(name: str) -> str:
     """
 
     :param name: str:
-    :param name: str: 
+    :param name: str:
 
     """
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
@@ -34,10 +34,10 @@ def normalize(
     :param lambda: _: re.sub('_+':
     :param txt: str:  (Default value = "")
     :param post: typing.List[typing.Callable]:  (Default value = [lambda _: _.lower())
-    :param lambda _: re.sub('_+': 
-    :param '_': 
-    :param _): 
-    :param ]: 
+    :param lambda _: re.sub('_+':
+    :param '_':
+    :param _):
+    :param ]:
     :param rules: typing.List[typing.Callable]:  (Default value = DEFAULT_NORMALIZATION_RULES)
 
     """

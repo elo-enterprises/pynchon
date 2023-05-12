@@ -4,7 +4,7 @@ class Namespace:
     def toJSON(self, *args):
         """
 
-        :param *args: 
+        :param *args:
 
         """
         from pynchon.util import text
@@ -33,8 +33,8 @@ def namespace(name, bases, namespace):
     """
 
     :param name: param bases:
-    :param namespace: 
-    :param bases: 
+    :param namespace:
+    :param bases:
 
     """
     for k in dir(Namespace):

@@ -42,7 +42,7 @@ def find_src_root(config: dict) -> str:
     """
 
     :param config: dict:
-    :param config: dict: 
+    :param config: dict:
 
     """
     from pynchon.abcs import Path

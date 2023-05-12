@@ -14,7 +14,7 @@ def lifecycle_plugin(sender, plugin):
     """
 
     :param sender: param plugin:
-    :param plugin: 
+    :param plugin:
 
     """
     if plugin:
@@ -27,7 +27,7 @@ def lifecycle_config(sender, config):
     """
 
     :param sender: param config:
-    :param config: 
+    :param config:
 
     """
     if config:
@@ -41,7 +41,7 @@ def lifecycle_applying(sender, applying=None, **kwargs):
 
     :param sender: param applying:  (Default value = None)
     :param applying:  (Default value = None)
-    :param **kwargs: 
+    :param **kwargs:
 
     """
     if applying:
@@ -55,7 +55,7 @@ def lifecycle_stage(sender, stage=None, **kwargs):
 
     :param sender: param stage:  (Default value = None)
     :param stage:  (Default value = None)
-    :param **kwargs: 
+    :param **kwargs:
 
     """
     if stage:
@@ -70,7 +70,7 @@ def lifecycle_msg(sender, msg=None, **kwargs):
 
     :param sender: param msg:  (Default value = None)
     :param msg:  (Default value = None)
-    :param **kwargs: 
+    :param **kwargs:
 
     """
     if msg:

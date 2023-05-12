@@ -36,10 +36,10 @@ class Meta(type):
         :param name: str:
         :param bases: typing.List:
         :param namespace: typing.Dict:
-        :param mcls: type: 
-        :param name: str: 
-        :param bases: typing.List: 
-        :param namespace: typing.Dict: 
+        :param mcls: type:
+        :param name: str:
+        :param bases: typing.List:
+        :param namespace: typing.Dict:
 
         """
         tspec = type_spec(name=name, bases=bases, namespace=namespace)
@@ -79,7 +79,7 @@ class Meta(type):
 
         :param mcls: type:
         :param tspec: type_spec:  (Default value = None)
-        :param mcls: type: 
+        :param mcls: type:
         :param tspec: type_spec:  (Default value = None)
 
         """
@@ -96,7 +96,7 @@ class Meta(type):
 
         :param mcls: type:
         :param tspec: type_spec:  (Default value = None)
-        :param mcls: type: 
+        :param mcls: type:
         :param tspec: type_spec:  (Default value = None)
 
         """
@@ -181,7 +181,7 @@ class Meta(type):
 
         :param mcls: type:
         :param tspec: type_spec:  (Default value = None)
-        :param mcls: type: 
+        :param mcls: type:
         :param tspec: type_spec:  (Default value = None)
 
         """

@@ -46,7 +46,7 @@ class handler(object):
     def match(self, call_kwargs):
         """
 
-        :param call_kwargs: 
+        :param call_kwargs:
 
         """
         return False
@@ -55,7 +55,7 @@ class handler(object):
         """
 
         :param result: param **call_kwargs:
-        :param **call_kwargs: 
+        :param **call_kwargs:
 
         """
         return self.handle(result, **call_kwargs)
@@ -69,7 +69,7 @@ class stdout_handler(handler):
     def match(self, kwargs):
         """
 
-        :param kwargs: 
+        :param kwargs:
 
         """
         return "stdout" in kwargs and kwargs["stdout"]
@@ -78,7 +78,7 @@ class stdout_handler(handler):
         """
 
         :param result: param **call_kwargs:
-        :param **call_kwargs: 
+        :param **call_kwargs:
 
         """
         print_json(result)
@@ -93,7 +93,7 @@ class output_handler(handler):
         """
 
         :param _: param kwargs:
-        :param kwargs: 
+        :param kwargs:
 
         """
         return "output" in kwargs and kwargs["output"]
@@ -103,7 +103,7 @@ class output_handler(handler):
 
         :param result: param output:  (Default value = None)
         :param output:  (Default value = None)
-        :param **call_kwargs: 
+        :param **call_kwargs:
 
         """
         if isinstance(result, (str,)):
@@ -123,7 +123,7 @@ class format_handler(handler):
         """
 
         :param _: param kwargs:
-        :param kwargs: 
+        :param kwargs:
 
         """
         return "format" in kwargs and kwargs["format"]
@@ -133,7 +133,7 @@ class format_handler(handler):
 
         :param result: param format: str:  (Default value = None)
         :param format: str:  (Default value = None)
-        :param **call_kwargs: 
+        :param **call_kwargs:
 
         """
         if format.lower() == "json":
@@ -211,7 +211,7 @@ class kommand(object):
         :param formatters: Default value = {})
         :param cls: Default value = None)
         :param help: Default value = None)
-        :param **click_kwargs: 
+        :param **click_kwargs:
 
         """
         self.name = name
@@ -248,7 +248,7 @@ class kommand(object):
     def format_json(self, result):
         """
 
-        :param result: 
+        :param result:
 
         """
         self.logger.debug("Formatter for: `json`")
@@ -257,8 +257,8 @@ class kommand(object):
     def wrapper(self, *args, **call_kwargs):
         """
 
-        :param *args: 
-        :param **call_kwargs: 
+        :param *args:
+        :param **call_kwargs:
 
         """
         assert self.fxn
@@ -280,7 +280,7 @@ class kommand(object):
         """
 
         :param fxn: typing.Callable:
-        :param fxn: typing.Callable: 
+        :param fxn: typing.Callable:
 
         """
         self.fxn = fxn

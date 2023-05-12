@@ -15,7 +15,7 @@ def ini(content: str) -> typing.StringMaybe:
     """Parses `content` as ini-file.
 
     :param content: str:
-    :param content: str: 
+    :param content: str:
 
     """
     raise NotImplementedError()
@@ -25,7 +25,7 @@ def yaml(content: str) -> typing.StringMaybe:
     """Parses `content` as yaml.
 
     :param content: str:
-    :param content: str: 
+    :param content: str:
 
     """
     raise NotImplementedError()
@@ -35,7 +35,7 @@ def toml(content: str) -> typing.StringMaybe:
     """Parses `content` as toml.
 
     :param content: str:
-    :param content: str: 
+    :param content: str:
 
     """
     raise NotImplementedError()

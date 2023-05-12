@@ -24,8 +24,8 @@ class RootGroup(click.Group):
 
         :param ctx: click.Context:
         :param formatter: click.HelpFormatter:
-        :param ctx: click.Context: 
-        :param formatter: click.HelpFormatter: 
+        :param ctx: click.Context:
+        :param formatter: click.HelpFormatter:
 
         """
         commands = []
@@ -84,7 +84,7 @@ class RootGroup(click.Group):
         """
 
         :param ctx: param formatter:
-        :param formatter: 
+        :param formatter:
 
         """
         # terminal_width, _ = click.get_terminal_size()

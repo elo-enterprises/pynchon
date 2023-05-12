@@ -14,7 +14,7 @@ def klass(name, kls) -> None:
     """annotates a class
 
     :param name: param kls:
-    :param kls: 
+    :param kls:
 
     """
     LOGGER.debug(f"annotating class: {name}")
@@ -100,7 +100,7 @@ def module(name, module, working_dir=None) -> None:
 
     :param name: param module:
     :param working_dir: Default value = None)
-    :param module: 
+    :param module:
 
     """
     LOGGER.debug(f"annotating module: {name}")
@@ -113,7 +113,7 @@ def should_skip(name: str):
     """
 
     :param name: str:
-    :param name: str: 
+    :param name: str:
 
     """
     from pynchon.config import pynchon as pynchon_config
@@ -131,7 +131,7 @@ def function(name, fxn) -> None:
     """annotates a function
 
     :param name: param fxn:
-    :param fxn: 
+    :param fxn:
 
     """
     LOGGER.debug(f"annotating fxn: {name}")

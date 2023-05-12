@@ -10,7 +10,7 @@ def get_test_info(fname: str) -> dict:
     """
 
     :param fname: str:
-    :param fname: str: 
+    :param fname: str:
 
     """
     suite_dir = Path(fname).relative_to(Path.cwd()).parents[0]

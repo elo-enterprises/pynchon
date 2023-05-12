@@ -58,8 +58,8 @@ class FixMe(models.Planner):
         """Generate FIXME.md files, aggregating references to all FIXME's in code-base
 
         :param output: param should_print:
-        :param header: 
-        :param should_print: 
+        :param header:
+        :param should_print:
 
         """
         from pynchon import api
@@ -108,7 +108,7 @@ class FixMe(models.Planner):
     def asdasdinit_cli(kls):
         """
 
-        :param kls: 
+        :param kls:
 
         """
         parent = kls.click_group

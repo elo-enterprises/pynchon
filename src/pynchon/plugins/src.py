@@ -36,7 +36,9 @@ class SourceMan(models.Manager):
     class config_class(abcs.Config):
 
         config_key = 'src'
-        defaults=dict(goals=[],)
+        defaults = dict(
+            goals=[],
+        )
         # @tagging.tagged_property(conflict_strategy='override')
         # def exclude_patterns(self):
         #     globals = plugin_util.get_plugin('globals').get_current_config()
@@ -132,7 +134,7 @@ class SourceMan(models.Manager):
         plan = super(SourceMan, self).plan(config=config)
         resources = [abcs.Path(fsrc) for fsrc in self.list()]
         for g in self['goals']:
-            plan.append(self.goal(command=g,resource='?',type='user-config'))
+            plan.append(self.goal(command=g, resource='?', type='user-config'))
 
         # cmd_t = 'python -mpynchon.util.files prepend --clean '
         # loop = self._get_missing_headers(resources)

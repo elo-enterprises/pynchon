@@ -24,7 +24,7 @@ def _current_flask_procs() -> typing.List[psutil.Process]:
 def _is_my_grip(g) -> bool:
     """
 
-    :param g: 
+    :param g:
 
     """
     return g.cwd() == str(abcs.Path('.').absolute())

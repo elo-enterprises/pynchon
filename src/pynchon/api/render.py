@@ -23,7 +23,7 @@ def dictionary(input, context):
     """
 
     :param input: param context:
-    :param context: 
+    :param context:
 
     """
     from pynchon.abcs.visitor import JinjaDict
@@ -41,8 +41,8 @@ def get_jinja_globals():
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """A jinja filter/extension
 
-        :param *args: 
-        :param **kwargs: 
+        :param *args:
+        :param **kwargs:
 
         """
         out = invoke(*args, **kwargs)
@@ -54,7 +54,7 @@ def get_jinja_globals():
 
         :param fname: str:
         :param level: Default value = None)
-        :param fname: str: 
+        :param fname: str:
 
         """
         fname = abcs.Path(fname)
@@ -91,7 +91,7 @@ def get_jinja_includes(*includes):
 def get_jinja_env(*includes, quiet: bool = False):
     """
 
-    :param *includes: 
+    :param *includes:
     :param quiet: bool:  (Default value = False)
 
     """

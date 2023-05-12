@@ -45,8 +45,8 @@ def group_merge(g1: click.Group, g2: click.Group):
 
     :param g1: click.Group:
     :param g2: click.Group:
-    :param g1: click.Group: 
-    :param g2: click.Group: 
+    :param g1: click.Group:
+    :param g2: click.Group:
 
     """
 
@@ -59,16 +59,16 @@ def group_merge(g1: click.Group, g2: click.Group):
         tmp.add_command(cmd)
 
 
-def group_copy(g1:click.Group, **kwargs):
+def group_copy(g1: click.Group, **kwargs):
     """
 
     :param g1: click.Group:
-    :param g1:click.Group: 
-    :param **kwargs: 
+    :param g1:click.Group:
+    :param **kwargs:
 
     """
-    tmp = [[k,v] for k,v in g1.__dict__.copy().items() if not k.startswith('_')]
-    tmp=dict(tmp)
+    tmp = [[k, v] for k, v in g1.__dict__.copy().items() if not k.startswith('_')]
+    tmp = dict(tmp)
     # [tmp.pop(x) for x in tmp if x.startswith('_')]
     tmp.update(**kwargs)
     return click.Group(**tmp)

@@ -22,7 +22,7 @@ def clean_text(txt: str) -> str:
     """
 
     :param txt: str:
-    :param txt: str: 
+    :param txt: str:
 
     """
     return "\n".join([line for line in txt.split("\n") if line.strip()])

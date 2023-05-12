@@ -19,7 +19,7 @@ class Plugin(object, metaclass=Meta):
         """
 
         :param kls: param *args:
-        :param *args: 
+        :param *args:
 
         """
         from multipledispatch import dispatch
