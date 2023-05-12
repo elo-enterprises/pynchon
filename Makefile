@@ -68,17 +68,15 @@ test: utest itest stest
 # 	echo NotImplementedYet
 
 plan: docs-plan
-docs-plan:
-	pynchon project plan | jq .
+apply: docs-apply
 
+docs-plan:
+	tox -e docs-plan
 .PHONY: docs
-docs:
-	set -x \
-	&& pynchon project plan \
-	&& pynchon project apply \
-	&& pynchon gen api toc --package ${PYPI_PROJECT_NAME} \
-	&& pynchon gen cli toc \
-	&& pynchon gen cli all
+docs: docs-apply
+docs-apply:
+	tox -e docs
+
 purge: clean pip-purge
 pip-purge: python-require-pipenv
 	@# Purges all dependencies from the currently active virtualenv

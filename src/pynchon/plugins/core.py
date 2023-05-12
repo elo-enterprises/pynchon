@@ -22,9 +22,6 @@ class Core(models.Planner):
     @typing.classproperty
     def click_group(kls):
         """
-
-        :param kls: 
-
         """
         kls._finalized_click_groups[kls] = entry
         return kls._finalized_click_groups[kls]
@@ -32,9 +29,6 @@ class Core(models.Planner):
     @classmethod
     def get_current_config(kls):
         """
-
-        :param kls: 
-
         """
         from pynchon import config as config_mod
 
@@ -56,17 +50,15 @@ class Core(models.Planner):
     ) -> None:
         """Bootstrap for shell integration, etc
 
-        :param bash: bool:  (Default value = False)
         :param bashrc: bool:  (Default value = False)
-        :param tox: bool:  (Default value = False)
         :param bash: bool:  (Default value = False)
-        :param bashrc: bool:  (Default value = False)
         :param tox: bool:  (Default value = False)
 
         """
+        template_prefix = 'pynchon/bootstrap'
         pynchon_completions_script = '.tmp.pynchon.completions.sh'
         bashrc_snippet = '.tmp.pynchon.bashrc'
-
+        template_prefix='pynchon/bootstrap/'
         if bash:
             import collections
 
@@ -96,7 +88,7 @@ class Core(models.Planner):
             ]
             # LOGGER.warning("This is intended to be run through a pipe, as in:")
             # LOGGER.critical("pynchon bootstrap --bash | bash")
-            tmpl = api.render.get_template('pynchon/bootstrap/bash.sh')
+            tmpl = api.render.get_template(f'{template_prefix}/bash.sh')
             content = tmpl.render(head=head, rest="\n".join(rest), **self.config)
             files.dumps(content=content, file=pynchon_completions_script)
             LOGGER.warning(
@@ -108,7 +100,7 @@ class Core(models.Planner):
                 "To use completion hints every time they are "
                 "present in a folder, adding this to .bashrc:"
             )
-            tmpl = api.render.get_template('pynchon/bootstrap/bashrc.sh')
+            tmpl = api.render.get_template(f'{template_prefix}/bashrc.sh')
             content = tmpl.render(pynchon_completions_script=pynchon_completions_script)
             files.dumps(content=content, file=bashrc_snippet, logger=LOGGER.info)
             return files.block_in_file(
@@ -116,8 +108,14 @@ class Core(models.Planner):
                 block_file=bashrc_snippet,
             )
         elif tox:
-            result = api.render.get_template('pynchon/tox.ini')
-            raise NotImplementedError()
+            tmpl = api.render.get_template(f'{template_prefix}/tox.ini')
+            content = tmpl.render(**self.project_config)
+            print(content)
+        elif Makefile:
+            tmpl = api.render.get_template(f'{template_prefix}/tox.ini')
+            content = tmpl.render(**self.project_config)
+            print(content)
+
 
     def raw(self) -> None:
         """Returns (almost) raw config,
