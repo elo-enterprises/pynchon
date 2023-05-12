@@ -9,7 +9,7 @@ from pynchon import shimport
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
 
-grip = shimport.lazy('pynchon.util.grip')
+grip = shimport.lazy('pynchon.gripe')
 LOGGER = lme.get_logger(__name__)
 
 

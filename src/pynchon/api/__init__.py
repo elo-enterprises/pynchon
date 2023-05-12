@@ -1,4 +1,3 @@
 """ pynchon.api
 """
-from . import project
-from . import render
+from . import project, render  # noqa

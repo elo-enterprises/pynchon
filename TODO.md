@@ -1,15 +1,27 @@
 release:
-  shimport- module_builder + imphook
-  * shimport.registry
-  * shimport.wrapper
-  * shimport.filter_module
+  pynchon.gripe- better interaction with grip
+  shimport- built on importlib, imphook, and deals.module_contract
+    * shimport.registry
+    * shimport.wrapper
+    * shimport.filter_module
 
 research:
-  https://crosshair.readthedocs.io/en/latest/contracts.html
-  https://github.com/life4/deal
+  lazy:
+    importlib.set_lazy_imports()
+    https://github.com/facebookincubator/cinder
+  contracts:
+    https://crosshair.readthedocs.io/en/latest/contracts.html
+    https://github.com/life4/deal
+  typing:
+    runtime checks w/o pydantic? typing.runtime_checkable
+  oop:
+    py protocols;
+    abstract mcls into interface?
 
 refactor:
   app model
+  lazy imports everywhere to speed up loading
+  fleks.meta validators to use deal contracts
   `cli_label` with tags- works with:
     - Plugin's
     - Plugin.method_name
@@ -20,18 +32,14 @@ abstract:
     from pynchon.abcs.meta pynchon.util.oop
 
 fix:
-  plugin/python-cli:
-    config.`entrypoints[].dotpath` resolution
 
 impl:
   visitor.resolution struct
   shfmt/back-ticks; parens; brackets/curly; sorting
-  plugin/tool/run -x -c
   p/--get --set --plugins
   plugin/planner/jinja/tpl
   plugin/planner/jinja/template
   plugin/proj/clean
-  plugin/tool/github
   plugin/tool/release
   plugin/tool/stream
   cli/p proj alias
@@ -39,10 +47,6 @@ impl:
   help/footnotes
   help/sorting
   help/colorize output
-
-?r
-  py protocols; typing.runtime_checkable
-  abstract mcls into interface
 
 !i
   reflektr
