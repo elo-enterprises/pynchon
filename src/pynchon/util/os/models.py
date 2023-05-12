@@ -127,7 +127,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
 
         if self.log_command:
             # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
-            msg = "running command: (system={})\n\t{}".format(self.system, self.cmd)
+            msg = f"running command: (system={self.system})\n\t{self.cmd}"
             # self.log_command and LOGGER.warning(msg)
 
             fmt = shfmt.bash_fmt(self.cmd)

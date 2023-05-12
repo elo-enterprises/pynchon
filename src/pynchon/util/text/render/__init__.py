@@ -43,9 +43,9 @@ def jinja_loadf(
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
         content = fhandle.read()
-    quiet and LOGGER.debug("render context: \n{}".format(text.to_json(context)))
+    quiet and LOGGER.debug(f"render context: \n{text.to_json(context)}")
     tmp = list(context.keys())
-    quiet and LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
+    quiet and LOGGER.debug(f"Rendering with context:\n{text.to_json(tmp)}")
     content = jinja(text=content, file=file, context=context, includes=includes)
     # template = api.get_template(
     #     from_string=text,
@@ -166,7 +166,7 @@ def jinja_file(
             output = output[0]
         else:
             output = "".join(output)
-    LOGGER.warning("writing output to {}".format(output or sys.stdout.name))
+    LOGGER.warning(f"writing output to {output or sys.stdout.name}")
     test = all([output, output not in ["/dev/stdout", "-"]])
     if test:
         with open(output, "r") as fhandle:

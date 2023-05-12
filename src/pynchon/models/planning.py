@@ -1,5 +1,6 @@
 import typing
 import collections
+from dataclasses import dataclass
 
 from pynchon import app
 from pynchon.fleks import meta
@@ -12,7 +13,8 @@ from pynchon.util import typing, lme  # noqa
 # from pynchon.util.tagging import tags
 
 
-class Goal(typing.NamedTuple, metaclass=meta.namespace):
+@dataclass(frozen=True)
+class Goal(metaclass=meta.namespace):
     """ """
 
     resource: str = '?r'
@@ -46,7 +48,8 @@ class Goal(typing.NamedTuple, metaclass=meta.namespace):
         return f"<{self.__class__.__name__}[{self.resource}]>"
 
 
-class Action(typing.NamedTuple, metaclass=meta.namespace):
+@dataclass(frozen=True)
+class Action(metaclass=meta.namespace):
     """ """
 
     type: str = 'unknown_action_type'
