@@ -112,9 +112,9 @@ class DocsMan(models.Planner):
                 f'dont know how to open `{file}`, ' f'method `{opener}` is missing'
             )
         else:
-            return fxn(file, server=server)
+            return fxn(file)
 
-    def open_changes(self, server=None):
+    def open_changes(self):
         """Open changed files"""
         result = []
         changes = self.list(changes=True)

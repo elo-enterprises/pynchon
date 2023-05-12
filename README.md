@@ -15,6 +15,66 @@
   </tr>
 </table>
 
+  * [Pynchon as a Suite of Utilities](#pynchon-as-a-suite-of-utilities)
+    * [util.os](#utilos)
+    * [util.files](#utilfiles)
+    * [util.loadf](#utilloadf)
+    * [util.jinja](#utiljinja)
+    * [util.splitvt](#utilsplitvt)
+    * [util.ansible](#utilansible)
+    * [util.json](#utiljson)
+    * [util.pydash](#utilpydash)
+    * [util.shfmt](#utilshfmt)
+    * [util.grip](#utilgrip)
+  * [Pynchon as a Framework](#pynchon-as-a-framework)
+    * [Plugins](#plugins)
+      * [Plugin Priority](#plugin-priority)
+      * [Plugin Config](#plugin-config)
+        * [User Config](#user-config)
+        * [Config Defaults](#config-defaults)
+        * [Lazy Config](#lazy-config)
+        * [Dynamic Config](#dynamic-config)
+        * [Syntactic Sugar](#syntactic-sugar)
+      * [Plugin CLIs](#plugin-clis)
+        * [CLI Aliases](#cli-aliases)
+        * [Hidden Commands](#hidden-commands)
+      * [Plugin Types](#plugin-types)
+        * [Core-Plugins](#core-plugins)
+        * [Provider-Plugins](#provider-plugins)
+        * [Planner-Plugins](#planner-plugins)
+        * [Manager-Plugins](#manager-plugins)
+        * [Tool-Plugins](#tool-plugins)
+        * [Nested-Plugins](#nested-plugins)
+        * [Namespaces](#namespaces)
+    * [Rendering Engine](#rendering-engine)
+    * [Projects &amp; Subprojects](#projects--subprojects)
+    * [Data vs Display](#data-vs-display)
+    * [Hooks &amp; Events](#hooks--events)
+  * [Pynchon as a Library](#pynchon-as-a-library)
+    * [Parsers](#parsers)
+    * [Planners](#planners)
+    * [Solvers](#solvers)
+    * [Tagging &amp; Typing](#tagging--typing)
+    * [Orchestration](#orchestration)
+    * [CLI Framework](#cli-framework)
+    * [Application Framework](#application-framework)
+    * [OOP Framework](#oop-framework)
+    * [Event Framework](#event-framework)
+  * [Example Usage](#example-usage)
+  * [Implementation Notes](#implementation-notes)
+  * [Packaging &amp; Releases](#packaging--releases)
+  * [Dependencies](#dependencies)
+  * [Related Work](#related-work)
+  * [Workflows](#workflows)
+    * [Workflow: Bug Reports or Feature Requests](#workflow-bug-reports-or-feature-requests)
+    * [Workflow: Finding a Library Release](#workflow-finding-a-library-release)
+    * [Workflow: Installation for Library Developers](#workflow-installation-for-library-developers)
+    * [Workflow: Installation for Users](#workflow-installation-for-users)
+    * [Workflow: Build, install, testing, etc](#workflow-build-install-testing-etc)
+    * [Workflow: Running Tests](#workflow-running-tests)
+  * [Known Issues](#known-issues)
+
+
 ---------------------------------------------------------------------------------
 
 ## Overview
@@ -29,14 +89,15 @@ If you get basic stuff working and want slight customization, then you're quickl
 
 Stack-overflow is full of examples of this sort of thing, but here's a quick list of typical complaints:
 
-* You want table-of-contents generation for markdown, then try to do things the "right way" with sophisticated tools, but eventually hit a wall and retreat to using a [bash script](https://github.com/ekalinin/github-markdown-toc) that just works.
-* You build out a docker-container for pandoc/tex trying to put together a math-markdown to pdf pipeline, then find that the pandoc filter you needed all this for just fails silently??
+* You want table-of-contents generation for markdown, then try to do things the "right way" with sophisticated tools, but eventually [hit a wall](https://stackoverflow.com/questions/73965242/pandoc-how-to-generate-github-markdown-table-of-content-toc). This is the third approach you've looked at too.  You wanted to be cool.. but to get work done you'll retreat to using a [bash script](https://github.com/ekalinin/github-markdown-toc) that just works.
+* You build out a docker-container for pandoc/tex trying to put together a math-markdown to pdf pipeline, then find that the pandoc filter you needed all this for just fails silently??  You read about panflute for 3 days and finally just have to skip the pretty equations and dump tex gibberish in a doc string.
 * You have lots of choices, [but module docs are still hard](https://stackoverflow.com/questions/36237477/python-docstrings-to-github-readme-md)
 * You can import your code, [but your docs framework can't](https://stackoverflow.com/questions/17368747/will-sphinx-work-with-code-that-doesnt-import-well).
-* You have a almost-working pipeline, but you still need orchestration.  Orchestration [is subtle](https://github.com/sphinx-doc/sphinx/issues/8437) and [orchestration boilerplate](https://gist.github.com/kristopherjohnson/7466917) begins to clutter your project, and tends to be difficult to reuse across projects.
+* [grip](https://pypi.org/project/grip/) is a lifesaver if you're serious about docs on github, but what a pity that you need another tab with `file:///...` to view coverage HTML.
+* You have some almost-working docs pipeline, but you still need orchestration.  Orchestration [is subtle](https://github.com/sphinx-doc/sphinx/issues/8437) and [orchestration boilerplate](https://gist.github.com/kristopherjohnson/7466917) begins to clutter your project.  Even worse, that hard-earned boilerplate tends to be very difficult to reuse across projects.
 
 
-Popular docs-frameworks also stop short of managing things *besides* docs, although code-gen or code-annotation is a pretty similar task.  After you start thinking about stuff like this, you notice that API-docs generation probably can't succeed anyway as long as you have syntax errors, so why not lint files before or during scan, and make sure the spec for lint/docs-gen are using the same source-tree config in a way that's [DRY](#)?
+For obvious reasons, popular docs-frameworks also stop short of managing things *besides* docs; but code-gen or code-annotation is a pretty similar task.  After you start thinking about stuff like this, you notice that API-docs generation probably can't succeed anyway as long as you have syntax errors, so why not lint files before or during scan, and make sure the spec for lint/docs-gen are using the same source-tree config in a way that's [DRY](#)?  Annotations along the lines of type-checks or [contract verification](https://github.com/life4/deal) in many projects are also done gradually before they are enforced in builds or runtimes anyway. Since unenforced "informational" content from a CI server is usually just ignored, why not at least organize/publish this data alongside documentation?
 
 But.. *pynchon is not a build tool, it's a project tool.*  The approach is spiritually related to things like [pandoc](#), [helm](#), [jinja](#), [tox](#), [cog](#), [make](#), [cookie-cutter](#), or [pyscaffold](#).  But pynchon is much likely to orchestrate *across* these things than try to replace them.
 

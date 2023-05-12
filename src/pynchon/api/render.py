@@ -30,22 +30,33 @@ def dictionary(input, context):
 def get_jinja_globals():
     """ """
     events.lifecycle.send(__name__, msg='finalizing jinja globals')
+    # FIXME: use shimport.filter_module('..')
+    from pynchon.util.os import invoke
 
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """
         A jinja filter/extension
         """
-        from pynchon.util.os import invoke
-
         out = invoke(*args, **kwargs)
         assert out.succeeded
         return out.stdout
+    def markdown_toc(fname:str, level=None):
+        """
+        """
+        fname = abcs.Path(fname)
+        assert fname.exists()
+        import pynchon
+        script=abcs.Path(pynchon.__file__).parents[0]/'scripts'/'gh-md-toc.sh'
+        result=invoke(f'cat {fname} | bash {script} -')
+        assert result.succeeded
+        return result.stdout
 
     return dict(
         sh=invoke_helper,
         bash=invoke_helper,
         invoke=invoke_helper,
         map=map,
+        markdown_toc=markdown_toc,
         eval=eval,
         env=os.getenv,
     )
@@ -91,16 +102,32 @@ def get_jinja_env(*includes, quiet: bool = False):
 
 
 def get_template(
-    template_name: str,
+    template_name: str=None,
     env=None,
+    from_string:str=None,
 ):
     """ """
     env = env or get_jinja_env()
     try:
-        return env.get_template(template_name)
+        if from_string:
+            template = env.from_string(from_string)
+        else:
+            template = env.get_template(template_name)
     except (jinja2.exceptions.TemplateNotFound,) as exc:
         LOGGER.critical(f"Template exception: {exc}")
         LOGGER.critical(f"Jinja-includes: {env.pynchon_includes}")
         err = getattr(exc, 'templates', exc.message)
         LOGGER.critical(f"Problem template: {err}")
         raise
+    template.render = functools.partial(
+        template.render,
+        __template__ = template_name)
+    # @functools.wraps(template.render)
+    # def myrender(*args, **kwargs):
+    #     """ """
+    #     kwargs.update(
+    #         __template__ = kwargs.get('__template__', template_name))
+    #     tmp = template.render(*args, **kwargs)
+    #     return tmp
+    # template.render = myrender
+    return template

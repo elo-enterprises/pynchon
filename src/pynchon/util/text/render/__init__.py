@@ -33,13 +33,17 @@ def jinja_loadf(
     quiet and LOGGER.debug("render context: \n{}".format(text.to_json(context)))
     tmp = list(context.keys())
     quiet and LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
-    content = jinja(text=content, context=context, includes=includes)
+    content = jinja(text=content, file=file, context=context, includes=includes)
+    # template = api.get_template(
+    #     from_string=text,
+    #     env=api.get_jinja_env(*includes))
     return content
 
 
 @typing.validate_arguments
 def jinja(
     text: str = "",
+    file:str="?",
     context: dict = {},
     includes: typing.List[str] = [],
     strict: bool = True,
@@ -48,9 +52,10 @@ def jinja(
     Renders jinja-templates (with support for includes)
     """
     import jinja2
-
-    env = api.get_jinja_env(*includes)
-    template = env.from_string(text)
+    template = api.get_template(
+        template_name=file or "?",
+        from_string=text,
+        env=api.get_jinja_env(*includes))
     context = {
         # FIXME: try to santize this
         **dict(os.environ.items()),

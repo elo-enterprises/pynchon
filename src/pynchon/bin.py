@@ -119,7 +119,7 @@ def entry(
 def default(
     ctx, plugins: str = '', set_config: str = '', get_config: str = '', **kwargs  # noqa
 ):
-    LOGGER.critical('top-level')
+    # LOGGER.critical('top-level')
     setters = ctx.params.get('set_config', []) or []
     plugins = ctx.params.get('plugins', '')
     plugins and setters.append([f'pynchon.plugins={plugins.split(",")}'])

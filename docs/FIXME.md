@@ -14,8 +14,8 @@
 * [src/pynchon/plugins/python/api.py:42](#): `# FIXME: not bound correctly: missing 1 req pos arg 'self'`
 * [src/pynchon/app.py:44](#): `# # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly`
 * [src/pynchon/util/os/models.py:28](#): `# FIXME: subclass namedtuple here`
-* [src/pynchon/util/text/render/__init__.py:55](#): `# FIXME: try to santize this`
-* [src/pynchon/util/text/render/__init__.py:175](#): `# FIXME: is this smart?`
+* [src/pynchon/util/text/render/__init__.py:60](#): `# FIXME: try to santize this`
+* [src/pynchon/util/text/render/__init__.py:180](#): `# FIXME: is this smart?`
 * [src/pynchon/util/lme.py:81](#): `# FIXME: get this from some kind of global config`
 * [src/pynchon/util/files/diff.py:14](#): `# FIXME: use rich.syntax`
 * [src/pynchon/constants.py:14](#): `# FIXME: docs`
@@ -28,4 +28,5 @@
 * [src/pynchon/models/plugin_types/__init__.py:268](#): `# FIXME: this wraps twice?`
 * [src/pynchon/abcs/path.py:74](#): `# FIXME: use multimethod`
 * [src/pynchon/events.py:12](#): `# FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly`
+* [src/pynchon/api/render.py:33](#): `# FIXME: use shimport.filter_module('..')`
 
