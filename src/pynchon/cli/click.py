@@ -46,4 +46,17 @@ def group_merge(g1: click.Group, g2: click.Group):
         tmp.add_command(cmd)
 
 
-group_copy = group_merge
+def group_copy(g1:click.Group, **kwargs):
+    """ """
+    tmp = [[k,v] for k,v in g1.__dict__.copy().items() if not k.startswith('_')]
+    tmp=dict(tmp)
+    # [tmp.pop(x) for x in tmp if x.startswith('_')]
+    tmp.update(**kwargs)
+    return click.Group(**tmp)
+    # def fxn():
+    #     pass
+    #
+    # fxn.__doc__ = g1.help
+    # tmp = g2.group(g1.name)(fxn)
+    # for cmd in g1.commands.values():
+    #     tmp.add_command(cmd)

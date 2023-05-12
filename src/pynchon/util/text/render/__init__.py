@@ -43,7 +43,7 @@ def jinja_loadf(
 @typing.validate_arguments
 def jinja(
     text: str = "",
-    file:str="?",
+    file: str = "?",
     context: dict = {},
     includes: typing.List[str] = [],
     strict: bool = True,
@@ -52,10 +52,10 @@ def jinja(
     Renders jinja-templates (with support for includes)
     """
     import jinja2
+
     template = api.get_template(
-        template_name=file or "?",
-        from_string=text,
-        env=api.get_jinja_env(*includes))
+        template_name=file or "?", from_string=text, env=api.get_jinja_env(*includes)
+    )
     context = {
         # FIXME: try to santize this
         **dict(os.environ.items()),

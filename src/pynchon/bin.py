@@ -107,6 +107,7 @@ def entry(
 
 @entry.command(
     'default',
+    hidden=True,
     context_settings=dict(
         ignore_unknown_options=True,
     ),

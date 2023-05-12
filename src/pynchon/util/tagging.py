@@ -83,11 +83,14 @@ def tag_factory(*args) -> typing.Any:
 # taggers = TAGGERS = TaggerFactory()
 GLOBAL_TAG_REGISTRY = defaultdict(dict)
 
+TagDict = typing.Dict[str, typing.Any]
+
 
 class tagsM:
     __iter__ = GLOBAL_TAG_REGISTRY.__iter__
 
-    def __call__(self, **tags):
+    # @typing.validate_arguments
+    def __call__(self, **tags: TagDict):
         def decorator(func: typing.Callable) -> typing.Callable:
             merged = {**GLOBAL_TAG_REGISTRY.get(func, {}), **tags}
             # LOGGER.debug(f"tagging {func} with {merged}")
@@ -96,12 +99,26 @@ class tagsM:
 
         return decorator
 
-    def __getitem__(self, name: str) -> typing.Any:
+    @typing.validate_arguments
+    def __setitem__(self, item: typing.Any, tags: TagDict):
+        assert tags is not None
+        GLOBAL_TAG_REGISTRY[item] = tags
+
+    @typing.validate_arguments
+    def __getitem__(self, item: typing.Any) -> typing.Dict[str, typing.Any]:
         # LOGGER.critical(f"requested {name}")
-        tmp = GLOBAL_TAG_REGISTRY.get(name)
-        tmp = tmp or tag_factory(name)
-        GLOBAL_TAG_REGISTRY[name] = tmp
-        return tmp
+        tmp = GLOBAL_TAG_REGISTRY.get(item)
+        if not tmp and callable(item) and type(item) == typing.MethodType:
+            raise Exception(item)
+            cfxn = getattr(fxn.__self__.__class__, fxn.__name__)
+            tmp = GLOBAL_TAG_REGISTRY.get(cfxn, {})
+            if tmp:
+                LOGGER.critical(
+                    f'missing tags for {item}; setting tags from parent @ {cfxn}'
+                )
+        tmp = tmp or tag_factory(item)
+        self.__setitem__(item, tmp)
+        return tmp or {}
 
     def __getattr__(self, name: str) -> typing.Any:
         if name in 'get'.split():

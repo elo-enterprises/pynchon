@@ -19,6 +19,19 @@ config_mod = shimport.lazy(
 LOGGER = lme.get_logger(__name__)
 
 
+def bind(instance, func, as_name=None):
+    """
+    Bind the function *func* to *instance*, with either provided name *as_name*
+    or the existing name of *func*. The provided *func* should accept the
+    instance as the first argument, i.e. "self".
+    """
+    if as_name is None:
+        as_name = func.__name__
+    bound_method = func.__get__(instance, instance.__class__)
+    setattr(instance, as_name, bound_method)
+    return bound_method
+
+
 @tagging.tags(cli_label='<<Abstract>>')
 class PynchonPlugin(fleks.Plugin):
     """
@@ -150,18 +163,23 @@ class CliPlugin(PynchonPlugin):
     def click_group(kls):
         """ """
         cached = kls._finalized_click_groups.get(kls, None)
-
+        grp_name=getattr(kls, 'cli_name', kls.name)
         if cached is not None:
             return cached
-
         def plugin_main():
             pass
-
         plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
-        gname = getattr(kls, 'cli_name', kls.name)
-        groop = cli.common.groop(gname, parent=kls.click_entry)
+        groop=cli.common.groop(
+            grp_name, parent=kls.click_entry,)
         plugin_main = groop(plugin_main)
         kls._finalized_click_groups[kls] = plugin_main
+
+        tags = tagging.tags.get(kls) or {}
+        gr_aliases = list(set(tags.get('click_aliases',[])))
+        for alias in gr_aliases:
+            g2 = cli.click.group_copy(plugin_main,name=alias,hidden=True)
+            kls.click_entry.add_command(g2)
+        
         return plugin_main
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
@@ -209,55 +227,53 @@ class CliPlugin(PynchonPlugin):
         group_names = [
             name
             for name in dir(kls)
-            if name not in 'click_entry click_group'.split()
-            and isinstance(getattr(kls, name), (cli.click.Group,))
+            if all(
+                [
+                    name not in 'click_entry click_group'.split(),
+                    isinstance(getattr(kls, name), (cli.click.Group,)),
+                ]
+            )
         ]
         cmd_names = [
             name
             for name in dir(kls)
-            if name not in 'click_entry click_group'.split()
-            and isinstance(getattr(kls, name), (cli.click.Command,))
-            and not isinstance(getattr(kls, name), (cli.click.Group,))
+            if all(
+                [
+                    name not in 'click_entry click_group'.split(),
+                    isinstance(getattr(kls, name), (cli.click.Command,)),
+                    not isinstance(getattr(kls, name), (cli.click.Group,)),
+                ]
+            )
         ]
         for group_name in group_names:
-            gr = getattr(obj, group_name)
-            cli_commands.append(gr)
-            kls.click_acquire(gr)
+            grp = getattr(obj, group_name)
+            cli_commands.append(grp)
+            kls.click_acquire(grp)
+            tags = tagging.tags.get(grp) or {}
+            click_aliases = tags.get('click_aliases', [])
+            if click_aliases: raise NotImplementedError()
 
-        def bind(instance, func, as_name=None):
-            """
-            Bind the function *func* to *instance*, with either provided name *as_name*
-            or the existing name of *func*. The provided *func* should accept the
-            instance as the first argument, i.e. "self".
-            """
-            if as_name is None:
-                as_name = func.__name__
-            bound_method = func.__get__(instance, instance.__class__)
-            setattr(instance, as_name, bound_method)
-            return bound_method
-
+        # create commands from commands
+        # these command-callbacks are bound to non-methods,
+        # i.e. currently expecting `self` as a first argument
         for cmd_name in cmd_names:
             cmd = getattr(obj, cmd_name)
             if isinstance(cmd.callback, (typing.FunctionType)):
                 cmd.callback = bind(obj, cmd.callback)
             cli_commands.append(cmd)
             kls.click_acquire(cmd)
+
+        # create commands from methods
         for method_name in kls.__methods__:
-            # LOGGER.info(f"  {kls.__name__}.init_cli: {method_name}")
             fxn = obj and getattr(obj, method_name, None)
             if fxn is None:
                 msg = f'    retrieved empty `{method_name}` from {obj}!'
                 LOGGER.critical(msg)
                 raise TypeError(msg)
 
-            # tags = getattr(obj, 'tags', {})
-            # tags = tags.get(fxn) if tags else {}
-            tags = {}
-            if not tags and type(fxn) == typing.MethodType:
-                cfxn = getattr(fxn.__self__.__class__, fxn.__name__)
-                tags = tagging.tags.get(cfxn, {})
-            hidden = tags.get('click_hidden', False) if tags else False
-            click_aliases = tags.get('click_aliases', []) if tags else []
+            tags = tagging.tags.get(fxn) or {}
+            hidden = tags.get('click_hidden', False)
+            click_aliases = tags.get('click_aliases', [])
             publish_to_cli = tags.get('publish_to_cli', True)
             if not publish_to_cli:
                 continue

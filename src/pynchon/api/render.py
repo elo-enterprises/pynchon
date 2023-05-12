@@ -40,14 +40,15 @@ def get_jinja_globals():
         out = invoke(*args, **kwargs)
         assert out.succeeded
         return out.stdout
-    def markdown_toc(fname:str, level=None):
-        """
-        """
+
+    def markdown_toc(fname: str, level=None):
+        """ """
         fname = abcs.Path(fname)
         assert fname.exists()
         import pynchon
-        script=abcs.Path(pynchon.__file__).parents[0]/'scripts'/'gh-md-toc.sh'
-        result=invoke(f'cat {fname} | bash {script} -')
+
+        script = abcs.Path(pynchon.__file__).parents[0] / 'scripts' / 'gh-md-toc.sh'
+        result = invoke(f'cat {fname} | bash {script} -')
         assert result.succeeded
         return result.stdout
 
@@ -102,9 +103,9 @@ def get_jinja_env(*includes, quiet: bool = False):
 
 
 def get_template(
-    template_name: str=None,
+    template_name: str = None,
     env=None,
-    from_string:str=None,
+    from_string: str = None,
 ):
     """ """
     env = env or get_jinja_env()
@@ -119,9 +120,7 @@ def get_template(
         err = getattr(exc, 'templates', exc.message)
         LOGGER.critical(f"Problem template: {err}")
         raise
-    template.render = functools.partial(
-        template.render,
-        __template__ = template_name)
+    template.render = functools.partial(template.render, __template__=template_name)
     # @functools.wraps(template.render)
     # def myrender(*args, **kwargs):
     #     """ """
