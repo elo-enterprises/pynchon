@@ -17,7 +17,7 @@ LOGGER = lme.get_logger(__name__)
 logfile: str = '.tmp.gripe.log'
 
 
-def _current_flask_procs() -> typing.List[psutil.Process]:
+def _current_gripe_procs() -> typing.List[psutil.Process]:
     """ """
     return filter_pids(name='flask')
 
@@ -32,7 +32,7 @@ class Server:
     @property
     def proc(self) -> psutil.Process:
         """ """
-        tmp = [g for g in _current_flask_procs() if _is_my_grip(g)]
+        tmp = [g for g in _current_gripe_procs() if _is_my_grip(g)]
         if tmp:
             result = tmp[0]
             return result
@@ -93,7 +93,7 @@ def entry():
 
 def _list():
     """Lists running servers for this working-dir"""
-    result = _current_flask_procs()
+    result = _current_gripe_procs()
     LOGGER.critical(result)
     return result
 
@@ -117,10 +117,10 @@ def start(
     should_start = ls or True
     grips = _list()
     if grips:
-        LOGGER.critical(f"{len(grips)} copies of flask are already started")
+        LOGGER.critical(f"{len(grips)} copies of gripe are already started")
         for p in grips:
             if _is_my_grip(p):
-                LOGGER.critical(f"flask @ pid {p.pid} is already serving this project")
+                LOGGER.critical(f"gripe @ pid {p.pid} is already serving this project")
                 if force:
                     LOGGER.critical("`force` was passed; killing it anyway..")
                     p.kill()
@@ -129,7 +129,7 @@ def start(
                     should_start = False
                 break
         else:
-            LOGGER.critical("No flasks are serving this project.")
+            LOGGER.critical("No gripes are serving this project.")
     result = should_start and _do_serve(port=port, background=background)
     LOGGER.critical(result)
     return result
@@ -139,11 +139,11 @@ def stop(grips=[], grip=None):
     """Stops server (if any) for this working-dir"""
     grips = grips or (grip and [grip]) or _list()
     if not grips:
-        LOGGER.critical(f"no copies of flask are started here")
+        LOGGER.critical("no copies of gripe are started here")
     else:
         for p in grips:
             if _is_my_grip(p):
-                LOGGER.critical(f"flask @ pid {p.pid} started here")
+                LOGGER.critical(f"gripe @ pid {p.pid} started here")
                 LOGGER.critical("killing it..")
                 p.kill()
     return True

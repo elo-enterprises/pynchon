@@ -1,4 +1,6 @@
 release:
+  grif-grep: tool for grepping [griffe](#) signatures
+  grif-grap: tool for grappling [griffe](#) signatures (mapping scoped rewrites onto the source code)
   pynchon.gripe- better interaction with grip
   shimport- built on importlib, imphook, and deals.module_contract
     * shimport.registry
@@ -6,6 +8,8 @@ release:
     * shimport.filter_module
 
 research:
+  griffe labels/visitors:
+    https://github.com/mkdocstrings/griffe/blob/master/docs/extensions.md
   lazy:
     importlib.set_lazy_imports()
     https://github.com/facebookincubator/cinder
