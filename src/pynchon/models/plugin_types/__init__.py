@@ -274,10 +274,9 @@ class CliPlugin(PynchonPlugin):
         """
         events.lifecycle.send(kls, plugin='initializing CLI')
 
-        from pynchon.plugins.core import Core  # noqa
-
-        if kls != Core:
-            config_mod.finalize()
+        # from pynchon.plugins.core import Core  # noqa
+        # if kls != Core:
+        #     config_mod.finalize()
 
         obj = kls.instance
         if obj is None:
