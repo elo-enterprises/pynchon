@@ -171,7 +171,7 @@ def entry_for(
     def entry() -> typing.NoneType:
         pass
 
-    entry.__doc__ = (mdoc or "").lstrip()
+    entry.__doc__ = (mdoc or "").lstrip().split('\n')[0]
 
     class Groop(click.Group):
         pass

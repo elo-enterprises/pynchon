@@ -67,7 +67,9 @@ class Core(models.Planner):
             gr = self.__class__.click_group
             all_known_subcommands = [
                 ' '.join(x.split()[1:])
-                for x in cli.click.walk_group(gr, path='pynchon').keys()
+                for x in cli.click.subcommand_tree(
+                    gr, mode='text', path=tuple(['pynchon']), hidden=False
+                ).keys()
             ]
             head = [x for x in all_known_subcommands if len(x.split()) == 1]
             rest = [x for x in all_known_subcommands if x not in head]

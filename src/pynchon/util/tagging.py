@@ -48,15 +48,6 @@ def tag_factory(*args) -> typing.Any:
     """
 
     class tagger(dict):
-        # def tag(self, **tags):
-        #     self.tags = tags
-        # tag = staticmethod(
-        #     functools.partial(
-        #         tag,
-        #         ))
-        # __call__ = tag
-        #
-
         def get_tags(self, obj: typing.Any) -> dict:
             return GLOBAL_TAG_REGISTRY[obj]
 
@@ -112,16 +103,15 @@ class tagsM:
 
     @typing.validate_arguments
     def __getitem__(self, item: typing.Any) -> typing.Dict[str, typing.Any]:
-        # LOGGER.critical(f"requested {name}")
-        tmp = GLOBAL_TAG_REGISTRY.get(item)
+        tmp = GLOBAL_TAG_REGISTRY.get(item, {})
         if not tmp and callable(item) and type(item) == typing.MethodType:
-            raise Exception(item)
+            fxn = item
             cfxn = getattr(fxn.__self__.__class__, fxn.__name__)
             tmp = GLOBAL_TAG_REGISTRY.get(cfxn, {})
-            if tmp:
-                LOGGER.critical(
-                    f'missing tags for {item}; setting tags from parent @ {cfxn}'
-                )
+            # if tmp:
+            #     LOGGER.critical(
+            #         f'missing tags for {item}; setting tags from parent @ {cfxn}'
+            #     )
         tmp = tmp or tag_factory(item)
         self.__setitem__(item, tmp)
         return tmp or {}

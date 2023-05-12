@@ -209,7 +209,7 @@ class CliPlugin(PynchonPlugin):
         def plugin_main():
             pass
 
-        plugin_main.__doc__ = (kls.__doc__ or "").lstrip()
+        plugin_main.__doc__ = (kls.__doc__ or "").lstrip().split('\n')[0]
         groop = cli.common.groop(
             grp_name,
             parent=kls.click_entry,
@@ -334,7 +334,7 @@ class CliPlugin(PynchonPlugin):
                 LOGGER.critical(msg)
                 raise TypeError(msg)
 
-            tags = tagging.tags.get(fxn) or {}
+            tags = tagging.tags[fxn]
             hidden = tags.get('click_hidden', False)
             click_aliases = tags.get('click_aliases', [])
             publish_to_cli = tags.get('publish_to_cli', True)
@@ -403,7 +403,11 @@ class CliPlugin(PynchonPlugin):
         assert wrapper
         name = alias or fxn.__name__
         name = name.replace('_', '-')
-        help = f'(alias for `{alias}`)' if alias else (fxn.__doc__ or "")
+        help = (
+            f'(alias for `{alias}`)'
+            if alias
+            else (fxn.__doc__ or "").lstrip().split('\n')[0]
+        )
         help = help.lstrip()
         cmd = cli.common.kommand(
             name, help=help, alias=alias, parent=kls.click_group, **click_kwargs
