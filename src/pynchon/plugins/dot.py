@@ -18,28 +18,29 @@ class Dot(models.Planner):
 
     class config_class(abcs.Config):
         config_key = 'dot'
+        default = dict(exclude_patterns=[])
 
-    def _get_exclude_patterns(self, config):
-        """ """
-        return list(
-            set(
-                config.dot.get('exclude_patterns', [])
-                + config.globals['exclude_patterns']
-            )
-        )
+    # def _get_exclude_patterns(self, config):
+    #     """ """
+    #     return list(
+    #         set(
+    #             config.dot.get('exclude_patterns', [])
+    #             + config.globals['exclude_patterns']
+    #         )
+    #     )
 
-    def list(self, config=None) -> typing.List[str]:
+    def list(self) -> typing.List[str]:
         """ """
-        config = config or self.project_config
-        proj_conf = config.project.get("subproject", config.project)
-        project_root = proj_conf.get("root", config.git["root"])
+        # config = config or self.project_config
+        proj_conf = self[:"project.subproject":{}] or self[:'project':]
+        project_root = proj_conf.get("root", self[:'git.root':])
         search = [
             abcs.Path(project_root).joinpath("**/*.dot"),
         ]
         self.logger.debug(f"search pattern is {search}")
         result = files.find_globs(search)
         self.logger.debug(f"found {len(result)} files (pre-filter)")
-        excludes = self._get_exclude_patterns(config)
+        excludes = self['exclude_patterns' :: self[:'globals.exclude_patterns':]]
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} files (post-filter)")
@@ -48,45 +49,14 @@ class Dot(models.Planner):
             self.logger.critical(err)
         return result
 
-    # def render_dot(files, output, in_place, open_after):
-    #     """
-    #     Render dot file (graphviz) -> PNG
-    #     """
-    #     assert files, "expected files would be provided"
-    #     # if file:
-    #     #     return render.j5(file, output=output, in_place=in_place)
-    #     # elif files:
-    #     # files = files.split(' ')
-    #     LOGGER.debug(f"Running with many: {files}")
-    #     file = files[0]
-    #     files = files[1:]
-    #     result = render.dot(file, output=output, in_place=in_place)
-    #     output = result["output"]
-    #     if open_after:
-    #         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-    #         invoke(f"{DEFAULT_OPENER} {output}")
-    #
-
-    # def _dot(
-    #     file: str,  in_place: bool = False,
-    # ) -> typing.Dict:
-    #     """renders .dot file to png"""
-    # Using https://github.com/nickshine/dot
-    # invoke(
-    #
-    # )
-    # return dict(output=output)
-
     @cli.options.in_place
     @cli.options.output
     @cli.click.option('--img', default="nshine/dot")
     @cli.click.option('--output-mode')
-    @cli.click.option('--open-after', default=True, is_flag=True)
     @cli.click.argument("file", nargs=1)
     def render(
         self,
         img: str = '??',
-        open_after: bool = True,
         file: str = '',
         in_place: bool = True,
         output_mode: str = "png",
@@ -98,28 +68,20 @@ class Dot(models.Planner):
         cmd = f"cat {file} | docker run --rm --entrypoint dot -i {img} -T{output_mode} > {output}"
         result = invoke(cmd, system=True)
         assert result.succeeded
-        if open_after:
-            import webbrowser
-
-            tmp = abcs.Path(output).absolute()
-            webbrowser.open(f'file://{tmp}', new=2)
         return result.succeeded
 
     def plan(
         self,
         config=None,
     ) -> models.Plan:
-        config = config or api.project.get_config()
-        plan = super(self.__class__, self).plan(config)
+        plan = super(self.__class__, self).plan(config=config)
         self.logger.debug("planning for rendering for .dot graph files..")
-        cmd_t = (
-            "pynchon dot render {resource} --open-after --in-place --output-mode png"
-        )
-        for resource in self.list(config):
+        cmd_t = "pynchon dot render {rsrc} --in-place --output-mode png"
+        for rsrc in self.list():
             plan.append(
                 self.goal(
-                    resource=resource,
-                    command=cmd_t.format(resource=resource),
+                    resource=rsrc,
+                    command=cmd_t.format(rsrc=rsrc),
                     type='render',
                 )
             )

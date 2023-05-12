@@ -47,6 +47,22 @@ class DocsMan(models.Planner):
     def gen(self):
         """Generator subcommands"""
 
+    # @tagging.tags(click_group='gen')
+    @cli.options.output
+    @cli.options.should_print
+    @gen.command('version-file')
+    # @cli.common.kommand(parent=gen)
+    def version_file(self, output, should_print):
+        """Creates {docs.root}/VERSION.md file"""
+        from pynchon.api import render
+
+        tmpl = render.get_template('pynchon/plugins/core/VERSIONS.md.j2')
+        result = tmpl.render(**self.project_config)
+        print(result, file=open(output, 'w'))
+        if should_print and output != '/dev/stdout':
+            print(result)
+        return True
+
     @cli.click.option('--background', is_flag=True, default=True)
     @cli.click.option('--force', is_flag=True, default=False)
     def serve(
@@ -61,13 +77,6 @@ class DocsMan(models.Planner):
 
             invoke(f'python -m pynchon.util.grip serve {args}').succeeded
         return dict(url=self.server_url, pid=self.server_pid)
-
-    @cli.options.output
-    @cli.options.should_print
-    @gen.command('version-file')
-    def version_file(self, output, should_print):
-        """Creates {docs.root}/VERSION.md file"""
-        raise NotImplementedError()
 
     def _open_grip(self, file: str = None):
         """ """

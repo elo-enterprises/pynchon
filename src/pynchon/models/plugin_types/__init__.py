@@ -217,17 +217,31 @@ class CliPlugin(PynchonPlugin):
             for name in dir(kls)
             if name not in 'click_entry click_group'.split()
             and isinstance(getattr(kls, name), (cli.click.Command,))
+            and not isinstance(getattr(kls, name), (cli.click.Group,))
         ]
         for group_name in group_names:
             gr = getattr(obj, group_name)
             cli_commands.append(gr)
             kls.click_acquire(gr)
 
-        for cmd_name in cmd_names:
-            gr = getattr(obj, cmd_name)
-            cli_commands.append(gr)
-            kls.click_acquire(gr)
+        def bind(instance, func, as_name=None):
+            """
+            Bind the function *func* to *instance*, with either provided name *as_name*
+            or the existing name of *func*. The provided *func* should accept the
+            instance as the first argument, i.e. "self".
+            """
+            if as_name is None:
+                as_name = func.__name__
+            bound_method = func.__get__(instance, instance.__class__)
+            setattr(instance, as_name, bound_method)
+            return bound_method
 
+        for cmd_name in cmd_names:
+            cmd = getattr(obj, cmd_name)
+            if isinstance(cmd.callback, (typing.FunctionType)):
+                cmd.callback = bind(obj, cmd.callback)
+            cli_commands.append(cmd)
+            kls.click_acquire(cmd)
         for method_name in kls.__methods__:
             # LOGGER.info(f"  {kls.__name__}.init_cli: {method_name}")
             fxn = obj and getattr(obj, method_name, None)

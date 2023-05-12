@@ -1,6 +1,8 @@
 """ pynchon.abcs.config
 """
-from pynchon.util import typing, lme
+import collections
+
+from pynchon.util import text, typing, lme
 from pynchon.fleks.meta import Meta
 from pynchon.util.tagging import tags
 
@@ -33,9 +35,8 @@ class Config(
 
     __str__ = __repr__
 
-    def __init__(self, **this_config):
+    def __init__(self, **this_config) -> None:
         """ """
-        # LOGGER.critical(f"initializing {self}")
         called_defaults = this_config
         kls_defaults = getattr(self.__class__, 'defaults', {})
         super(Config, self).__init__(**{**kls_defaults, **called_defaults})
@@ -48,14 +49,11 @@ class Config(
                 self[pname] = getattr(self, pname)
         self.resolve_conflicts(conflicts)
 
-    def resolve_conflicts(self, conflicts):
+    def resolve_conflicts(self, conflicts: typing.List) -> None:
         """ """
-        from pynchon.util import text
-
         conflicts and LOGGER.info(
             f"'{self.config_key}' is resolving {len(conflicts)} conflicts.."
         )
-        import collections
 
         record = collections.defaultdict(list)
         for pname in conflicts:

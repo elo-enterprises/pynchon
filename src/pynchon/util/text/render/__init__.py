@@ -26,7 +26,6 @@ def jinja_loadf(
     quiet: bool = False,
 ) -> str:
     """ """
-    # from pynchon.util.text.render import jinja
     context = {} if context is None else context
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
     with open(file, "r") as fhandle:
