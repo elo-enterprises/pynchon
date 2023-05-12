@@ -12,6 +12,7 @@ class Deck(models.Manager):
     name = "deck"
     cli_name = 'deck'
     cli_label = 'Tool'
+    contribute_plan_apply=True
 
     class config_class(abcs.Config):
         config_key = 'deck'
