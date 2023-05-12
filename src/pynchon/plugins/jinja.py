@@ -2,7 +2,6 @@
 """
 from pynchon.util import lme, typing, tagging  # noqa
 from pynchon import abcs, models, cli, api
-from pynchon.api import project
 from pynchon.util import files, text
 from pynchon.plugins import util as plugin_util
 

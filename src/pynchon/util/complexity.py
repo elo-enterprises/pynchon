@@ -1,7 +1,5 @@
 """ pynchon.util.complexity
 """
-GLYPH_COMPLEXITY = "🐉 Complex"
-
 import os
 import ast
 import sys
@@ -16,6 +14,8 @@ from pynchon.util import lme
 
 WORKING_DIR = Path(".")
 LOGGER = lme.get_logger(__name__)
+
+GLYPH_COMPLEXITY = constants.GLYPH_COMPLEXITY
 
 
 def clean_text(txt: str) -> str:

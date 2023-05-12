@@ -1,7 +1,6 @@
 import typing
+import functools
 import collections
-
-import pydash
 
 from pynchon import fleks, events, api, cli, shimport
 from pynchon.bin import entry
@@ -12,28 +11,14 @@ from . import validators
 from pynchon.util import typing, tagging, lme  # noqa
 
 
+pydash = shimport.lazy(
+    'pydash',
+)
 config_mod = shimport.lazy(
     'pynchon.config',
 )
-
+classproperty = typing.classproperty
 LOGGER = lme.get_logger(__name__)
-
-
-def bind(instance, func, as_name=None):
-    """Bind the function *func* to *instance*, with either provided name *as_name*
-    or the existing name of *func*. The provided *func* should accept the
-    instance as the first argument, i.e. "self".
-
-    :param instance: param func:
-    :param as_name: Default value = None)
-    :param func:
-
-    """
-    if as_name is None:
-        as_name = func.__name__
-    bound_method = func.__get__(instance, instance.__class__)
-    setattr(instance, as_name, bound_method)
-    return bound_method
 
 
 @tagging.tags(cli_label='<<Abstract>>')
@@ -50,12 +35,12 @@ class PynchonPlugin(fleks.Plugin):
 
     @typing.classproperty
     def instance(kls):
-        """class-property: the instance for this plugin
-
-        :param kls:
-
-        """
+        """class-property: the instance for this plugin"""
         return plugins_util.get_plugin_obj(kls.name)
+
+    @classproperty
+    def plugin_templates_prefix(kls):
+        return f'pynchon/plugins/{kls.name}'
 
     @typing.classproperty
     def project_config(self):
@@ -64,22 +49,13 @@ class PynchonPlugin(fleks.Plugin):
 
     @classmethod
     def get_config_key(kls):
-        """
-
-        :param kls:
-
-        """
         default = kls.name.replace('-', '_')
         config_kls = getattr(kls, 'config_class', None)
         return getattr(config_kls, 'config_key', default) or default
 
     @classmethod
     def get_current_config(kls):
-        """class-method: get the current config for this plugin
-
-        :param kls:
-
-        """
+        """get the current config for this plugin"""
         conf_class = getattr(kls, 'config_class', None)
         if conf_class is None:
             return {}
@@ -104,16 +80,6 @@ class PynchonPlugin(fleks.Plugin):
             result.append(plugins_util.get_plugin_obj(plugin))
         result = sorted(result, key=lambda p: p.priority)
         return collections.OrderedDict([p.name, p] for p in result)
-
-    def cfg(self):
-        """Shows current config for this plugin"""
-        kls = self.__class__
-        conf_class = getattr(kls, 'config_class', None)
-        conf_class_name = conf_class.__name__ if conf_class else '(None)'
-        LOGGER.debug(f"config class: {conf_class_name}")
-        LOGGER.debug("current config:")
-        result = kls.get_current_config()
-        return result
 
     @property
     def config(self):
@@ -179,6 +145,16 @@ class PynchonPlugin(fleks.Plugin):
                 else:
                     raise
 
+    def cfg(self):
+        """Shows current config for this plugin"""
+        kls = self.__class__
+        conf_class = getattr(kls, 'config_class', None)
+        conf_class_name = conf_class.__name__ if conf_class else '(None)'
+        LOGGER.debug(f"config class: {conf_class_name}")
+        LOGGER.debug("current config:")
+        result = kls.get_current_config()
+        return result
+
 
 @tagging.tags(cli_label='<<Default>>')
 class CliPlugin(PynchonPlugin):
@@ -187,20 +163,10 @@ class CliPlugin(PynchonPlugin):
 
     @typing.classproperty
     def click_entry(kls):
-        """
-
-        :param kls:
-
-        """
         return entry
 
     @typing.classproperty
     def click_group(kls):
-        """
-
-        :param kls:
-
-        """
         cached = kls._finalized_click_groups.get(kls, None)
         grp_name = getattr(kls, 'cli_name', kls.name)
         if cached is not None:
@@ -228,10 +194,8 @@ class CliPlugin(PynchonPlugin):
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
     def click_acquire(kls, group: cli.click.Group):  # noqa F811
         """
-
         :param kls: param group: cli.click.Group:
         :param group: cli.click.Group:
-
         """
         parent = kls.click_group
         LOGGER.info(
@@ -265,18 +229,47 @@ class CliPlugin(PynchonPlugin):
         parent.add_command(cmd)
         return parent
 
+    @classproperty
+    @functools.lru_cache(maxsize=None)
+    def click_commands(kls) -> typing.List[str]:
+        return [
+            name
+            for name in dir(kls)
+            if name not in kls.__class_properties__
+            and all(
+                [
+                    name not in 'click_entry click_group'.split(),
+                    isinstance(getattr(kls, name), (cli.click.Command,)),
+                    not isinstance(getattr(kls, name), (cli.click.Group,)),
+                ]
+            )
+        ]
+
+    @classproperty
+    @functools.lru_cache(maxsize=None)
+    def click_subgroups(kls) -> typing.List[str]:
+        return [
+            name
+            for name in dir(kls)
+            if name not in kls.__class_properties__
+            and all(
+                [
+                    name not in 'click_entry click_group'.split(),
+                    isinstance(getattr(kls, name), (cli.click.Group,)),
+                ]
+            )
+        ]
+
     @classmethod
     def init_cli(kls):
-        """
-
-        :param kls:
-
-        """
+        """ """
         events.lifecycle.send(kls, plugin='initializing CLI')
 
-        # from pynchon.plugins.core import Core  # noqa
-        # if kls != Core:
-        #     config_mod.finalize()
+        from pynchon.plugins.core import Core
+
+        if kls != Core:
+            # FIXME: this is needed, .. but why?
+            config_mod.finalize()
 
         obj = kls.instance
         if obj is None:
@@ -285,28 +278,8 @@ class CliPlugin(PynchonPlugin):
             raise ValueError(err)
 
         cli_commands = []
-        group_names = [
-            name
-            for name in dir(kls)
-            if all(
-                [
-                    name not in 'click_entry click_group'.split(),
-                    isinstance(getattr(kls, name), (cli.click.Group,)),
-                ]
-            )
-        ]
-        cmd_names = [
-            name
-            for name in dir(kls)
-            if all(
-                [
-                    name not in 'click_entry click_group'.split(),
-                    isinstance(getattr(kls, name), (cli.click.Command,)),
-                    not isinstance(getattr(kls, name), (cli.click.Group,)),
-                ]
-            )
-        ]
-        for group_name in group_names:
+
+        for group_name in kls.click_subgroups:
             grp = getattr(obj, group_name)
             cli_commands.append(grp)
             kls.click_acquire(grp)
@@ -318,10 +291,10 @@ class CliPlugin(PynchonPlugin):
         # create commands from commands
         # these command-callbacks are bound to non-methods,
         # i.e. currently expecting `self` as a first argument
-        for cmd_name in cmd_names:
+        for cmd_name in kls.click_commands:
             cmd = getattr(obj, cmd_name)
-            if isinstance(cmd.callback, (typing.FunctionType)):
-                cmd.callback = bind(obj, cmd.callback)
+            if isinstance(cmd.callback, (typing.FunctionType,)):
+                cmd.callback = typing.bind_method(cmd.callback, obj)
             cli_commands.append(cmd)
             kls.click_acquire(cmd)
 

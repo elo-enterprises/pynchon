@@ -3,14 +3,13 @@ import os
 import inspect
 import importlib
 
-import pynchon
 from pynchon import abcs
 from pynchon.util import lme, typing, complexity
 
 LOGGER = lme.get_logger(__name__)
 
 
-def klass(name, kls) -> None:
+def klass(name, kls) -> typing.NoneType:
     """annotates a class
 
     :param name: param kls:
@@ -116,7 +115,7 @@ def should_skip(name: str):
     :param name: str:
 
     """
-    from pynchon.config import pynchon as pynchon_config
+    # from pynchon.config import pynchon as pynchon_config
     from pynchon.plugins.util import get_plugin_obj
 
     should_skip = get_plugin_obj('python-api')['skip_private_methods']

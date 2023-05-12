@@ -5,7 +5,6 @@ import webbrowser
 from memoized_property import memoized_property
 
 from pynchon import shimport
-from pynchon.util import files, grip
 
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, typing, tagging  # noqa
@@ -155,7 +154,7 @@ class DocsMan(models.Planner):
             return result
         for ch in changes:
             LOGGER.warning(f'opening {ch}')
-            result.append(self.open(ch, server=server))
+            result.append(self.open(ch))
         return result
 
     def plan(self, config=None):

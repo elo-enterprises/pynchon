@@ -56,7 +56,7 @@ class AbstractPlanner(BasePlugin):
             root = self['root']
         except (KeyError,) as exc:
             self.logger.critical(
-                f'self.__class__ tried to use self.list(), but does not follow protocol'
+                f'{self.__class__} tried to use self.list(), but does not follow protocol'
             )
             self.logger.critical(
                 "self['include_patterns'] and self['root'] must both be defined!"

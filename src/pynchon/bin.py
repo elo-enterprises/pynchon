@@ -17,16 +17,20 @@ plugins = shimport.lazy('pynchon.plugins')
 class RootGroup(click.Group):
     """ """
 
+    def __init__(self, *args, **kwargs):
+        """ """
+        # NB: this is needed, otherwise main help is messy
+        kwargs.update(help='')
+        super(RootGroup, self).__init__(*args, **kwargs)
+
     def format_commands(
         self, ctx: click.Context, formatter: click.HelpFormatter
     ) -> None:
         """
-
         :param ctx: click.Context:
         :param formatter: click.HelpFormatter:
         :param ctx: click.Context:
         :param formatter: click.HelpFormatter:
-
         """
         commands = []
         for subcommand in self.list_commands(ctx):
@@ -82,10 +86,8 @@ class RootGroup(click.Group):
 
     def format_usage(self, ctx, formatter):
         """
-
         :param ctx: param formatter:
         :param formatter:
-
         """
         # terminal_width, _ = click.get_terminal_size()
         terminal_width = 30
@@ -114,16 +116,7 @@ def entry(
     set_config: str = '',
     get_config: str = '',
 ):
-    """
-
-    :param plugins: str:  (Default value = '')
-    :param set_config: str:  (Default value = '')
-    :param get_config: str:  (Default value = '')
-    :param plugins: str:  (Default value = '')
-    :param set_config: str:  (Default value = '')
-    :param get_config: str:  (Default value = '')
-
-    """
+    """ """
 
 
 @entry.command(
@@ -141,6 +134,7 @@ def entry(
 def default(
     ctx, plugins: str = '', set_config: str = '', get_config: str = '', **kwargs  # noqa
 ):
+    """this is always executed, regardless of subcommands and before them"""
     # LOGGER.critical('top-level')
     setters = ctx.params.get('set_config', []) or []
     plugins = ctx.params.get('plugins', '')

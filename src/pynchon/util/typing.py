@@ -8,13 +8,8 @@ one convenient namespace.
 import typing
 from pathlib import Path as BasePath
 
-from typing import *  # noqa
-
 from types import *  # noqa
-
-# MappingProxyType  # noqa
-# from types import FunctionType  # noqa
-# from types import MethodType  # noqa
+from typing import *  # noqa
 
 # from typing_extensions import Annotated
 
@@ -24,12 +19,30 @@ try:
 
     validate = pydantic.validate_arguments  # noqa
 except (ImportError,):
-
+    # FIXME: similar to deal-contracts, might want to NO-OP this for `python -O`
     def validate(fxn):
         return fxn
 
 
 validate_arguments = validate
+
+
+def bind_method(func, instance, as_name=None):
+    """
+    Binds the function *func* to *instance*, with either provided name *as_name*
+    or the existing name of *func*. The provided *func* should accept the
+    instance as the first argument, i.e. "self".
+
+    :param instance: param func:
+    :param as_name: Default value = None)
+    :param func:
+    """
+    assert isinstance(func, (typing.FunctionType,))
+    if as_name is None:
+        as_name = func.__name__
+    bound_method = func.__get__(instance, instance.__class__)
+    setattr(instance, as_name, bound_method)
+    return bound_method
 
 
 OptionalAny = typing.Optional[typing.Any]

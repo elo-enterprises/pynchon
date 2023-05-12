@@ -55,12 +55,10 @@ class Core(models.Planner):
         :param bashrc: bool:  (Default value = False)
         :param bash: bool:  (Default value = False)
         :param tox: bool:  (Default value = False)
-
         """
-        template_prefix = 'pynchon/bootstrap'
+        template_prefix = f'{self.plugin_templates_prefix}/bootstrap'
         pynchon_completions_script = '.tmp.pynchon.completions.sh'
         bashrc_snippet = '.tmp.pynchon.bashrc'
-        template_prefix = 'pynchon/bootstrap/'
         if bash:
             import collections
 

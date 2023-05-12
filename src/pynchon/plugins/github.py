@@ -46,7 +46,7 @@ class GitHub(models.ToolPlugin):
 
     @cli.options.org_name
     @option_api_token
-    def clone_org(self, org_name: str = None, token: str = None):
+    def clone_org(self, org_name: str = None, token: str = None):  # noqa
         """Clones an entire github-org
 
         :param org_name: str:  (Default value = None)
@@ -59,7 +59,7 @@ class GitHub(models.ToolPlugin):
 
     @cli.click.argument('repo')
     @option_api_token
-    def clone(self, repo: str, token: str = None):
+    def clone(self, repo: str, token: str = None):  # noqa
         """Clones a single repo from this project's org
 
         :param repo: str:
@@ -73,7 +73,7 @@ class GitHub(models.ToolPlugin):
     # @cli.click.argument('repo')
     @tagging.tags(click_aliases=['pr'])
     @option_api_token
-    def pull_request(self, repo: str, token: str = None):
+    def pull_request(self, repo: str, token: str = None):  # noqa
         """Creates a pull-request from this branch
 
         :param repo: str:
@@ -86,7 +86,7 @@ class GitHub(models.ToolPlugin):
 
     @tagging.tags(click_aliases=['codeowners'])
     # @option_api_token
-    def code_owners(self, repo: str, token: str = None):
+    def code_owners(self, repo: str, token: str = None):  # noqa
         """Describes code-owners for changes or for working-dir
 
         :param repo: str:

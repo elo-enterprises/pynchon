@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-# from pynchon.abcs.path import Path
+GLYPH_COMPLEXITY = "🐉 Complex"
 
 PYNCHON_ROOT = os.environ.get("PYNCHON_ROOT", None)
 PYNCHON_CONFIG = os.environ.get('PYNCHON_CONFIG', None)

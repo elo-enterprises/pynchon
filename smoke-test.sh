@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
+pynchon --help
+python -mpynchon --help
 python -mpynchon.util.files --help
 python -mpynchon.util.text --help
 python -mpynchon.util.text.loadf --help

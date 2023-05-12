@@ -59,7 +59,6 @@ def get_jinja_globals():
         """
         fname = abcs.Path(fname)
         assert fname.exists()
-        import pynchon
 
         script = abcs.Path(pynchon.__file__).parents[0] / 'scripts' / 'gh-md-toc.sh'
         result = invoke(f'cat {fname} | bash {script} -')
