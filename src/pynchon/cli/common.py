@@ -29,7 +29,7 @@ def load_groups_from_children(root=None, parent=None):
     ).starmap(
         lambda name, fxn: [
             setattr(fxn, 'name', name),
-            click.group_copy(fxn, parent),
+            click.group_merge(fxn, parent),
         ]
     )
 

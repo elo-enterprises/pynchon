@@ -15,41 +15,42 @@
   </tr>
 </table>
 
-  * [Pynchon as a Suite of Utilities](#pynchon-as-a-suite-of-utilities)
-    * [util.os](#utilos)
-    * [util.files](#utilfiles)
-    * [util.loadf](#utilloadf)
-    * [util.jinja](#utiljinja)
-    * [util.splitvt](#utilsplitvt)
-    * [util.ansible](#utilansible)
-    * [util.json](#utiljson)
-    * [util.pydash](#utilpydash)
-    * [util.shfmt](#utilshfmt)
-    * [util.grip](#utilgrip)
-  * [Pynchon as a Framework](#pynchon-as-a-framework)
-    * [Plugins](#plugins)
-      * [Plugin Priority](#plugin-priority)
-      * [Plugin Config](#plugin-config)
-        * [User Config](#user-config)
-        * [Config Defaults](#config-defaults)
-        * [Lazy Config](#lazy-config)
-        * [Dynamic Config](#dynamic-config)
-        * [Syntactic Sugar](#syntactic-sugar)
-      * [Plugin CLIs](#plugin-clis)
-        * [CLI Aliases](#cli-aliases)
-        * [Hidden Commands](#hidden-commands)
-      * [Plugin Types](#plugin-types)
-        * [Core-Plugins](#core-plugins)
-        * [Provider-Plugins](#provider-plugins)
-        * [Planner-Plugins](#planner-plugins)
-        * [Manager-Plugins](#manager-plugins)
-        * [Tool-Plugins](#tool-plugins)
-        * [Nested-Plugins](#nested-plugins)
-        * [Namespaces](#namespaces)
-    * [Rendering Engine](#rendering-engine)
-    * [Projects &amp; Subprojects](#projects--subprojects)
-    * [Data vs Display](#data-vs-display)
-    * [Hooks &amp; Events](#hooks--events)
+* [Pynchon as a Suite of Utilities](#pynchon-as-a-suite-of-utilities)
+  * [pynchon.util](#pynchonutil)
+    * [pynchon.util.os](#pynchonutilos)
+    * [pynchon.util.files](#pynchonutilfiles)
+    * [pynchon.util.loadf](#pynchonutilloadf)
+    * [pynchon.util.jinja](#pynchonutiljinja)
+    * [pynchon.util.splitvt](#pynchonutilsplitvt)
+    * [pynchon.util.ansible](#pynchonutilansible)
+    * [pynchon.util.json](#pynchonutiljson)
+    * [pynchon.util.pydash](#pynchonutilpydash)
+    * [pynchon.util.shfmt](#pynchonutilshfmt)
+    * [pynchon.util.grip](#pynchonutilgrip)
+* [Pynchon as a Framework](#pynchon-as-a-framework)
+  * [Plugins](#plugins)
+    * [Plugin Priority](#plugin-priority)
+    * [Plugin Config](#plugin-config)
+      * [User Config](#user-config)
+      * [Config Defaults](#config-defaults)
+      * [Lazy Config](#lazy-config)
+      * [Dynamic Config](#dynamic-config)
+      * [Syntactic Sugar](#syntactic-sugar)
+    * [Plugin CLIs](#plugin-clis)
+      * [CLI Aliases](#cli-aliases)
+      * [Hidden Commands](#hidden-commands)
+    * [Plugin Types](#plugin-types)
+      * [Core-Plugins](#core-plugins)
+      * [Provider-Plugins](#provider-plugins)
+      * [Planner-Plugins](#planner-plugins)
+      * [Manager-Plugins](#manager-plugins)
+      * [Tool-Plugins](#tool-plugins)
+      * [Nested-Plugins](#nested-plugins)
+      * [Namespaces](#namespaces)
+  * [Rendering Engine](#rendering-engine)
+  * [Projects &amp; Subprojects](#projects--subprojects)
+  * [Data vs Display](#data-vs-display)
+  * [Hooks &amp; Events](#hooks--events)
   * [Pynchon as a Library](#pynchon-as-a-library)
     * [Parsers](#parsers)
     * [Planners](#planners)
@@ -120,51 +121,52 @@ pip install -e .
 
 ---------------------------------------------------------------------------------
 
-## Pynchon as a Suite of Utilities
+# Pynchon as a Suite of Utilities
 
 The modules inside the pynchon library publish several stand-alone tools.
 
-### util.os
-### util.files
-### util.loadf
-### util.jinja
-### util.splitvt
-### util.ansible
-### util.json
-### util.pydash
-### util.shfmt
-### util.grip
+## pynchon.util
+### pynchon.util.os
+### pynchon.util.files
+### pynchon.util.loadf
+### pynchon.util.jinja
+### pynchon.util.splitvt
+### pynchon.util.ansible
+### pynchon.util.json
+### pynchon.util.pydash
+### pynchon.util.shfmt
+### pynchon.util.grip
 
 ---------------------------------------------------------------------------------
 
-## Pynchon as a Framework
+# Pynchon as a Framework
 
-### Plugins
-#### Plugin Priority
+## Plugins
+### Plugin Priority
 
-#### Plugin Config
-##### User Config
-##### Config Defaults
-##### Lazy Config
-##### Dynamic Config
-##### Syntactic Sugar
+### Plugin Config
+#### User Config
+#### Config Defaults
+#### Lazy Config
+#### Dynamic Config
+#### Syntactic Sugar
 
-#### Plugin CLIs
-##### CLI Aliases
-##### Hidden Commands
+### Plugin CLIs
+#### CLI Aliases
+#### Hidden Commands
 
-#### Plugin Types
-##### Core-Plugins
-##### Provider-Plugins
-##### Planner-Plugins
-##### Manager-Plugins
-##### Tool-Plugins
-##### Nested-Plugins
-##### Namespaces
-### Rendering Engine
-### Projects & Subprojects
-### Data vs Display
-### Hooks & Events
+### Plugin Types
+#### Core-Plugins
+#### Provider-Plugins
+#### Planner-Plugins
+#### Manager-Plugins
+#### Tool-Plugins
+#### Nested-Plugins
+#### Namespaces
+## Rendering Engine
+## Projects & Subprojects
+## Data vs Display
+## Hooks & Events
 
 ---------------------------------------------------------------------------------
 

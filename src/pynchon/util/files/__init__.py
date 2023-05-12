@@ -107,10 +107,10 @@ def find_globs(
 
 
 def ansible_docker(
-    local: bool = True,
     volumes: dict = {},
     container: str = "alpinelinux/ansible",
     entrypoint: str = 'ansible',
+    local: bool = True,
     e: dict = {},
     module_name: str = None,
     extra: typing.List[str] = [],
@@ -124,8 +124,7 @@ def ansible_docker(
             "-v `pwd`:/workspace",
         ]
         + vextras
-        + [
-            "-e ANSIBLE_STDOUT_CALLBACK=json",
+        + [ "-e ANSIBLE_STDOUT_CALLBACK=json",
             "-e ANSIBLE_CALLBACKS_ENABLED=json",
             "-e ANSIBLE_LOAD_CALLBACK_PLUGINS=1",
             f"--entrypoint {entrypoint} ",

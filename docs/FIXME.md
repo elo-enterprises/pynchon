@@ -25,7 +25,7 @@
 * [src/pynchon/config/__init__.py:54](#): `# FIXME: get from registry or mcls`
 * [src/pynchon/models/planner.py:120](#): `# FIXME: validation elsewhere`
 * [src/pynchon/models/plugin_types/validators.py:3](#): `FIXME: ntuple struct for vdata`
-* [src/pynchon/models/plugin_types/__init__.py:268](#): `# FIXME: this wraps twice?`
+* [src/pynchon/models/plugin_types/__init__.py:284](#): `# FIXME: this wraps twice?`
 * [src/pynchon/abcs/path.py:74](#): `# FIXME: use multimethod`
 * [src/pynchon/events.py:12](#): `# FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly`
 * [src/pynchon/api/render.py:33](#): `# FIXME: use shimport.filter_module('..')`
