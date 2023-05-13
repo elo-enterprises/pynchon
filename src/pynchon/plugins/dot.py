@@ -13,11 +13,11 @@ LOGGER = lme.get_logger(__name__)
 class Dot(models.Planner):
     """Finds / Renders (graphviz) dot files for this project"""
 
-    name = "dot"
-
     class config_class(abcs.Config):
         config_key = "dot"
         default = dict(exclude_patterns=[])
+
+    name = "dot"
 
     # def _get_exclude_patterns(self, config):
     #     """ """

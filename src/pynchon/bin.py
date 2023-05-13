@@ -117,30 +117,6 @@ def entry(
     """ """
 
 
-@entry.command(
-    "default",
-    hidden=True,
-    context_settings=dict(
-        ignore_unknown_options=True,
-    ),
-)
-@click.option("--plugins", help="shortcut for `--set plugins=...`")
-@click.option("--set", "set_config", help="config overrides")
-@click.option("--get", "get_config", help="config retrieval")
-@click.argument("extra", nargs=-1)
-@click.pass_context
-def default(
-    ctx, plugins: str = "", set_config: str = "", get_config: str = "", **kwargs  # noqa
-):
-    """this is always executed, regardless of subcommands and before them"""
-    # LOGGER.critical('top-level')
-    setters = ctx.params.get("set_config", []) or []
-    plugins = ctx.params.get("plugins", "")
-    plugins and setters.append([f'pynchon.plugins={plugins.split(",")}'])
-    setters and LOGGER.critical(f"--set: {setters}")
-    bootstrap()
-
-
 def bootstrap():
     from pynchon.app import app
     from pynchon.plugins import registry as plugin_registry
@@ -166,3 +142,27 @@ def bootstrap():
             raise
         else:
             registry[name] = dict(plugin=plugin_kls, entry=p_entry)
+
+
+@entry.command(
+    "default",
+    hidden=True,
+    context_settings=dict(
+        ignore_unknown_options=True,
+    ),
+)
+@click.option("--plugins", help="shortcut for `--set plugins=...`")
+@click.option("--set", "set_config", help="config overrides")
+@click.option("--get", "get_config", help="config retrieval")
+@click.argument("extra", nargs=-1)
+@click.pass_context
+def default(
+    ctx, plugins: str = "", set_config: str = "", get_config: str = "", **kwargs  # noqa
+):
+    """this is always executed, regardless of subcommands and before them"""
+    # LOGGER.critical('top-level')
+    setters = ctx.params.get("set_config", []) or []
+    plugins = ctx.params.get("plugins", "")
+    plugins and setters.append([f'pynchon.plugins={plugins.split(",")}'])
+    setters and LOGGER.critical(f"--set: {setters}")
+    bootstrap()

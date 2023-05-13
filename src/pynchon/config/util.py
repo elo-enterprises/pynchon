@@ -75,6 +75,13 @@ def finalize():
     return result
 
 
+def config_folders():
+    from pynchon import config
+
+    folders = list(set(filter(None, [constants.PYNCHON_ROOT, config.GIT["root"]])))
+    return [abcs.Path(f) for f in folders]
+
+
 def get_config_files():
     """ """
     if constants.PYNCHON_CONFIG:
@@ -94,13 +101,6 @@ def get_config_files():
     #     ]
     # config_candidates = [p for p in config_candidates if p.exists()]
     return result
-
-
-def config_folders():
-    from pynchon import config
-
-    folders = list(set(filter(None, [constants.PYNCHON_ROOT, config.GIT["root"]])))
-    return [abcs.Path(f) for f in folders]
 
 
 def load_config_from_files() -> typing.Dict[str, str]:

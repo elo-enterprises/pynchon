@@ -28,15 +28,15 @@ EXT_MAP = {
 class SourceMan(models.Manager):
     """Management tool for project source"""
 
-    name = "src"
-    cli_name = "src"
-    priority = 0
-
     class config_class(abcs.Config):
         config_key = "src"
         defaults = dict(
             goals=[],
         )
+
+    name = "src"
+    cli_name = "src"
+    priority = 0
         # @tagging.tagged_property(conflict_strategy='override')
         # def exclude_patterns(self):
         #     globals = plugin_util.get_plugin('globals').get_current_config()

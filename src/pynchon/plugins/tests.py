@@ -9,8 +9,8 @@ LOGGER = lme.get_logger(__name__)
 class Tests(models.Planner):
     """Management tool for project tests"""
 
-    name = "tests"
-    cli_name = "tests"
-
     class config_class(abcs.Config):
         config_key = "tests"
+
+    name = "tests"
+    cli_name = "tests"

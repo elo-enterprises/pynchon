@@ -16,6 +16,28 @@ class AttrDictBase:
     def __init__(self, **init: typing.OptionalAny):
         dict.__init__(self, init)
 
+    def __getattr__(self, name: str) -> typing.Any:
+        try:
+            return super().__getitem__(name)
+        except (KeyError,) as exc:
+            LOGGER.info(f"AttrDict: KeyError accessing {name}")
+            raise AttributeError(exc)
+
+    def __setitem__(self, key: str, value: typing.Any) -> typing.Any:
+        return super().__setitem__(key, value)
+
+    __setattr__ = __setitem__
+
+    def __getitem__(self, name: str) -> typing.Any:
+        try:
+            return super().__getitem__(name)
+        except (KeyError,) as exc:
+            LOGGER.info(f"AttrDict: KeyError accessing {name}")
+            raise KeyError(exc)
+
+    def __delitem__(self, name: str) -> typing.Any:
+        return super().__delitem__(name)
+
     def __getstate__(self) -> typing.Iterable:
         return self.__dict__.items()
 
@@ -25,28 +47,6 @@ class AttrDictBase:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({dict.__repr__(self)})"
-
-    def __setitem__(self, key: str, value: typing.Any) -> typing.Any:
-        return super().__setitem__(key, value)
-
-    def __getitem__(self, name: str) -> typing.Any:
-        try:
-            return super().__getitem__(name)
-        except (KeyError,) as exc:
-            LOGGER.info(f"AttrDict: KeyError accessing {name}")
-            raise KeyError(exc)
-
-    def __getattr__(self, name: str) -> typing.Any:
-        try:
-            return super().__getitem__(name)
-        except (KeyError,) as exc:
-            LOGGER.info(f"AttrDict: KeyError accessing {name}")
-            raise AttributeError(exc)
-
-    def __delitem__(self, name: str) -> typing.Any:
-        return super().__delitem__(name)
-
-    __setattr__ = __setitem__
 
 
 class AttrDict(AttrDictBase, dict):

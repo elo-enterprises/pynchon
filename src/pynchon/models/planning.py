@@ -65,6 +65,18 @@ class Action(metaclass=meta.namespace):
 class Plan(typing.List[Goal], metaclass=meta.namespace):
     """ """
 
+    def __init__(self, *args):
+        """
+
+        :param *args:
+
+        """
+        for arg in args:
+            if not isinstance(arg, (Goal,)):
+                err = f"plan can only include goals, got {arg} with type={type(arg)}"
+                raise TypeError(err)
+            super().__init__(*args)
+
     def __rich__(self) -> str:
         syntaxes = [g.__rich__() for g in self]
 
@@ -101,21 +113,6 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         )
         return panel
 
-    def __init__(self, *args):
-        """
-
-        :param *args:
-
-        """
-        for arg in args:
-            if not isinstance(arg, (Goal,)):
-                err = f"plan can only include goals, got {arg} with type={type(arg)}"
-                raise TypeError(err)
-            super().__init__(*args)
-
-    def __str__(self):
-        return f"<{self.__class__.__name__}[{len(self)} goals]>"
-
     @property
     def _dict(self):
         """ """
@@ -126,18 +123,6 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
             actions_by_type[g.type].append(g.command)
         result.update(**actions_by_type)
         return result
-
-    # @typing.validate_arguments
-    def __add__(self, other):
-        """
-
-        :param other:
-
-        """
-        assert isinstance(other, (Plan,))
-        return Plan(*(other + self))
-
-    __iadd__ = __add__
 
     # @typing.validate_arguments
     def append(self, other: Goal):
@@ -160,10 +145,23 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         assert isinstance(other, (Goal,))
         return super().extend(other)
 
+    # @typing.validate_arguments
+    def __add__(self, other):
+        """
+
+        :param other:
+
+        """
+        assert isinstance(other, (Plan,))
+        return Plan(*(other + self))
+
+    __iadd__ = __add__
+
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{len(self)} goals]>"
+
 
 class ApplyResults(typing.List[Action], metaclass=meta.namespace):
-    def __str__(self):
-        return f"<{self.__class__.__name__}[{len(self)} actions]>"
 
     @property
     def _dict(self):
@@ -181,3 +179,5 @@ class ApplyResults(typing.List[Action], metaclass=meta.namespace):
         for g in self:
             result["state"][past_tense(g.type)].append(g.resource)
         return result
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{len(self)} actions]>"

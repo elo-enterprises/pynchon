@@ -11,19 +11,6 @@ LOGGER = lme.get_logger(__name__)
 @tagging.tags(click_aliases=["j"])
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
-
-    name = "jinja"
-    priority = 9
-    COMMAND_TEMPLATE = (
-        "python -mpynchon.util.text render jinja "
-        "{resource} --context-file {context_file} "
-        "--in-place {template_args}"
-    )
-
-    cli_subsumes: typing.List[typing.Callable] = [
-        # render_main.j2cli,
-        # render_main.jinja_file,
-    ]
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):
@@ -38,6 +25,19 @@ class Jinja(models.Planner):
             global_ex = globals["exclude_patterns"]
             my_ex = self.get("exclude_patterns", [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
+
+    name = "jinja"
+    priority = 9
+    COMMAND_TEMPLATE = (
+        "python -mpynchon.util.text render jinja "
+        "{resource} --context-file {context_file} "
+        "--in-place {template_args}"
+    )
+
+    cli_subsumes: typing.List[typing.Callable] = [
+        # render_main.j2cli,
+        # render_main.jinja_file,
+    ]
 
     def _get_jinja_context(self):
         """ """

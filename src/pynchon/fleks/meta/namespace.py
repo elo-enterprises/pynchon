@@ -1,6 +1,11 @@
 class Namespace:
     """ """
 
+    @property
+    def _dict(self):
+        """ """
+        return self._asdict()
+
     def toJSON(self, *args):
         """
 
@@ -10,11 +15,6 @@ class Namespace:
         from pynchon.util import text
 
         return text.to_json(self._dict, *args)
-
-    @property
-    def _dict(self):
-        """ """
-        return self._asdict()
 
     def items(self):
         """ """

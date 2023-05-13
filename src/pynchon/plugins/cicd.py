@@ -13,8 +13,6 @@ LOGGER = lme.get_logger(__name__)
 class CiCd(models.Provider):
     """Context for CI/CD"""
 
-    name = "cicd"
-
     class config_class(abcs.Config):
         config_key = "cicd"
         defaults = dict(
@@ -22,6 +20,8 @@ class CiCd(models.Provider):
             url_deploy=None,
             url_build=None,
         )
+
+    name = "cicd"
 
     # @cli.click.option()
     def open(self):

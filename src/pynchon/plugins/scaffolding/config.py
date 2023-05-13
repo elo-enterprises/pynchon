@@ -11,15 +11,6 @@ LOGGER = lme.get_logger(__name__)
 class ScaffoldingItem(abcs.AttrDict):
     warnings = []
 
-    @property
-    def exists(self) -> typing.Bool:
-        return os.path.exists(self.src)
-
-    def validate(self):
-        if not self.exists and self.src not in ScaffoldingItem.warnings:
-            LOGGER.critical(f"Scaffolding source @ {self.src} does not exist!")
-            ScaffoldingItem.warnings.append(self.src)
-
     def __init__(
         self, name="unnamed scaffold", scope="*", pattern=None, src=None, **kwargs
     ):
@@ -33,6 +24,15 @@ class ScaffoldingItem(abcs.AttrDict):
             **kwargs,
         )
         self.validate()
+
+    @property
+    def exists(self) -> typing.Bool:
+        return os.path.exists(self.src)
+
+    def validate(self):
+        if not self.exists and self.src not in ScaffoldingItem.warnings:
+            LOGGER.critical(f"Scaffolding source @ {self.src} does not exist!")
+            ScaffoldingItem.warnings.append(self.src)
 
 
 class ScaffoldingConfig(abcs.Config):

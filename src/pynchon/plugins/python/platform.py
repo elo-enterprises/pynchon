@@ -15,9 +15,6 @@ LOGGER = lme.get_logger(__name__)
 class PythonPlatform(models.Provider):
     """Context for python-platform"""
 
-    priority = 2
-    name = "python"
-
     class config_class(abcs.Config):
         config_key = "python"
         defaults = dict(
@@ -37,6 +34,9 @@ class PythonPlatform(models.Provider):
                 return PackageConfig()
             else:
                 return {}
+
+    priority = 2
+    name = "python"
 
 
 class PackageConfig(abcs.Config):

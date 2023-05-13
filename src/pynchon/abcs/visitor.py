@@ -40,20 +40,6 @@ class Visitor:
         self.filter_value = filter_value
         self.trigger = trigger
 
-    def __call__(
-        self,
-        path=None,
-        value=None,
-    ):
-        """
-
-        :param path: Default value = None)
-        :param value: Default value = None)
-
-        """
-        if all([self.filter_path(path), self.filter_value(value)]):
-            return self.matched(path=path, value=value)
-
     def matched(self, path=None, value=None):
         """
 
@@ -68,6 +54,20 @@ class Visitor:
             return value
         else:
             return default
+
+    def __call__(
+        self,
+        path=None,
+        value=None,
+    ):
+        """
+
+        :param path: Default value = None)
+        :param value: Default value = None)
+
+        """
+        if all([self.filter_path(path), self.filter_value(value)]):
+            return self.matched(path=path, value=value)
 
 
 def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):

@@ -15,14 +15,29 @@ LOGGER = lme.get_logger(__name__)
 class DocsMan(models.Planner):
     """Management tool for project docs"""
 
+    class config_class(abcs.Config):
+        config_key = "docs"
+
     name = "docs"
     cli_name = "docs"
     cli_label = "Manager"
     priority = 0
     serving = None
 
-    class config_class(abcs.Config):
-        config_key = "docs"
+    def _open_grip(self, file: str = None):
+        """
+
+        :param file: str:  (Default value = None)
+        :param file: str:  (Default value = None)
+
+        """
+        pfile = abcs.Path(file).absolute()
+        relf = pfile.relative_to(abcs.Path(self.git_root))
+        grip_url = f"http://localhost:{self.server.port}/{relf}"
+        LOGGER.warning(f"opening {grip_url}")
+        return dict(url=grip_url, browser=webbrowser.open(grip_url))
+
+    _open__md = _open_grip
 
     @property
     def server_pid(self):
@@ -86,21 +101,6 @@ class DocsMan(models.Planner):
 
             invoke(f"python -m pynchon.util.grip serve {args}").succeeded
         return dict(url=self.server_url, pid=self.server_pid)
-
-    def _open_grip(self, file: str = None):
-        """
-
-        :param file: str:  (Default value = None)
-        :param file: str:  (Default value = None)
-
-        """
-        pfile = abcs.Path(file).absolute()
-        relf = pfile.relative_to(abcs.Path(self.git_root))
-        grip_url = f"http://localhost:{self.server.port}/{relf}"
-        LOGGER.warning(f"opening {grip_url}")
-        return dict(url=grip_url, browser=webbrowser.open(grip_url))
-
-    _open__md = _open_grip
 
     def _open__html(self, file: str = None, server=None):
         """

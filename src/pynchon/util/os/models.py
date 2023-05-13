@@ -10,6 +10,48 @@ LOGGER = lme.get_logger(__name__)
 from pynchon.fleks import meta
 
 
+class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
+    cmd: str = ""
+    stdin: str = ""
+    interactive: bool = False
+    large_output: bool = False
+    log_command: bool = True
+    environment: dict = {}
+    log_stdin: bool = True
+    system: bool = False
+    load_json: bool = False
+    json: dict = False
+    failed: bool = None
+    failure: bool = None
+    succeeded: bool = None
+    success: bool = None
+    stdout: str = ""
+    stderr: str = ""
+    pid: int = -1
+
+    def __rich__(self):
+        from pynchon import app
+        from pynchon.util import shfmt
+
+        if self.log_command:
+            # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
+            msg = f"running command: (system={self.system})\n\t{self.cmd}"
+            # self.log_command and LOGGER.warning(msg)
+
+            fmt = shfmt.bash_fmt(self.cmd)
+            syntax = app.Syntax(
+                f"# {self.cmd}\n\n{fmt}", "bash", line_numbers=False, word_wrap=True
+            )
+            panel = app.Panel(
+                syntax,
+                title=__name__,
+                subtitle=app.Text("✔", style="green")
+                if self.success
+                else app.Text("❌", style="red"),
+            )
+            lme.CONSOLE.print(panel)
+
+
 class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     cmd: str = ""
     stdin: str = ""
@@ -100,45 +142,3 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
                 ),
             }
         )
-
-
-class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
-    cmd: str = ""
-    stdin: str = ""
-    interactive: bool = False
-    large_output: bool = False
-    log_command: bool = True
-    environment: dict = {}
-    log_stdin: bool = True
-    system: bool = False
-    load_json: bool = False
-    json: dict = False
-    failed: bool = None
-    failure: bool = None
-    succeeded: bool = None
-    success: bool = None
-    stdout: str = ""
-    stderr: str = ""
-    pid: int = -1
-
-    def __rich__(self):
-        from pynchon import app
-        from pynchon.util import shfmt
-
-        if self.log_command:
-            # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
-            msg = f"running command: (system={self.system})\n\t{self.cmd}"
-            # self.log_command and LOGGER.warning(msg)
-
-            fmt = shfmt.bash_fmt(self.cmd)
-            syntax = app.Syntax(
-                f"# {self.cmd}\n\n{fmt}", "bash", line_numbers=False, word_wrap=True
-            )
-            panel = app.Panel(
-                syntax,
-                title=__name__,
-                subtitle=app.Text("✔", style="green")
-                if self.success
-                else app.Text("❌", style="red"),
-            )
-            lme.CONSOLE.print(panel)

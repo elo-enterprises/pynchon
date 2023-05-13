@@ -11,14 +11,14 @@ LOGGER = lme.get_logger(__name__)
 class PythonAPI(models.ShyPlanner):
     """Generators for Python API docs"""
 
-    name = "python-api"
-
     class config_class(abcs.Config):
         config_key = "python-api"
         defaults = dict(
             skip_private_methods=True,
             skip_patterns=[],
         )
+
+    name = "python-api"
 
     @cli.click.group("gen")
     def gen(self):

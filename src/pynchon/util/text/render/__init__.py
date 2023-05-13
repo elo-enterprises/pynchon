@@ -17,42 +17,6 @@ from pynchon.util.text import loadf, loads
 
 
 @typing.validate_arguments
-def jinja_loadf(
-    file: str,
-    context: typing.Dict = {},
-    includes: typing.List[str] = [],
-    strict: bool = True,
-    quiet: bool = False,
-) -> str:
-    """
-
-    :param file: str:
-    :param context: typing.Dict:  (Default value = {})
-    :param includes: typing.List[str]:  (Default value = [])
-    :param strict: bool:  (Default value = True)
-    :param quiet: bool:  (Default value = False)
-    :param file: str:
-    :param context: typing.Dict:  (Default value = {})
-    :param includes: typing.List[str]:  (Default value = [])
-    :param strict: bool:  (Default value = True)
-    :param quiet: bool:  (Default value = False)
-
-    """
-    context = {} if context is None else context
-    LOGGER.debug(f"Running with one file: {file} (strict={strict})")
-    with open(file) as fhandle:
-        content = fhandle.read()
-    quiet and LOGGER.debug(f"render context: \n{text.to_json(context)}")
-    tmp = list(context.keys())
-    quiet and LOGGER.debug(f"Rendering with context:\n{text.to_json(tmp)}")
-    content = jinja(text=content, file=file, context=context, includes=includes)
-    # template = api.get_template(
-    #     from_string=text,
-    #     env=api.get_jinja_env(*includes))
-    return content
-
-
-@typing.validate_arguments
 def jinja(
     text: str = "",
     file: str = "?",
@@ -97,6 +61,42 @@ def jinja(
         err = getattr(exc, "templates", exc.message)
         LOGGER.critical(f"Problem template: {err}")
         raise
+
+
+@typing.validate_arguments
+def jinja_loadf(
+    file: str,
+    context: typing.Dict = {},
+    includes: typing.List[str] = [],
+    strict: bool = True,
+    quiet: bool = False,
+) -> str:
+    """
+
+    :param file: str:
+    :param context: typing.Dict:  (Default value = {})
+    :param includes: typing.List[str]:  (Default value = [])
+    :param strict: bool:  (Default value = True)
+    :param quiet: bool:  (Default value = False)
+    :param file: str:
+    :param context: typing.Dict:  (Default value = {})
+    :param includes: typing.List[str]:  (Default value = [])
+    :param strict: bool:  (Default value = True)
+    :param quiet: bool:  (Default value = False)
+
+    """
+    context = {} if context is None else context
+    LOGGER.debug(f"Running with one file: {file} (strict={strict})")
+    with open(file) as fhandle:
+        content = fhandle.read()
+    quiet and LOGGER.debug(f"render context: \n{text.to_json(context)}")
+    tmp = list(context.keys())
+    quiet and LOGGER.debug(f"Rendering with context:\n{text.to_json(tmp)}")
+    content = jinja(text=content, file=file, context=context, includes=includes)
+    # template = api.get_template(
+    #     from_string=text,
+    #     env=api.get_jinja_env(*includes))
+    return content
 
 
 @options.inplace

@@ -21,24 +21,6 @@ class Config(
     config_key = None
     override_from_base = True
 
-    @typing.classproperty
-    def _logging_name(kls):
-        return f"<{kls.__name__}['{kls.config_key}']"
-
-    @typing.classproperty
-    def logger(kls):
-        """
-
-        :param kls:
-
-        """
-        return lme.get_logger(f"{kls._logging_name}")
-
-    def __repr__(self):
-        return f"<{self.__class__._logging_name}>"
-
-    __str__ = __repr__
-
     def __init__(self, **this_config) -> None:
         """
 
@@ -56,6 +38,19 @@ class Config(
             else:
                 self[pname] = getattr(self, pname)
         self.resolve_conflicts(conflicts)
+
+    @typing.classproperty
+    def _logging_name(kls):
+        return f"<{kls.__name__}['{kls.config_key}']"
+
+    @typing.classproperty
+    def logger(kls):
+        """
+
+        :param kls:
+
+        """
+        return lme.get_logger(f"{kls._logging_name}")
 
     def resolve_conflicts(self, conflicts: typing.List) -> None:
         """
@@ -91,3 +86,8 @@ class Config(
             msg = "these keys have defaults, but user-provided config wins: "
             tmp = text.to_json(user_wins)
             self.logger.info(f"{msg}\n  {tmp}")
+
+    def __repr__(self):
+        return f"<{self.__class__._logging_name}>"
+
+    __str__ = __repr__

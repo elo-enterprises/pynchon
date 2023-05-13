@@ -49,11 +49,6 @@ LOGGER = lme.get_logger(__name__)
 
 class Json(models.ToolPlugin):
     """Tools for working with JSON & JSON5"""
-
-    name = "json"
-    priority = 1
-    config_class = None
-    cli_name = name
     # cli_subsumes: typing.List[typing.Callable] = [
     #     loadf_main.json5,
     #     loadf_main.json,
@@ -136,3 +131,8 @@ class Json(models.ToolPlugin):
 #     Render files with given renderer
 #     """
 #     raise NotImplementedError()
+
+    name = "json"
+    priority = 1
+    config_class = None
+    cli_name = name

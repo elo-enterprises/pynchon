@@ -39,51 +39,6 @@ class ModulesWrapper(Base):
     class Error(ImportError):
         """ """
 
-    def __str__(self):
-        return f"<{self.__class__.__name__}[{self.name}]>"
-
-    __repr__ = __str__
-
-    def map_ns(self, fxn):
-        """
-
-        :param fxn:
-
-        """
-        return FilterResult(itertools.starmap(fxn, self.namespace.items()))
-        # out = []
-        # for k,v in self.namespace.items():
-        #     out.append(fxn(k,v))
-        # return out
-
-    def normalize_import(self, name):
-        """
-
-        :param name:
-
-        """
-        assignment = None
-        if " as " in name:
-            name, assignment = name.split(" as ")
-        relative = name.startswith(".")
-        name = name if not relative else name[1:]
-        bits = name.split(".")
-        if len(bits) == 1:
-            package = var = bits.pop(0)
-        else:
-            var = bits.pop(-1)
-            package = ".".join(bits)
-        if relative:
-            package = f"{self.name}.{package}"
-        result = import_spec(
-            assignment=assignment,
-            var=var,
-            star="*" in var,
-            package=package,
-            relative=relative,
-        )
-        return result
-
     def __init__(
         self,
         name: str = "",
@@ -125,6 +80,46 @@ class ModulesWrapper(Base):
         self.filter_failure_raises = filter_failure_raises
         if kwargs:
             raise TypeError(f"extra kwargs: {kwargs}")
+
+    def map_ns(self, fxn):
+        """
+
+        :param fxn:
+
+        """
+        return FilterResult(itertools.starmap(fxn, self.namespace.items()))
+        # out = []
+        # for k,v in self.namespace.items():
+        #     out.append(fxn(k,v))
+        # return out
+
+    def normalize_import(self, name):
+        """
+
+        :param name:
+
+        """
+        assignment = None
+        if " as " in name:
+            name, assignment = name.split(" as ")
+        relative = name.startswith(".")
+        name = name if not relative else name[1:]
+        bits = name.split(".")
+        if len(bits) == 1:
+            package = var = bits.pop(0)
+        else:
+            var = bits.pop(-1)
+            package = ".".join(bits)
+        if relative:
+            package = f"{self.name}.{package}"
+        result = import_spec(
+            assignment=assignment,
+            var=var,
+            star="*" in var,
+            package=package,
+            relative=relative,
+        )
+        return result
 
     @property
     def module(self):
@@ -301,6 +296,51 @@ class ModulesWrapper(Base):
         """ """
         return self.namespace.__items__()
 
+    def _apply_filters(
+        self,
+        # import_names=[], import_statements=[],
+        filter_vals=[],
+        filter_names=[],
+        import_statements=[],
+        # return_values=False,
+        rekey: typing.Callable = None,
+    ) -> typing.Dict:
+        """
+
+        :param # import_names:  (Default value = [])
+        :param import_statements:  (Default value = [])
+        :param filter_vals:  (Default value = [])
+        :param filter_names:  (Default value = [])
+        :param # return_values:  (Default value = False)
+        :param rekey: typing.Callable:  (Default value = None)
+
+        """
+        # if kwargs:
+        #     raise ValueError(f'unused kwargs {kwargs}')
+        module = self.module
+        namespace = {}
+        import_statements = import_statements or self.import_side_effects()
+        for st in import_statements:
+            submod = self.do_import(st.package)
+            vars = dir(submod) if st.star else [st.var]
+            for var in vars:
+                assert isinstance(var, str), var
+                for validator in filter_names:
+                    if not self.run_filter(validator, var):
+                        break
+                else:  # name is ok
+                    val = getattr(submod, var)
+                    for validator in filter_vals:
+                        if not self.run_filter(validator, val):
+                            break
+                    else:  # name/val is ok
+                        assignment = st.assignment or var
+                        namespace[assignment] = val
+                        self.namespace_modified_hook(assignment, val)
+        if rekey:
+            return dict([rekey(v) for v in namespace.values()])
+        return namespace
+
     def filter(
         self,
         exclude_private: bool = True,
@@ -409,7 +449,7 @@ class ModulesWrapper(Base):
         if self.import_children:
             mod_file = self.module.__file__
             children = []
-            for child in Path(mod_file).siblings():
+            for child in Path(mod_file).parents[0].glob('*.py'):
                 child = Path(child).stem
                 if not child.startswith("__"):
                     self.import_subs.append(child)
@@ -420,50 +460,10 @@ class ModulesWrapper(Base):
         import_statements = list(set(import_statements))
         return import_statements
 
-    def _apply_filters(
-        self,
-        # import_names=[], import_statements=[],
-        filter_vals=[],
-        filter_names=[],
-        import_statements=[],
-        # return_values=False,
-        rekey: typing.Callable = None,
-    ) -> typing.Dict:
-        """
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{self.name}]>"
 
-        :param # import_names:  (Default value = [])
-        :param import_statements:  (Default value = [])
-        :param filter_vals:  (Default value = [])
-        :param filter_names:  (Default value = [])
-        :param # return_values:  (Default value = False)
-        :param rekey: typing.Callable:  (Default value = None)
-
-        """
-        # if kwargs:
-        #     raise ValueError(f'unused kwargs {kwargs}')
-        module = self.module
-        namespace = {}
-        import_statements = import_statements or self.import_side_effects()
-        for st in import_statements:
-            submod = self.do_import(st.package)
-            vars = dir(submod) if st.star else [st.var]
-            for var in vars:
-                assert isinstance(var, str), var
-                for validator in filter_names:
-                    if not self.run_filter(validator, var):
-                        break
-                else:  # name is ok
-                    val = getattr(submod, var)
-                    for validator in filter_vals:
-                        if not self.run_filter(validator, val):
-                            break
-                    else:  # name/val is ok
-                        assignment = st.assignment or var
-                        namespace[assignment] = val
-                        self.namespace_modified_hook(assignment, val)
-        if rekey:
-            return dict([rekey(v) for v in namespace.values()])
-        return namespace
+    __repr__ = __str__
 
 
 class LazyModule:
@@ -494,11 +494,6 @@ class LazyModule:
             except (ImportError,) as exc:
                 raise LazyModule.LazyResolutionError(exc)
 
-    def __repr__(self):
-        return f"<LazyModule[{self.module_name}]>"
-
-    __str__ = __repr__
-
     def __getattr__(self, var_name):
         """
 
@@ -507,3 +502,8 @@ class LazyModule:
         """
         self.resolve()
         return getattr(self.module, var_name)
+
+    def __repr__(self):
+        return f"<LazyModule[{self.module_name}]>"
+
+    __str__ = __repr__

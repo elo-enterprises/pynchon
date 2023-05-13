@@ -18,45 +18,6 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 
 
-def tagged_property(**ftags):
-    """Equivalent to:
-        @tagging.tags(foo=bar)
-        @property
-        def method(self):
-            ...
-
-    :param **ftags:
-
-    """
-
-    def dec(fxn):
-        @tags(**ftags)
-        @property
-        def newf(*args, **kwargs):
-            return fxn(*args, **kwargs)
-
-        return newf
-
-    return dec
-
-
-def tag_factory(*args) -> typing.Any:
-    """
-
-    :param *args:
-
-    """
-
-    class tagger(dict):
-        def get_tags(self, obj: typing.Any) -> dict:
-            return GLOBAL_TAG_REGISTRY[obj]
-
-        def __getitem__(self, obj: typing.Any) -> dict:
-            return self.get_tags(obj)
-
-    return tagger()
-
-
 #
 #
 # class TaggerFactory(dict):
@@ -80,11 +41,27 @@ def tag_factory(*args) -> typing.Any:
 # taggers = TAGGERS = TaggerFactory()
 GLOBAL_TAG_REGISTRY = defaultdict(dict)
 
+
+def tag_factory(*args) -> typing.Any:
+    """
+
+    :param *args:
+
+    """
+
+    class tagger(dict):
+        def get_tags(self, obj: typing.Any) -> dict:
+            return GLOBAL_TAG_REGISTRY[obj]
+
+        def __getitem__(self, obj: typing.Any) -> dict:
+            return self.get_tags(obj)
+
+    return tagger()
+
 TagDict = typing.Dict[str, typing.Any]
 
 
 class tagsM:
-    __iter__ = GLOBAL_TAG_REGISTRY.__iter__
 
     # @typing.validate_arguments
     def __call__(self, **tags: TagDict):
@@ -95,6 +72,11 @@ class tagsM:
             return func
 
         return decorator
+
+    def __getattr__(self, name: str) -> typing.Any:
+        if name in "get".split():
+            return getattr(GLOBAL_TAG_REGISTRY, name)
+        return self[name]
 
     @typing.validate_arguments
     def __setitem__(self, item: typing.Any, tags: TagDict):
@@ -115,11 +97,29 @@ class tagsM:
         tmp = tmp or tag_factory(item)
         self.__setitem__(item, tmp)
         return tmp or {}
-
-    def __getattr__(self, name: str) -> typing.Any:
-        if name in "get".split():
-            return getattr(GLOBAL_TAG_REGISTRY, name)
-        return self[name]
+    __iter__ = GLOBAL_TAG_REGISTRY.__iter__
 
 
 tags = tagsM()
+
+
+def tagged_property(**ftags):
+    """Equivalent to:
+        @tagging.tags(foo=bar)
+        @property
+        def method(self):
+            ...
+
+    :param **ftags:
+
+    """
+
+    def dec(fxn):
+        @tags(**ftags)
+        @property
+        def newf(*args, **kwargs):
+            return fxn(*args, **kwargs)
+
+        return newf
+
+    return dec

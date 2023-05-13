@@ -86,33 +86,15 @@ class PynchonPlugin(fleks.Plugin):
         """ """
         return self.cfg()
 
-    def __mod__(self, key: str, strict=True):
-        """shortcut for accessing global pynchon-config
-
-        :param key: str:
-        :param strict: Default value = True)
-        :param key: str:
-
-        """
-        try:
-            return self.project_config[key]
-        except (KeyError,) as exc:
-            fallback = pydash.get(self.project_config, key, None)
-            if fallback:
-                return fallback
-            else:
-                if strict:
-                    raise
-
-    def __floordiv__(self, key: str, strict=False):
-        """
-
-        :param key: str:
-        :param strict: Default value = False)
-        :param key: str:
-
-        """
-        return self.__mod__(key, strict=strict)
+    def cfg(self):
+        """Shows current config for this plugin"""
+        kls = self.__class__
+        conf_class = getattr(kls, "config_class", None)
+        conf_class_name = conf_class.__name__ if conf_class else "(None)"
+        LOGGER.debug(f"config class: {conf_class_name}")
+        LOGGER.debug("current config:")
+        result = kls.get_current_config()
+        return result
 
     def __getitem__(self, key: str):
         """shortcut for accessing local plugin-config
@@ -145,15 +127,33 @@ class PynchonPlugin(fleks.Plugin):
                 else:
                     raise
 
-    def cfg(self):
-        """Shows current config for this plugin"""
-        kls = self.__class__
-        conf_class = getattr(kls, "config_class", None)
-        conf_class_name = conf_class.__name__ if conf_class else "(None)"
-        LOGGER.debug(f"config class: {conf_class_name}")
-        LOGGER.debug("current config:")
-        result = kls.get_current_config()
-        return result
+    def __mod__(self, key: str, strict=True):
+        """shortcut for accessing global pynchon-config
+
+        :param key: str:
+        :param strict: Default value = True)
+        :param key: str:
+
+        """
+        try:
+            return self.project_config[key]
+        except (KeyError,) as exc:
+            fallback = pydash.get(self.project_config, key, None)
+            if fallback:
+                return fallback
+            else:
+                if strict:
+                    raise
+
+    def __floordiv__(self, key: str, strict=False):
+        """
+
+        :param key: str:
+        :param strict: Default value = False)
+        :param key: str:
+
+        """
+        return self.__mod__(key, strict=strict)
 
 
 @tagging.tags(cli_label="<<Default>>")

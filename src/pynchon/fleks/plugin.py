@@ -14,6 +14,14 @@ class Plugin(metaclass=Meta):
 
     priority = 0
 
+    def __init__(self, final=None) -> typing.NoneType:
+        """
+
+        :param final: Default value = None)
+
+        """
+        self.final = final
+
     @classmethod
     def classmethod_dispatch(kls, *args):
         """
@@ -28,14 +36,6 @@ class Plugin(metaclass=Meta):
             return classmethod(dispatch(type(kls), *args)(fxn))
 
         return dec
-
-    def __init__(self, final=None) -> typing.NoneType:
-        """
-
-        :param final: Default value = None)
-
-        """
-        self.final = final
 
     @memoized_property
     def logger(self):
