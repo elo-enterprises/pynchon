@@ -133,6 +133,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
         if self.load_json:
             assert exec_cmd.succeeded, exec_cmd.stderr
             import json
+
             try:
                 loaded_json = json.loads(exec_cmd.stdout)
             except (json.decoder.JSONDecodeError,) as exc:

@@ -155,10 +155,10 @@ class PynchonPlugin(fleks.Plugin):
         """
         # return self.__mod__(key, strict=strict)
         from pynchon import api
+
         assert key
-        key=key[1:] if key.startswith('/') else key
-        return api.render.get_template(
-            f'{self.plugin_templates_prefix}/{key}')
+        key = key[1:] if key.startswith("/") else key
+        return api.render.get_template(f"{self.plugin_templates_prefix}/{key}")
 
 
 @tagging.tags(cli_label="<<Default>>")
