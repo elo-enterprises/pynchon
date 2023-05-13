@@ -5,11 +5,10 @@
 import os
 
 from pynchon.cli import click, options
-from pynchon.util import text
 from pynchon.util.os import invoke
 from pynchon.util.tagging import tags
 
-from pynchon.util import typing, lme  # noqa
+from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -41,7 +40,7 @@ def jinja_loadf(
     """
     context = {} if context is None else context
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
-    with open(file, "r") as fhandle:
+    with open(file) as fhandle:
         content = fhandle.read()
     quiet and LOGGER.debug(f"render context: \n{text.to_json(context)}")
     tmp = list(context.keys())
@@ -95,7 +94,7 @@ def jinja(
     except (jinja2.exceptions.TemplateNotFound,) as exc:
         LOGGER.critical(f"Template exception: {exc}")
         LOGGER.critical(f"Jinja-includes: {includes}")
-        err = getattr(exc, 'templates', exc.message)
+        err = getattr(exc, "templates", exc.message)
         LOGGER.critical(f"Problem template: {err}")
         raise
 
@@ -106,11 +105,11 @@ def jinja(
 @options.includes
 # @options.context
 # @options.context_file
-@click.option('--context', help='context literal.  must be JSON')
-@click.option('--context-file', help='context file.  must be JSON')
+@click.option("--context", help="context literal.  must be JSON")
+@click.option("--context-file", help="context file.  must be JSON")
 @click.argument("file", nargs=1)
 @tags(
-    click_aliases=['jinja'],
+    click_aliases=["jinja"],
 )
 def jinja_file(
     file: str,
@@ -169,7 +168,7 @@ def jinja_file(
     LOGGER.warning(f"writing output to {output or sys.stdout.name}")
     test = all([output, output not in ["/dev/stdout", "-"]])
     if test:
-        with open(output, "r") as fhandle:
+        with open(output) as fhandle:
             before = fhandle.read()
     else:
         before = None
@@ -184,13 +183,13 @@ def jinja_file(
 
 @options.output
 @options.should_print
-@click.option('--context', help='context file.  must be JSON')
+@click.option("--context", help="context file.  must be JSON")
 @click.argument("file", nargs=1)
 @tags(
-    click_aliases=['j2'],
+    click_aliases=["j2"],
 )
 def j2cli(
-    output: str, should_print: bool, file: str, context: str, format: str = 'json'
+    output: str, should_print: bool, file: str, context: str, format: str = "json"
 ) -> None:
     """A wrapper on the `j2` command (j2cli must be installed)
     Renders the named file, using the given context-file.
@@ -209,22 +208,22 @@ def j2cli(
     :param format: str:  (Default value = 'json')
 
     """
-    cmd = f'j2 --format {format} {file} {context}'
+    cmd = f"j2 --format {format} {file} {context}"
     result = invoke(cmd)
     if not result.succeeded:
-        LOGGER.critical(f'failed to execute: {cmd}')
+        LOGGER.critical(f"failed to execute: {cmd}")
         raise SystemExit(1)
     result = result.stdout
     assert result
-    tmp = file.replace('.j2', '')
-    if tmp.endswith('.json') or tmp.endswith('.json5'):
+    tmp = file.replace(".j2", "")
+    if tmp.endswith(".json") or tmp.endswith(".json5"):
         LOGGER.debug(f"target @ {file} appears to be specifying json.")
         LOGGER.debug("loading as if json5 before display..")
         result = text.loads.json5(content=result)
         result = text.to_json(result)
     msg = result
-    print(msg, file=open(output, 'w'))
-    if should_print and output != '/dev/stdout':
+    print(msg, file=open(output, "w"))
+    if should_print and output != "/dev/stdout":
         print(msg)
 
 

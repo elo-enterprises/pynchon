@@ -24,27 +24,27 @@ class AttrDictBase:
             self.__dict__[key] = val
 
     def __repr__(self) -> str:
-        return "%s(%s)" % (self.__class__.__name__, dict.__repr__(self))
+        return f"{self.__class__.__name__}({dict.__repr__(self)})"
 
     def __setitem__(self, key: str, value: typing.Any) -> typing.Any:
-        return super(AttrDictBase, self).__setitem__(key, value)
+        return super().__setitem__(key, value)
 
     def __getitem__(self, name: str) -> typing.Any:
         try:
-            return super(AttrDictBase, self).__getitem__(name)
+            return super().__getitem__(name)
         except (KeyError,) as exc:
             LOGGER.info(f"AttrDict: KeyError accessing {name}")
             raise KeyError(exc)
 
     def __getattr__(self, name: str) -> typing.Any:
         try:
-            return super(AttrDictBase, self).__getitem__(name)
+            return super().__getitem__(name)
         except (KeyError,) as exc:
             LOGGER.info(f"AttrDict: KeyError accessing {name}")
             raise AttributeError(exc)
 
     def __delitem__(self, name: str) -> typing.Any:
-        return super(AttrDictBase, self).__delitem__(name)
+        return super().__delitem__(name)
 
     __setattr__ = __setitem__
 

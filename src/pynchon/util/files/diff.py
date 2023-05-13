@@ -23,8 +23,8 @@ def diff_report(diff, logger=LOGGER.debug):
 
     tmp = pygments.highlight(
         diff,
-        lexer=pygments.lexers.get_lexer_by_name('udiff'),
-        formatter=pygments.formatters.get_formatter_by_name('terminal16m'),
+        lexer=pygments.lexers.get_lexer_by_name("udiff"),
+        formatter=pygments.formatters.get_formatter_by_name("terminal16m"),
     )
     logger(f"scaffold drift: \n\n{tmp}\n\n")
 
@@ -40,8 +40,8 @@ def diff_percent(file1: str = None, file2: str = None):
     :param file2: str:  (Default value = None)
 
     """
-    with open(file1, 'r') as src:
-        with open(file2, 'r') as dest:
+    with open(file1) as src:
+        with open(file2) as dest:
             src_c = src.read()
             dest_c = dest.read()
     sm = difflib.SequenceMatcher(None, src_c, dest_c)
@@ -59,14 +59,14 @@ def diff(file1: str = None, file2: str = None):
     :param file2: str:  (Default value = None)
 
     """
-    with open(file1, 'r') as src:
-        with open(file2, 'r') as dest:
+    with open(file1) as src:
+        with open(file2) as dest:
             src_l = src.readlines()
             dest_l = dest.readlines()
     xdiff = difflib.unified_diff(
         src_l,
         dest_l,
-        lineterm='',
+        lineterm="",
         n=0,
     )
-    return ''.join(xdiff)
+    return "".join(xdiff)

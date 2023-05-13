@@ -7,11 +7,12 @@ from pynchon.core import Config as CoreConfig
 from pynchon.util import lme  # typing
 from pynchon.fleks.plugin import Meta
 
-from .util import config_folders  # noqa
-from .util import load_config_from_files  # noqa
-from .util import get_config_files  # noqa
-from .util import finalize  # noqa
 from pynchon.plugins.git import GitConfig  # noqa
+
+from .util import config_folders  # noqa
+from .util import finalize  # noqa
+from .util import get_config_files  # noqa
+from .util import load_config_from_files  # noqa
 
 LOGGER = lme.get_logger(__name__)
 events = app.events
@@ -44,11 +45,11 @@ events.lifecycle.send(
 pynchon = PYNCHON = CoreConfig(
     skip_instance_validation=True,  # still bootstrapping..
     config_files=CONFIG_FILES,
-    **MERGED_CONFIG_FILES
+    **MERGED_CONFIG_FILES,
 )
 RAW = PYNCHON.copy()
-PLUGINS = PYNCHON['plugins'] = list(
-    set(PYNCHON['plugins'] + PYNCHON.plugins + ['core'])
+PLUGINS = PYNCHON["plugins"] = list(
+    set(PYNCHON["plugins"] + PYNCHON.plugins + ["core"])
 )
 
 # FIXME: get from registry or mcls
@@ -60,7 +61,7 @@ events.lifecycle.send(
     msg=msg,
     stage=msg,
 )
-PYNCHON_CORE = dict([[x, PYNCHON[x]] for x in PYNCHON if x not in _all_names])
+PYNCHON_CORE = {x: PYNCHON[x] for x in PYNCHON if x not in _all_names}
 PYNCHON_CORE = CoreConfig(**PYNCHON_CORE)
 
 msg = "Interpolating config.."

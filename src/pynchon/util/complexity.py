@@ -64,20 +64,12 @@ def get_refs(working_dir=None, module=None) -> dict:
 
     """
     refs = dict(
-        classes=dict(
-            [
-                [k, v]
-                for k, v in module.classes.items()
-                if not module.classes[k].is_alias
-            ]
-        ),
-        modules=dict(
-            [
-                [k, v]
-                for k, v in module.modules.items()
-                if not module.modules[k].is_alias
-            ]
-        ),
+        classes={
+            k: v for k, v in module.classes.items() if not module.classes[k].is_alias
+        },
+        modules={
+            k: v for k, v in module.modules.items() if not module.modules[k].is_alias
+        },
         functions=OrderedDict(
             [
                 [k, v]
@@ -180,7 +172,7 @@ def complexity(code: str = None, fname: str = None, threshold: int = 7):
         tree = compile(code, fname, "exec", ast.PyCF_ONLY_AST)
     except SyntaxError:
         e = sys.exc_info()[1]
-        sys.stderr.write("Unable to parse %s: %s\n" % (fname, e))
+        sys.stderr.write(f"Unable to parse {fname}: {e}\n")
         return 0
     complex = []
     Checker.max_complexity = threshold

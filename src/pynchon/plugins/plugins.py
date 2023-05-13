@@ -3,7 +3,7 @@
 from pynchon import abcs, cli, models
 from pynchon.util.os import invoke
 
-from pynchon.util import lme, typing, tagging  # noqa
+from pynchon.util import lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -12,10 +12,10 @@ class PluginsMan(models.Manager):
     """Meta-plugin for managing plugins"""
 
     name = "plugins"
-    cli_name = 'plugins'
+    cli_name = "plugins"
 
-    @cli.click.option('--name')
-    @cli.click.option('--template-skeleton', '-t', is_flag=True, default=False)
+    @cli.click.option("--name")
+    @cli.click.option("--template-skeleton", "-t", is_flag=True, default=False)
     def new(self, name: str = None, template_skeleton: bool = False) -> None:
         """Create new plugin from template (for devs)
 
@@ -27,9 +27,9 @@ class PluginsMan(models.Manager):
         """
         # FIXME: use cookie-cutter?
         plugins_d = abcs.Path(__file__).parents[0]
-        template_plugin_f = plugins_d / '__template__.py'
-        new_plugin_file = plugins_d / f'{name}.py'
-        cmd = f'ls {new_plugin_file} || cp {template_plugin_f} {new_plugin_file} && git status'
+        template_plugin_f = plugins_d / "__template__.py"
+        new_plugin_file = plugins_d / f"{name}.py"
+        cmd = f"ls {new_plugin_file} || cp {template_plugin_f} {new_plugin_file} && git status"
         result = invoke(cmd, system=True)
         if template_skeleton:
             raise NotImplementedError()
@@ -41,9 +41,9 @@ class PluginsMan(models.Manager):
         :param **kwargs:
 
         """
-        return list(self.status()['plugins'].keys())
+        return list(self.status()["plugins"].keys())
 
-    @tagging.tags(click_aliases=['st', 'stat'])
+    @tagging.tags(click_aliases=["st", "stat"])
     def status(self) -> typing.Dict:
         """Returns details about all known plugins"""
         result = typing.OrderedDict()

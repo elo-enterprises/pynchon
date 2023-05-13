@@ -2,12 +2,13 @@
 """
 import os
 
-from pynchon import constants, __version__, abcs
-from pynchon.util import tagging, lme, typing
+from pynchon import __version__, abcs, constants
+from pynchon.util import lme, tagging, typing
 
 LOGGER = lme.get_logger(__name__)
 
 count = 0
+
 
 # @validator
 def validate(kls=None, self=None, vdata=None):
@@ -32,12 +33,12 @@ def validate(kls=None, self=None, vdata=None):
             vdata.warnings[msg].append(diff)
 
     def validate_config(k, v):
-        if not isinstance(k, str) or (isinstance(k, str) and '{{' in k):
+        if not isinstance(k, str) or (isinstance(k, str) and "{{" in k):
             raise ValueError(f"Top-level keys should be simple strings! {k}")
-        if isinstance(v, str) and '{{' in v:
+        if isinstance(v, str) and "{{" in v:
             raise ValueError(f"No templating in top level! {v}")
         raw_plugin_configs = {}
-        if k == 'plugins':
+        if k == "plugins":
             validate_plugins(v)
         elif isinstance(v, (dict,)):
             raw_plugin_configs[k] = v
@@ -66,7 +67,7 @@ class Config(abcs.Config):
     def __init__(self, **core_config):
         if not core_config:
             self.logger.critical("core config is empty!")
-        super(Config, self).__init__(**core_config)
+        super().__init__(**core_config)
 
     @property
     def root(self) -> str:
@@ -84,7 +85,7 @@ class Config(abcs.Config):
         root = root or config.GIT.get("root")
         return root and abcs.Path(root)
 
-    @tagging.tagged_property(conflict_strategy='override')
+    @tagging.tagged_property(conflict_strategy="override")
     def plugins(self):
         """{pynchon.plugins}:
         value here ultimately determines much of the
@@ -95,9 +96,9 @@ class Config(abcs.Config):
 
 
         """
-        defaults = self.__class__.defaults['plugins']
-        result = sorted(list(set(self.get('plugins', []) + defaults)))
-        self['plugins'] = result
+        defaults = self.__class__.defaults["plugins"]
+        result = sorted(list(set(self.get("plugins", []) + defaults)))
+        self["plugins"] = result
         return result
 
     @property

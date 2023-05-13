@@ -4,9 +4,10 @@ import functools
 import collections
 from types import MappingProxyType
 
-from pynchon import constants, abcs, events
+from pynchon import abcs
 from pynchon import config as config_module
-from pynchon.util import typing, lme
+from pynchon import constants, events
+from pynchon.util import lme, typing
 from pynchon.util.text import loadf, loads
 from pynchon.plugins.util import PluginNotRegistered, get_plugin
 
@@ -20,13 +21,7 @@ def finalize():
 
     result = abcs.AttrDict(
         pynchon=MappingProxyType(
-            dict(
-                [
-                    [k, v]
-                    for k, v in config_module.RAW.items()
-                    if not isinstance(v, (dict,))
-                ]
-            )
+            {k: v for k, v in config_module.RAW.items() if not isinstance(v, (dict,))}
         ),
         git=config_module.GIT,
     )
@@ -43,17 +38,17 @@ def finalize():
             plugins.append(tmp)
 
     for plugin_kls in plugins:
-        pconf_kls = getattr(plugin_kls, 'config_class', None)
+        pconf_kls = getattr(plugin_kls, "config_class", None)
         conf_key = plugin_kls.get_config_key()
         if pconf_kls is None:
             plugin_config = abcs.Config()
         else:
             user_defaults = (
                 config_module.PYNCHON_CORE
-                if plugin_kls.name == 'base'
+                if plugin_kls.name == "base"
                 else config_module.USER_DEFAULTS.get(plugin_kls.name, {})
             )
-            if plugin_kls.name == 'core':
+            if plugin_kls.name == "core":
                 # special case: this is already bootstrapped
                 from pynchon.config import PYNCHON_CORE
 
@@ -68,14 +63,14 @@ def finalize():
         setattr(config_module, conf_key, plugin_config)
         result.update({conf_key: plugin_config})
         events.lifecycle.send(
-            __name__, config=f'plugin-config@`{plugin_config}` was finalized'
+            __name__, config=f"plugin-config@`{plugin_config}` was finalized"
         )
 
         plugin_obj = plugin_kls(final=plugin_config)
         # plugins_registry.register(plugin_obj)
-        plugins_registry[plugin_kls.name]['obj'] = plugin_obj
+        plugins_registry[plugin_kls.name]["obj"] = plugin_obj
         events.lifecycle.send(
-            plugin_obj, plugin=f'plugin@`{plugin_kls.__name__}` was finalized'
+            plugin_obj, plugin=f"plugin@`{plugin_kls.__name__}` was finalized"
         )
     return result
 
@@ -115,15 +110,15 @@ def load_config_from_files() -> typing.Dict[str, str]:
         if not config_file.exists():
             LOGGER.info(f"config_file@`{config_file}` doesn't exist, skipping it")
             continue
-        elif config_file.name.endswith('pyproject.toml'):
+        elif config_file.name.endswith("pyproject.toml"):
             LOGGER.info(f"Loading from toml: {config_file}")
             tmp = loadf.toml(config_file)
             tmp = tmp.get("tool", {})
             tmp = tmp.get("pynchon", {})
             contents[config_file] = tmp
-        elif config_file.name.endswith('.json5'):
+        elif config_file.name.endswith(".json5"):
             LOGGER.info(f"Loading from json5: {config_file}")
-            with open(config_file.absolute(), "r") as fhandle:
+            with open(config_file.absolute()) as fhandle:
                 contents[config_file] = loads.json5(fhandle.read())
         else:
             err = f"don't know how to load config from {config_file}"

@@ -10,7 +10,7 @@ LOGGER = lme.get_logger(__name__)
 class Renderers(models.NameSpace):
     """Collects `render` commands from other plugins"""
 
-    name = cli_name = 'render'
+    name = cli_name = "render"
     defaults = dict()
     config_class = None
     # cli_subsumes: typing.List[str] = [

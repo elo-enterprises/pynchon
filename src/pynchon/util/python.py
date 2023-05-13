@@ -1,6 +1,6 @@
 """ pynchon.api.python
 """
-from pynchon.util import lme, files, text
+from pynchon.util import files, lme, text
 
 LOGGER = lme.get_logger(__name__)
 
@@ -32,7 +32,7 @@ def load_setupcfg(file: str = "", folder: str = ""):
     """
     if not file:
         folder = folder or files.get_git_root().parents[0]
-        file = folder / 'setup.cfg'
+        file = folder / "setup.cfg"
     return text.loadf.ini(file)
 
 

@@ -2,7 +2,7 @@
 """
 import collections
 
-from pynchon.util import text, typing, lme
+from pynchon.util import lme, text, typing
 from pynchon.fleks.meta import Meta
 from pynchon.util.tagging import tags
 
@@ -46,8 +46,8 @@ class Config(
 
         """
         called_defaults = this_config
-        kls_defaults = getattr(self.__class__, 'defaults', {})
-        super(Config, self).__init__(**{**kls_defaults, **called_defaults})
+        kls_defaults = getattr(self.__class__, "defaults", {})
+        super().__init__(**{**kls_defaults, **called_defaults})
         conflicts = []
         for pname in self.__class__.__properties__:
             if pname in called_defaults or pname in kls_defaults:
@@ -71,22 +71,22 @@ class Config(
         record = collections.defaultdict(list)
         for pname in conflicts:
             prop = getattr(self.__class__, pname)
-            strategy = tags.get(prop, {}).get('conflict_strategy', 'user_wins')
-            if strategy == 'user_wins':
+            strategy = tags.get(prop, {}).get("conflict_strategy", "user_wins")
+            if strategy == "user_wins":
                 record[strategy].append(f"{self.config_key}.{pname}")
-            elif strategy == 'override':
+            elif strategy == "override":
                 val = getattr(self, pname)
                 self[pname] = val
                 record[strategy] += [pname]
             else:
-                LOGGER.critical(f'unsupported conflict-strategy! {strategy}')
+                LOGGER.critical(f"unsupported conflict-strategy! {strategy}")
                 raise SystemExit(1)
 
-        overrides = record['override']
+        overrides = record["override"]
         if overrides:
             pass
 
-        user_wins = record['user_wins']
+        user_wins = record["user_wins"]
         if user_wins:
             msg = "these keys have defaults, but user-provided config wins: "
             tmp = text.to_json(user_wins)

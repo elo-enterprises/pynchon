@@ -11,7 +11,7 @@ class FilterResult(typing.List[typing.Any]):
     """ """
 
     def __str__(self):
-        return '<{self.__class__.__name__}>'
+        return "<{self.__class__.__name__}>"
 
     __repr__ = __str__
 

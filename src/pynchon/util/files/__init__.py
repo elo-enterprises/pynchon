@@ -6,20 +6,20 @@ import functools
 
 from pynchon import abcs, cli
 
-from pynchon.util import lme, typing, os  # noqa
+from pynchon.util import lme, os, typing  # noqa
 
-from .diff import diff_report, diff_percent, diff  # noqa
+from .diff import diff, diff_percent, diff_report  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
-@cli.click.argument('prepend_file', nargs=1)
-@cli.click.argument('target_file', nargs=1)
+@cli.click.argument("prepend_file", nargs=1)
+@cli.click.argument("target_file", nargs=1)
 @cli.click.option(
-    '--clean',
+    "--clean",
     is_flag=True,
     default=False,
-    help='when provided, prepend_file will be removed afterwards',
+    help="when provided, prepend_file will be removed afterwards",
 )
 def prepend(
     prepend_file: str = None,
@@ -36,18 +36,18 @@ def prepend(
     :param clean: bool:  (Default value = False)
 
     """
-    clean = '' if not clean else f' && rm {prepend_file}'
-    cmd = ' '.join(
+    clean = "" if not clean else f" && rm {prepend_file}"
+    cmd = " ".join(
         [
             "printf '%s\n%s\n'",
             f'"$(cat {prepend_file})" "$(cat {target_file})"',
-            f'> {target_file} {clean}',
+            f"> {target_file} {clean}",
         ]
     )
     return os.invoke(cmd)
 
 
-def find_suffix(root: str = '', suffix: str = '') -> typing.StringMaybe:
+def find_suffix(root: str = "", suffix: str = "") -> typing.StringMaybe:
     """
 
     :param root: str:  (Default value = '')
@@ -146,7 +146,7 @@ def find_globs(
 def ansible_docker(
     volumes: dict = {},
     container: str = "alpinelinux/ansible",
-    entrypoint: str = 'ansible',
+    entrypoint: str = "ansible",
     local: bool = True,
     e: dict = {},
     module_name: str = None,
@@ -208,7 +208,7 @@ def dumps(
 
     """
     quiet or logger(f"\n{content}")
-    with open(file, 'w') as fhandle:
+    with open(file, "w") as fhandle:
         fhandle.write(content)
     quiet or logger(f'Wrote "{file}"')
 
@@ -219,7 +219,7 @@ def block_in_file(
     create: str = "no",
     insertbefore: str = "BOF",
     backup: str = "yes",
-    marker: str = '# {mark} ANSIBLE MANAGED BLOCK - pynchon',
+    marker: str = "# {mark} ANSIBLE MANAGED BLOCK - pynchon",
     dest=".tmp.ansible.blockinfile.out",
 ):
     """
@@ -244,15 +244,15 @@ def block_in_file(
     block_file = abcs.Path(block_file).absolute()
     assert target_file.exists()
     assert block_file.exists()
-    os.invoke(f'cp {target_file} {dest}')
+    os.invoke(f"cp {target_file} {dest}")
     blockinfile_args = [
         "dest={{dest}}",
         f"marker='{marker}'",
         "backup={{backup}}",
-        'block=\\"{{ lookup(\'file\', block_file)}}\\"',
+        "block=\\\"{{ lookup('file', block_file)}}\\\"",
         "create={{create}} insertbefore={{insertbefore}} ",
     ]
-    blockinfile_args = ' '.join(blockinfile_args)
+    blockinfile_args = " ".join(blockinfile_args)
     cmd_components = ansible_docker(
         local=True,
         volumes={block_file: block_file},
@@ -263,14 +263,14 @@ def block_in_file(
             create=create,
             block_file=block_file,
         ),
-        module_name='blockinfile',
+        module_name="blockinfile",
         extra=[
             f'--args "{blockinfile_args}"',
         ],
     )
-    cmd = ' '.join(cmd_components)
+    cmd = " ".join(cmd_components)
     result = os.invoke(cmd, system=True)
     assert result.succeeded, result.stderr
-    os.invoke(f'mv {dest} {target_file}')
+    os.invoke(f"mv {dest} {target_file}")
     assert result.succeeded, result.stderr
     return True

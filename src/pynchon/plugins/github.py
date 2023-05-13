@@ -3,45 +3,45 @@
 import webbrowser
 
 from pynchon import abcs, cli, events, models  # noqa
-from pynchon.util import lme, typing, tagging  # noqa
+from pynchon.util import lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 option_api_token = cli.click.option(
-    '--api-token', '-t', 'token', default='', help='defaults to $GITHUB_API_TOKEN'
+    "--api-token", "-t", "token", default="", help="defaults to $GITHUB_API_TOKEN"
 )
 
 
-@tagging.tags(click_aliases=['gh'])
+@tagging.tags(click_aliases=["gh"])
 class GitHub(models.ToolPlugin):
     """Tools for working with GitHub"""
 
     name = "github"
-    cli_name = 'github'
+    cli_name = "github"
     cli_aliases = []
 
     class config_class(abcs.Config):
-        config_key = 'github'
+        config_key = "github"
         defaults = dict(enterprise=False)
 
         @property
         def org_name(self):
             from pynchon.config import git
 
-            return git.get('github_org')
+            return git.get("github_org")
 
-    @cli.click.option('--org', '-o')
+    @cli.click.option("--org", "-o")
     def open(self, org=None):
         """Opens org/repo github in a webbrowser
 
         :param org: Default value = None)
 
         """
-        org_name = self['org_name']
-        url = f'https://github.com/{org_name}'
+        org_name = self["org_name"]
+        url = f"https://github.com/{org_name}"
         if not org:
-            repo_name = self[:'git.repo_name':]
-            url = f'{url}/{repo_name}'
+            repo_name = self[:"git.repo_name":]
+            url = f"{url}/{repo_name}"
         return webbrowser.open(url)
 
     @cli.options.org_name
@@ -57,7 +57,7 @@ class GitHub(models.ToolPlugin):
         """
         raise NotImplementedError()
 
-    @cli.click.argument('repo')
+    @cli.click.argument("repo")
     @option_api_token
     def clone(self, repo: str, token: str = None):  # noqa
         """Clones a single repo from this project's org
@@ -71,7 +71,7 @@ class GitHub(models.ToolPlugin):
         raise NotImplementedError()
 
     # @cli.click.argument('repo')
-    @tagging.tags(click_aliases=['pr'])
+    @tagging.tags(click_aliases=["pr"])
     @option_api_token
     def pull_request(self, repo: str, token: str = None):  # noqa
         """Creates a pull-request from this branch
@@ -84,7 +84,7 @@ class GitHub(models.ToolPlugin):
         """
         raise NotImplementedError()
 
-    @tagging.tags(click_aliases=['codeowners'])
+    @tagging.tags(click_aliases=["codeowners"])
     # @option_api_token
     def code_owners(self, repo: str, token: str = None):  # noqa
         """Describes code-owners for changes or for working-dir

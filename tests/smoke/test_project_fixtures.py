@@ -4,25 +4,26 @@ from pynchon.util import testing
 from pynchon.util.os import invoke
 
 TEST_INFO = testing.get_test_info(__file__)
-PROJECT_FIXTURES = TEST_INFO.fixtures.path/"projects"
+PROJECT_FIXTURES = TEST_INFO.fixtures.path / "projects"
+
 
 def test_fixtures():
     project_folders = [d for d in PROJECT_FIXTURES.iterdir() if d.is_dir()]
     import pyjson5
 
     for p in project_folders:
-        p=p.absolute()
-        expected = p/"expected.json5"
-        with open(expected,'r') as fhandle:
+        p = p.absolute()
+        expected = p / "expected.json5"
+        with open(expected) as fhandle:
             expected = pyjson5.loads(fhandle.read())
         cmd_t = f"cd {p} && "
         cmd = cmd_t + "PYNCHON_ROOT=. pynchon project config"
         cmd = invoke(cmd, load_json=True)
         assert cmd.succeeded
-        project_config=cmd.json
-        actual=sorted(project_config.items())
-        expected=sorted(expected.items())
-        assert actual==expected,[p,actual,expected]
+        project_config = cmd.json
+        actual = sorted(project_config.items())
+        expected = sorted(expected.items())
+        assert actual == expected, [p, actual, expected]
         # # raise Exception(data)
         # for k in expected:
         #     assert project_config[k]

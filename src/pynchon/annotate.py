@@ -4,7 +4,7 @@ import inspect
 import importlib
 
 from pynchon import abcs
-from pynchon.util import lme, typing, complexity
+from pynchon.util import complexity, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -77,12 +77,12 @@ def klass(name, kls) -> typing.NoneType:
         kls_code = inspect.getsource(kls._handle)
     except (Exception,) as exc:
         LOGGER.critical(exc)
-        kls_code = '?'
+        kls_code = "?"
     try:
         kls_fname = inspect.getfile(kls._handle)
     except (Exception,) as exc:
         LOGGER.critical(exc)
-        kls_fname = '?'
+        kls_fname = "?"
     kls._metadata = dict(
         bases=bases,
         code=kls_code,
@@ -103,7 +103,7 @@ def module(name, module, working_dir=None) -> None:
 
     """
     LOGGER.debug(f"annotating module: {name}")
-    working_dir = (working_dir or abcs.Path('.')).absolute()
+    working_dir = (working_dir or abcs.Path(".")).absolute()
     tmp = module.filepath.relative_to(working_dir)
     module._metadata = dict(base_url=str(tmp))
 
@@ -118,7 +118,7 @@ def should_skip(name: str):
     # from pynchon.config import pynchon as pynchon_config
     from pynchon.plugins.util import get_plugin_obj
 
-    should_skip = get_plugin_obj('python-api')['skip_private_methods']
+    should_skip = get_plugin_obj("python-api")["skip_private_methods"]
     should_skip = should_skip and name.startswith("_")
     LOGGER.warning(
         f"annotation for `{name}` exits early; `pynchon.api.skip_private_methods` is set and this looks private"

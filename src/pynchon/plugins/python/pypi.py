@@ -1,7 +1,7 @@
 """ pynchon.plugins.python.pypi
 """
 from pynchon import abcs, models
-from pynchon.util import typing, lme
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 

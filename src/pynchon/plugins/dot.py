@@ -2,12 +2,10 @@
 """
 import os
 
-from pynchon.util import files
 from pynchon.util.os import invoke
 
-from pynchon import abcs, models, cli, api  # noqa
-from pynchon.util import lme, typing  # noqa
-
+from pynchon import abcs, api, cli, models  # noqa
+from pynchon.util import files, lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -18,7 +16,7 @@ class Dot(models.Planner):
     name = "dot"
 
     class config_class(abcs.Config):
-        config_key = 'dot'
+        config_key = "dot"
         default = dict(exclude_patterns=[])
 
     # def _get_exclude_patterns(self, config):
@@ -33,15 +31,15 @@ class Dot(models.Planner):
     def list(self) -> typing.List[str]:
         """ """
         # config = config or self.project_config
-        proj_conf = self[:"project.subproject":{}] or self[:'project':]
-        project_root = proj_conf.get("root", self[:'git.root':])
+        proj_conf = self[:"project.subproject":{}] or self[:"project":]
+        project_root = proj_conf.get("root", self[:"git.root":])
         search = [
             abcs.Path(project_root).joinpath("**/*.dot"),
         ]
         self.logger.debug(f"search pattern is {search}")
         result = files.find_globs(search)
         self.logger.debug(f"found {len(result)} files (pre-filter)")
-        excludes = self['exclude_patterns' :: self[:'globals.exclude_patterns':]]
+        excludes = self["exclude_patterns" :: self[:"globals.exclude_patterns":]]
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} files (post-filter)")
@@ -52,13 +50,13 @@ class Dot(models.Planner):
 
     @cli.options.in_place
     @cli.options.output
-    @cli.click.option('--img', default="nshine/dot")
-    @cli.click.option('--output-mode')
+    @cli.click.option("--img", default="nshine/dot")
+    @cli.click.option("--output-mode")
     @cli.click.argument("file", nargs=1)
     def render(
         self,
-        img: str = '??',
-        file: str = '',
+        img: str = "??",
+        file: str = "",
         in_place: bool = True,
         output_mode: str = "png",
         output: str = "",
@@ -83,7 +81,7 @@ class Dot(models.Planner):
                 self.goal(
                     resource=rsrc,
                     command=cmd_t.format(rsrc=rsrc),
-                    type='render',
+                    type="render",
                 )
             )
         return plan

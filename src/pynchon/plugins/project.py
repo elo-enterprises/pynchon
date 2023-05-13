@@ -1,6 +1,6 @@
 """ pynchon.plugins.project
 """
-from pynchon import abcs, config, models, constants
+from pynchon import abcs, config, constants, models
 
 from pynchon.cli import common, options  # noqa
 from pynchon.util import lme, typing  # noqa
@@ -19,11 +19,11 @@ class ProjectConfig(abcs.Config):
     def name(self) -> typing.StringMaybe:
         """ """
         repo_name = config.git.get("repo_name")
-        return repo_name or abcs.Path('.').name
+        return repo_name or abcs.Path(".").name
 
     @property
     def _workdir(self):
-        return abcs.Path('.').absolute()
+        return abcs.Path(".").absolute()
 
     @property
     def root(self) -> str:
@@ -49,7 +49,7 @@ class ProjectConfig(abcs.Config):
 class Project(models.Manager):
     """Meta-plugin for managing this project"""
 
-    name = 'project'
+    name = "project"
     priority = 2
     config_class = ProjectConfig
 

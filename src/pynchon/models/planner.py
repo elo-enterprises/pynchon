@@ -4,8 +4,7 @@ import typing
 
 from memoized_property import memoized_property
 
-from pynchon import events, cli
-
+from pynchon import cli, events
 # from pynchon.bin import entry
 # from pynchon.fleks.plugin import Plugin as AbstractPlugin
 # from pynchon.plugins.util import get_plugin_obj
@@ -15,30 +14,32 @@ from pynchon.util.tagging import tags
 from . import planning
 from .plugin_types import BasePlugin
 
-from pynchon.util import typing, lme  # noqa
+from pynchon.util import lme, typing  # noqa
 
 
-@tags(cli_label='Planner')
+
+
+@tags(cli_label="Planner")
 class AbstractPlanner(BasePlugin):
     """A plugin-type that provides plan/apply basics"""
 
-    cli_label = 'Planner'
+    cli_label = "Planner"
 
     @property
     def changes(self):
         """Set(git_changes).intersection(plugin_resources)"""
-        git = self.siblings['git']
+        git = self.siblings["git"]
         changes = git.modified
         these_changes = set(changes).intersection(set(self.list(changes=False)))
         return dict(modified=list(these_changes))
 
     @cli.click.option(
-        '--changes',
-        '-m',
-        'changes',
+        "--changes",
+        "-m",
+        "changes",
         is_flag=True,
         default=False,
-        help='returns the git-modified subset',
+        help="returns the git-modified subset",
     )
     def list(self, changes: bool = False):
         """Lists resources associated with this plugin
@@ -47,16 +48,16 @@ class AbstractPlanner(BasePlugin):
 
         """
         if changes:
-            return self.changes['modified']
+            return self.changes["modified"]
         from pynchon import abcs
         from pynchon.util import files
 
         try:
-            include_patterns = self['include_patterns']
-            root = self['root']
+            include_patterns = self["include_patterns"]
+            root = self["root"]
         except (KeyError,) as exc:
             self.logger.critical(
-                f'{self.__class__} tried to use self.list(), but does not follow protocol'
+                f"{self.__class__} tried to use self.list(), but does not follow protocol"
             )
             self.logger.critical(
                 "self['include_patterns'] and self['root'] must both be defined!"
@@ -136,15 +137,15 @@ class AbstractPlanner(BasePlugin):
         # FIXME: validation elsewhere
         for x in hooks:
             assert isinstance(x, (str,))
-            assert ' ' not in x
+            assert " " not in x
             assert x.strip()
 
     @memoized_property
     def apply_hooks(self):
-        hooks = [x for x in self.hooks if x.split('-')[-1] == 'apply']
-        apply_hooks = self['apply_hooks'::[]]
+        hooks = [x for x in self.hooks if x.split("-")[-1] == "apply"]
+        apply_hooks = self["apply_hooks"::[]]
         hooks += [
-            x + ('-apply' if not x.endswith('-apply') else '') for x in apply_hooks
+            x + ("-apply" if not x.endswith("-apply") else "") for x in apply_hooks
         ]
         hooks = list(set(hooks))
         self._validate_hooks(hooks)
@@ -153,7 +154,7 @@ class AbstractPlanner(BasePlugin):
     @memoized_property
     def hooks(self):
         """ """
-        hooks = self['hooks'::[]]
+        hooks = self["hooks"::[]]
         self._validate_hooks(hooks)
         return hooks
 
@@ -168,7 +169,7 @@ class AbstractPlanner(BasePlugin):
         changes = list(set(changes))
         # self.logger.critical(f'would have opened- {changes}')
         for ch in changes:
-            self.siblings['docs'].open(ch)
+            self.siblings["docs"].open(ch)
         return True
 
     @typing.validate_arguments
@@ -186,8 +187,8 @@ class AbstractPlanner(BasePlugin):
         class HookFailed(RuntimeError):
             pass
 
-        norml_hook_name = hook_name.replace('-', '_')
-        fxn_name = f'_hook_{norml_hook_name}'
+        norml_hook_name = hook_name.replace("-", "_")
+        fxn_name = f"_hook_{norml_hook_name}"
         hook_fxn = getattr(self, fxn_name, None)
         if hook_fxn is None:
             err = [self.__class__, [hook_name, fxn_name]]
@@ -209,9 +210,9 @@ class ShyPlanner(AbstractPlanner):
     contribute_plan_apply = False
 
 
-@tags(cli_label='Manager')
+@tags(cli_label="Manager")
 class Manager(ShyPlanner):
-    cli_label = 'Manager'
+    cli_label = "Manager"
 
 
 class Planner(ShyPlanner):

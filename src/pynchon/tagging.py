@@ -2,4 +2,4 @@
 """
 from pynchon import shimport
 
-shimport.lazy('pynchon.util.tagging.taggers')
+shimport.lazy("pynchon.util.tagging.taggers")

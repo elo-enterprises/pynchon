@@ -8,9 +8,8 @@ one convenient namespace.
 import typing
 from pathlib import Path as BasePath
 
-from typing import *  # noqa
-
 from types import *  # noqa
+from typing import *  # noqa
 
 # MappingProxyType  # noqa
 # from types import FunctionType  # noqa

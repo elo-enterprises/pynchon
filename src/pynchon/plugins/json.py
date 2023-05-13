@@ -1,8 +1,8 @@
 """ pynchon.plugins.json
 """
-from pynchon.util import lme, typing  # noqa
+from pynchon import abcs, models
 
-from pynchon import models, abcs
+from pynchon.util import lme, typing  # noqa
 
 # from pynchon.util.os import invoke
 
@@ -50,7 +50,7 @@ LOGGER = lme.get_logger(__name__)
 class Json(models.ToolPlugin):
     """Tools for working with JSON & JSON5"""
 
-    name = 'json'
+    name = "json"
     priority = 1
     config_class = None
     cli_name = name
@@ -62,7 +62,7 @@ class Json(models.ToolPlugin):
     # ]
 
     class config_class(abcs.Config):
-        config_key = 'json'
+        config_key = "json"
 
     # @tags(click_aliases=['loads',])
     # def json_loads(self):

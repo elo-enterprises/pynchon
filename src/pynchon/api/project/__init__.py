@@ -21,14 +21,14 @@ def plan(config: dict = {}) -> dict:
     """
     plan = []
     config = config or get_config()
-    project = config['project']
+    project = config["project"]
     from pynchon.plugins.util import get_plugin_obj
 
-    for plugin_name in config['pynchon']["plugins"]:
+    for plugin_name in config["pynchon"]["plugins"]:
         plugin = get_plugin_obj(plugin_name)
         if not plugin.contribute_plan_apply:
             continue
-        fxn = getattr(plugin, 'plan', None)
+        fxn = getattr(plugin, "plan", None)
         if fxn is None:
             continue
         plugin.logger.debug("Planning..")

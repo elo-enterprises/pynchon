@@ -12,11 +12,11 @@ from .abcs import FilterResult
 from .util import get_namespace
 
 import_spec = collections.namedtuple(
-    'importSpec', 'assignment var star package relative'
+    "importSpec", "assignment var star package relative"
 )
 
 
-class Base(object):
+class Base:
     @classmethod
     def classmethod_dispatch(kls, *args):
         """
@@ -39,10 +39,8 @@ class ModulesWrapper(Base):
     class Error(ImportError):
         """ """
 
-        pass
-
     def __str__(self):
-        return f'<{self.__class__.__name__}[{self.name}]>'
+        return f"<{self.__class__.__name__}[{self.name}]>"
 
     __repr__ = __str__
 
@@ -65,22 +63,22 @@ class ModulesWrapper(Base):
 
         """
         assignment = None
-        if ' as ' in name:
-            name, assignment = name.split(' as ')
-        relative = name.startswith('.')
+        if " as " in name:
+            name, assignment = name.split(" as ")
+        relative = name.startswith(".")
         name = name if not relative else name[1:]
         bits = name.split(".")
         if len(bits) == 1:
             package = var = bits.pop(0)
         else:
             var = bits.pop(-1)
-            package = '.'.join(bits)
+            package = ".".join(bits)
         if relative:
             package = f"{self.name}.{package}"
         result = import_spec(
             assignment=assignment,
             var=var,
-            star='*' in var,
+            star="*" in var,
             package=package,
             relative=relative,
         )
@@ -88,7 +86,7 @@ class ModulesWrapper(Base):
 
     def __init__(
         self,
-        name: str = '',
+        name: str = "",
         import_mods: typing.List[str] = [],
         import_names: typing.List[str] = [],
         import_subs: typing.List[str] = [],
@@ -126,7 +124,7 @@ class ModulesWrapper(Base):
         self.namespace = get_namespace(name)
         self.filter_failure_raises = filter_failure_raises
         if kwargs:
-            raise TypeError(f'extra kwargs: {kwargs}')
+            raise TypeError(f"extra kwargs: {kwargs}")
 
     @property
     def module(self):
@@ -150,7 +148,7 @@ class ModulesWrapper(Base):
     @property
     def parent(self):
         """ """
-        return self.__class__(name='.'.join(self.name.split('.')[:-1]))
+        return self.__class__(name=".".join(self.name.split(".")[:-1]))
 
     def select(self, **filter_kwargs):
         """
@@ -169,9 +167,9 @@ class ModulesWrapper(Base):
 
         """
         if assignment in dir(self.module):
-            msg = f'refusing to override existing value in target module: {assignment}'
+            msg = f"refusing to override existing value in target module: {assignment}"
             self.logger.critical(msg)
-            err = f'cannot assign name `{assignment}` to {self.module}; already exists!'
+            err = f"cannot assign name `{assignment}` to {self.module}; already exists!"
             raise ModulesWrapper.Error(err)
 
     def assign_back(self):
@@ -211,19 +209,19 @@ class ModulesWrapper(Base):
         import os
         import glob
 
-        p = self.parent_folder / '**/*.py'
+        p = self.parent_folder / "**/*.py"
         result = glob.glob(str(p))
         result = [Path(x) for x in result]
-        main = [x for x in result if x.stem == '__main__']
+        main = [x for x in result if x.stem == "__main__"]
         if exclude_private:
-            result = [x for x in result if not x.stem.startswith('_')]
+            result = [x for x in result if not x.stem.startswith("_")]
         if include_main:
             result += main
         children = []
         for p in result:
             rel = p.relative_to(self.parent_folder)
             rel = rel.parents[0] / rel.stem
-            rel = str(rel).replace(os.path.sep, '.')
+            rel = str(rel).replace(os.path.sep, ".")
             dotpath = f"{self.name}.{rel}"
             child = ModulesWrapper(
                 name=dotpath, import_mods=[dotpath], import_names=[f"{dotpath}.*"]
@@ -306,11 +304,11 @@ class ModulesWrapper(Base):
     def filter(
         self,
         exclude_private: bool = True,
-        name_is: str = '',
+        name_is: str = "",
         filter_names: typing.List[typing.Callable] = [],
         filter_vals: typing.List[typing.Callable] = [],
         types_in: typing.List[type(type)] = [],
-        filter_module_origin: str = '',
+        filter_module_origin: str = "",
         filter_instances: typing.List[type(type)] = [],
         exclude_names: typing.List[str] = [],
         **kwargs,
@@ -339,7 +337,7 @@ class ModulesWrapper(Base):
         if name_is:
             filter_names = [lambda name: name == name_is] + filter_names
         if exclude_private:
-            filter_names = [lambda name: not name.startswith('__')] + filter_names
+            filter_names = [lambda name: not name.startswith("__")] + filter_names
 
         if exclude_names:
             filter_names = [
@@ -355,7 +353,7 @@ class ModulesWrapper(Base):
             filter_vals = [lambda val: isinstance(val, filter_instances)] + filter_vals
         if filter_module_origin:
             filter_vals = [
-                lambda val: filter_module_origin == getattr(val, '__module__', None)
+                lambda val: filter_module_origin == getattr(val, "__module__", None)
             ] + filter_vals
         return self._apply_filters(
             filter_vals=filter_vals,
@@ -413,7 +411,7 @@ class ModulesWrapper(Base):
             children = []
             for child in Path(mod_file).siblings():
                 child = Path(child).stem
-                if not child.startswith('__'):
+                if not child.startswith("__"):
                     self.import_subs.append(child)
 
         for name in self.import_subs:
@@ -477,7 +475,7 @@ class LazyModule:
     class LazyResolutionError(LazyImportError):
         pass
 
-    def __init__(self, module_name: str = ''):
+    def __init__(self, module_name: str = ""):
         """
 
         :param module_name: str:  (Default value = '')

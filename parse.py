@@ -38,21 +38,24 @@ pipeline_command =
 
 bash_command = pipeline_command;
 """
-import json
+
 import tatsu
 from tatsu.contexts import closure
 from tatsu.util import asjson
 
 src = tatsu.to_python_sourcecode(__doc__)
-src = src[:src.rfind('''def main(filename, **kwargs)''')]
+src = src[: src.rfind("""def main(filename, **kwargs)""")]
 exec(src)
+
 
 def append_record(fxn):
     def newf(self, *args, **kargs):
         result = fxn(self, *args, **kargs)
         self.record.append(result)
         return result
+
     return newf
+
 
 class Semantics:
     """
@@ -60,45 +63,49 @@ class Semantics:
     a tuple, for closures, gatherings, and the right-hand-side of rules with more than one element but without named elements
     a dict-derived object (AST) that contains one item for every named element in the grammar rule, with items can be accessed through the standard dict syntax (ast['key']), or as attributes (ast.key).
     """
+
     def __init__(self):
         self.record = []
         self._joiner = None
-        self.indention = '  '
+        self.indention = "  "
 
     @property
     def _indent(self):
-        return f'  '
+        return f"  "
 
     @property
     def _pre(self):
-        pre = f'{self._joiner} ' if self._joiner else ''
+        pre = f"{self._joiner} " if self._joiner else ""
         self._joiner = None
         return pre
 
     @append_record
     def lparen(self, ast):
-        return f'{self._pre}{ast}'
+        return f"{self._pre}{ast}"
 
     @append_record
     def rparen(self, ast):
         return ast
 
     @append_record
-    def joiner(self,ast):
+    def joiner(self, ast):
         self._joiner = ast
-        return ''
-    def backtick(self,ast):
+        return ""
+
+    def backtick(self, ast):
         return f"`{ast}`"
-    def squote(self,ast):
+
+    def squote(self, ast):
         return f"'{ast}'"
-    def dquote(self,ast):
+
+    def dquote(self, ast):
         return f'"{ast}"'
 
-    def indent(self,text):
-        return '\n'.join([self.indention+x for x in text.split('\n')])
+    def indent(self, text):
+        return "\n".join([self.indention + x for x in text.split("\n")])
 
     def subproc(self, ast):
-        lparen, command, rparen=ast
+        lparen, command, rparen = ast
         command = self.indent(command)
         return f"(\n{command}\n)"
 
@@ -111,43 +118,43 @@ class Semantics:
     @append_record
     def command(self, ast):
         name, opts, args = ast
-        opts='\n  '.join(opts)
-        args='\n  '.join(args)
-        return f'{self._pre}{name} {opts} {args}'
+        opts = "\n  ".join(opts)
+        args = "\n  ".join(args)
+        return f"{self._pre}{name} {opts} {args}"
 
     def opt(self, ast):
         option, vals = ast
-        tmp=''
+        tmp = ""
         if isinstance(vals, (closure,)):
             for c in vals:
-                tmp+=str(c)
-        elif isinstance(vals,(str,)):
-            tmp=vals
+                tmp += str(c)
+        elif isinstance(vals, (str,)):
+            tmp = vals
         else:
-            assert type(vals)=='bonk',type(vals)
+            assert type(vals) == "bonk", type(vals)
         return f"{option} {tmp}"
 
+
 def main(filename, **kwargs):
-    if not filename or filename == '-':
+    if not filename or filename == "-":
         text = sys.stdin.read()
     else:
         with open(filename) as f:
             text = f.read()
     parser = bashParser()
     return parser.parse(
-        text, parseinfo=True,
-        filename=filename,
-        semantics=semantics,
-        **kwargs)
+        text, parseinfo=True, filename=filename, semantics=semantics, **kwargs
+    )
 
-semantics=Semantics()
 
-if __name__ == '__main__':
-    ast = generic_main(main, bashParser, name='bash')
+semantics = Semantics()
+
+if __name__ == "__main__":
+    ast = generic_main(main, bashParser, name="bash")
     data = asjson(ast)
     # print(json.dumps(data, indent=2))
-    print('-'*50)
-    rec=semantics.record
+    print("-" * 50)
+    rec = semantics.record
     for cmd in rec:
         if cmd:
             print(cmd)

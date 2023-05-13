@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from pynchon.util import typing, lme
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -102,7 +102,7 @@ class tagsM:
         GLOBAL_TAG_REGISTRY[item] = tags
 
     @typing.validate_arguments
-    def __getitem__(self, item: typing.Any) -> typing.Dict[str, typing.Any]:
+    def __getitem__(self, item: typing.Any) -> dict[str, typing.Any]:
         tmp = GLOBAL_TAG_REGISTRY.get(item, {})
         if not tmp and callable(item) and type(item) == typing.MethodType:
             fxn = item
@@ -117,7 +117,7 @@ class tagsM:
         return tmp or {}
 
     def __getattr__(self, name: str) -> typing.Any:
-        if name in 'get'.split():
+        if name in "get".split():
             return getattr(GLOBAL_TAG_REGISTRY, name)
         return self[name]
 

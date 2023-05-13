@@ -25,7 +25,7 @@ class Path(typing.PathType):
 
     def full_extension(self):
         """no extension truncation, i.e. `.tar.gz`"""
-        return self.name[self.name.find('.') :]
+        return self.name[self.name.find(".") :]
 
     def stem_truncated(self):
         """truncated stem"""
@@ -76,16 +76,16 @@ class JSONEncoder(json.JSONEncoder):
             return super(JSONEncoder, self).encode(obj)
 
         try:
-            toJSON = getattr(obj, 'toJSON', default) or default
+            toJSON = getattr(obj, "toJSON", default) or default
         except (Exception,) as exc:
             toJSON = default
         return toJSON()
 
     # FIXME: use multimethod
     def default(self, obj):
-        toJSON = getattr(obj, 'toJSON', None)
+        toJSON = getattr(obj, "toJSON", None)
         if toJSON is not None:
-            LOGGER.debug(f'{type(object)} brings custom toJSON')
+            LOGGER.debug(f"{type(object)} brings custom toJSON")
             return obj.toJSON()
         if isinstance(obj, Path):
             return str(obj)
@@ -93,4 +93,4 @@ class JSONEncoder(json.JSONEncoder):
             return dict(obj)
         if isinstance(obj, map):
             return list(obj)
-        return super(JSONEncoder, self).default(obj)
+        return super().default(obj)

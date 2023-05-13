@@ -8,9 +8,7 @@ import functools
 import click
 from rich import print_json
 
-from pynchon.util import text
-
-from pynchon.util import lme, typing  # noqa
+from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -20,21 +18,21 @@ def load_groups_from_children(root=None, parent=None):
     from pynchon.cli import click
 
     shimport.wrap(root).filter_folder(include_main=True).prune(
-        name_is='entry',  # default
+        name_is="entry",  # default
     ).map(
         lambda ch: [
-            ch.name.replace('.__main__', '').split('.')[-1],
-            ch.namespace['entry'],
+            ch.name.replace(".__main__", "").split(".")[-1],
+            ch.namespace["entry"],
         ]
     ).starmap(
         lambda name, fxn: [
-            setattr(fxn, 'name', name),
+            setattr(fxn, "name", name),
             click.group_merge(fxn, parent),
         ]
     )
 
 
-class handler(object):
+class handler:
     """ """
 
     priority = -1
@@ -171,16 +169,16 @@ def entry_for(
     def entry() -> typing.NoneType:
         pass
 
-    entry.__doc__ = (mdoc or "").lstrip().split('\n')[0]
+    entry.__doc__ = (mdoc or "").lstrip().split("\n")[0]
 
     class Groop(click.Group):
         pass
 
-    entry = click.group(name.split('.')[-1], cls=Groop)(entry)
+    entry = click.group(name.split(".")[-1], cls=Groop)(entry)
     return entry
 
 
-class kommand(object):
+class kommand:
     """ """
 
     is_group = False
@@ -269,7 +267,7 @@ class kommand(object):
             call_kwargs and self.logger.debug(f" with: {call_kwargs}")
             result = self.fxn(*args, **call_kwargs)
             if result is not None:
-                result and LOGGER.info(f'json conversion for type: {type(result)}')
+                result and LOGGER.info(f"json conversion for type: {type(result)}")
                 tmp = text.to_json(result)
                 print(tmp)
             return result
@@ -284,11 +282,11 @@ class kommand(object):
 
         """
         self.fxn = fxn
-        assert fxn, 'function cannot be None!'
+        assert fxn, "function cannot be None!"
 
         f = self.cmd(self.wrapper())
-        tmp = [x.strip() for x in (f.help or fxn.__doc__ or "").split('\n')]
-        f.help = ' '.join(tmp).lstrip()
+        tmp = [x.strip() for x in (f.help or fxn.__doc__ or "").split("\n")]
+        f.help = " ".join(tmp).lstrip()
 
         for opt in self.options:
             f = opt(f)

@@ -11,7 +11,7 @@ from pynchon.fleks import meta
 
 
 class Invocation(meta.NamedTuple, metaclass=meta.namespace):
-    cmd: str = ''
+    cmd: str = ""
     stdin: str = ""
     interactive: bool = False
     large_output: bool = False
@@ -49,7 +49,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
         )
         if self.stdin:
             msg = "command will receive pipe:\n{}"
-            self.log_stdin and LOGGER.debug(msg.format(((self.stdin))))
+            self.log_stdin and LOGGER.debug(msg.format(self.stdin))
             exec_kwargs.update(
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
@@ -103,7 +103,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
 
 
 class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
-    cmd: str = ''
+    cmd: str = ""
     stdin: str = ""
     interactive: bool = False
     large_output: bool = False
@@ -132,13 +132,13 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
 
             fmt = shfmt.bash_fmt(self.cmd)
             syntax = app.Syntax(
-                f"# {self.cmd}\n\n{fmt}", 'bash', line_numbers=False, word_wrap=True
+                f"# {self.cmd}\n\n{fmt}", "bash", line_numbers=False, word_wrap=True
             )
             panel = app.Panel(
                 syntax,
                 title=__name__,
-                subtitle=app.Text("✔", style='green')
+                subtitle=app.Text("✔", style="green")
                 if self.success
-                else app.Text('❌', style='red'),
+                else app.Text("❌", style="red"),
             )
             lme.CONSOLE.print(panel)

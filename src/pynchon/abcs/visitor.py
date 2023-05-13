@@ -62,9 +62,9 @@ class Visitor:
 
         """
         default = self.trigger(path, value)
-        if 'accumulate_paths' in self.conf:
+        if "accumulate_paths" in self.conf:
             return path
-        elif 'accumulate_values' in self.conf:
+        elif "accumulate_values" in self.conf:
             return value
         else:
             return default
@@ -86,7 +86,7 @@ def traverse(obj, visitor=None, visitor_kls=None, visitor_kwargs={}):
     assert bool(visitor) ^ bool(visitor_kls) ^ bool(visitor_kwargs)
     paths = []
 
-    def travel(arg=obj, path='', paths=[]):
+    def travel(arg=obj, path="", paths=[]):
         if isinstance(arg, (list, tuple)):
             for i, item in enumerate(arg):
                 path_key = f"{path}.{i}"
@@ -129,7 +129,7 @@ class TemplatedDict(dict):
         :param dct:
 
         """
-        super(TemplatedDict, self).__init__(dct.copy())
+        super().__init__(dct.copy())
         self.logger = lme.get_logger(self.__class__.__name__)
 
     def get_path(self, path):
@@ -228,4 +228,4 @@ class JinjaDict(TemplatedDict):
         :param v:
 
         """
-        return isinstance(v, (str,)) and '{{' in v
+        return isinstance(v, (str,)) and "{{" in v

@@ -11,7 +11,7 @@ import functools
 import pynchon
 from pynchon import abcs, events
 
-from pynchon.util import typing, lme  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 import jinja2  # noqa
@@ -34,7 +34,7 @@ def dictionary(input, context):
 @functools.lru_cache(maxsize=None)
 def get_jinja_globals():
     """ """
-    events.lifecycle.send(__name__, msg='finalizing jinja globals')
+    events.lifecycle.send(__name__, msg="finalizing jinja globals")
     # FIXME: use shimport.filter_module('..')
     from pynchon.util.os import invoke
 
@@ -60,8 +60,8 @@ def get_jinja_globals():
         fname = abcs.Path(fname)
         assert fname.exists()
 
-        script = abcs.Path(pynchon.__file__).parents[0] / 'scripts' / 'gh-md-toc.sh'
-        result = invoke(f'cat {fname} | bash {script} -')
+        script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"
+        result = invoke(f"cat {fname} | bash {script} -")
         assert result.succeeded
         return result.stdout
 
@@ -94,7 +94,7 @@ def get_jinja_env(*includes, quiet: bool = False):
     :param quiet: bool:  (Default value = False)
 
     """
-    events.lifecycle.send(__name__, msg='finalizing jinja-Env')
+    events.lifecycle.send(__name__, msg="finalizing jinja-Env")
     includes = get_jinja_includes(*includes)
     for template_dir in includes:
         if not template_dir.exists:
@@ -115,7 +115,7 @@ def get_jinja_env(*includes, quiet: bool = False):
         from pynchon.util import text as util_text
 
         msg = "Known template search paths (includes folders only): "
-        tmp = list(set([p.parents[0] for p in known_templates]))
+        tmp = list({p.parents[0] for p in known_templates})
         LOGGER.info(msg + util_text.to_json(tmp))
     return env
 
@@ -143,7 +143,7 @@ def get_template(
     except (jinja2.exceptions.TemplateNotFound,) as exc:
         LOGGER.critical(f"Template exception: {exc}")
         LOGGER.critical(f"Jinja-includes: {env.pynchon_includes}")
-        err = getattr(exc, 'templates', exc.message)
+        err = getattr(exc, "templates", exc.message)
         LOGGER.critical(f"Problem template: {err}")
         raise
     template.render = functools.partial(template.render, __template__=template_name)

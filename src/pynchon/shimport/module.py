@@ -11,7 +11,7 @@ class ModuleBuilder(models.ModulesWrapper):
     @typing.validate_arguments
     def __init__(
         self,
-        name: str = '',
+        name: str = "",
         init_hooks: typing.List = [],
         assign_objects: bool = True,
         **kwargs,
@@ -85,7 +85,7 @@ def wrap(name, **kwargs):
         mod = name
         name = mod.__name__
         # kwargs['import_mods'] = list(set(kwargs.pop('import_mods',[])+[name]))
-    result = models.ModulesWrapper(name, import_names=[f'{name}.*'], **kwargs)
+    result = models.ModulesWrapper(name, import_names=[f"{name}.*"], **kwargs)
     return result
 
 

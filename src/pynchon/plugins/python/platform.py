@@ -5,18 +5,18 @@ import platform as stdlib_platform
 from memoized_property import memoized_property
 
 from pynchon import abcs, models
-from pynchon.util import typing, tagging, lme
+from pynchon.util import lme, tagging, typing
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 
 
-@tagging.tags(click_aliases=['p'])
+@tagging.tags(click_aliases=["p"])
 class PythonPlatform(models.Provider):
     """Context for python-platform"""
 
     priority = 2
-    name = 'python'
+    name = "python"
 
     class config_class(abcs.Config):
         config_key = "python"
@@ -28,7 +28,7 @@ class PythonPlatform(models.Provider):
         def is_package(self) -> bool:
             from pynchon.util import python
 
-            return python.is_package('.')
+            return python.is_package(".")
 
         @property
         def package(self) -> typing.Dict:

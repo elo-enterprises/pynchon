@@ -7,6 +7,7 @@ from pynchon.util import lme, typing  # noqa
 # from .exceptions import * # noqa
 LOGGER = lme.get_logger(__name__)
 
+
 # importing.module_builder(__name__, ...)
 class PluginNotInitialized(RuntimeError):
     pass
@@ -39,7 +40,7 @@ def get_plugin_class(plugin_name: str) -> typing.Type:
     """
     meta = get_plugin_meta(plugin_name)
     try:
-        return meta['kls']
+        return meta["kls"]
     except KeyError:
         raise PluginNotRegistered(plugin_name)
 
@@ -56,7 +57,7 @@ def get_plugin_obj(plugin_name: str) -> object:
     """
     meta = get_plugin_meta(plugin_name)
     try:
-        return meta['obj']
+        return meta["obj"]
     except KeyError:
         err = f"cannot retrieve ['obj'] for `{plugin_name}` from registry; is config finalized?"
         LOGGER.critical(err)

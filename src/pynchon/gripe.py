@@ -14,16 +14,16 @@ from pynchon.util.os import filter_pids
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-logfile: str = '.tmp.gripe.log'
+logfile: str = ".tmp.gripe.log"
 
 
 def _current_gripe_procs() -> typing.List[psutil.Process]:
     """ """
-    return filter_pids(name='flask')
+    return filter_pids(name="flask")
 
 
 def _is_my_grip(g) -> bool:
-    return g.cwd() == str(abcs.Path('.').absolute())
+    return g.cwd() == str(abcs.Path(".").absolute())
 
 
 class Server:
@@ -55,10 +55,10 @@ class Server:
         raw_file_server = Flask(__name__)
         raw_file_server.debug = True
 
-        @raw_file_server.route('/<path:path>')
+        @raw_file_server.route("/<path:path>")
         def raw(path):
             raw_file_server.logger.critical(path)
-            return send_from_directory(pathlib.Path('.').absolute(), path)
+            return send_from_directory(pathlib.Path(".").absolute(), path)
 
         return raw_file_server
 
@@ -67,7 +67,7 @@ class Server:
         """ """
         compound = Flask(__name__)
         compound.wsgi_app = DispatcherMiddleware(
-            grip.create_app(user_content=True), {'/__raw__': self.raw_file_server}
+            grip.create_app(user_content=True), {"/__raw__": self.raw_file_server}
         )
         return compound
 
@@ -76,10 +76,10 @@ server = Server()
 app = server.app
 
 
-def _do_serve(background=True, port='6149'):
-    bg = '&' if background else ''
+def _do_serve(background=True, port="6149"):
+    bg = "&" if background else ""
     return os.system(
-        f'flask --app pynchon.gripe:app run --port {port}>> {logfile} 2>&1 {bg}',
+        f"flask --app pynchon.gripe:app run --port {port}>> {logfile} 2>&1 {bg}",
     )
 
 
@@ -88,7 +88,6 @@ def entry():
     """
     CLI for actions on gripe servers.
     """
-    pass
 
 
 def _list():
@@ -98,14 +97,14 @@ def _list():
     return result
 
 
-@cli.click.option('--fg', help='run in foreground', is_flag=True, default=False)
+@cli.click.option("--fg", help="run in foreground", is_flag=True, default=False)
 @cli.click.option(
-    '--force', help='force kill if already running', is_flag=True, default=False
+    "--force", help="force kill if already running", is_flag=True, default=False
 )
 @cli.click.option(
-    '--port',
-    help='port to listen on.  (leave empty to use next available)',
-    default='6149',
+    "--port",
+    help="port to listen on.  (leave empty to use next available)",
+    default="6149",
 )
 def start(
     fg: bool = None, ls: bool = None, force: bool = None, port: str = None
@@ -159,11 +158,11 @@ def restart():
     start()
 
 
-entry.command('restart')(restart)
-entry.command('stop')(stop)
-entry.command('ls')(_list)
-entry.command('list')(_list)
-entry.command('start')(start)
+entry.command("restart")(restart)
+entry.command("stop")(stop)
+entry.command("ls")(_list)
+entry.command("list")(_list)
+entry.command("start")(start)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     entry()

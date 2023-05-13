@@ -9,7 +9,7 @@ LOGGER = lme.get_logger(__name__)
 from .meta import Meta
 
 
-class Plugin(object, metaclass=Meta):
+class Plugin(metaclass=Meta):
     """ """
 
     priority = 0

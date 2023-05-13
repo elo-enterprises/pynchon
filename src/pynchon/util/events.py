@@ -3,13 +3,13 @@
 import functools
 import collections
 
-EventType = collections.namedtuple('Event', 'type msg data')
-LifeCycle = functools.partial(EventType, type='app-lifecycle')
-ConfigFinalized = functools.partial(EventType, type='config-finalized')
-PluginFinalized = functools.partial(EventType, type='plugin-finalized')
+EventType = collections.namedtuple("Event", "type msg data")
+LifeCycle = functools.partial(EventType, type="app-lifecycle")
+ConfigFinalized = functools.partial(EventType, type="config-finalized")
+PluginFinalized = functools.partial(EventType, type="plugin-finalized")
 
 
-class Engine(object):
+class Engine:
     """ """
 
     def push(self, **kwargs):

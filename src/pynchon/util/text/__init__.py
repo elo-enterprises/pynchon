@@ -45,4 +45,4 @@ def indent(txt: str, level: int = 2) -> str:
 
     if not isinstance(txt, (str, bytes)):
         txt = pprint.pformat(txt)
-    return '\n'.join([(' ' * level) + line for line in txt.split('\n') if line.strip()])
+    return "\n".join([(" " * level) + line for line in txt.split("\n") if line.strip()])

@@ -1,12 +1,12 @@
 """ pynchon.plugins.python.cli
 """
 
-from pynchon import shimport, abcs, cli, models
+from pynchon import abcs, cli, models, shimport
 
-from pynchon.util import typing, tagging, lme  # noqa
+from pynchon.util import lme, tagging, typing  # noqa
 
 config_mod = shimport.lazy(
-    'pynchon.config',
+    "pynchon.config",
 )
 LOGGER = lme.get_logger(__name__)
 
@@ -22,7 +22,7 @@ class PythonCliConfig(abcs.Config):
         """ """
         from pynchon.config import src
 
-        src_root = src['root']
+        src_root = src["root"]
         # FIXME: support for subprojects
         # # src_root = abcs.Path(
         # # config_mod.project.get(
@@ -40,12 +40,12 @@ class PythonCliConfig(abcs.Config):
         matches = [[x, {}] for x in glob.glob(str(pat), recursive=True)]
         matches = dict(matches)
         pkg_name = (
-            'unknown'  # self.siblings['python']['package'].get("name") or "unknown"
+            "unknown"  # self.siblings['python']['package'].get("name") or "unknown"
         )
         for f, meta in matches.items():
-            LOGGER.info(f'found entry-point: {f}')
+            LOGGER.info(f"found entry-point: {f}")
             dotpath = abcs.Path(f).relative_to(src_root)
-            dotpath = '.'.join(str(dotpath).split('/')[:-1])
+            dotpath = ".".join(str(dotpath).split("/")[:-1])
             matches[f] = {
                 **matches[f],
                 **dict(
@@ -56,7 +56,7 @@ class PythonCliConfig(abcs.Config):
         return matches
 
 
-@tagging.tags(click_aliases=['pc'])
+@tagging.tags(click_aliases=["pc"])
 class PythonCLI(models.ShyPlanner):
     """Generators for Python CLI docs"""
 
@@ -213,16 +213,16 @@ class PythonCLI(models.ShyPlanner):
 
         config = config or api.project.get_config()
         plan = super(self.__class__, self).plan(config)
-        droot = config.pynchon['docs_root']
+        droot = config.pynchon["docs_root"]
         cli_root = f"{droot}/cli"
 
         plan.append(
-            self.goal(command=f"mkdir -p {cli_root}", type='mkdir', resource=cli_root)
+            self.goal(command=f"mkdir -p {cli_root}", type="mkdir", resource=cli_root)
         )
         plan.append(
             self.goal(
                 command=f"pynchon gen cli toc --output {cli_root}/README.md",
-                type='gen',
+                type="gen",
                 resource=cli_root,
             )
         )
@@ -230,7 +230,7 @@ class PythonCLI(models.ShyPlanner):
         plan.append(
             self.goal(
                 command=f"pynchon gen cli all --output-dir {cli_root}",
-                type='gen',
+                type="gen",
                 resource=cli_root,
             )
         )
@@ -239,11 +239,11 @@ class PythonCLI(models.ShyPlanner):
             plan.append(
                 self.goal(
                     command=f"pynchon gen cli main --file {fname} --output-dir {cli_root}",
-                    type='gen',
+                    type="gen",
                     resource=fname,
                 )
             )
-            for fname in config['python-cli'].entrypoints
+            for fname in config["python-cli"].entrypoints
         ]
 
         return plan

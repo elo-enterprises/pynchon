@@ -15,7 +15,7 @@ def get_namespace(name):
         """ """
 
         def __str__(self):
-            return f'<{self.__class__.__name__}[{self.__class__.name}]>'
+            return f"<{self.__class__.__name__}[{self.__class__.name}]>"
 
         __repr__ = __str__
 

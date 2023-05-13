@@ -24,6 +24,7 @@ Examples:
     ```
 """
 from importlib import import_module  # noqa
+
 from . import module
 
 wrap = wrapper = namespace = module.wrapper  # noqa

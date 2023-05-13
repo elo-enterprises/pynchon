@@ -3,12 +3,12 @@
 from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
-from pynchon.util import files, lme, typing, tagging
+from pynchon.util import files, lme, tagging, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
-@tagging.tags(click_aliases=['c'])
+@tagging.tags(click_aliases=["c"])
 class Core(models.Planner):
     """Core Plugin"""
 
@@ -37,12 +37,12 @@ class Core(models.Planner):
         """Show current project config (with templating/interpolation)"""
         return self.project_config
 
-    @cli.click.option('--bash', default=False, is_flag=True, help='bootstrap bash')
-    @cli.click.option('--bashrc', default=False, is_flag=True, help='bootstrap bashrc')
+    @cli.click.option("--bash", default=False, is_flag=True, help="bootstrap bash")
+    @cli.click.option("--bashrc", default=False, is_flag=True, help="bootstrap bashrc")
     @cli.click.option(
-        '--makefile', default=False, is_flag=True, help='bootstrap Makefile'
+        "--makefile", default=False, is_flag=True, help="bootstrap Makefile"
     )
-    @cli.click.option('--tox', default=False, is_flag=True, help='bootstrap tox')
+    @cli.click.option("--tox", default=False, is_flag=True, help="bootstrap tox")
     def bootstrap(
         self,
         bash: bool = False,
@@ -56,17 +56,17 @@ class Core(models.Planner):
         :param bash: bool:  (Default value = False)
         :param tox: bool:  (Default value = False)
         """
-        template_prefix = f'{self.plugin_templates_prefix}/bootstrap'
-        pynchon_completions_script = '.tmp.pynchon.completions.sh'
-        bashrc_snippet = '.tmp.pynchon.bashrc'
+        template_prefix = f"{self.plugin_templates_prefix}/bootstrap"
+        pynchon_completions_script = ".tmp.pynchon.completions.sh"
+        bashrc_snippet = ".tmp.pynchon.bashrc"
         if bash:
             import collections
 
             gr = self.__class__.click_group
             all_known_subcommands = [
-                ' '.join(x.split()[1:])
+                " ".join(x.split()[1:])
                 for x in cli.click.subcommand_tree(
-                    gr, mode='text', path=tuple(['pynchon']), hidden=False
+                    gr, mode="text", path=tuple(["pynchon"]), hidden=False
                 ).keys()
             ]
             head = [x for x in all_known_subcommands if len(x.split()) == 1]
@@ -90,7 +90,7 @@ class Core(models.Planner):
             ]
             # LOGGER.warning("This is intended to be run through a pipe, as in:")
             # LOGGER.critical("pynchon bootstrap --bash | bash")
-            tmpl = api.render.get_template(f'{template_prefix}/bash.sh')
+            tmpl = api.render.get_template(f"{template_prefix}/bash.sh")
             content = tmpl.render(head=head, rest="\n".join(rest), **self.config)
             files.dumps(content=content, file=pynchon_completions_script)
             LOGGER.warning(
@@ -102,7 +102,7 @@ class Core(models.Planner):
                 "To use completion hints every time they are "
                 "present in a folder, adding this to .bashrc:"
             )
-            tmpl = api.render.get_template(f'{template_prefix}/bashrc.sh')
+            tmpl = api.render.get_template(f"{template_prefix}/bashrc.sh")
             content = tmpl.render(pynchon_completions_script=pynchon_completions_script)
             files.dumps(content=content, file=bashrc_snippet, logger=LOGGER.info)
             return files.block_in_file(
@@ -110,11 +110,11 @@ class Core(models.Planner):
                 block_file=bashrc_snippet,
             )
         elif tox:
-            tmpl = api.render.get_template(f'{template_prefix}/tox.ini')
+            tmpl = api.render.get_template(f"{template_prefix}/tox.ini")
             content = tmpl.render(**self.project_config)
             print(content)
         elif makefile:
-            tmpl = api.render.get_template(f'{template_prefix}/Makefile')
+            tmpl = api.render.get_template(f"{template_prefix}/Makefile")
             content = tmpl.render(**self.project_config)
             print(content)
 
@@ -150,9 +150,9 @@ class Core(models.Planner):
         for plugin_obj in plugins:
             subplan = plugin_obj.plan()
             if not subplan:
-                self.logger.warning(f'subplan for {plugin_obj} is empty!')
+                self.logger.warning(f"subplan for {plugin_obj} is empty!")
             else:
                 for g in subplan:
-                    self.logger.info(f'{plugin_obj} contributes {g}')
+                    self.logger.info(f"{plugin_obj} contributes {g}")
                     plan.append(g)
         return plan

@@ -31,7 +31,7 @@ def is_subclass(x, y, strict=True):
     return False
 
 
-class classproperty(object):
+class classproperty:
     """ """
 
     def __init__(self, fxn):

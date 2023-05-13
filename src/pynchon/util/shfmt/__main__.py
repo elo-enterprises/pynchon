@@ -11,29 +11,29 @@ LOGGER = lme.get_logger(__name__)
 
 
 @cli.click.argument(
-    'filename',
+    "filename",
 )
 @cli.click.command
-def entry(filename: str = '/dev/stdin'):
+def entry(filename: str = "/dev/stdin"):
     """
 
     :param filename: str:  (Default value = '/dev/stdin')
     :param filename: str:  (Default value = '/dev/stdin')
 
     """
-    LOGGER.debug(f'reading from file: {filename}')
-    if filename == '-':
-        filename = '/dev/stdin'
-    with open(filename, 'r') as fhandle:
+    LOGGER.debug(f"reading from file: {filename}")
+    if filename == "-":
+        filename = "/dev/stdin"
+    with open(filename) as fhandle:
         text = fhandle.read()
     lme.CONSOLE.print(
         Syntax(
             fmt(text, filename=filename),
-            'bash',
+            "bash",
             word_wrap=True,
         )
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     entry()

@@ -4,20 +4,21 @@ import click
 
 from pynchon.util import typing
 
+from click import HelpFormatter  # noqa
 from click import (  # noqa
-    echo,
-    pass_context,
-    get_current_context,
-    argument,
-    option,
-    version_option,
-    command,
     Command,
-    group,
-    Group,
     Context,
-    HelpFormatter,  # noqa
-)  # noqa
+    Group,
+    argument,
+    command,
+    echo,
+    get_current_context,
+    group,
+    option,
+    pass_context,
+    version_option,
+)
+
 
 
 def do_filter(item, filter_kwargs):
@@ -49,13 +50,13 @@ def _subcommand_tree(parent, path=tuple(), tree={}, **filter_kwargs):
     return tree
 
 
-def subcommand_tree(parent, mode='default', path=tuple(), tree={}, **filter_kwargs):
-    err = 'cannot filter with None!'
+def subcommand_tree(parent, mode="default", path=tuple(), tree={}, **filter_kwargs):
+    err = "cannot filter with None!"
     for f, val in filter_kwargs.items():
         assert val is not None, err
     tree = _subcommand_tree(parent, path=path, tree=tree, **filter_kwargs)
-    if mode == 'text':
-        return {' '.join(k): v for k, v in tree.items()}
+    if mode == "text":
+        return {" ".join(k): v for k, v in tree.items()}
     return tree
 
 
@@ -70,7 +71,7 @@ def group_merge(g1: click.Group, g2: click.Group):
 
 
 def group_copy(g1: click.Group, **kwargs: typing.OptionalAny):
-    tmp = [[k, v] for k, v in g1.__dict__.copy().items() if not k.startswith('_')]
+    tmp = [[k, v] for k, v in g1.__dict__.copy().items() if not k.startswith("_")]
     tmp = dict(tmp)
     tmp.update(**kwargs)
     return click.Group(**tmp)

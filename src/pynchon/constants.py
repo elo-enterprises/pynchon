@@ -6,8 +6,8 @@ from pathlib import Path
 GLYPH_COMPLEXITY = "🐉 Complex"
 
 PYNCHON_ROOT = os.environ.get("PYNCHON_ROOT", None)
-PYNCHON_CONFIG = os.environ.get('PYNCHON_CONFIG', None)
-LOG_LEVEL = os.environ.get('PYNCHON_LOG_LEVEL', 'WARNING')
+PYNCHON_CONFIG = os.environ.get("PYNCHON_CONFIG", None)
+LOG_LEVEL = os.environ.get("PYNCHON_LOG_LEVEL", "WARNING")
 
 CONF_FILE_SEARCH_ORDER = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
 DEFAULT_PLUGINS = [
@@ -17,14 +17,14 @@ DEFAULT_PLUGINS = [
     "project",
     "globals",
     "git",
-    'python',
-    'gen',
-    'render',
+    "python",
+    "gen",
+    "render",
     "json",
     "jinja",
 ]
-PYNCHON_EMBEDDED_TEMPLATES_ROOT = Path(__file__).parents[0] / 'templates'
-PYNCHON_CORE_INCLUDES_DIRS = (PYNCHON_EMBEDDED_TEMPLATES_ROOT / 'includes',)
+PYNCHON_EMBEDDED_TEMPLATES_ROOT = Path(__file__).parents[0] / "templates"
+PYNCHON_CORE_INCLUDES_DIRS = (PYNCHON_EMBEDDED_TEMPLATES_ROOT / "includes",)
 for _p in PYNCHON_CORE_INCLUDES_DIRS:
     assert _p.exists()
 

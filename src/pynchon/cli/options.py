@@ -17,7 +17,7 @@ strict = click.option(
 )
 
 org_name = click.option(
-    '--org-name', '-o', default='', help='defaults to {github.org_name}'
+    "--org-name", "-o", default="", help="defaults to {github.org_name}"
 )
 
 inplace = in_place = click.option(
@@ -28,16 +28,16 @@ inplace = in_place = click.option(
 )
 
 should_print = click.option(
-    '--print',
-    'should_print',
-    help='if set, displays result on stdout even when `--output <file>` is passed',
+    "--print",
+    "should_print",
+    help="if set, displays result on stdout even when `--output <file>` is passed",
     default=False,
     is_flag=True,
 )
 
 includes = click.option(
     "--include",
-    'includes',
+    "includes",
     default=[],
     help=("path to use for template-root / includes"),
     multiple=True,
@@ -55,10 +55,10 @@ stdout = click.option(
     "--stdout", is_flag=True, default=True, help=("whether to write to stdout.")
 )
 output = click.option(
-    '--output',
+    "--output",
     "-o",
-    help='when set, output will be written to this file',
-    default='/dev/stdout',
+    help="when set, output will be written to this file",
+    default="/dev/stdout",
 )
 output_dir = click.option(
     "--output-dir", default="docs/cli", help=("output directory (optional)")

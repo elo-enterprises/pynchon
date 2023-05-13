@@ -10,23 +10,22 @@ from memoized_property import memoized_property
 from pynchon import events
 from pynchon.util import lme
 
-from rich.text import Text  # noqa
-from rich.console import Console, Theme  # noqa
-from rich.emoji import Emoji  # noqa
-from rich.console import Console  # noqa
 from rich.align import Align  # noqa
-from rich.emoji import Emoji  # noqa
-from rich.syntax import Syntax  # noqa
 from rich.console import Console  # noqa
+from rich.console import Theme  # noqa
+from rich.emoji import Emoji  # noqa
 from rich.markdown import Markdown  # noqa
 from rich.panel import Panel  # noqa
 from rich.style import Style  # noqa
+from rich.syntax import Syntax  # noqa
 from rich.table import Table  # noqa
+from rich.text import Text  # noqa
+
 
 LOGGER = lme.get_logger(__name__)
 
 
-class AppBase(object):
+class AppBase:
     pass
 
 
@@ -57,17 +56,17 @@ class AppConsole(AppBase):
     def status_bar(self):
         """ """
         tmp = self.manager.status_bar(
-            status_format=u'{app}{fill}{stage}{fill}{elapsed}',
-            color='bold_underline_bright_white_on_lightslategray',
+            status_format="{app}{fill}{stage}{fill}{elapsed}",
+            color="bold_underline_bright_white_on_lightslategray",
             justify=enlighten.Justify.LEFT,
-            app='Pynchon',
-            stage='...',
+            app="Pynchon",
+            stage="...",
             autorefresh=True,
             min_delta=0.1,
         )
 
         atexit.register(
-            lambda: self.events.lifecycle.send(self, stage="\o/", msg='')
+            lambda: self.events.lifecycle.send(self, stage=r"\o/", msg="")
         )  # noqa: W605
         return tmp
 
@@ -103,7 +102,7 @@ class AppExitHooks(AppBase):
 
     # def uninstall(self):
     def install_exit_hooks(self) -> None:
-        self.events.lifecycle.send(self, msg='Installing exit handlers')
+        self.events.lifecycle.send(self, msg="Installing exit handlers")
         self._orig_exit = sys.exit
         self._orig_exc_handler = self.exc_handler
         sys.exit = self.exit
@@ -136,9 +135,9 @@ class AppExitHooks(AppBase):
         if self.exception is not None:
             text = f"Exception: {self.exception}"
             text = self.Text(text)
-            text.stylize('bold red', 0, 6)
+            text.stylize("bold red", 0, 6)
             self.console.print(text)
-            self.events.lifecycle.send(self, stage='❌')
+            self.events.lifecycle.send(self, stage="❌")
 
     def default_exit_handler(self):
         """ """

@@ -2,31 +2,31 @@ import typing
 import functools
 import collections
 
-from pynchon import fleks, events, api, cli, shimport
+from pynchon import api, cli, events, fleks, shimport
 from pynchon.bin import entry
 from pynchon.plugins import util as plugins_util
 
 from . import validators
 
-from pynchon.util import typing, tagging, lme  # noqa
+from pynchon.util import lme, tagging, typing  # noqa
 
 
 pydash = shimport.lazy(
-    'pydash',
+    "pydash",
 )
 config_mod = shimport.lazy(
-    'pynchon.config',
+    "pynchon.config",
 )
 classproperty = typing.classproperty
 LOGGER = lme.get_logger(__name__)
 
 
-@tagging.tags(cli_label='<<Abstract>>')
+@tagging.tags(cli_label="<<Abstract>>")
 class PynchonPlugin(fleks.Plugin):
     """Pynchon-specific plugin-functionality"""
 
-    name = '<<Abstract>>'
-    cli_label = '<<Abstract>>'
+    name = "<<Abstract>>"
+    cli_label = "<<Abstract>>"
     config_class = None
     __class_validators__ = [
         validators.require_conf_key,
@@ -40,7 +40,7 @@ class PynchonPlugin(fleks.Plugin):
 
     @classproperty
     def plugin_templates_prefix(kls):
-        return f'pynchon/plugins/{kls.name}'
+        return f"pynchon/plugins/{kls.name}"
 
     @typing.classproperty
     def project_config(self):
@@ -49,14 +49,14 @@ class PynchonPlugin(fleks.Plugin):
 
     @classmethod
     def get_config_key(kls):
-        default = kls.name.replace('-', '_')
-        config_kls = getattr(kls, 'config_class', None)
-        return getattr(config_kls, 'config_key', default) or default
+        default = kls.name.replace("-", "_")
+        config_kls = getattr(kls, "config_class", None)
+        return getattr(config_kls, "config_key", default) or default
 
     @classmethod
     def get_current_config(kls):
         """get the current config for this plugin"""
-        conf_class = getattr(kls, 'config_class', None)
+        conf_class = getattr(kls, "config_class", None)
         if conf_class is None:
             return {}
         conf_key = kls.get_config_key()
@@ -148,17 +148,17 @@ class PynchonPlugin(fleks.Plugin):
     def cfg(self):
         """Shows current config for this plugin"""
         kls = self.__class__
-        conf_class = getattr(kls, 'config_class', None)
-        conf_class_name = conf_class.__name__ if conf_class else '(None)'
+        conf_class = getattr(kls, "config_class", None)
+        conf_class_name = conf_class.__name__ if conf_class else "(None)"
         LOGGER.debug(f"config class: {conf_class_name}")
         LOGGER.debug("current config:")
         result = kls.get_current_config()
         return result
 
 
-@tagging.tags(cli_label='<<Default>>')
+@tagging.tags(cli_label="<<Default>>")
 class CliPlugin(PynchonPlugin):
-    cli_label = '<<Default>>'
+    cli_label = "<<Default>>"
     _finalized_click_groups = dict()
 
     @typing.classproperty
@@ -168,14 +168,14 @@ class CliPlugin(PynchonPlugin):
     @typing.classproperty
     def click_group(kls):
         cached = kls._finalized_click_groups.get(kls, None)
-        grp_name = getattr(kls, 'cli_name', kls.name)
+        grp_name = getattr(kls, "cli_name", kls.name)
         if cached is not None:
             return cached
 
         def plugin_main():
             pass
 
-        plugin_main.__doc__ = (kls.__doc__ or "").lstrip().split('\n')[0]
+        plugin_main.__doc__ = (kls.__doc__ or "").lstrip().split("\n")[0]
         groop = cli.common.groop(
             grp_name,
             parent=kls.click_entry,
@@ -184,7 +184,7 @@ class CliPlugin(PynchonPlugin):
         kls._finalized_click_groups[kls] = plugin_main
 
         tags = tagging.tags.get(kls) or {}
-        gr_aliases = list(set(tags.get('click_aliases', [])))
+        gr_aliases = list(set(tags.get("click_aliases", [])))
         for alias in gr_aliases:
             g2 = cli.click.group_copy(plugin_main, name=alias, hidden=True)
             kls.click_entry.add_command(g2)
@@ -211,9 +211,9 @@ class CliPlugin(PynchonPlugin):
         :param fxn: typing.FunctionType:
 
         """
-        msg = f'{kls.__name__} acquires naked fxn: {fxn.__name__}'
+        msg = f"{kls.__name__} acquires naked fxn: {fxn.__name__}"
         assert fxn.__annotations__
-        cmd_name = f'{fxn.__name__}'.replace('_', '-')
+        cmd_name = f"{fxn.__name__}".replace("_", "-")
         kls.click_group.add_command(cli.click.command(cmd_name)(fxn))
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Command)
@@ -238,7 +238,7 @@ class CliPlugin(PynchonPlugin):
             if name not in kls.__class_properties__
             and all(
                 [
-                    name not in 'click_entry click_group'.split(),
+                    name not in "click_entry click_group".split(),
                     isinstance(getattr(kls, name), (cli.click.Command,)),
                     not isinstance(getattr(kls, name), (cli.click.Group,)),
                 ]
@@ -254,7 +254,7 @@ class CliPlugin(PynchonPlugin):
             if name not in kls.__class_properties__
             and all(
                 [
-                    name not in 'click_entry click_group'.split(),
+                    name not in "click_entry click_group".split(),
                     isinstance(getattr(kls, name), (cli.click.Group,)),
                 ]
             )
@@ -263,7 +263,7 @@ class CliPlugin(PynchonPlugin):
     @classmethod
     def init_cli(kls):
         """ """
-        events.lifecycle.send(kls, plugin='initializing CLI')
+        events.lifecycle.send(kls, plugin="initializing CLI")
 
         from pynchon.plugins.core import Core
 
@@ -284,7 +284,7 @@ class CliPlugin(PynchonPlugin):
             cli_commands.append(grp)
             kls.click_acquire(grp)
             tags = tagging.tags.get(grp) or {}
-            click_aliases = tags.get('click_aliases', [])
+            click_aliases = tags.get("click_aliases", [])
             if click_aliases:
                 raise NotImplementedError()
 
@@ -302,14 +302,14 @@ class CliPlugin(PynchonPlugin):
         for method_name in kls.__methods__:
             fxn = obj and getattr(obj, method_name, None)
             if fxn is None:
-                msg = f'    retrieved empty `{method_name}` from {obj}!'
+                msg = f"    retrieved empty `{method_name}` from {obj}!"
                 LOGGER.critical(msg)
                 raise TypeError(msg)
 
             tags = tagging.tags[fxn]
-            hidden = tags.get('click_hidden', False)
-            click_aliases = tags.get('click_aliases', [])
-            publish_to_cli = tags.get('publish_to_cli', True)
+            hidden = tags.get("click_hidden", False)
+            click_aliases = tags.get("click_aliases", [])
+            publish_to_cli = tags.get("publish_to_cli", True)
             if not publish_to_cli:
                 continue
 
@@ -320,7 +320,7 @@ class CliPlugin(PynchonPlugin):
                 # from rich import print_json
                 # print_json(text.to_json(result))
                 # if hasattr(result, 'display'):
-                rproto = getattr(result, '__rich__', None)
+                rproto = getattr(result, "__rich__", None)
                 if rproto:
                     from pynchon.util.lme import CONSOLE
 
@@ -339,7 +339,7 @@ class CliPlugin(PynchonPlugin):
 
         msg = [cmd.name for cmd in cli_commands]
         if len(msg) > 1:
-            events.lifecycle.send(kls, plugin=f'created {len(msg)} commands')
+            events.lifecycle.send(kls, plugin=f"created {len(msg)} commands")
         kls.init_cli_children()
         return kls.click_group
 
@@ -350,7 +350,7 @@ class CliPlugin(PynchonPlugin):
         :param kls:
 
         """
-        cli_subsumes = getattr(kls, 'cli_subsumes', [])
+        cli_subsumes = getattr(kls, "cli_subsumes", [])
         cli_subsumes and LOGGER.info(
             f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}"
         )
@@ -374,26 +374,26 @@ class CliPlugin(PynchonPlugin):
         assert fxn
         assert wrapper
         name = alias or fxn.__name__
-        name = name.replace('_', '-')
+        name = name.replace("_", "-")
         help = (
-            f'(alias for `{alias}`)'
+            f"(alias for `{alias}`)"
             if alias
-            else (fxn.__doc__ or "").lstrip().split('\n')[0]
+            else (fxn.__doc__ or "").lstrip().split("\n")[0]
         )
         help = help.lstrip()
         cmd = cli.common.kommand(
             name, help=help, alias=alias, parent=kls.click_group, **click_kwargs
         )(wrapper)
-        options = getattr(fxn, '__click_params__', [])
+        options = getattr(fxn, "__click_params__", [])
         cmd.params += options
         return cmd
 
     @tagging.tags(
-        click_aliases=['sh'],
+        click_aliases=["sh"],
         click_hidden=True,
     )
-    @cli.click.option('--command', '-c', default='')
-    def shell(self, command: str = '') -> None:
+    @cli.click.option("--command", "-c", default="")
+    def shell(self, command: str = "") -> None:
         """drop to debugging shell
 
         :param command: str:  (Default value = '')
@@ -402,17 +402,17 @@ class CliPlugin(PynchonPlugin):
         """
         before = locals()
         if command:
-            self.logger.warning(f'executing command: {command} ')
+            self.logger.warning(f"executing command: {command} ")
             return eval(command)
         else:
             import IPython
 
             IPython.embed()  # noqa
-        after = dict([[k, v] for k, v in locals().items() if k not in before])
+        after = {k: v for k, v in locals().items() if k not in before}
         LOGGER.warning(f"namespace changes: {after}")
 
 
-@tagging.tags(cli_label='Provider')
+@tagging.tags(cli_label="Provider")
 class Provider(CliPlugin):
     """ProviderPlugin provides context-information,
     but little other functionality
@@ -420,7 +420,7 @@ class Provider(CliPlugin):
 
     """
 
-    cli_label = 'Provider'
+    cli_label = "Provider"
     contribute_plan_apply = False
     priority = 2
     __class_validators__ = [
@@ -429,7 +429,7 @@ class Provider(CliPlugin):
     ]
 
 
-@tagging.tags(cli_label='Tool')
+@tagging.tags(cli_label="Tool")
 class ToolPlugin(CliPlugin):
     """Tool plugins may have their own config,
     but generally should not need project-config.
@@ -437,7 +437,7 @@ class ToolPlugin(CliPlugin):
 
     """
 
-    cli_label = 'Tool'
+    cli_label = "Tool"
     contribute_plan_apply = False
     __class_validators__ = [
         # validators.require_conf_key,
@@ -451,7 +451,7 @@ class BasePlugin(CliPlugin):
     priority = 10
 
 
-@tagging.tags(cli_label='NameSpace')
+@tagging.tags(cli_label="NameSpace")
 class NameSpace(CliPlugin):
     """`CliNamespace` collects functionality
     from elsewhere under a single namespace
@@ -459,6 +459,6 @@ class NameSpace(CliPlugin):
 
     """
 
-    cli_label = 'NameSpace'
+    cli_label = "NameSpace"
     contribute_plan_apply = False
     priority = 1

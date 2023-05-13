@@ -1,14 +1,14 @@
 """ pynchon.plugins.jinja
 """
-from pynchon.util import lme, typing, tagging  # noqa
-from pynchon import abcs, models, cli, api
-from pynchon.util import files, text
+from pynchon import abcs, api, cli, models
 from pynchon.plugins import util as plugin_util
+
+from pynchon.util import files, lme, tagging, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
-@tagging.tags(click_aliases=['j'])
+@tagging.tags(click_aliases=["j"])
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 
@@ -27,35 +27,34 @@ class Jinja(models.Planner):
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):
-
         config_key = "jinja"
         defaults = dict(
             template_includes=[],
         )
 
-        @tagging.tagged_property(conflict_strategy='override')
+        @tagging.tagged_property(conflict_strategy="override")
         def exclude_patterns(self):
-            globals = plugin_util.get_plugin('globals').get_current_config()
-            global_ex = globals['exclude_patterns']
-            my_ex = self.get('exclude_patterns', [])
+            globals = plugin_util.get_plugin("globals").get_current_config()
+            global_ex = globals["exclude_patterns"]
+            my_ex = self.get("exclude_patterns", [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
     def _get_jinja_context(self):
         """ """
         fname = ".tmp.jinja.ctx.json"
-        with open(fname, 'w') as fhandle:
+        with open(fname, "w") as fhandle:
             fhandle.write(text.to_json(self.project_config))
         return f"{fname}"
 
     @property
     def _include_folders(self):
-        includes = self.project_config.jinja['template_includes']
+        includes = self.project_config.jinja["template_includes"]
         from pynchon import api
 
         includes = api.render.get_jinja_includes(*includes)
         return includes
 
-    @cli.click.option('--local', default=False, is_flag=True)
+    @cli.click.option("--local", default=False, is_flag=True)
     def list_includes(
         self,
         local: bool = False,
@@ -69,12 +68,12 @@ class Jinja(models.Planner):
         includes = self._include_folders
         if local:
             includes.remove(api.render.PYNCHON_CORE_INCLUDES)
-        includes = [abcs.Path(t) / '**/*.j2' for t in includes]
+        includes = [abcs.Path(t) / "**/*.j2" for t in includes]
         LOGGER.warning(includes)
         matches = files.find_globs(includes)
         return matches
 
-    @cli.click.option('--local', default=False, is_flag=True)
+    @cli.click.option("--local", default=False, is_flag=True)
     def list_include_args(
         self,
         local: bool = False,
@@ -107,9 +106,9 @@ class Jinja(models.Planner):
         :param changes: Default value = False)
 
         """
-        default = self[:'project']
-        proj_conf = self[:'project.subproject':default]
-        default = self[:'git.root']
+        default = self[:"project"]
+        proj_conf = self[:"project.subproject":default]
+        default = self[:"git.root"]
         project_root = proj_conf.get("root", default)
         globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
@@ -117,7 +116,7 @@ class Jinja(models.Planner):
         self.logger.debug(f"search patterns are {globs}")
         result = files.find_globs(globs)
         self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
-        excludes = self['exclude_patterns']
+        excludes = self["exclude_patterns"]
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} j2 files (post-filter)")
@@ -138,7 +137,7 @@ class Jinja(models.Planner):
 
         def _get_template_args():
             """ """
-            templates = self['template_includes']
+            templates = self["template_includes"]
             templates = [t for t in templates]
             templates = [f"--include {t}" for t in templates]
             templates = " ".join(templates)
@@ -152,7 +151,7 @@ class Jinja(models.Planner):
         for rsrc in self.list():
             plan.append(
                 self.goal(
-                    type='render',
+                    type="render",
                     resource=rsrc,
                     command=self.COMMAND_TEMPLATE.format(
                         resource=rsrc, context_file=jctx, template_args=templates

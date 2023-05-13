@@ -3,12 +3,12 @@
 import functools
 import collections
 
-from pynchon.util import typing, lme
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
-VLOGGER = lme.get_logger('fleks::validation')
+VLOGGER = lme.get_logger("fleks::validation")
 
-type_spec = collections.namedtuple('type_spec', 'name bases namespace')
+type_spec = collections.namedtuple("type_spec", "name bases namespace")
 
 
 class ClassMalformed(TypeError):
@@ -19,7 +19,7 @@ from .namespace import namespace
 
 
 class ValidationResults(typing.NamedTuple, metaclass=namespace):
-    suite: str = 'default'
+    suite: str = "default"
     warnings: typing.Dict[str, typing.List[typing.Any]] = collections.defaultdict(list)
     errors: typing.Dict = collections.defaultdict(dict)
 
@@ -52,7 +52,7 @@ class Meta(type):
 
     @staticmethod
     def aggregate_across_bases(
-        var: str = '',
+        var: str = "",
         tspec: type_spec = None,
     ):
         """aggregates values at `var` across all bases
@@ -84,7 +84,7 @@ class Meta(type):
 
         """
         name, bases, namespace = tspec.name, tspec.bases, tspec.namespace
-        this_name = namespace.get('name', None)
+        this_name = namespace.get("name", None)
         this_name and Meta.NAMES.append(this_name)
 
     @classmethod
@@ -112,26 +112,26 @@ class Meta(type):
         def validation_results_hook(kls, vdata, quiet=False, strict=True):
             errors, warnings = vdata.errors, vdata.warnings
             suite = vdata.suite
-            lname = f'flex::validation::{suite}'
+            lname = f"flex::validation::{suite}"
             logger = lme.get_logger(lname)
             if errors and strict:
                 raise ClassMalformed(errors)
             if warnings and not quiet:
                 for msg, offenders in warnings.items():
-                    logger.warning(f'{msg}')
-                    logger.warning(f'  offenders: {offenders}')
+                    logger.warning(f"{msg}")
+                    logger.warning(f"  offenders: {offenders}")
                 # if strict: raise Exception(warnings)
 
         def __validate_class__(kls, quiet=True):
             vdata = run_validators(
-                kls, validators=kls.__class_validators__, suite='class'
+                kls, validators=kls.__class_validators__, suite="class"
             )
             advice = validation_results_hook(kls, vdata, quiet=quiet)
             return advice
 
         # FIXME: aggregate_across_bases?
-        __class_validators__ = namespace.get('__class_validators__', [])
-        __instance_validators__ = namespace.get('__instance_validators__', [])
+        __class_validators__ = namespace.get("__class_validators__", [])
+        __instance_validators__ = namespace.get("__instance_validators__", [])
 
         def validate_instance(kls, self=None):
             """requires: __instance_validators__
@@ -145,7 +145,7 @@ class Meta(type):
                 kls,
                 validators=kls.__instance_validators__,
                 self=self,
-                suite='instance',
+                suite="instance",
             )
             advice = validation_results_hook(kls, vdata)
             kls.__instance_validation_results__ = vdata
@@ -157,12 +157,12 @@ class Meta(type):
             __instance_validators__=__instance_validators__,
         )
 
-        original_init = namespace.get('__init__', None)
+        original_init = namespace.get("__init__", None)
         if __instance_validators__ and original_init:
 
             @functools.wraps(original_init)
             def wrapped_init(self, *args, **kwargs):
-                skip_instance_validation = kwargs.pop('skip_instance_validation', False)
+                skip_instance_validation = kwargs.pop("skip_instance_validation", False)
                 result = original_init(self, *args, **kwargs)
                 skip_instance_validation or validate_instance(self.__class__, self=self)
                 return result
@@ -189,38 +189,38 @@ class Meta(type):
         # __class_properties__ tracks class-properties[1]
         # from this class, and inherents them from all bases
         class_props = mcls.aggregate_across_bases(
-            var='__class_properties__',
+            var="__class_properties__",
             tspec=tspec,
         )
         class_props += [
             k for k, v in namespace.items() if isinstance(v, typing.classproperty)
         ]
         class_props = list(set(class_props))
-        namespace.update({'__class_properties__': class_props})
+        namespace.update({"__class_properties__": class_props})
         # __methods__ tracks instance-methods[1]
         # from this class, and inherents them from all bases
         # NB: this won't inherit private names (i.e. `_*')
-        instance_methods = mcls.aggregate_across_bases(var='__methods__', tspec=tspec)
+        instance_methods = mcls.aggregate_across_bases(var="__methods__", tspec=tspec)
         instance_methods += [
             k
             for k, v in namespace.items()
-            if not k.startswith('_') and isinstance(v, typing.FunctionType)
+            if not k.startswith("_") and isinstance(v, typing.FunctionType)
         ]
         instance_methods = list(set(instance_methods))
-        namespace.update({'__methods__': instance_methods})
+        namespace.update({"__methods__": instance_methods})
         # __properties__ tracks instance-properties[1]
         # for this class, and inherents them from all bases
         # NB: this won't inherit private names (i.e. `_*')
         instance_properties = mcls.aggregate_across_bases(
-            var='__properties__',
+            var="__properties__",
             tspec=tspec,
         )
         instance_properties += [
             k
             for k, v in namespace.items()
-            if not k.startswith('_') and isinstance(v, property)
+            if not k.startswith("_") and isinstance(v, property)
         ]
-        namespace.update({'__properties__': instance_properties})
+        namespace.update({"__properties__": instance_properties})
         # namespace.update({'__method_tags__':dict(
         #     [[mname, tagging.TAGGER[mname]],
         #     for mname in instance_methods])})

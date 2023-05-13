@@ -38,7 +38,7 @@ def namespace(name, bases, namespace):
 
     """
     for k in dir(Namespace):
-        if k.startswith('__'):
+        if k.startswith("__"):
             continue
         v = getattr(Namespace, k)
         if k not in namespace:

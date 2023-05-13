@@ -44,7 +44,7 @@ bash_command = pipeline_command;
 import tatsu
 
 src = tatsu.to_python_sourcecode(__doc__)
-src = src[: src.rfind('''def main(filename, **kwargs)''')]
+src = src[: src.rfind("""def main(filename, **kwargs)""")]
 exec(src)
 
 #

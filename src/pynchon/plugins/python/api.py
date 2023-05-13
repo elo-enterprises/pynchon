@@ -2,12 +2,12 @@
 """
 from pynchon import abcs, cli, models
 from pynchon.api import render
-from pynchon.util import typing, tagging, lme, complexity
+from pynchon.util import complexity, lme, tagging, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
-@tagging.tags(click_aliases=['pa'])
+@tagging.tags(click_aliases=["pa"])
 class PythonAPI(models.ShyPlanner):
     """Generators for Python API docs"""
 
@@ -20,7 +20,7 @@ class PythonAPI(models.ShyPlanner):
             skip_patterns=[],
         )
 
-    @cli.click.group('gen')
+    @cli.click.group("gen")
     def gen(self):
         """Generates API docs from python modules, packages, etc"""
 
@@ -77,8 +77,8 @@ class PythonAPI(models.ShyPlanner):
             blocks=result,
         )
         result = result["header"] + "\n".join(result["blocks"])
-        print(result, file=open(output, 'w'))
-        if should_print and output != '/dev/stdout':
+        print(result, file=open(output, "w"))
+        if should_print and output != "/dev/stdout":
             print(result)
 
     def plan(self, config=None) -> typing.List:
@@ -89,18 +89,18 @@ class PythonAPI(models.ShyPlanner):
         """
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
-        docs_root = self[:'docs.root':]
+        docs_root = self[:"docs.root":]
         api_docs_root = f"{docs_root}/api"
         if not abcs.Path(api_docs_root).exists():
             plan.append(
                 models.Goal(
-                    command=f"mkdir -p {api_docs_root}", resource=None, type='gen'
+                    command=f"mkdir -p {api_docs_root}", resource=None, type="gen"
                 )
             )
         pkg = self[:"python.package.name":None]
-        pkg_arg = pkg and f'--package {pkg}'
+        pkg_arg = pkg and f"--package {pkg}"
         src_root = self[:"src.root":]
-        src_arg = src_root and f'--file {src_root}'
+        src_arg = src_root and f"--file {src_root}"
         input = f"{pkg_arg or src_arg}"
         outputf = f"{api_docs_root}/README.md"
         output = f"--output {outputf}"
@@ -109,7 +109,7 @@ class PythonAPI(models.ShyPlanner):
             models.Goal(
                 resource=outputf,
                 command=f"{cmd_t} {input} {output}",
-                type='gen',
+                type="gen",
             )
         )
         return plan
