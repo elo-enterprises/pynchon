@@ -1,8 +1,7 @@
 """ pynchon.plugins.griffe
 """
 from pynchon import abcs, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
-from pynchon.util.os import invoke
+from pynchon.util import lme, os, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -25,10 +24,12 @@ class Griffe(models.ToolPlugin):
         """dump package signature from griffe"""
         pkg = pkg or self[:"python.package.name":]
         # return invoke(f'griffe {pkg}',load_json=True,log_command=True)
-        invoke(f"griffe {pkg} > .tmp.griffe")
-        from pynchon.util.text import loadf
-
-        return loadf.json(".tmp.griffe")
+        # invoke(f"griffe {pkg} > .tmp.griffe")
+        # from pynchon.util.text import loadf
+        # return loadf.json(".tmp.griffe")
+        return os.slurp_json(
+            f"griffe {pkg}",
+        )
 
     @cli.click.option(
         "--classes", "-c", is_flag=True, default=False, help="return classes"
