@@ -13,6 +13,8 @@ LOGGER = lme.get_logger(__name__)
 class CiCd(models.Provider):
     """Context for CI/CD"""
 
+    name = "cicd"
+
     class config_class(abcs.Config):
         config_key = "cicd"
         defaults = dict(
@@ -21,13 +23,31 @@ class CiCd(models.Provider):
             url_build=None,
         )
 
-    name = "cicd"
+        @property
+        def type(self):
+            """"""
+            from pynchon.config import src
 
-    # @cli.click.option()
+            src_root = abcs.Path(src["root"])
+            default = "unknown"
+            file_mapper = dict(
+                jenkins="Jenkinsfile*",
+                github_actions=".github/workflows/",
+                travis=".travis.yml",
+            )
+            for typ, pat in file_mapper.items():
+                if list(src_root.glob(pat)):
+                    return typ
+            return default
+
     def open(self):
         """Opens CI/CD URL for this project"""
         url = self["url_build" :: self["url_base"]]
-        return webbrowser.open(url)
+        if not url:
+            LOGGER.critical("could not determine cicd url for this project config")
+            return False
+        else:
+            return webbrowser.open(url)
 
     # @cli.click.option()
     def trigger(self):

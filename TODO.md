@@ -8,6 +8,8 @@ release:
     * shimport.filter_module
 
 research:
+  promises for lazy config-
+    https://github.com/syrusakbary/promise#promisefor_dictd
   griffe labels/visitors:
     https://github.com/mkdocstrings/griffe/blob/master/docs/extensions.md
   lazy:

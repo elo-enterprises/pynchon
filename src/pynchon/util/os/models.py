@@ -28,6 +28,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
     stdout: str = ""
     stderr: str = ""
     pid: int = -1
+    shell: bool = False
 
     def __rich__(self):
         from pynchon import app
@@ -55,6 +56,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
 class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     cmd: str = ""
     stdin: str = ""
+    shell: bool = False
     interactive: bool = False
     large_output: bool = False
     log_command: bool = True
@@ -67,11 +69,6 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
         if self.system:
             assert not self.stdin and not self.interactive
             error = os.system(self.cmd)
-            # FIXME: subclass namedtuple here
-            # result = namedtuple(
-            #     "InvocationResult",
-            #     ["failed", "failure", "success", "succeeded", "stdout", "stdin"],
-            # )
             return InvocationResult(
                 **{
                     **self._dict,
@@ -95,10 +92,11 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             exec_kwargs.update(
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
+            LOGGER.critical([self.cmd, exec_kwargs])
             exec_cmd = subprocess.Popen(self.cmd, **exec_kwargs)
             exec_cmd.stdin.write(self.stdin.encode("utf-8"))
-            exec_cmd.stdin.close()
             exec_cmd.wait()
+            exec_cmd.stdin.close()
         else:
             if not self.interactive:
                 exec_kwargs.update(
@@ -108,25 +106,35 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             exec_cmd = subprocess.Popen(self.cmd, **exec_kwargs)
             exec_cmd.wait()
         if exec_cmd.stdout:
+            exec_cmd.hstdout = exec_cmd.stdout
             exec_cmd.stdout = (
                 "<LargeOutput>"
                 if self.large_output
                 else exec_cmd.stdout.read().decode("utf-8")
             )
+            exec_cmd.hstdout.close()
         else:
             exec_cmd.stdout = "<Interactive>"
         if exec_cmd.stderr:
+            exec_cmd.hstderr = exec_cmd.stderr
             exec_cmd.stderr = exec_cmd.stderr.read().decode("utf-8")
+            exec_cmd.hstderr.close()
         exec_cmd.failed = exec_cmd.returncode > 0
         exec_cmd.succeeded = not exec_cmd.failed
         exec_cmd.success = exec_cmd.succeeded
         exec_cmd.failure = exec_cmd.failed
+        loaded_json = None
         if self.load_json:
-            assert exec_cmd.succeeded, exec_cmd.stderr
+            # assert exec_cmd.succeeded, exec_cmd.stderr
+            import IPython
+
+            IPython.embed()
             import json
 
-            exec_cmd.json = json.loads(exec_cmd.stdout)
-        # return exec_cmd
+            try:
+                loaded_json = json.loads(exec_cmd.stdout)
+            except (json.decoder.JSONDecodeError,) as exc:
+                loaded_json = dict(error=str(exc))
         return InvocationResult(
             **{
                 **self._dict,
@@ -138,7 +146,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
                     succeeded=exec_cmd.succeeded,
                     stdout=exec_cmd.stdout,
                     stderr=exec_cmd.stderr,
-                    json=self.load_json and exec_cmd.json,
+                    json=loaded_json,
                 ),
             }
         )

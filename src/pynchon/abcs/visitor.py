@@ -27,10 +27,7 @@ class Visitor:
         :param filter_value: Default value = lambda _: True)
         :param trigger: Default value = lambda p)
         :param v: p:
-        :param v: param paths:  (Default value = [])
         :param obj: Default value = None)
-        :param v: (p:
-        :param v):
         :param paths:  (Default value = [])
         :param **kwargs:
 
