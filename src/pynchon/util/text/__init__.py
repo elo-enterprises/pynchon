@@ -6,29 +6,7 @@ import json
 
 from . import loadf, loads, dumps  # noqa
 
-# from . import dumpf, dumps # noqa
-
-# from pynchon.util import typing, lme
-# from pynchon.util.importing import module_builder
-# module_builder(
-#     __name__,
-#     import_mods=['.loadf', '.loads',])
-
-
-def to_json(obj, cls=None, minified=False, indent: int = 2) -> str:
-    """
-    :param indent: int:  (Default value = 2)
-    :param cls:  (Default value = JSONEncoder)
-    """
-    indent = None if minified else indent
-    from pynchon.abcs.path import JSONEncoder
-
-    cls = cls or JSONEncoder
-
-    return json.dumps(obj, indent=indent, cls=cls)
-
-
-jsonify = to_json
+jsonify = to_json = dumps.json # noqa
 
 
 def indent(txt: str, level: int = 2) -> str:
