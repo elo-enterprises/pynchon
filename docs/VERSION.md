@@ -4,6 +4,6 @@ This content is auto-generated, and simply points to commits at the time project
 
 ```
 version: `2023.5.12+local`
-git_hash:`1d8ad1a2844298ef1e59faa2ba757546d9b61693`
+git_hash:`9f6995086f12f0df20fd5592c3439868e4d0ec56`
 pynchon_version: `2023.5.7.2.25`
 ```

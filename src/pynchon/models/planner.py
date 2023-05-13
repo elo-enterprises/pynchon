@@ -17,58 +17,11 @@ from .plugin_types import BasePlugin
 from pynchon.util import lme, typing  # noqa
 
 
-
-
 @tags(cli_label="Planner")
 class AbstractPlanner(BasePlugin):
     """A plugin-type that provides plan/apply basics"""
 
     cli_label = "Planner"
-
-    @property
-    def changes(self):
-        """Set(git_changes).intersection(plugin_resources)"""
-        git = self.siblings["git"]
-        changes = git.modified
-        these_changes = set(changes).intersection(set(self.list(changes=False)))
-        return dict(modified=list(these_changes))
-
-    @cli.click.option(
-        "--changes",
-        "-m",
-        "changes",
-        is_flag=True,
-        default=False,
-        help="returns the git-modified subset",
-    )
-    def list(self, changes: bool = False):
-        """Lists resources associated with this plugin
-
-        :param changes: bool:  (Default value = False)
-
-        """
-        if changes:
-            return self.changes["modified"]
-        from pynchon import abcs
-        from pynchon.util import files
-
-        try:
-            include_patterns = self["include_patterns"]
-            root = self["root"]
-        except (KeyError,) as exc:
-            self.logger.critical(
-                f"{self.__class__} tried to use self.list(), but does not follow protocol"
-            )
-            self.logger.critical(
-                "self['include_patterns'] and self['root'] must both be defined!"
-            )
-            raise
-        root = abcs.Path(root)
-        # proot = self.project_config['pynchon']['root']
-        tmp = [p for p in include_patterns if abcs.Path(p).is_absolute()]
-        tmp += [root / p for p in include_patterns if not abcs.Path(p).is_absolute()]
-        # tmp += [proot / p for p in include_patterns if not abcs.Path(p).is_absolute()]
-        return files.find_globs(tmp)
 
     @tags(publish_to_cli=False)
     def goal(self, **kwargs):
@@ -213,6 +166,53 @@ class ShyPlanner(AbstractPlanner):
 @tags(cli_label="Manager")
 class Manager(ShyPlanner):
     cli_label = "Manager"
+
+class ResourceManager(Manager):
+
+    @property
+    def changes(self):
+        """Set(git_changes).intersection(plugin_resources)"""
+        git = self.siblings["git"]
+        changes = git.modified
+        these_changes = set(changes).intersection(set(self.list(changes=False)))
+        return dict(modified=list(these_changes))
+
+    @cli.click.option(
+        "--changes",
+        "-m",
+        "changes",
+        is_flag=True,
+        default=False,
+        help="returns the git-modified subset",
+    )
+    def list(self, changes: bool = False):
+        """Lists resources associated with this plugin
+
+        :param changes: bool:  (Default value = False)
+
+        """
+        if changes:
+            return self.changes["modified"]
+        from pynchon import abcs
+        from pynchon.util import files
+
+        try:
+            include_patterns = self["include_patterns"]
+            root = self["root"]
+        except (KeyError,) as exc:
+            self.logger.critical(
+                f"{self.__class__} tried to use self.list(), but does not follow protocol"
+            )
+            self.logger.critical(
+                "self['include_patterns'] and self['root'] must both be defined!"
+            )
+            raise
+        root = abcs.Path(root)
+        # proot = self.project_config['pynchon']['root']
+        tmp = [p for p in include_patterns if abcs.Path(p).is_absolute()]
+        tmp += [root / p for p in include_patterns if not abcs.Path(p).is_absolute()]
+        # tmp += [proot / p for p in include_patterns if not abcs.Path(p).is_absolute()]
+        return files.find_globs(tmp)
 
 
 class Planner(ShyPlanner):

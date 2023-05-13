@@ -6,7 +6,7 @@ from pynchon.util import lme, tagging, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Deck(models.Manager):
+class Deck(models.ResourceManager):
     """Tool for working with markdown based slide-decks"""
 
     class config_class(abcs.Config):
