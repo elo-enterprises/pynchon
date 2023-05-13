@@ -25,7 +25,7 @@ EXT_MAP = {
 }
 
 
-class SourceMan(models.Manager):
+class SourceMan(models.ResourceManager):
     """Management tool for project source"""
 
     class config_class(abcs.Config):

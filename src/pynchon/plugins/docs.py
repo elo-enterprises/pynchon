@@ -12,7 +12,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 @tagging.tags(click_aliases=["d"])
-class DocsMan(models.Planner):
+class DocsMan(models.ResourceManager):
     """Management tool for project docs"""
 
     class config_class(abcs.Config):
