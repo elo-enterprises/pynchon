@@ -2,7 +2,7 @@ import typing
 import collections
 from dataclasses import dataclass
 
-from pynchon import app, abcs
+from pynchon import abcs, app
 from pynchon.fleks import meta
 
 from pynchon.util import lme, typing  # noqa
@@ -42,12 +42,11 @@ class Goal(metaclass=meta.namespace):
                 bgcolor="black",
                 frame=False,
             ),
-            subtitle=app.Text(f"{self.owner}",
-            style="dim italic"),
+            subtitle=app.Text(f"{self.owner}", style="dim italic"),
         )
 
     def __str__(self):
-        tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path('.').absolute())
+        tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
         return f"<{self.__class__.__name__}[{tmp}]>"
 
 
@@ -56,19 +55,19 @@ class Action(metaclass=meta.namespace):
     """ """
 
     type: str = "unknown_action_type"
-    ok:bool = None
-    changed:bool=None
+    ok: bool = None
+    changed: bool = None
     resource: str = "??"
     command: str = "echo"
 
     @property
     def status_string(self):
         if self.ok is None:
-            tmp = 'pending'
+            tmp = "pending"
         elif self.ok:
-            tmp='ok'
+            tmp = "ok"
         else:
-            tmp='failed'
+            tmp = "failed"
         return tmp
 
     def __str__(self):
@@ -91,9 +90,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
             super().__init__(*args)
 
     def __rich__(self) -> str:
-        syntaxes = [
-            g.__rich__() for g in self
-        ]
+        syntaxes = [g.__rich__() for g in self]
 
         table = app.Table.grid(
             # title=f'{__name__} ({len(self)} items)',
@@ -113,7 +110,9 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
         panel = app.Panel(
             table,
-            title=app.Text(f"{self.__class__.__name__}", justify="left", style="italic"),
+            title=app.Text(
+                f"{self.__class__.__name__}", justify="left", style="italic"
+            ),
             title_align="left",
             padding=1,
             style=app.Style(

@@ -34,7 +34,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
         def status_string():
             if self.succeeded is None:
                 return "??"
-            return '[cyan]=> [green]ok' if self.succeeded else '[red]failed'
+            return "[cyan]=> [green]ok" if self.succeeded else "[red]failed"
 
         from pynchon import app
         from pynchon.util import shfmt
@@ -48,10 +48,10 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
             panel = app.Panel(
                 syntax,
                 title=(
-                    f'{self.__class__.__name__} from '
-                    f'pid {self.pid} {status_string()}'
+                    f"{self.__class__.__name__} from "
+                    f"pid {self.pid} {status_string()}"
                 ),
-                title_align='left',
+                title_align="left",
                 subtitle=app.Text("✔", style="green")
                 if self.success
                 else app.Text("❌", style="red"),
@@ -131,12 +131,8 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
         exec_cmd.failure = exec_cmd.failed
         loaded_json = None
         if self.load_json:
-            # assert exec_cmd.succeeded, exec_cmd.stderr
-            import IPython
-
-            IPython.embed()
+            assert exec_cmd.succeeded, exec_cmd.stderr
             import json
-
             try:
                 loaded_json = json.loads(exec_cmd.stdout)
             except (json.decoder.JSONDecodeError,) as exc:

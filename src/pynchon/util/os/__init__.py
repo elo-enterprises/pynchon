@@ -23,14 +23,6 @@ def filter_pids(**kwargs):
     return survivors
 
 
-def slurp_json(cmd: str, **kwargs):
-    result = invoke(f"{cmd} > .tmp.{id(cmd)}")
-    assert result.succeeded
-    from pynchon.util.text import loadf
-
-    return loadf.json(f".tmp.{id(cmd)}")
-
-
 def invoke(cmd: str, **kwargs):
     """
     Dependency-free replacement for the `invoke` module,
@@ -71,3 +63,11 @@ def invoke(cmd: str, **kwargs):
 #         p.stdout.close() # Always close your file handles, or your OS might be pissed
 #         p.stderr.close()
 #         return ret
+
+
+def slurp_json(cmd: str, **kwargs):
+    result = invoke(f"{cmd} > .tmp.{id(cmd)}")
+    assert result.succeeded
+    from pynchon.util.text import loadf
+
+    return loadf.json(f".tmp.{id(cmd)}")

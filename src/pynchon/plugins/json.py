@@ -50,10 +50,6 @@ LOGGER = lme.get_logger(__name__)
 class Json(models.ToolPlugin):
     """Tools for working with JSON & JSON5"""
 
-    name = "json"
-    priority = 1
-    cli_name = name
-
     class config_class(abcs.Config):
         config_key = "json"
         defaults = dict()
@@ -136,3 +132,7 @@ class Json(models.ToolPlugin):
     #     Render files with given renderer
     #     """
     #     raise NotImplementedError()
+
+    name = "json"
+    priority = 1
+    cli_name = name

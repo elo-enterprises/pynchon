@@ -41,7 +41,7 @@ def tag_factory(*args) -> typing.Any:
 TagDict = typing.Dict[str, typing.Any]
 
 
-class tagsM: #FIXME: use data-class
+class tagsM:  # FIXME: use data-class
     def __call__(self, **tags: TagDict):
         def decorator(func: typing.Callable) -> typing.Callable:
             merged = {**GLOBAL_TAG_REGISTRY.get(func, {}), **tags}
