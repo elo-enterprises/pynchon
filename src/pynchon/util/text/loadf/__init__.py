@@ -14,6 +14,7 @@ from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+
 def loadf(file=None, content=None):
     """ """
     if file:
@@ -23,6 +24,7 @@ def loadf(file=None, content=None):
         with open(file) as fhandle:
             content = fhandle.read()
     return content
+
 
 @click.argument("file", nargs=1)
 def ini(file):
@@ -211,6 +213,7 @@ def json5(
     print(msg, file=open(output, "w"))
     if should_print and output != "/dev/stdout":
         print(msg)
+
 
 @options.strict
 @click.argument("file", nargs=1)

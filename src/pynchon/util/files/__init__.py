@@ -49,23 +49,20 @@ def prepend(
 
 def find_suffix(root: str = "", suffix: str = "") -> typing.StringMaybe:
     """
-
     :param root: str:  (Default value = '')
     :param suffix: str:  (Default value = '')
-    :param root: str:  (Default value = '')
-    :param suffix: str:  (Default value = '')
-
     """
     assert root and suffix
     return os.invoke(f"{root} -type f -name *.{suffix}").stdout.split("\n")
 
 
+import functools
+
+
+@functools.lru_cache(maxsize=None)
 def get_git_root(path: str = ".") -> typing.StringMaybe:
     """
-
     :param path: str:  (Default value = ".")
-    :param path: str:  (Default value = ".")
-
     """
     path = abcs.Path(path).absolute()
     tmp = path / ".git"
@@ -77,7 +74,7 @@ def get_git_root(path: str = ".") -> typing.StringMaybe:
         try:
             return get_git_root(path.parents[0])
         except IndexError:
-            LOGGER.critical("Could not find a git-root!")
+            LOGGER.warning(f"Could not find a git-root for '{path}'")
 
 
 def find_src(

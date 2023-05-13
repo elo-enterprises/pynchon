@@ -150,7 +150,9 @@ class Core(models.Planner):
         for plugin_obj in plugins:
             subplan = plugin_obj.plan()
             if not subplan:
-                self.logger.warning(f"subplan for {plugin_obj} is empty!")
+                self.logger.warning(
+                    f"subplan for '{plugin_obj.__class__.__name__}' is empty!"
+                )
             else:
                 for g in subplan:
                     self.logger.info(f"{plugin_obj} contributes {g}")

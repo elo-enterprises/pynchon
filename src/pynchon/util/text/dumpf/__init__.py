@@ -2,23 +2,22 @@
 
     Helpers for loading data structures from files
 """
-import os, sys
-
+import sys
 
 from pynchon import cli
-from pynchon.util import text
-from pynchon.util import lme, typing  # noqa
+
+from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
-@cli.click.argument('file', default='/dev/stdin')
+@cli.click.argument("file", default="/dev/stdin")
 def yaml(file=None, output=None, **kwargs):
     """
     Parse JSON input and writes YAML
     """
-    file = '/dev/stdin' if file=='-' else file
-    content = text.dumps.yaml(file=file,**kwargs)
+    file = "/dev/stdin" if file == "-" else file
+    content = text.dumps.yaml(file=file, **kwargs)
     fhandle = open(output, "w") if output else sys.stdout
     content = f"{content}\n"
     fhandle.write(content)

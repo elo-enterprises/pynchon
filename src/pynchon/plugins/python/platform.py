@@ -43,13 +43,13 @@ class PythonPlatform(models.Planner):
     def bootstrap(self):
         """helpers for bootstrapping python projects"""
 
-    @bootstrap.command('libcst')
+    @bootstrap.command("libcst")
     def bootstrap_libcst(self):
         """bootstrap .libcst.codemod.yaml"""
         # @cli.click.option('--libcst',help='bootstrap .libcst.codemod.yaml', default=False, is_flag=True)
 
-    @bootstrap.command('new')
-    @cli.click.argument('name')
+    @bootstrap.command("new")
+    @cli.click.argument("name")
     def bootstrap_new(self):
         """shortcut for `pynchon cut new py/NAME`"""
 
@@ -58,40 +58,64 @@ class PythonPlatform(models.Planner):
         """Generates code for python modules, packages, etc"""
 
     def plan(self):
-        plan = super(self.__class__,self).plan()
-        libcst_config = self['libcst']
+        plan = super(self.__class__, self).plan()
+        libcst_config = self["libcst"]
         if libcst_config:
             from pynchon.util import text
-            min  = text.to_json(libcst_config,minified=True)
-            rsrc = '.libcst.codemod.yaml'
-            plan.append(self.goal(
-                resource=rsrc,
-                type='render',
-                command=f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}"
-            ))
+
+            min = text.to_json(libcst_config, minified=True)
+            rsrc = ".libcst.codemod.yaml"
+            plan.append(
+                self.goal(
+                    resource=rsrc,
+                    type="render",
+                    command=f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}",
+                )
+            )
         return plan
 
     @gen.command
-    @cli.click.option('--ignore-private',help='ignore names that start with "_")', default=False,is_flag=True)
-    @cli.click.option('--ignore-missing',help='ignore missing docstrings (only updates empty or out-dated ones)', default=False,is_flag=True)
-    @cli.click.option('--modules', help='create docstrings for modules', default=False, is_flag=True)
-    @cli.click.option('--functions', help='create docstrings for functions', default=False, is_flag=True)
-    @cli.click.option('--methods', help='create docstrings for methods', default=False, is_flag=True)
-    def docstrings(self,
-        ignore_missing:bool=False,
-        ignore_private:bool=True,
-        modules:bool=True,
-        functions:bool=True,
-        methods:bool=True,
-        classes:bool=True,
-        ):
-        """ Generates python docstrings """
+    @cli.click.option(
+        "--ignore-private",
+        help='ignore names that start with "_")',
+        default=False,
+        is_flag=True,
+    )
+    @cli.click.option(
+        "--ignore-missing",
+        help="ignore missing docstrings (only updates empty or out-dated ones)",
+        default=False,
+        is_flag=True,
+    )
+    @cli.click.option(
+        "--modules", help="create docstrings for modules", default=False, is_flag=True
+    )
+    @cli.click.option(
+        "--functions",
+        help="create docstrings for functions",
+        default=False,
+        is_flag=True,
+    )
+    @cli.click.option(
+        "--methods", help="create docstrings for methods", default=False, is_flag=True
+    )
+    def docstrings(
+        self,
+        ignore_missing: bool = False,
+        ignore_private: bool = True,
+        modules: bool = True,
+        functions: bool = True,
+        methods: bool = True,
+        classes: bool = True,
+    ):
+        """Generates python docstrings"""
         self.logger.critical(locals())
 
     @gen.command
     def click_command_typing(self):
-        """ reflects click-options typing into click-command function-signatures"""
+        """reflects click-options typing into click-command function-signatures"""
         raise NotImplementedError()
+
 
 class PackageConfig(abcs.Config):
     """WARNING: `parent` below prevents moving this class elsewhere"""

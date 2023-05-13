@@ -15,21 +15,20 @@ class GitConfig(abcs.Config):
 
     def _run(self, cmd, log_command=False, **kwargs):
         """
-
         :param cmd: param log_command:  (Default value = False)
         :param log_command:  (Default value = False)
         :param **kwargs:
-
         """
-        pre = f"cd {self.root} && " if self.root else ""
-        return os.invoke(f"{pre}{cmd}", log_command=log_command, **kwargs)
+        if self.root:
+            pre = f"cd {self.root} && " if self.root else ""
+            return os.invoke(f"{pre}{cmd}", log_command=log_command, **kwargs)
 
     @memoized_property
     def default_remote_branch(self) -> typing.StringMaybe:
         """ """
         tmp = self._run("git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'")
-        if tmp.succeeded:
-            return tmp.stdout.strip()
+        if tmp and tmp.succeeded:
+            return tmp.stdout.strip() or None
 
     @property
     def root(self) -> typing.StringMaybe:
@@ -40,10 +39,8 @@ class GitConfig(abcs.Config):
     @memoized_property
     def repo(self) -> typing.StringMaybe:
         """ """
-        cmd = os.invoke(
-            f"cd {self.root} && git config --get remote.origin.url", log_command=False
-        )
-        return cmd.stdout.strip() if cmd.succeeded else None
+        cmd = self._run("git config --get remote.origin.url")
+        return cmd and (cmd.stdout.strip() if cmd.succeeded else None)
 
     @property
     def is_github(self):
@@ -81,13 +78,15 @@ class GitConfig(abcs.Config):
     def branch_name(self):
         """ """
         cmd = self._run("git rev-parse --abbrev-ref HEAD")
-        return cmd.succeeded and cmd.stdout.strip()
+        tmp = cmd and cmd.succeeded and cmd.stdout.strip()
+        return tmp or None
 
     @property
     def hash(self) -> str:
         """ """
         cmd = self._run("git rev-parse HEAD")
-        return cmd.succeeded and cmd.stdout.strip()
+        tmp = cmd and cmd.succeeded and cmd.stdout.strip()
+        return tmp or None
 
 
 @tagging.tags(click_aliases=["g"])

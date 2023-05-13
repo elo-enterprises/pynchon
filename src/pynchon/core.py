@@ -83,6 +83,7 @@ class Config(abcs.Config):
         root = self.get("root")
         root = root or os.environ.get("PYNCHON_ROOT")
         root = root or config.GIT.get("root")
+        root = root or self.working_dir
         return root and abcs.Path(root)
 
     @tagging.tagged_property(conflict_strategy="override")

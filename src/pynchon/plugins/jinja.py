@@ -109,8 +109,7 @@ class Jinja(models.Planner):
         """
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
-        default = self[:"git.root"]
-        project_root = proj_conf.get("root", default)
+        project_root = proj_conf.get("root", self[:"git.root":"."])
         globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]

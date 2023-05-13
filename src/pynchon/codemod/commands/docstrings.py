@@ -1,6 +1,5 @@
 import argparse
 import textwrap
-from typing import Dict, Optional
 
 import libcst as cst
 from libcst.codemod import CodemodContext, VisitorBasedCodemodCommand
@@ -93,11 +92,13 @@ class AddTrailingCommas(VisitorBasedCodemodCommand):
         if not eval(sstring.value).strip():
             better = sstring.with_changes(value='"""bonk"""')
         else:
-            print('norep')
-            better=sstring
-            import IPython; IPython.embed()
+            print("norep")
+            better = sstring
+            import IPython
+
+            IPython.embed()
         # updated_node.children[0].children[0].children[0].insert(0, sstring)
-        updated_node=updated_node.deep_replace(sstring,better)
+        updated_node = updated_node.deep_replace(sstring, better)
         # original_node.children[0].children[0].children[0]=original_node.children[0].children[0].children[0].with_changes(value='"""bonk"""')
         print(updated_node.children[0].children[0].children[0])
         return updated_node

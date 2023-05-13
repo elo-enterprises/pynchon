@@ -1,0 +1,9 @@
+blacklist_patterns: []
+formatter:
+- black
+- '-'
+generated_code_marker: '@generated'
+modules:
+- pynchon.codemod
+repo_root: /home/matt/code/elo/pynchon/src
+

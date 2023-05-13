@@ -2,11 +2,10 @@
     Utilities for parsing, generating or manipulating text
 """
 
-import json
 
-from . import loadf, loads, dumps  # noqa
+from . import dumps, loadf, loads  # noqa
 
-jsonify = to_json = dumps.json # noqa
+jsonify = to_json = dumps.json  # noqa
 
 
 def indent(txt: str, level: int = 2) -> str:
