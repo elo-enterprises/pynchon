@@ -41,7 +41,7 @@ def tag_factory(*args) -> typing.Any:
 TagDict = typing.Dict[str, typing.Any]
 
 
-class tagsM:
+class tagsM: #FIXME: use data-class
     def __call__(self, **tags: TagDict):
         def decorator(func: typing.Callable) -> typing.Callable:
             merged = {**GLOBAL_TAG_REGISTRY.get(func, {}), **tags}
@@ -69,10 +69,6 @@ class tagsM:
             fxn = item
             cfxn = getattr(fxn.__self__.__class__, fxn.__name__)
             tmp = GLOBAL_TAG_REGISTRY.get(cfxn, {})
-            # if tmp:
-            #     LOGGER.critical(
-            #         f'missing tags for {item}; setting tags from parent @ {cfxn}'
-            #     )
         tmp = tmp or tag_factory(item)
         self.__setitem__(item, tmp)
         return tmp or {}

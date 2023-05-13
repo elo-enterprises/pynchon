@@ -31,21 +31,27 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
     shell: bool = False
 
     def __rich__(self):
+        def status_string():
+            if self.succeeded is None:
+                return "??"
+            return '[cyan]=> [green]ok' if self.succeeded else '[red]failed'
+
         from pynchon import app
         from pynchon.util import shfmt
 
         if self.log_command:
-            # LOGGER.warning('shfmt: ' + shfmt.bash_fmt(self.cmd))
             msg = f"running command: (system={self.system})\n\t{self.cmd}"
-            # self.log_command and LOGGER.warning(msg)
-
             fmt = shfmt.bash_fmt(self.cmd)
             syntax = app.Syntax(
                 f"# {self.cmd}\n\n{fmt}", "bash", line_numbers=False, word_wrap=True
             )
             panel = app.Panel(
                 syntax,
-                title=__name__,
+                title=(
+                    f'{self.__class__.__name__} from '
+                    f'pid {self.pid} {status_string()}'
+                ),
+                title_align='left',
                 subtitle=app.Text("✔", style="green")
                 if self.success
                 else app.Text("❌", style="red"),

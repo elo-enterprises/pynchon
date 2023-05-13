@@ -2,7 +2,7 @@ import typing
 import collections
 from dataclasses import dataclass
 
-from pynchon import app
+from pynchon import app, abcs
 from pynchon.fleks import meta
 
 from pynchon.util import lme, typing  # noqa
@@ -42,11 +42,13 @@ class Goal(metaclass=meta.namespace):
                 bgcolor="black",
                 frame=False,
             ),
-            subtitle=app.Text(f"{self.owner}", style="dim italic"),
+            subtitle=app.Text(f"{self.owner}",
+            style="dim italic"),
         )
 
     def __str__(self):
-        return f"<{self.__class__.__name__}[{self.resource}]>"
+        tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path('.').absolute())
+        return f"<{self.__class__.__name__}[{tmp}]>"
 
 
 @dataclass(frozen=True)
@@ -54,12 +56,23 @@ class Action(metaclass=meta.namespace):
     """ """
 
     type: str = "unknown_action_type"
-    result: object = None
+    ok:bool = None
+    changed:bool=None
     resource: str = "??"
     command: str = "echo"
 
+    @property
+    def status_string(self):
+        if self.ok is None:
+            tmp = 'pending'
+        elif self.ok:
+            tmp='ok'
+        else:
+            tmp='failed'
+        return tmp
+
     def __str__(self):
-        return f"<{self.__class__.__name__}[{self.result}]>"
+        return f"<{self.__class__.__name__}[{self.status_string}]>"
 
 
 class Plan(typing.List[Goal], metaclass=meta.namespace):
@@ -78,7 +91,9 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
             super().__init__(*args)
 
     def __rich__(self) -> str:
-        syntaxes = [g.__rich__() for g in self]
+        syntaxes = [
+            g.__rich__() for g in self
+        ]
 
         table = app.Table.grid(
             # title=f'{__name__} ({len(self)} items)',
@@ -91,14 +106,14 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
         [
             [
                 table.add_row(x),
-                # table.add_row(Align(Emoji("gear"), align='center')),
+                # table.add_row(app.Align(app.Emoji("gear"), align='center')),
             ]
             for i, x in enumerate(syntaxes)
         ]
 
         panel = app.Panel(
             table,
-            title=app.Text(f"{__name__}", justify="left", style="italic"),
+            title=app.Text(f"{self.__class__.__name__}", justify="left", style="italic"),
             title_align="left",
             padding=1,
             style=app.Style(
@@ -127,10 +142,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
     # @typing.validate_arguments
     def append(self, other: Goal):
         """
-
         :param other: Goal:
-        :param other: Goal:
-
         """
         assert isinstance(other, (Goal,))
         return super().append(other)
@@ -138,9 +150,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
     # @typing.validate_arguments
     def extend(self, other):
         """
-
         :param other:
-
         """
         assert isinstance(other, (Goal,))
         return super().extend(other)
@@ -148,9 +158,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
     # @typing.validate_arguments
     def __add__(self, other):
         """
-
         :param other:
-
         """
         assert isinstance(other, (Plan,))
         return Plan(*(other + self))
@@ -163,20 +171,25 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
 class ApplyResults(typing.List[Action], metaclass=meta.namespace):
     @property
+    def ok(self):
+        return all([a.ok for a in self])
+
+    @property
+    def action_types(self):
+        tmp = list({g.type for g in self})
+        return {k: [] for k in tmp}
+
+    @property
     def _dict(self):
         """ """
-
-        def past_tense(x):
-            return f"{x}ed"
-
         result = collections.OrderedDict()
-        result["ok"] = all([a.result for a in self])
+        result["ok"] = self.ok
         result["resources"] = list({a.resource for a in self})
         result["actions"] = [g.command for g in self]
-        result["state"] = list({g.type for g in self})
-        result["state"] = {past_tense(k): [] for k in result["state"]}
+        result["action_types"] = self.action_types
+        result["changed"] = list({a.resource for a in self if a.changed})
         for g in self:
-            result["state"][past_tense(g.type)].append(g.resource)
+            result["action_types"][g.type].append(g.resource)
         return result
 
     def __str__(self):

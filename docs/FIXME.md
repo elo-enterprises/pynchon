@@ -8,12 +8,13 @@
 * [src/pynchon/shimport/module.py:29](#): `# FIXME: leaky abstraction`
 * [src/pynchon/shimport/abcs.py:9](#): `# FIXME: move to fleks?`
 * [src/pynchon/plugins/plugins.py:28](#): `# FIXME: use cookie-cutter?`
-* [src/pynchon/plugins/__init__.py:13](#): `exclude_names="git".split(),  # FIXME: hack`
+* [src/pynchon/plugins/__init__.py:15](#): `exclude_names="git".split(),  # FIXME: hack`
 * [src/pynchon/plugins/project.py:61](#): `#         # FIXME: options.output_with_default('docs/VERSION.md'),`
 * [src/pynchon/plugins/python/cli.py:26](#): `# FIXME: support for subprojects`
 * [src/pynchon/plugins/python/api.py:42](#): `# FIXME: not bound correctly: missing 1 req pos arg 'self'`
 * [src/pynchon/app.py:47](#): `# # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly`
-* [src/pynchon/util/os/models.py:70](#): `# FIXME: subclass namedtuple here`
+* [src/pynchon/util/tagging.py:21](#): `# FIXME: avoid collisions by namespacing like this:`
+* [src/pynchon/util/tagging.py:44](#): `class tagsM: #FIXME: use data-class`
 * [src/pynchon/util/text/render/__init__.py:47](#): `# FIXME: try to santize this`
 * [src/pynchon/util/text/render/__init__.py:231](#): `# FIXME: is this smart?`
 * [src/pynchon/util/typing.py:22](#): `# FIXME: similar to deal-contracts, might want to NO-OP this for `python -O``
@@ -25,7 +26,7 @@
 * [src/pynchon/config/__init__.py:20](#): `# FIXME: abstract into phases inside pynchon.app`
 * [src/pynchon/config/__init__.py:55](#): `# FIXME: get from registry or mcls`
 * [src/pynchon/cli/click.py:29](#): `# FIXME: unroll this thing`
-* [src/pynchon/models/planner.py:90](#): `# FIXME: validation elsewhere`
+* [src/pynchon/models/planner.py:92](#): `# FIXME: validation elsewhere`
 * [src/pynchon/models/plugin_types/validators.py:3](#): `FIXME: ntuple struct for vdata`
 * [src/pynchon/models/plugin_types/__init__.py:271](#): `# FIXME: this is needed, .. but why?`
 * [src/pynchon/models/plugin_types/__init__.py:319](#): `# FIXME: this wraps twice?`

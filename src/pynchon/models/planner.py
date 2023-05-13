@@ -60,7 +60,7 @@ class AbstractPlanner(BasePlugin):
 
         events.lifecycle.send(
             # write status event (used by the app-console)
-            stage=f"applying for `{self.__class__.name}`"
+            stage=f"Applying for plugin '{self.__class__.name}'"
         )
         plan = self.plan(config=config)
         results = []
@@ -68,7 +68,7 @@ class AbstractPlanner(BasePlugin):
             events.lifecycle.send(self, applying=action_item)
             application = invoke(action_item.command)
             tmp = planning.Action(
-                result=application.succeeded,
+                ok=application.succeeded,
                 command=action_item.command,
                 resource=action_item.resource,
                 type=action_item.type,
@@ -120,7 +120,7 @@ class AbstractPlanner(BasePlugin):
 
         """
         changes = self.list(changes=True)
-        changes += [x.resource for x in result if x.result]
+        changes += [x.resource for x in result if x.ok]
         changes = list(set(changes))
         # self.logger.critical(f'would have opened- {changes}')
         for ch in changes:
