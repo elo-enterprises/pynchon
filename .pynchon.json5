@@ -1,10 +1,4 @@
-// pynchon is a docs-generation tool.
-//
-// This config is used implicitly with any direct invocations
-// of the `pynchon` CLI tool, sometimes via `make docs` (which drives the CLI)
-{
-
-  // BEGIN: top-level config
+{ // BEGIN: top-level pynchon config
   // Everything here is optional.
   // Literals only; no templating please!
   "plugins": [
@@ -30,11 +24,12 @@
     "griffe",         // ast tool
     "cookie-cutter",  // helpers for cookie-cutter
   ],
-
+  // END: top-level config
+  // BEGIN: core plugins-config
 
   // Config for `globals` plugin:
-  // All well-behaved plugins will honor values here, appending
-  // these values to whatever is set explicitly for that plugin
+  //   All well-behaved plugins will honor values here, appending
+  //   these values to whatever is set explicitly for that plugin
   "globals": {
     "exclude_patterns": [
       ".*[.]pyc",
@@ -45,7 +40,7 @@
   },
 
   // Config for `src` plugin:
-  // This provides find/search tooling, plus file-header generators, etc
+  //   This provides find/search tooling, plus file-header generators, etc
   "src": {
     "root": "{{pynchon.root}}/src",
     "include_patterns": ["**/*.py",],
@@ -56,6 +51,7 @@
   },
 
   // Config for `tests` plugin:
+  //   ...
   "tests": {
     "root": "{{pynchon.root}}/tests",
     "suite_patterns": [
@@ -65,6 +61,7 @@
   },
 
   // Config for `docs` plugin:
+  //   Runs a webserver to open docs-files
   "docs": {
     "root": "{{pynchon.root}}/docs",
     "include_patterns": [
@@ -74,14 +71,7 @@
       ],
       "apply_hooks": ["open-after"],
   },
-  "deck": {
-    "root": "{{docs.root}}/slides",
-    // "include_patterns": [
-    //     "{{deck.root}}/*.md",
-    //   ],
-    "apply_hooks": ["open-after"],
-  },
-  // Config for `project` plugin:
+// Config for `project` plugin:
   "project":{
     "subproject_patterns": [],
     "shell_aliases":{
@@ -94,14 +84,22 @@
     },
   },
 
-  // Config for `github` plugin:
+  // END: core plugins-config
+  // BEGIN: other plugins-config
+
+  // Config for `deck` plugin:
+  //   Renders slide-decks from markdown
+  "deck": {
+    "root": "{{docs.root}}/slides",
+    "apply_hooks": ["open-after"],
+  },
+
+    // Config for `github` plugin:
   "github": {},
 
   // Config for `hooks` plugin:
    "hooks": {},
 
-  // END: top-level config
-  // BEGIN: plugins-config
 
   // Config for `jinja` plugin:
   // Planner for finding/rendering project .j2 files
@@ -119,7 +117,7 @@
    "exclude_patterns": [
      // Describes files that shouldn't show up in plans
      // `globals.exclude_patterns` will be appended.
-     "**/{{src.root}}/pynchon/templates/**",
+     "**/pynchon/templates/**",
    ],
 
    "template_includes": [
@@ -146,7 +144,26 @@
       "{{src.root}}/pynchon/annotate.py",
     ],
   },
-
+  // Config for `python-api` plugin:
+  // This generates API docs for python-packages
+  "python":{
+    // .libcst.codemod.yaml file:
+    // leave this empty to use a static one
+    // that's already present.  fill it in
+    // to have it recreated when needed and
+    // use pynchon's context for templating it
+    "libcst": {
+      "repo_root": "{{src.root}}",
+      "generated_code_marker": '@generated',
+      "formatter": ['black', '-'],
+      "blacklist_patterns": [],
+      "modules": [
+        'pynchon.codemod',
+        //'libcst.codemod.commands',
+      ],
+    },
+    // "apply_hooks": ["display-modified"],
+  },
   // Config for `python-api` plugin:
   // This generates API docs for python-packages
   "python-api":{

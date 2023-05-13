@@ -62,7 +62,7 @@ class AbstractPlanner(BasePlugin):
             # write status event (used by the app-console)
             stage=f"Applying for plugin '{self.__class__.name}'"
         )
-        plan = self.plan(config=config)
+        plan = self.plan()
         results = []
         for action_item in plan:
             events.lifecycle.send(self, applying=action_item)

@@ -17,6 +17,13 @@ class DocsMan(models.ResourceManager):
 
     class config_class(abcs.Config):
         config_key = "docs"
+        defaults=dict()
+
+        @property 
+        def root(self):
+            from pynchon.config import git, pynchon
+            tmp = git.get('root')
+            return tmp or pynchon['working_dir']
 
     name = "docs"
     cli_name = "docs"

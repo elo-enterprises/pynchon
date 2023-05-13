@@ -14,6 +14,15 @@ from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+def loadf(file=None, content=None):
+    """ """
+    if file:
+        assert not content
+        if not os.path.exists(file):
+            raise ValueError(f"file @ {file} is missing!")
+        with open(file) as fhandle:
+            content = fhandle.read()
+    return content
 
 @click.argument("file", nargs=1)
 def ini(file):
@@ -46,9 +55,6 @@ def toml(file: str = None, strict: bool = True):
 
     :param file: str:  (Default value = None)
     :param strict: bool:  (Default value = True)
-    :param file: str:  (Default value = None)
-    :param strict: bool:  (Default value = True)
-
     """
 
     config = {}
@@ -206,7 +212,6 @@ def json5(
     if should_print and output != "/dev/stdout":
         print(msg)
 
-
 @options.strict
 @click.argument("file", nargs=1)
 def json(file: str = "", content: str = "", strict: bool = True) -> dict:
@@ -220,12 +225,7 @@ def json(file: str = "", content: str = "", strict: bool = True) -> dict:
     :param strict: bool:  (Default value = True)
 
     """
-    if file:
-        assert not content
-        if not os.path.exists(file):
-            raise ValueError(f"file @ {file} is missing!")
-        with open(file) as fhandle:
-            content = fhandle.read()
+    content = content or text.loadf.loadf(file=file, content=content)
     try:
         data = loads.json(content)
         # data = pyjson5.loads(content)

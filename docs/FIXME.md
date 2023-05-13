@@ -14,7 +14,7 @@
 * [src/pynchon/plugins/python/api.py:42](#): `# FIXME: not bound correctly: missing 1 req pos arg 'self'`
 * [src/pynchon/app.py:47](#): `# # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly`
 * [src/pynchon/util/tagging.py:21](#): `# FIXME: avoid collisions by namespacing like this:`
-* [src/pynchon/util/tagging.py:44](#): `class tagsM: #FIXME: use data-class`
+* [src/pynchon/util/tagging.py:44](#): `class tagsM:  # FIXME: use data-class`
 * [src/pynchon/util/text/render/__init__.py:47](#): `# FIXME: try to santize this`
 * [src/pynchon/util/text/render/__init__.py:231](#): `# FIXME: is this smart?`
 * [src/pynchon/util/typing.py:22](#): `# FIXME: similar to deal-contracts, might want to NO-OP this for `python -O``
@@ -28,8 +28,8 @@
 * [src/pynchon/cli/click.py:29](#): `# FIXME: unroll this thing`
 * [src/pynchon/models/planner.py:92](#): `# FIXME: validation elsewhere`
 * [src/pynchon/models/plugin_types/validators.py:3](#): `FIXME: ntuple struct for vdata`
-* [src/pynchon/models/plugin_types/__init__.py:271](#): `# FIXME: this is needed, .. but why?`
-* [src/pynchon/models/plugin_types/__init__.py:319](#): `# FIXME: this wraps twice?`
+* [src/pynchon/models/plugin_types/__init__.py:276](#): `# FIXME: this is needed, .. but why?`
+* [src/pynchon/models/plugin_types/__init__.py:324](#): `# FIXME: this wraps twice?`
 * [src/pynchon/abcs/path.py:84](#): `# FIXME: use multimethod`
 * [src/pynchon/events.py:13](#): `# FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly`
 * [src/pynchon/api/render.py:38](#): `# FIXME: use shimport.filter_module('..')`

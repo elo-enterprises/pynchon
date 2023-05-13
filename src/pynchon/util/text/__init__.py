@@ -4,7 +4,7 @@
 
 import json
 
-from . import loadf, loads  # noqa
+from . import loadf, loads, dumps  # noqa
 
 # from . import dumpf, dumps # noqa
 
@@ -15,15 +15,12 @@ from . import loadf, loads  # noqa
 #     import_mods=['.loadf', '.loads',])
 
 
-def to_json(obj, cls=None, indent: int = 2) -> str:
+def to_json(obj, cls=None, minified=False, indent: int = 2) -> str:
     """
-
-    :param obj: param cls:  (Default value = JSONEncoder)
     :param indent: int:  (Default value = 2)
     :param cls:  (Default value = JSONEncoder)
-    :param indent: int:  (Default value = 2)
-
     """
+    indent = None if minified else indent
     from pynchon.abcs.path import JSONEncoder
 
     cls = cls or JSONEncoder
@@ -35,13 +32,11 @@ jsonify = to_json
 
 
 def indent(txt: str, level: int = 2) -> str:
-    """indents text, or if given an object, stringifies and then indents
+    """
+    indents text, or if given an object, stringifies and then indents
 
     :param txt: str:
     :param level: int:  (Default value = 2)
-    :param txt: str:
-    :param level: int:  (Default value = 2)
-
     """
     import pprint
 
