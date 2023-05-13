@@ -6,8 +6,8 @@ import itertools
 import collections
 
 from pynchon.util import typing
-from pynchon.abcs.path import Path
-
+# from pynchon.abcs.path import Path
+from pathlib import Path
 from .abcs import FilterResult
 from .util import get_namespace
 

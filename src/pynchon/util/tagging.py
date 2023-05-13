@@ -102,7 +102,7 @@ class tagsM:
         GLOBAL_TAG_REGISTRY[item] = tags
 
     @typing.validate_arguments
-    def __getitem__(self, item: typing.Any) -> dict[str, typing.Any]:
+    def __getitem__(self, item: typing.Any) -> typing.Dict[str, typing.Any]:
         tmp = GLOBAL_TAG_REGISTRY.get(item, {})
         if not tmp and callable(item) and type(item) == typing.MethodType:
             fxn = item

@@ -4,7 +4,6 @@
 
 import json
 
-from pynchon.abcs import JSONEncoder
 
 from . import loadf, loads  # noqa
 
@@ -17,7 +16,7 @@ from . import loadf, loads  # noqa
 #     import_mods=['.loadf', '.loads',])
 
 
-def to_json(obj, cls=JSONEncoder, indent: int = 2) -> str:
+def to_json(obj, cls=None, indent: int = 2) -> str:
     """
 
     :param obj: param cls:  (Default value = JSONEncoder)
@@ -26,6 +25,9 @@ def to_json(obj, cls=JSONEncoder, indent: int = 2) -> str:
     :param indent: int:  (Default value = 2)
 
     """
+    from pynchon.abcs.path import JSONEncoder
+    cls=cls or JSONEncoder
+
     return json.dumps(obj, indent=indent, cls=cls)
 
 
