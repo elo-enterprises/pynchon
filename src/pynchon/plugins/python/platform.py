@@ -4,7 +4,7 @@ import platform as stdlib_platform
 
 from memoized_property import memoized_property
 
-from pynchon import abcs, models
+from pynchon import abcs, cli, models
 from pynchon.util import lme, tagging, typing
 from pynchon.util.os import invoke
 
@@ -38,6 +38,9 @@ class PythonPlatform(models.Provider):
     priority = 2
     name = "python"
 
+    @cli.click.command
+    def bootstrap(self):
+        """ helpers for bootstrapping python projects """
 
 class PackageConfig(abcs.Config):
     """WARNING: `parent` below prevents moving this class elsewhere"""
