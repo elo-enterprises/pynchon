@@ -120,6 +120,14 @@ def get_jinja_env(*includes, quiet: bool = False):
     return env
 
 
+def get_template_from_string(
+    content,
+    env=None,
+):
+    env = env or get_jinja_env()
+    return env.from_string(content)
+
+
 def get_template_from_file(
     file: str = None,
     # env=None,
@@ -129,14 +137,6 @@ def get_template_from_file(
     with open(file) as fhandle:
         content = fhandle.read()
     return get_template_from_string(content, **kwargs)
-
-
-def get_template_from_string(
-    content,
-    env=None,
-):
-    env = env or get_jinja_env()
-    return env.from_string(content)
 
 
 def get_template(

@@ -127,6 +127,21 @@ class PynchonPlugin(fleks.Plugin):
                 else:
                     raise
 
+    def __floordiv__(self, key: str, strict=False):
+        """
+
+        :param key: str:
+        :param strict: Default value = False)
+        :param key: str:
+
+        """
+        # return self.__mod__(key, strict=strict)
+        from pynchon import api
+
+        assert key
+        key = key[1:] if key.startswith("/") else key
+        return api.render.get_template(f"{self.plugin_templates_prefix}/{key}")
+
     def __mod__(self, key: str, strict=True):
         """shortcut for accessing global pynchon-config
 
@@ -144,21 +159,6 @@ class PynchonPlugin(fleks.Plugin):
             else:
                 if strict:
                     raise
-
-    def __floordiv__(self, key: str, strict=False):
-        """
-
-        :param key: str:
-        :param strict: Default value = False)
-        :param key: str:
-
-        """
-        # return self.__mod__(key, strict=strict)
-        from pynchon import api
-
-        assert key
-        key = key[1:] if key.startswith("/") else key
-        return api.render.get_template(f"{self.plugin_templates_prefix}/{key}")
 
 
 @tagging.tags(cli_label="<<Default>>")

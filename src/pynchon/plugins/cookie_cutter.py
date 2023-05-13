@@ -26,9 +26,6 @@ ETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 class Pattern(models.ResourceManager):
     """Tools for working with file/directory patterns"""
 
-    name = "cookie-cutter"
-    cli_name = "cut"
-
     class config_class(abcs.Config):
         config_key = "cookie-cutter"
         defaults = dict(include_patterns=["*/", "*/*/"])
@@ -39,6 +36,9 @@ class Pattern(models.ResourceManager):
             tmp /= self.config_key.replace("-", "_")
             assert tmp.exists()
             return tmp
+
+    name = "cookie-cutter"
+    cli_name = "cut"
 
     def list(self) -> typing.Dict:
         """Describe templates we can cut patterns from"""

@@ -116,6 +116,18 @@ class PythonPlatform(models.Planner):
         """reflects click-options typing into click-command function-signatures"""
         raise NotImplementedError()
 
+    @gen.command
+    def sorted(self):
+        """Sorts code-ordering with `ssort` """
+        plan =super(self.__class__,self).plan()
+        src_root = self[:'src.root':]
+        plan.append(self.goal(
+            type='codegen',
+            resource=src_root,
+            command=f'pip install ssort==0.11.6 && ssort {src_root}',
+        ))
+        return self.apply(plan)
+
 
 class PackageConfig(abcs.Config):
     """WARNING: `parent` below prevents moving this class elsewhere"""
