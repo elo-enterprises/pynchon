@@ -119,15 +119,17 @@ def get_jinja_env(*includes, quiet: bool = False):
         LOGGER.info(msg + util_text.to_json(tmp))
     return env
 
+
 def get_template_from_file(
     file: str = None,
     # env=None,
-    **kwargs
+    **kwargs,
 ):
     # env = env or get_jinja_env()
-    with open(file,'r') as fhandle:
+    with open(file) as fhandle:
         content = fhandle.read()
     return get_template_from_string(content, **kwargs)
+
 
 def get_template_from_string(
     content,
@@ -135,6 +137,7 @@ def get_template_from_string(
 ):
     env = env or get_jinja_env()
     return env.from_string(content)
+
 
 def get_template(
     template_name: str = None,
