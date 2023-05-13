@@ -447,11 +447,15 @@ class ModulesWrapper(Base):
             self.do_import_name(name)
 
         if self.import_children:
+            import_pattern=self.import_children if isinstance(self.import_children,(str,)) else '*.py'
             mod_file = self.module.__file__
             children = []
-            for child in Path(mod_file).parents[0].glob('*.py'):
-                child = Path(child).stem
-                if not child.startswith("__"):
+            folder=Path(mod_file).parents[0]
+            children = folder.glob(import_pattern)
+            for child in children:
+                if not child.stem.startswith("__"):
+                    child = str(Path(child).relative_to(folder))[:-len('.py')]
+                    child = child.replace('/', '.')
                     self.import_subs.append(child)
 
         for name in self.import_subs:
