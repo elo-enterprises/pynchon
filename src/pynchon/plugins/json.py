@@ -49,15 +49,21 @@ LOGGER = lme.get_logger(__name__)
 
 class Json(models.ToolPlugin):
     """Tools for working with JSON & JSON5"""
+
+    name = "json"
+    priority = 1
+    cli_name = name
+
+    class config_class(abcs.Config):
+        config_key = "json"
+        defaults = dict()
+
     # cli_subsumes: typing.List[typing.Callable] = [
     #     loadf_main.json5,
     #     loadf_main.json,
     #     loadf_main.j5,
     #     # loadf_main.json,
     # ]
-
-    class config_class(abcs.Config):
-        config_key = "json"
 
     # @tags(click_aliases=['loads',])
     # def json_loads(self):
@@ -76,63 +82,57 @@ class Json(models.ToolPlugin):
     #     """ loads JSON-5 from file-input """
     #     pass
 
-
-# @kommand(
-#     name="json5",
-#     parent=PARENT,
-#     # formatters=dict(),
-#     options=[
-#         # options.file,
-#         # options.stdout,
-#         options.output,
-#         options.templates,
-#         click.option(
-#             "--in-place",
-#             is_flag=True,
-#             default=False,
-#             help=("if true, writes to {file}.json (dropping any other extensions)"),
-#         ),
-#     ],
-#     arguments=[files_arg],
-# )
-# def render_json5(files, output, in_place, templates):
-#     """
-#     Render JSON5 files -> JSON
-#     """
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     return render.j5(file, output=output, in_place=in_place, templates=templates)
-#
-#
-# DEFAULT_OPENER = "open"
-#
-#
-# @kommand(
-#     name="any",
-#     parent=PARENT,
-#     formatters=dict(
-#         # markdown=pynchon.T_TOC_CLI,
-#     ),
-#     options=[
-#         # options.file,
-#         options.format,
-#         # options.stdout,
-#         options.output,
-#     ],
-# )
-# def render_any(format, file, stdout, output):
-#     """
-#     Render files with given renderer
-#     """
-#     raise NotImplementedError()
-
-    name = "json"
-    priority = 1
-    config_class = None
-    cli_name = name
+    # @kommand(
+    #     name="json5",
+    #     parent=PARENT,
+    #     # formatters=dict(),
+    #     options=[
+    #         # options.file,
+    #         # options.stdout,
+    #         options.output,
+    #         options.templates,
+    #         click.option(
+    #             "--in-place",
+    #             is_flag=True,
+    #             default=False,
+    #             help=("if true, writes to {file}.json (dropping any other extensions)"),
+    #         ),
+    #     ],
+    #     arguments=[files_arg],
+    # )
+    # def render_json5(files, output, in_place, templates):
+    #     """
+    #     Render JSON5 files -> JSON
+    #     """
+    #     assert files, "expected files would be provided"
+    #     # if file:
+    #     #     return render.j5(file, output=output, in_place=in_place)
+    #     # elif files:
+    #     # files = files.split(' ')
+    #     LOGGER.debug(f"Running with many: {files}")
+    #     file = files[0]
+    #     files = files[1:]
+    #     return render.j5(file, output=output, in_place=in_place, templates=templates)
+    #
+    #
+    # DEFAULT_OPENER = "open"
+    #
+    #
+    # @kommand(
+    #     name="any",
+    #     parent=PARENT,
+    #     formatters=dict(
+    #         # markdown=pynchon.T_TOC_CLI,
+    #     ),
+    #     options=[
+    #         # options.file,
+    #         options.format,
+    #         # options.stdout,
+    #         options.output,
+    #     ],
+    # )
+    # def render_any(format, file, stdout, output):
+    #     """
+    #     Render files with given renderer
+    #     """
+    #     raise NotImplementedError()

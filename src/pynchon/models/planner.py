@@ -17,6 +17,8 @@ from .plugin_types import BasePlugin
 from pynchon.util import lme, typing  # noqa
 
 
+
+
 @tags(cli_label="Planner")
 class AbstractPlanner(BasePlugin):
     """A plugin-type that provides plan/apply basics"""
@@ -167,8 +169,8 @@ class ShyPlanner(AbstractPlanner):
 class Manager(ShyPlanner):
     cli_label = "Manager"
 
-class ResourceManager(Manager):
 
+class ResourceManager(Manager):
     @property
     def changes(self):
         """Set(git_changes).intersection(plugin_resources)"""

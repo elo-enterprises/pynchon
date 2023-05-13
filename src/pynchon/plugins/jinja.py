@@ -11,6 +11,7 @@ LOGGER = lme.get_logger(__name__)
 @tagging.tags(click_aliases=["j"])
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
+
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):

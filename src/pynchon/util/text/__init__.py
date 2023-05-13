@@ -4,7 +4,6 @@
 
 import json
 
-
 from . import loadf, loads  # noqa
 
 # from . import dumpf, dumps # noqa
@@ -26,7 +25,8 @@ def to_json(obj, cls=None, indent: int = 2) -> str:
 
     """
     from pynchon.abcs.path import JSONEncoder
-    cls=cls or JSONEncoder
+
+    cls = cls or JSONEncoder
 
     return json.dumps(obj, indent=indent, cls=cls)
 

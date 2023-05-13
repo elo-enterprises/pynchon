@@ -18,35 +18,14 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 
 
-#
-#
-# class TaggerFactory(dict):
-#     """
-#     NB: not intended to be used directly- because this is
-#         effectively singleton you probably want to use
-#         `util.functools.taggers` directly
-#     """
-#
-#     registry: typing.Dict[str, typing.Any] = {}
-#
-#     def __getitem__(self, name: str) -> typing.Any:
-#         tmp = self.registry.get(name, tag_factory(name))
-#         self.registry[name] = tmp
-#         return tmp
-#
-#     def __getattr__(self, name: str) -> typing.Any:
-#         return self[name]
-#
-#
-# taggers = TAGGERS = TaggerFactory()
+# FIXME: avoid collisions by namespacing like this:
+# https://multiple-dispatch.readthedocs.io/en/latest/design.html#namespaces-and-dispatch
 GLOBAL_TAG_REGISTRY = defaultdict(dict)
 
 
 def tag_factory(*args) -> typing.Any:
     """
-
     :param *args:
-
     """
 
     class tagger(dict):
@@ -58,12 +37,11 @@ def tag_factory(*args) -> typing.Any:
 
     return tagger()
 
+
 TagDict = typing.Dict[str, typing.Any]
 
 
 class tagsM:
-
-    # @typing.validate_arguments
     def __call__(self, **tags: TagDict):
         def decorator(func: typing.Callable) -> typing.Callable:
             merged = {**GLOBAL_TAG_REGISTRY.get(func, {}), **tags}
@@ -84,7 +62,7 @@ class tagsM:
         GLOBAL_TAG_REGISTRY[item] = tags
 
     @typing.validate_arguments
-    def __getitem__(self, item: typing.Any) -> typing.Dict[str, typing.Any]:
+    def __getitem__(self, item: typing.Any) -> dict[str, typing.Any]:
         tmp = GLOBAL_TAG_REGISTRY.get(item, {})
         if not tmp and callable(item) and type(item) == typing.MethodType:
             fxn = item
@@ -97,6 +75,7 @@ class tagsM:
         tmp = tmp or tag_factory(item)
         self.__setitem__(item, tmp)
         return tmp or {}
+
     __iter__ = GLOBAL_TAG_REGISTRY.__iter__
 
 
@@ -105,13 +84,10 @@ tags = tagsM()
 
 def tagged_property(**ftags):
     """Equivalent to:
-        @tagging.tags(foo=bar)
-        @property
-        def method(self):
-            ...
-
-    :param **ftags:
-
+    @tagging.tags(foo=bar)
+    @property
+    def method(self):
+        ...
     """
 
     def dec(fxn):

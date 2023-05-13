@@ -17,7 +17,7 @@ def lifecycle_plugin(sender, plugin):
     :param plugin:
     """
     if plugin:
-        tmp = getattr(sender, "__name__", getattr(sender,'name', str(sender)))
+        tmp = getattr(sender, "__name__", getattr(sender, "name", str(sender)))
         tmp = f"{tmp}: PLUGIN: {plugin}"
         lifecycle.send(sender, msg=plugin)
 
@@ -30,25 +30,23 @@ def lifecycle_config(sender, config):
 
     """
     if config:
-        tmp = getattr(sender, "__name__", getattr(sender,'name', str(sender)))
+        tmp = getattr(sender, "__name__", getattr(sender, "name", str(sender)))
         tmp = f"{tmp}: CONFIG: {config}"
         lifecycle.send(sender, msg=config)
 
 
 def lifecycle_applying(sender, applying=None, **kwargs):
-    """
-    """
+    """ """
     if applying:
-        tmp = getattr(sender, "__name__", getattr(sender,'name', str(sender)))
+        tmp = getattr(sender, "__name__", getattr(sender, "name", str(sender)))
         tmp = f"{tmp}: APPLY: {applying}"
         lifecycle.send(lifecycle_applying, stage=tmp)
 
 
-def lifecycle_stage(sender, stage=None, **kwargs):
+def lifecycle_stage(sender, stage=None, **unused):
     """
     :param sender:
     :param stage:  (Default value = None)
-    :param **kwargs:
     """
     if stage:
         tmp = getattr(sender, "__name__", str(sender))
@@ -57,7 +55,7 @@ def lifecycle_stage(sender, stage=None, **kwargs):
         app.status_bar.update(stage=stage)
 
 
-def lifecycle_msg(sender, msg=None, **kwargs):
+def lifecycle_msg(sender, msg=None, **unused):
     """
     :param sender: param msg:  (Default value = None)
     :param msg:  (Default value = None)
@@ -67,15 +65,14 @@ def lifecycle_msg(sender, msg=None, **kwargs):
         LOGGER.info(f"lifecycle :{tmp}: {msg}")
 
 
-def _lifecycle(sender, **kwargs):
-    """
-    """
+def _lifecycle(sender, **signals):
+    """ """
     from pynchon import events as THIS
 
-    for k in kwargs:
+    for k in signals:
         dispatch = getattr(THIS, f"lifecycle_{k}", None)
         assert dispatch
-        dispatch(sender, **kwargs)
+        dispatch(sender, **signals)
 
 
 lifecycle.connect(_lifecycle)

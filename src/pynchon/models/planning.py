@@ -162,7 +162,6 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
 
 class ApplyResults(typing.List[Action], metaclass=meta.namespace):
-
     @property
     def _dict(self):
         """ """
@@ -179,5 +178,6 @@ class ApplyResults(typing.List[Action], metaclass=meta.namespace):
         for g in self:
             result["state"][past_tense(g.type)].append(g.resource)
         return result
+
     def __str__(self):
         return f"<{self.__class__.__name__}[{len(self)} actions]>"

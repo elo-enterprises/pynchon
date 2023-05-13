@@ -40,7 +40,8 @@ class PythonPlatform(models.Provider):
 
     @cli.click.command
     def bootstrap(self):
-        """ helpers for bootstrapping python projects """
+        """helpers for bootstrapping python projects"""
+
 
 class PackageConfig(abcs.Config):
     """WARNING: `parent` below prevents moving this class elsewhere"""

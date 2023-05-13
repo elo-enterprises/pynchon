@@ -37,12 +37,12 @@ class SourceMan(models.Manager):
     name = "src"
     cli_name = "src"
     priority = 0
-        # @tagging.tagged_property(conflict_strategy='override')
-        # def exclude_patterns(self):
-        #     globals = plugin_util.get_plugin('globals').get_current_config()
-        #     global_ex = globals['exclude_patterns']
-        #     my_ex = self.get('exclude_patterns', [])
-        #     return list(set( global_ex+my_ex))
+    # @tagging.tagged_property(conflict_strategy='override')
+    # def exclude_patterns(self):
+    #     globals = plugin_util.get_plugin('globals').get_current_config()
+    #     global_ex = globals['exclude_patterns']
+    #     my_ex = self.get('exclude_patterns', [])
+    #     return list(set( global_ex+my_ex))
 
     # def list(self):
     #     """ """
