@@ -123,6 +123,18 @@ class SourceMan(models.ResourceManager):
         LOGGER.warning(f"wrote {fname}")
         return fname
 
+    @cli.click.group("open")
+    def _open(self):
+        """helper for opening project source files"""
+
+    @_open.command("recent")
+    def open_recent(self):
+        """opens recently changed files"""
+
+    @_open.command("changed")
+    def open_changed(self):
+        """opens changed files"""
+
     def plan(self, config=None):
         """
 

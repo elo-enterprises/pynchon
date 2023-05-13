@@ -62,9 +62,6 @@ class GitConfig(abcs.Config):
         if self.repo:
             tmp = self.repo.split(":")[-1]
             _org, repo_name = tmp.split("/")
-            # err=f"cannot determine repo name from {self.repo}"
-            # self.logger.critical(err)
-            # raise ValueError(err)
             repo_name = repo_name.split(".git")[0]
             return repo_name
 

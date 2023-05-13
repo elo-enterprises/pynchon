@@ -50,7 +50,7 @@ class AbstractPlanner(BasePlugin):
         plan = planning.Plan()
         return plan
 
-    def apply(self, config=None) -> planning.ApplyResults:
+    def apply(self, plan=None) -> planning.ApplyResults:
         """Executes the plan for this plugin
 
         :param config:  (Default value = None)
@@ -62,7 +62,7 @@ class AbstractPlanner(BasePlugin):
             # write status event (used by the app-console)
             stage=f"Applying for plugin '{self.__class__.name}'"
         )
-        plan = self.plan()
+        plan = plan or self.plan()
         results = []
         for action_item in plan:
             events.lifecycle.send(self, applying=action_item)

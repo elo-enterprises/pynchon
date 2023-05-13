@@ -119,6 +119,22 @@ def get_jinja_env(*includes, quiet: bool = False):
         LOGGER.info(msg + util_text.to_json(tmp))
     return env
 
+def get_template_from_file(
+    file: str = None,
+    # env=None,
+    **kwargs
+):
+    # env = env or get_jinja_env()
+    with open(file,'r') as fhandle:
+        content = fhandle.read()
+    return get_template_from_string(content, **kwargs)
+
+def get_template_from_string(
+    content,
+    env=None,
+):
+    env = env or get_jinja_env()
+    return env.from_string(content)
 
 def get_template(
     template_name: str = None,
@@ -126,13 +142,9 @@ def get_template(
     from_string: str = None,
 ):
     """
-
     :param template_name: str:  (Default value = None)
     :param env: Default value = None)
     :param from_string: str:  (Default value = None)
-    :param template_name: str:  (Default value = None)
-    :param from_string: str:  (Default value = None)
-
     """
     env = env or get_jinja_env()
     try:
