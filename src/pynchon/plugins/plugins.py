@@ -25,7 +25,7 @@ class PluginsMan(models.Manager):
         :param template_skeleton: bool:  (Default value = False)
 
         """
-        # FIXME: use cookie-cutter?
+        # FIXME: use pattern?
         plugins_d = abcs.Path(__file__).parents[0]
         template_plugin_f = plugins_d / "__template__.py"
         new_plugin_file = plugins_d / f"{name}.py"

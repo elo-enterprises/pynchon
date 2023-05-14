@@ -21,8 +21,8 @@
 
     // Experimental
     "deck",           // slide-deck tool
-    "griffe",         // ast tool
-    "cookie-cutter",  // helpers for cookie-cutter
+    "griffe",    // ast tool
+    "pattern",  // replacement for scaffold, probably
   ],
   // END: top-level config
   // BEGIN: core plugins-config

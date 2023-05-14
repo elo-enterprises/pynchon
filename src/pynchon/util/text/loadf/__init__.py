@@ -118,10 +118,10 @@ def toml(file: str = None, strict: bool = True):
 @click.option("--under-key", help="required with --push commands", default="")
 @click.argument("files", nargs=-1)
 def json5(
-    output: str = "",
-    should_print: bool = False,
     file: str = "",
     files: typing.List[str] = [],
+    output: str = "",
+    should_print: bool = False,
     wrapper_key: str = "",
     pull: str = "",
     push_data: str = "",
@@ -162,6 +162,7 @@ def json5(
 
     """
     out: typing.Dict[str, typing.Any] = {}
+    files = files or (file and [file]) or []
     for file in files:
         with open(file) as fhandle:
             obj = loads.json5(fhandle.read())
@@ -213,6 +214,7 @@ def json5(
     print(msg, file=open(output, "w"))
     if should_print and output != "/dev/stdout":
         print(msg)
+    return out
 
 
 @options.strict

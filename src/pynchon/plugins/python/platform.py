@@ -11,7 +11,7 @@ from pynchon.util.os import invoke
 LOGGER = lme.get_logger(__name__)
 
 
-@tagging.tags(click_aliases=["p"])
+@tagging.tags(click_aliases=["py"])
 class PythonPlatform(models.Planner):
     """Context for python-platform"""
 
@@ -116,16 +116,22 @@ class PythonPlatform(models.Planner):
         """reflects click-options typing into click-command function-signatures"""
         raise NotImplementedError()
 
-    @gen.command
+    @cli.click.group("src")
+    def src(self):
+        """Generates code for python modules, packages, etc"""
+
+    @src.command
     def sorted(self):
-        """Sorts code-ordering with `ssort` """
-        plan =super(self.__class__,self).plan()
-        src_root = self[:'src.root':]
-        plan.append(self.goal(
-            type='codegen',
-            resource=src_root,
-            command=f'pip install ssort==0.11.6 && ssort {src_root}',
-        ))
+        """Sorts code-ordering with `ssort`"""
+        plan = super(self.__class__, self).plan()
+        src_root = self[:"src.root":]
+        plan.append(
+            self.goal(
+                type="code-gen",
+                resource=src_root,
+                command=f"pip install ssort==0.11.6 && ssort {src_root}",
+            )
+        )
         return self.apply(plan)
 
 

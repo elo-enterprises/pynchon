@@ -1,44 +1,30 @@
-""" pynchon.plugins.cookie_cutter
+""" pynchon.plugins.pattern
 """
-from pynchon import abcs, cli, events, models  # noqa
+
+from pynchon import abcs, cli, constants, events, models  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-
-# https://cookiecutter.readthedocs.io/en/stable/tutorials/tutorial2.html
-# mkdir -p ~/.cookie-cutter')
-# mkdir cookiecutter-website-simple
-# cd cookiecutter-website-simple/
-#
-# Step 2: Create project_slug Directory
-#
-#  Create a directory called {{ cookiecutter.project_slug }}.
-#
-# This value will be replaced with the repo name of projects that you generate from this cookiecutter.
-# Step 3: Create Files
-#
-from pynchon import constants
-
-ETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
+PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
 
+@tagging.tags(click_aliases=["pat"])
 class Pattern(models.ResourceManager):
     """Tools for working with file/directory patterns"""
 
     class config_class(abcs.Config):
-        config_key = "cookie-cutter"
+        config_key = "pattern"
         defaults = dict(include_patterns=["*/", "*/*/"])
 
         @property
         def root(self):
-            tmp = ETR
-            tmp /= self.config_key.replace("-", "_")
-            assert tmp.exists()
+            tmp = PETR / "scaffolds"
+            assert tmp.exists(), tmp
             return tmp
 
-    name = "cookie-cutter"
-    cli_name = "cut"
+    name = "pattern"
+    cli_name = "pattern"
 
     def list(self) -> typing.Dict:
         """Describe templates we can cut patterns from"""
@@ -50,6 +36,16 @@ class Pattern(models.ResourceManager):
         keep = [x for x in tmp if not any([k.startswith(f"{x}/") for k in tmp])]
         tmp = dict(list([[k, list(v)] for k, v in tmp.items() if k in keep]))
         return tmp
+
+    @cli.click.command("open")
+    @cli.click.argument("kind", nargs=1)
+    def _open(self, kind):
+        """open pattern in editor"""
+        from pynchon.util.os import invoke
+
+        pfolder = self.pattern_folder / kind
+        ed = self[:"pynchon.editor":"atom"]
+        invoke(f"{ed} {pfolder}&", system=True)
 
     @cli.click.argument("kind", nargs=1)
     @cli.click.argument("dest", nargs=1)
@@ -112,12 +108,14 @@ class Pattern(models.ResourceManager):
 
     @property
     def pattern_folder(self):
-        return ETR / self.name.replace("-", "_")
+        return self["root"]
 
     @cli.click.argument("name", nargs=1)
     @cli.click.argument("kind", nargs=1)
-    # @cli.click.option("--overwrite",is_flag=True, default=False)
-    def new(self, kind, name, overwrite: bool = False):
+    @cli.click.option(
+        "--plan", "-p", "should_plan", help="plan only", is_flag=True, default=False
+    )
+    def new(self, kind, name, should_plan: bool = False):
         """Instantiates PATTERN to NAME"""
         pfolder = self.pattern_folder / kind
         if not pfolder.exists():
@@ -133,20 +131,38 @@ class Pattern(models.ResourceManager):
             if dest.exists():
                 LOGGER.critical(f"{dest} already exists!")
                 return False
-            plan.append(
-                self.goal(
-                    command=f"cp -rfv {pfolder} {dest}",
-                    resource=dest,
-                    type="copy",
+            fadvice = pfolder / ".scaffold.advice.json5"
+            if fadvice.exists():
+                from pynchon.util import text
+
+                advice = text.loadf.json5(file=fadvice)
+                inherits = advice.get("inherits", [])
+                inherits = [self.pattern_folder / p for p in inherits]
+            else:
+                inherits = []
+            inherits += [pfolder / "*"] if pfolder not in inherits else []
+            LOGGER.warning(f"{kind} inherits {len(inherits)} patterns")
+            dest = dest.relative_to(abcs.Path(".").absolute())
+            for parent in inherits:
+                parent = parent.relative_to(abcs.Path(".").absolute())
+                plan.append(
+                    self.goal(
+                        command=f"cp -rfv {parent} {dest}",
+                        resource=dest,
+                        type="copy",
+                    )
                 )
-            )
+
             plan.append(
                 self.goal(
                     # callable=lambda: self.render(name)
-                    command=f"{self.click_entry.name} {self.cli_name} render {name}",
-                    resource=dest,
+                    command=f"{self.click_entry.name} {self.cli_name} render {dest}",
+                    resource=dest.absolute(),
                     type="recursive-render",
                 )
             )
-            result = self.apply(plan)
-            return result.ok
+            if should_plan:
+                return plan
+            else:
+                result = self.apply(plan)
+                return result.ok
