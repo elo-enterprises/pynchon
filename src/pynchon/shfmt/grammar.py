@@ -1,6 +1,3 @@
-
-""" pynchon.shfmt.grammar
-"""
 r"""@@grammar::bash
 @@comments :: /\(\*.*?\*\)/
 @@eol_comments :: /#.*?$/
@@ -56,7 +53,6 @@ compound_command =
   | subproc {} {}
   | command {} {}
   ;
-#
 # pipeline_command =
 #   compound_command
 #   | compound_command joiner compound_command
@@ -75,6 +71,4 @@ bash_command = compound_command;
 import tatsu
 src = tatsu.to_python_sourcecode(__doc__)
 src = src[: src.rfind("""def main(filename, **kwargs)""")]
-# print(src)
-# tmp=locals().copy()
 exec(src)
