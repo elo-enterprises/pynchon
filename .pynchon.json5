@@ -43,10 +43,13 @@
   //   This provides find/search tooling, plus file-header generators, etc
   "src": {
     "root": "{{pynchon.root}}/src",
-    "include_patterns": ["**/*.py",],
+    "include_patterns": [
+        "{{src.root}}/**/*.py",
+        "{{src.root}}/**/*.j2",
+      ],
     "headers": {},
     "goals": [
-      'pyment -q \'"""\' -t --first-line True --ignore-private False src/ --write',
+      // ...
     ],
   },
 

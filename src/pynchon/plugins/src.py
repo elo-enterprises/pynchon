@@ -10,6 +10,7 @@ EXT_MAP = {
         template="pynchon/plugins/src/header/ini.j2", pre=["#", "###"], post="###"
     ),
     ".j2": dict(template="pynchon/plugins/src/header/jinja.j2", pre=["{#"], post="#}"),
+    "*.md.j2": dict(template="pynchon/plugins/src/header/jinja-md.md.j2", pre=["{#"], post="#}"),
     ".json5": dict(
         template="includes/pynchon/src/json5-header.j2", pre=["//", "///"], post="///"
     ),
@@ -50,7 +51,20 @@ class SourceMan(models.ResourceManager):
     #     # src_root = config.pynchon['src_root']
     #     include_patterns = self.config.get('include_patterns', ["**"])
     #     return files.find_globs(include_patterns)
-
+    def _get_meta(self,rsrc):
+        import fnmatch
+        tmp=rsrc.full_extension()
+        try:
+            ext_meta = EXT_MAP[tmp]
+        except (KeyError,) as exc:
+            for x in EXT_MAP:
+                if fnmatch.fnmatch(tmp, x):
+                    ext_meta=EXT_MAP[x]
+                    break
+            else:
+                import IPython; IPython.embed()
+                raise
+        return ext_meta
     def _get_missing_headers(self, resources):
         """
         :param resources:
@@ -60,7 +74,8 @@ class SourceMan(models.ResourceManager):
             if not p_rsrc.is_file() or not p_rsrc.exists():
                 continue
             # ext_info = self._rsrc_ext_info(p_rsrc)
-            ext_meta = EXT_MAP[p_rsrc.full_extension()]
+            tmp = p_rsrc.full_extension()
+            ext_meta=self._get_meta(p_rsrc)
             preamble_patterns = ext_meta["pre"]
             assert isinstance(preamble_patterns, (list,))
             with p_rsrc.open("r") as fhandle:
@@ -80,22 +95,17 @@ class SourceMan(models.ResourceManager):
 
     def _plan_empties(self, resources):
         """
-
         :param resources:
-
         """
         result = []
         return result
 
     def _render_header_file(self, rsrc: abcs.Path = None):
         """
-
         :param rsrc: abcs.Path:  (Default value = None)
-        :param rsrc: abcs.Path:  (Default value = None)
-
         """
         ext = rsrc.full_extension()
-        templatef = EXT_MAP[ext]["template"]
+        templatef = self._get_meta(rsrc)["template"]
         tpl = api.render.get_template(templatef)
         abs = rsrc.absolute()
         src_root = abcs.Path(self.config["root"]).absolute()
