@@ -1,3 +1,6 @@
+
+""" pynchon.shfmt.grammar
+"""
 r"""@@grammar::bash
 @@comments :: /\(\*.*?\*\)/
 @@eol_comments :: /#.*?$/

@@ -1,3 +1,6 @@
+
+""" pynchon.util.text.dumpf.__main__
+"""
 from pynchon.cli import click, common, options  # noqa
 from pynchon.util import lme, typing  # noqa
 from pynchon.util.tagging import tags

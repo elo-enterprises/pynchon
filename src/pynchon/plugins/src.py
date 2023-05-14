@@ -125,7 +125,7 @@ class SourceMan(models.ResourceManager):
         )
         if not result:
             err = f'header for extension "{ext}" rendered to "{fname}" from {templatef}'
-            raise Exception(err)
+            self.logger.warning(err)
         with open(fname, "w") as fhandle:
             fhandle.write(result)
         LOGGER.warning(f"wrote {fname}")

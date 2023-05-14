@@ -1,3 +1,6 @@
+
+""" pynchon.models.planning
+"""
 import typing
 import collections
 from dataclasses import dataclass

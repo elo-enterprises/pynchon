@@ -1,3 +1,6 @@
+
+""" pynchon.codemod.commands.docstrings
+"""
 import argparse
 import textwrap
 
