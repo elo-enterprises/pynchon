@@ -53,9 +53,7 @@ class SourceMan(models.ResourceManager):
 
     def _get_missing_headers(self, resources):
         """
-
         :param resources:
-
         """
         result = dict(extensions=set(), files=[])
         for p_rsrc in resources:
@@ -146,20 +144,20 @@ class SourceMan(models.ResourceManager):
         for g in self["goals"]:
             plan.append(self.goal(command=g, resource="?", type="user-config"))
 
-        # cmd_t = 'python -mpynchon.util.files prepend --clean '
-        # loop = self._get_missing_headers(resources)
-        # for rsrc in loop['files']:
-        #     ext = rsrc.full_extension()
-        #     ext = ext[1:] if ext.startswith('.') else ext
-        #     # fhdr = header_files[ext]
-        #     fhdr = self._render_header_file(rsrc)
-        #     plan.append(
-        #         self.goal(
-        #             resource=rsrc,
-        #             type='change',
-        #             command=f"{cmd_t} {fhdr} {rsrc}",
-        #         )
-        #     )
+        cmd_t = 'python -mpynchon.util.files prepend --clean '
+        loop = self._get_missing_headers(resources)
+        for rsrc in loop['files']:
+            ext = rsrc.full_extension()
+            ext = ext[1:] if ext.startswith('.') else ext
+            # fhdr = header_files[ext]
+            fhdr = self._render_header_file(rsrc)
+            plan.append(
+                self.goal(
+                    resource=rsrc,
+                    type='change',
+                    command=f"{cmd_t} {fhdr} {rsrc}",
+                )
+            )
         # for rsrc in self._plan_empties(resources):
         #     plan.append(
         #         self.goal(
