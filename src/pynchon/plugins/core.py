@@ -39,6 +39,7 @@ class Core(models.Planner):
 
     @cli.click.option("--bash", default=False, is_flag=True, help="bootstrap bash")
     @cli.click.option("--bashrc", default=False, is_flag=True, help="bootstrap bashrc")
+    @cli.click.option("--bash-completions", default=False, is_flag=True, help="bootstrap completions")
     @cli.click.option(
         "--makefile", default=False, is_flag=True, help="bootstrap Makefile"
     )
@@ -46,6 +47,7 @@ class Core(models.Planner):
     def bootstrap(
         self,
         bash: bool = False,
+        bash_completions: bool = False,
         bashrc: bool = False,
         makefile: bool = False,
         tox: bool = False,
@@ -59,64 +61,68 @@ class Core(models.Planner):
         template_prefix = f"{self.plugin_templates_prefix}/bootstrap"
         pynchon_completions_script = ".tmp.pynchon.completions.sh"
         bashrc_snippet = ".tmp.pynchon.bashrc"
-        if bash:
+        if bash_completions:
             import collections
-
-            gr = self.__class__.click_group
+            gr = self.__class__.click_entry
             all_known_subcommands = [
                 " ".join(x.split()[1:])
                 for x in cli.click.subcommand_tree(
-                    gr, mode="text", path=tuple(["pynchon"]), hidden=False
+                    gr,
+                    mode="text",
+                    path=tuple(["pynchon"]),
+                    hidden=False
                 ).keys()
             ]
-            head = [x for x in all_known_subcommands if len(x.split()) == 1]
-            rest = [x for x in all_known_subcommands if x not in head]
-            tmp = collections.defaultdict(list)
-            for phrase in rest:
-                bits = phrase.split()
-                k = bits.pop(0)
-                tmp[k] += bits
-            rest = [
-                f"""    '{k}'*)
-              while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(subs)}")" -- "$cur" )
-              ;;
-            """
-                for k, subs in tmp.items()
-            ]
-            rest += [
-                f"""    *)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(head)}")" -- "$cur" )
-      ;;"""
-            ]
-            # LOGGER.warning("This is intended to be run through a pipe, as in:")
-            # LOGGER.critical("pynchon bootstrap --bash | bash")
-            tmpl = api.render.get_template(f"{template_prefix}/bash.sh")
-            content = tmpl.render(head=head, rest="\n".join(rest), **self.config)
-            files.dumps(content=content, file=pynchon_completions_script)
-            LOGGER.warning(
-                f"To refresh your shell, run: `source {pynchon_completions_script}`"
-            )
-            return dict()
-        if bashrc:
-            LOGGER.critical(
-                "To use completion hints every time they are "
-                "present in a folder, adding this to .bashrc:"
-            )
-            tmpl = api.render.get_template(f"{template_prefix}/bashrc.sh")
-            content = tmpl.render(pynchon_completions_script=pynchon_completions_script)
-            files.dumps(content=content, file=bashrc_snippet, logger=LOGGER.info)
-            return files.block_in_file(
-                target_file=abcs.Path("~/.bashrc").expanduser(),
-                block_file=bashrc_snippet,
-            )
+            # head = [x for x in all_known_subcommands if len(x.split()) == 1]
+            # rest = [x for x in all_known_subcommands if x not in head]
+            # tmp = collections.defaultdict(list)
+            # for phrase in rest:
+            #     bits = phrase.split()
+            #     k = bits.pop(0)
+            #     tmp[k] += bits
+            # print(list(tmp.keys()))
+            print(all_known_subcommands)
+            return
+      #   if bash:
+      #       rest = [
+      #           f"""    '{k}'*)
+      #         while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(subs)}")" -- "$cur" )
+      #         ;;
+      #       """
+      #           for k, subs in tmp.items()
+      #       ]
+      #       rest += [
+      #           f"""    *)
+      # while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(head)}")" -- "$cur" )
+      # ;;"""
+      #       ]
+      #       # LOGGER.warning("This is intended to be run through a pipe, as in:")
+      #       # LOGGER.critical("pynchon bootstrap --bash | bash")
+      #       tmpl = api.render.get_template(f"{template_prefix}/bash.sh")
+      #       content = tmpl.render(head=head, rest="\n".join(rest), **self.config)
+      #       files.dumps(content=content, file=pynchon_completions_script)
+      #       LOGGER.warning(
+      #           f"To refresh your shell, run: `source {pynchon_completions_script}`"
+      #       )
+      #       return dict()
+        # if bashrc:
+        #     LOGGER.critical(
+        #         "To use completion hints every time they are "
+        #         "present in a folder, adding this to .bashrc:"
+        #     )
+        #     tmpl = api.render.get_template(f"{template_prefix}/bashrc.sh")
+        #     content = tmpl.render(pynchon_completions_script=pynchon_completions_script)
+        #     files.dumps(content=content, file=bashrc_snippet, logger=LOGGER.info)
+        #     return files.block_in_file(
+        #         target_file=abcs.Path("~/.bashrc").expanduser(),
+        #         block_file=bashrc_snippet,
+        #     )
         elif tox:
             tmpl = api.render.get_template(f"{template_prefix}/tox.ini")
-            content = tmpl.render(**self.project_config)
-            print(content)
         elif makefile:
             tmpl = api.render.get_template(f"{template_prefix}/Makefile")
-            content = tmpl.render(**self.project_config)
-            print(content)
+        content = tmpl.render(**self.project_config)
+        print(content)
 
     def raw(self) -> None:
         """Returns (almost) raw config,
