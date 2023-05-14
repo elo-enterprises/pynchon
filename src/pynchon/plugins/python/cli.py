@@ -208,12 +208,12 @@ class PythonCLI(models.ShyPlanner):
     #         commands=result,
     #     )
 
-    def plan(self, config=None):
-        from pynchon import api
-
-        config = config or api.project.get_config()
-        plan = super(self.__class__, self).plan(config)
-        droot = config.pynchon["docs_root"]
+    def plan(self):
+        # from pynchon import api
+        # config = config or api.project.get_config()
+        plan = super(self.__class__, self).plan()
+        # droot = config.pynchon["docs_root"]
+        droot = self[:'docs.root':]
         cli_root = f"{droot}/cli"
 
         plan.append(
@@ -238,12 +238,12 @@ class PythonCLI(models.ShyPlanner):
         [
             plan.append(
                 self.goal(
-                    command=f"pynchon gen cli main --file {fname} --output-dir {cli_root}",
+                    command=f"{self.click_entry.name} {self.click_group.name} main --file {fname} --output-dir {cli_root}",
                     type="gen",
                     resource=fname,
                 )
             )
-            for fname in config["python-cli"].entrypoints
+            for fname in self["entrypoints"]
         ]
 
         return plan
