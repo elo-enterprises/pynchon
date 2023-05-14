@@ -37,7 +37,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
             return "[cyan]=> [green]ok" if self.succeeded else "[red]failed"
 
         from pynchon import app
-        from pynchon.util import shfmt
+        from pynchon import shfmt
 
         if self.log_command:
             msg = f"running command: (system={self.system})\n\t{self.cmd}"

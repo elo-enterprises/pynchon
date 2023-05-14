@@ -24,7 +24,7 @@ class Goal(metaclass=meta.namespace):
     owner: str = "?o"
 
     def __rich__(self) -> str:
-        from pynchon.util import shfmt
+        from pynchon import shfmt
 
         fmt = shfmt.bash_fmt(self.command)
         return app.Panel(
