@@ -80,10 +80,7 @@ class Jinja(models.Planner):
         local: bool = False,
     ):
         """Lists all usable {% include ... %} values
-
         :param local: bool:  (Default value = False)
-        :param local: bool:  (Default value = False)
-
         """
         includes = self.list_includes(local=local)
         out = []

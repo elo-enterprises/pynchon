@@ -67,17 +67,13 @@ class DocsMan(models.ResourceManager):
     def gen(self):
         """Generator subcommands"""
 
-    # @tagging.tags(click_group='gen')
     @cli.options.output
     @cli.options.should_print
     @gen.command("version-file")
-    # @cli.common.kommand(parent=gen)
     def version_file(self, output, should_print):
         """Creates {docs.root}/VERSION.md file
-
         :param output: param should_print:
         :param should_print:
-
         """
         from pynchon.api import render
 
@@ -96,27 +92,22 @@ class DocsMan(models.ResourceManager):
         force: bool = False,
     ):
         """Runs a `grip` server for this project
-
         :param background: bool:  (Default value = True)
         :param force: bool:  (Default value = False)
         :param background: bool:  (Default value = True)
         :param force: bool:  (Default value = False)
-
         """
         args = "--force" if force else ""
         if not self.server.live or force:
             from pynchon.util.os import invoke
 
-            invoke(f"python -m pynchon.util.grip serve {args}").succeeded
+            assert invoke(f"python -m pynchon.gripe start {args}").succeeded
         return dict(url=self.server_url, pid=self.server_pid)
 
     def _open__html(self, file: str = None, server=None):
         """
-
         :param file: str:  (Default value = None)
         :param server: Default value = None)
-        :param file: str:  (Default value = None)
-
         """
         relf = file.absolute().relative_to(abcs.Path(self.git_root))
         return self._open_grip(abcs.Path("__raw__") / relf)
@@ -127,10 +118,8 @@ class DocsMan(models.ResourceManager):
     )
     def open(self, file, server=None):
         """Open a docs-artifact (based on file type)
-
         :param file: param server:  (Default value = None)
         :param server:  (Default value = None)
-
         """
         self.serve()
         file = abcs.Path(file)

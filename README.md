@@ -62,17 +62,14 @@
     * [OOP Framework](#oop-framework)
     * [Event Framework](#event-framework)
   * [Example Usage](#example-usage)
-  * [Implementation Notes](#implementation-notes)
   * [Packaging &amp; Releases](#packaging--releases)
   * [Dependencies](#dependencies)
   * [Related Work](#related-work)
   * [Workflows](#workflows)
     * [Workflow: Bug Reports or Feature Requests](#workflow-bug-reports-or-feature-requests)
-    * [Workflow: Finding a Library Release](#workflow-finding-a-library-release)
+    * [Workflow: Finding a Release](#workflow-finding-a-release)
     * [Workflow: Installation for Library Developers](#workflow-installation-for-library-developers)
-    * [Workflow: Installation for Users](#workflow-installation-for-users)
-    * [Workflow: Build, install, testing, etc](#workflow-build-install-testing-etc)
-    * [Workflow: Running Tests](#workflow-running-tests)
+  * [Implementation Notes](#implementation-notes)
   * [Known Issues](#known-issues)
 
 
@@ -192,16 +189,50 @@ System Command Invocation
 
 ### Event Framework
 
+
+
 ---------------------------------------------------------------------------------
 
 ## Example Usage
 
 ```
-pynchon gen version-metadata
-pynchon gen api toc
-pynchon gen cli toc
-pynchon gen api detail
 ```
+
+---------------------------------------------------------------------------------
+
+
+
+## Packaging & Releases
+
+---------------------------------------------------------------------------------
+
+## Dependencies
+
+
+
+
+---------------------------------------------------------------------------------
+
+## Related Work
+
+
+
+---------------------------------------------------------------------------------
+
+## Workflows
+
+### Workflow: Bug Reports or Feature Requests
+
+
+
+
+### Workflow: Finding a Release
+
+
+
+### Workflow: Installation for Library Developers
+
+
 
 ---------------------------------------------------------------------------------
 
@@ -221,36 +252,10 @@ For cyclomatic complexity, we rely on [mccabe](https://github.com/PyCQA/mccabe).
 
 ---------------------------------------------------------------------------------
 
-## Packaging & Releases
-
----------------------------------------------------------------------------------
-
-## Dependencies
-
----------------------------------------------------------------------------------
-
-## Related Work
-
----------------------------------------------------------------------------------
-
-## Workflows
-
-### Workflow: Bug Reports or Feature Requests
-
-### Workflow: Finding a Library Release
-
-### Workflow: Installation for Library Developers
-
-### Workflow: Installation for Users
-
-### Workflow: Build, install, testing, etc
-
-### Workflow: Running Tests
-
----------------------------------------------------------------------------------
-
 ## Known Issues
 
 * Use the [griffe-agent / plugin framework](#FIXME)?
+* See [FIXME.md](docs/FIXME.md)
+* See [TODO.md](docs/TODO.md)
 
 ---------------------------------------------------------------------------------

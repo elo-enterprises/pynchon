@@ -40,9 +40,7 @@ def jinja(
     """
     import jinja2
 
-    template = api.get_template(
-        template_name=file or "?", from_string=text, env=api.get_jinja_env(*includes)
-    )
+    template = api.get_template_from_string(text, env=api.get_jinja_env(*includes))
     context = {
         # FIXME: try to santize this
         **dict(os.environ.items()),

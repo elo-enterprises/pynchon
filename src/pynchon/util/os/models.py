@@ -70,6 +70,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     log_stdin: bool = True
     system: bool = False
     load_json: bool = False
+    # strict: bool = True
 
     def __call__(self):
         if self.system:
@@ -96,7 +97,8 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             msg = "command will receive pipe:\n{}"
             self.log_stdin and LOGGER.debug(msg.format(self.stdin))
             exec_kwargs.update(
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
             )
             LOGGER.critical([self.cmd, exec_kwargs])
             exec_cmd = subprocess.Popen(self.cmd, **exec_kwargs)
@@ -107,7 +109,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             if not self.interactive:
                 exec_kwargs.update(
                     stdout=subprocess.PIPE,
-                    # stderr=subprocess.PIPE
+                    stderr=subprocess.PIPE
                 )
             exec_cmd = subprocess.Popen(self.cmd, **exec_kwargs)
             exec_cmd.wait()
@@ -131,7 +133,11 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
         exec_cmd.failure = exec_cmd.failed
         loaded_json = None
         if self.load_json:
-            assert exec_cmd.succeeded, exec_cmd.stderr
+            if exec_cmd.failed:
+                err = f'{self} did not succeed; cannot return JSON from failure'
+                LOGGER.critical(err)
+                LOGGER.critical(exec_cmd.stderr)
+                raise RuntimeError(err)
             import json
 
             try:
