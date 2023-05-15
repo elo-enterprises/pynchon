@@ -1,6 +1,7 @@
 """ pynchon.gripe
 """
 import os
+import time
 import pathlib
 
 import grip
@@ -14,17 +15,44 @@ from pynchon.util.os import filter_pids
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
+THIS_PATH = pathlib.Path(".").absolute()
 logfile: str = ".tmp.gripe.log"
+FLASK_GRIPE_APP = "pynchon.gripe:app"
 
+class PortBusy(RuntimeError):
+    pass
+
+def _do_serve(background=True, port="6149"):
+    bg = "&" if background else ""
+    port=int(port)
+    port_used = port in _used_ports()
+    if port_used:
+        raise PortBusy(f'port {port} is in use!')
+    cmd=f"flask --app {FLASK_GRIPE_APP} run --port {port}>> {logfile} 2>&1 {bg}"
+    LOGGER.critical("starting server with command:")
+    LOGGER.critical(f"  '{cmd}'")
+    return os.system(cmd)
 
 def _current_gripe_procs() -> typing.List[psutil.Process]:
     """ """
-    return filter_pids(name="flask")
+    return filter_pids(name="flask", cmdline__contains=FLASK_GRIPE_APP)
 
+def _used_ports():
+    return list(filter(
+        None,
+        [get_port(p) for p in _current_gripe_procs()]))
 
 def _is_my_grip(g) -> bool:
-    return g.cwd() == str(abcs.Path(".").absolute())
+    return g['cwd'] == str(THIS_PATH)
 
+def get_port(proc):
+    """"""
+    conns = proc.connections()
+    if conns:
+        return conns[0].laddr.port
+    else:
+        LOGGER.critical(f"no connections found for pid@{proc.pid}")
+        return None
 
 class Server:
     """ """
@@ -32,7 +60,7 @@ class Server:
     @property
     def proc(self) -> psutil.Process:
         """ """
-        tmp = [g for g in _current_gripe_procs() if _is_my_grip(g)]
+        tmp = [g for g in _current_gripe_procs() if _is_my_grip(g.as_dict())]
         if tmp:
             result = tmp[0]
             return result
@@ -45,9 +73,7 @@ class Server:
     @property
     def port(self):
         """ """
-        if self.proc:
-            conns = self.proc.connections()
-            return conns and conns[0].laddr.port
+        return self.proc and get_port(self.proc)
 
     @property
     def raw_file_server(self):
@@ -76,13 +102,6 @@ server = Server()
 app = server.app
 
 
-def _do_serve(background=True, port="6149"):
-    bg = "&" if background else ""
-    return os.system(
-        f"flask --app pynchon.gripe:app run --port {port}>> {logfile} 2>&1 {bg}",
-    )
-
-
 @cli.click.group
 def entry():
     """
@@ -91,9 +110,18 @@ def entry():
 
 
 def _list():
-    """Lists running servers for this working-dir"""
-    result = _current_gripe_procs()
-    LOGGER.critical(result)
+    """Lists running all running servers"""
+    result = dict(local=[], foreign=[])
+    for proc in _current_gripe_procs():
+        key='local' if _is_my_grip(proc.as_dict()) else 'foreign'
+        result[key].append(dict(
+            pid=proc.pid,
+            cwd=proc.cwd(),
+            # cmdline=' '.join(proc.cmdline()),
+            port=get_port(proc),
+        ))
+    from pynchon.util import text
+    print(text.to_json(result))
     return result
 
 
@@ -112,6 +140,7 @@ def start(
     """Starts a webserver for working-dir"""
 
     LOGGER.critical("trying to serve files")
+    result = None
     background = not fg
     should_start = ls or True
     grips = _list()
@@ -129,8 +158,27 @@ def start(
                 break
         else:
             LOGGER.critical("No gripes are serving this project.")
-    result = should_start and _do_serve(port=port, background=background)
-    LOGGER.critical(result)
+
+    if should_start:
+        port=int(port)
+        LOGGER.warning("Starting gripe for this project..")
+        used = _used_ports()
+        LOGGER.warning(f"Used ports: {used}")
+        if port in used:
+            next_port = max(used)+1
+            LOGGER.critical(f'server port @ {port}, using next available @ {next_port}')
+            port=next_port
+        #NB: return is useless because system=True for launch
+        error = _do_serve(port=port, background=background)
+        # except (PortBusy,) as exc:
+        #     LOGGER.critical(error = _do_serve(port=max(_used_ports())+1,background=background)
+        if error:
+            raise SystemExit(error)
+        else:
+            LOGGER.warning("Launched server, looking for process..")
+            import IPython; IPython.embed()
+            return True
+
     return result
 
 
@@ -147,13 +195,10 @@ def stop(grips=[], grip=None):
                 p.kill()
     return True
 
-
 def restart():
     """Restarts server for this working-dir"""
     _list()
     stop()
-    import time
-
     time.sleep(1.5)
     start()
 

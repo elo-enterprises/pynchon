@@ -98,18 +98,18 @@ class Semantics:
         # joiner=joiner or ''
         # joiner=joiner.strip()
         # joiner=joiner and f'\n  {joiner}'
-        return f'{first}\nJJJJ{joiner}\n{rest}{ast}'
+        ast=''.join(ast) if ast else ''
+        return f'{first}\n{joiner}\n{rest}'
     def anything(self,ast):
-        print(f'anythin {ast}')
+        # print(f'anythin {ast}')
         return ast
     def command(self,ast):
-        print(f'command {ast}')
+        # print(f'command {ast}')
         # if 'printf' in str(ast):
         #     import IPython; IPython.embed()
         return ast
     def python_command(self,ast):
-        print(f'python {ast}')
-
+        # print(f'python {ast}')
         # print( ast )
         ast = list(ast)
         python = ast.pop(0)
@@ -149,7 +149,7 @@ class Semantics:
         return f'{docker.upper()} {sub} {epoint}\n{opts}\n  {img}\n    {rest}'
 
     def simple_command(self, ast):
-        print(f'simple {ast}')
+        # print(f'simple {ast}')
         if isinstance(ast, (str,)):
             return ast
         name, cmd_args, opts = ast
