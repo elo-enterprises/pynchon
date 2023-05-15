@@ -213,7 +213,7 @@ class PythonCLI(models.ShyPlanner):
         # config = config or api.project.get_config()
         plan = super(self.__class__, self).plan()
         # droot = config.pynchon["docs_root"]
-        droot = self[:'docs.root':]
+        droot = self[:"docs.root":]
         cli_root = f"{droot}/cli"
 
         plan.append(

@@ -1,6 +1,7 @@
-
 """ pynchon.fleks.meta.namespace
 """
+
+
 class Namespace:
     """ """
 

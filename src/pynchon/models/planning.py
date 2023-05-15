@@ -1,4 +1,3 @@
-
 """ pynchon.models.planning
 """
 import typing

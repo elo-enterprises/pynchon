@@ -27,10 +27,20 @@
   // END: top-level config
   // BEGIN: core plugins-config
 
-  // Config for `globals` plugin:
+  // Config for `globals` plugin: (priority=..)
   //   All well-behaved plugins will honor values here, appending
   //   these values to whatever is set explicitly for that plugin
   "globals": {
+    "shell_aliases":{
+      "p":"pynchon",
+      "t":"tox -e",
+      "m":"make",
+      "g":"git",
+      "st":"git status",
+      "fl":"flake8",
+      "mns": "make normalize static-analysis",
+      "groom": "make normalize static-analysis",
+    },
     "exclude_patterns": [
       ".*[.]pyc",
       ".*_version[.]py",
@@ -57,10 +67,8 @@
   //   ...
   "tests": {
     "root": "{{pynchon.root}}/tests",
-    "suite_patterns": [
-      "{{tests.root}}/*/",
-    ],
     "include_patterns": ["**/*.py",],
+    "suite_patterns": ["*/",],
   },
 
   // Config for `docs` plugin:
@@ -77,14 +85,6 @@
 // Config for `project` plugin:
   "project":{
     "subproject_patterns": [],
-    "shell_aliases":{
-      "m":"make",
-      "g":"git",
-      "st":"git status",
-      "fl":"flake8",
-      "mns": "make normalize static-analysis",
-      "groom": "make normalize static-analysis",
-    },
   },
 
   // END: core plugins-config

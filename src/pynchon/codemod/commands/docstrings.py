@@ -1,4 +1,3 @@
-
 """ pynchon.codemod.commands.docstrings
 """
 import argparse

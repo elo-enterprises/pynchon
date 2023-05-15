@@ -93,4 +93,9 @@ class JSONEncoder(json.JSONEncoder):
             return dict(obj)
         if isinstance(obj, map):
             return list(obj)
+        # if typing.iscoroutine(obj):
+        else:
+            # LOGGER.debug(f"{coercing {object} to string")
+            # import IPython; IPython.embed()
+            return str(obj)
         return super().default(obj)

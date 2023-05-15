@@ -1,4 +1,2 @@
-
 """ pynchon.util.config
 """
-

@@ -1,4 +1,3 @@
-
 """ pynchon.util.text.dumpf.__main__
 """
 from pynchon.cli import click, common, options  # noqa

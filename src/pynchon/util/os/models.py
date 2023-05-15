@@ -36,8 +36,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
                 return "??"
             return "[cyan]=> [green]ok" if self.succeeded else "[red]failed"
 
-        from pynchon import app
-        from pynchon import shfmt
+        from pynchon import app, shfmt
 
         if self.log_command:
             msg = f"running command: (system={self.system})\n\t{self.cmd}"
@@ -97,8 +96,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             msg = "command will receive pipe:\n{}"
             self.log_stdin and LOGGER.debug(msg.format(self.stdin))
             exec_kwargs.update(
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             LOGGER.critical([self.cmd, exec_kwargs])
             exec_cmd = subprocess.Popen(self.cmd, **exec_kwargs)
@@ -107,10 +105,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
             exec_cmd.stdin.close()
         else:
             if not self.interactive:
-                exec_kwargs.update(
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
+                exec_kwargs.update(stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             exec_cmd = subprocess.Popen(self.cmd, **exec_kwargs)
             exec_cmd.wait()
         if exec_cmd.stdout:
@@ -134,7 +129,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
         loaded_json = None
         if self.load_json:
             if exec_cmd.failed:
-                err = f'{self} did not succeed; cannot return JSON from failure'
+                err = f"{self} did not succeed; cannot return JSON from failure"
                 LOGGER.critical(err)
                 LOGGER.critical(exec_cmd.stderr)
                 raise RuntimeError(err)

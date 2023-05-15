@@ -1,4 +1,3 @@
-
 """ pynchon.models.plugin_types.__init__
 """
 import typing
@@ -82,7 +81,23 @@ class PynchonPlugin(fleks.Plugin):
                 continue
             result.append(plugins_util.get_plugin_obj(plugin))
         result = sorted(result, key=lambda p: p.priority)
-        return collections.OrderedDict([p.name, p] for p in result)
+
+        class Siblings(collections.OrderedDict):
+            def collect_config_list(self, key):
+                """collects the named key across all sibling-plugins"""
+                out = []
+                for name, plugin_obj in self.items():
+                    out += plugin_obj[key::[]]
+                return out
+
+            def collect_config_dict(self, key):
+                """collects the named key across all sibling-plugins"""
+                out = {}
+                for name, plugin_obj in self.items():
+                    out.update(plugin_obj[key::{}])
+                return out
+
+        return Siblings([p.name, p] for p in result)
 
     @property
     def config(self):
@@ -370,14 +385,11 @@ class CliPlugin(PynchonPlugin):
         kls, fxn: typing.Callable, wrapper=None, alias: str = None, **click_kwargs
     ) -> cli.click.Command:
         """
-
         :param kls: param fxn: typing.Callable:
         :param wrapper: Default value = None)
         :param alias: str:  (Default value = None)
         :param fxn: typing.Callable:
-        :param alias: str:  (Default value = None)
         :param **click_kwargs:
-
         """
         assert fxn
         assert wrapper
