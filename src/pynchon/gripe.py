@@ -9,7 +9,7 @@ import psutil
 from flask import Flask, send_from_directory
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
-from pynchon import abcs, cli
+from pynchon import cli
 from pynchon.util.os import filter_pids
 
 from pynchon.util import lme, typing  # noqa
@@ -19,31 +19,15 @@ THIS_PATH = pathlib.Path(".").absolute()
 logfile: str = ".tmp.gripe.log"
 FLASK_GRIPE_APP = "pynchon.gripe:app"
 
+
 class PortBusy(RuntimeError):
     pass
 
-def _do_serve(background=True, port="6149"):
-    bg = "&" if background else ""
-    port=int(port)
-    port_used = port in _used_ports()
-    if port_used:
-        raise PortBusy(f'port {port} is in use!')
-    cmd=f"flask --app {FLASK_GRIPE_APP} run --port {port}>> {logfile} 2>&1 {bg}"
-    LOGGER.critical("starting server with command:")
-    LOGGER.critical(f"  '{cmd}'")
-    return os.system(cmd)
 
 def _current_gripe_procs() -> typing.List[psutil.Process]:
     """ """
     return filter_pids(name="flask", cmdline__contains=FLASK_GRIPE_APP)
 
-def _used_ports():
-    return list(filter(
-        None,
-        [get_port(p) for p in _current_gripe_procs()]))
-
-def _is_my_grip(g) -> bool:
-    return g['cwd'] == str(THIS_PATH)
 
 def get_port(proc):
     """"""
@@ -53,6 +37,27 @@ def get_port(proc):
     else:
         LOGGER.critical(f"no connections found for pid@{proc.pid}")
         return None
+
+
+def _used_ports():
+    return list(filter(None, [get_port(p) for p in _current_gripe_procs()]))
+
+
+def _do_serve(background=True, port="6149"):
+    bg = "&" if background else ""
+    port = int(port)
+    port_used = port in _used_ports()
+    if port_used:
+        raise PortBusy(f"port {port} is in use!")
+    cmd = f"flask --app {FLASK_GRIPE_APP} run --port {port}>> {logfile} 2>&1 {bg}"
+    LOGGER.critical("starting server with command:")
+    LOGGER.critical(f"  '{cmd}'")
+    return os.system(cmd)
+
+
+def _is_my_grip(g) -> bool:
+    return g["cwd"] == str(THIS_PATH)
+
 
 class Server:
     """ """
@@ -113,14 +118,17 @@ def _list():
     """Lists running all running servers"""
     result = dict(local=[], foreign=[])
     for proc in _current_gripe_procs():
-        key='local' if _is_my_grip(proc.as_dict()) else 'foreign'
-        result[key].append(dict(
-            pid=proc.pid,
-            cwd=proc.cwd(),
-            # cmdline=' '.join(proc.cmdline()),
-            port=get_port(proc),
-        ))
+        key = "local" if _is_my_grip(proc.as_dict()) else "foreign"
+        result[key].append(
+            dict(
+                pid=proc.pid,
+                cwd=proc.cwd(),
+                # cmdline=' '.join(proc.cmdline()),
+                port=get_port(proc),
+            )
+        )
     from pynchon.util import text
+
     print(text.to_json(result))
     return result
 
@@ -160,15 +168,15 @@ def start(
             LOGGER.critical("No gripes are serving this project.")
 
     if should_start:
-        port=int(port)
+        port = int(port)
         LOGGER.warning("Starting gripe for this project..")
         used = _used_ports()
         LOGGER.warning(f"Used ports: {used}")
         if port in used:
-            next_port = max(used)+1
-            LOGGER.critical(f'server port @ {port}, using next available @ {next_port}')
-            port=next_port
-        #NB: return is useless because system=True for launch
+            next_port = max(used) + 1
+            LOGGER.critical(f"server port @ {port}, using next available @ {next_port}")
+            port = next_port
+        # NB: return is useless because system=True for launch
         error = _do_serve(port=port, background=background)
         # except (PortBusy,) as exc:
         #     LOGGER.critical(error = _do_serve(port=max(_used_ports())+1,background=background)
@@ -176,7 +184,9 @@ def start(
             raise SystemExit(error)
         else:
             LOGGER.warning("Launched server, looking for process..")
-            import IPython; IPython.embed()
+            import IPython
+
+            IPython.embed()
             return True
 
     return result
@@ -194,6 +204,7 @@ def stop(grips=[], grip=None):
                 LOGGER.critical("killing it..")
                 p.kill()
     return True
+
 
 def restart():
     """Restarts server for this working-dir"""

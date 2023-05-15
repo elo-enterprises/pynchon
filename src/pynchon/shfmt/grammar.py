@@ -69,6 +69,7 @@ bash_command = compound_command;
 #      parser-classes / inject them into this namespace
 # """
 import tatsu
+
 src = tatsu.to_python_sourcecode(__doc__)
 src = src[: src.rfind("""def main(filename, **kwargs)""")]
 exec(src)

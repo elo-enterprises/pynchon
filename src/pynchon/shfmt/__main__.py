@@ -1,6 +1,5 @@
 """ pynchon.shfmt.__main__
 """
-from rich.syntax import Syntax
 
 from pynchon import cli
 from pynchon.util import lme
@@ -15,7 +14,7 @@ LOGGER = lme.get_logger(__name__)
 )
 @cli.click.command
 def entry(filename: str = "/dev/stdin"):
-    """ CLI tool for shfmt
+    """CLI tool for shfmt
     :param filename: str:  (Default value = '/dev/stdin')
     """
     if filename == "-":
@@ -24,10 +23,10 @@ def entry(filename: str = "/dev/stdin"):
         with open(filename) as fhandle:
             text = fhandle.read()
     except FileNotFoundError:
-        LOGGER.warning('input is not a file; parsing as string')
+        LOGGER.warning("input is not a file; parsing as string")
         text = filename
     formatted = fmt(text, filename=filename)
-    print(text);
+    print(text)
     print()
     print(formatted)
     # lme.CONSOLE.print(
