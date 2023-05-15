@@ -206,7 +206,7 @@ def fmt(text, filename="?"):
             text,
             parseinfo=True,
             filename=filename,
-            semantics=semantics,
+            # semantics=semantics,
         )
     except (tatsu.exceptions.FailedParse,):
         return text
