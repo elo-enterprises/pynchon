@@ -151,11 +151,11 @@ def start(
     result = None
     background = not fg
     should_start = ls or True
-    grips = _list()
+    grips = _current_gripe_procs()
     if grips:
         LOGGER.critical(f"{len(grips)} copies of gripe are already started")
         for p in grips:
-            if _is_my_grip(p):
+            if _is_my_grip(p.as_dict()):
                 LOGGER.critical(f"gripe @ pid {p.pid} is already serving this project")
                 if force:
                     LOGGER.critical("`force` was passed; killing it anyway..")

@@ -12,8 +12,9 @@ class Deck(models.ResourceManager):
     class config_class(abcs.Config):
         config_key = "deck"
         defaults = dict(
-            pandoc_docker_image="pandoc/core",
-            engine="dzslides",
+            pandoc_docker="pandoc/core",
+            pandoc_engine="dzslides",
+            pandoc_args="",
             apply_hooks=["open-after"],
             include_patterns=["*.md"],
         )
@@ -36,7 +37,12 @@ class Deck(models.ResourceManager):
             proot = self[:"pynchon.root"]
             output = output.relative_to(proot)
             relr = rsrc.relative_to(proot)
-            fargs = {**self.config, **dict(relr=relr, output=output)}
+            fargs = {
+                **self.config,
+                **dict(
+                    relr=relr, pandoc_args=" ".join(self["pandoc_args"]), output=output
+                ),
+            }
             plan.append(
                 self.goal(
                     resource=output.absolute(),
@@ -44,8 +50,8 @@ class Deck(models.ResourceManager):
                     command=(
                         "docker run -v `pwd`:/workspace "
                         "-w /workspace "
-                        "{pandoc_docker_image} "
-                        "-t {engine} -s {relr} -o {output}"
+                        "{pandoc_docker} "
+                        "-t {pandoc_engine} -s {relr} -o {output} {pandoc_args}"
                     ).format(**fargs),
                 )
             )

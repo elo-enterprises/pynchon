@@ -95,6 +95,9 @@
   "deck": {
     "root": "{{docs.root}}/slides",
     "apply_hooks": ["open-after"],
+    "pandoc_engine":"dzslides",
+    "pandoc_args": ["--css dzslides.css"],
+    "pandoc_docker": "pandoc/core",
   },
 
     // Config for `github` plugin:
