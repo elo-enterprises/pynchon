@@ -65,8 +65,8 @@ class Dot(models.Planner):
             assert not output
             output = os.path.splitext(file)[0] + ".png"
         cmd = f"cat {file} | docker run --rm --entrypoint dot -i {img} -T{output_mode} > {output}"
-        result = invoke(cmd, system=True)
-        assert result.succeeded
+        result = invoke(cmd, strict=True)
+        # assert result.succeeded
         return result.succeeded
 
     def plan(

@@ -29,6 +29,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
     stderr: str = ""
     pid: int = -1
     shell: bool = False
+    strict: bool = False
 
     def __rich__(self):
         def status_string():
@@ -61,6 +62,7 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
 class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     cmd: str = ""
     stdin: str = ""
+    strict: bool = False
     shell: bool = False
     interactive: bool = False
     large_output: bool = False
@@ -69,7 +71,6 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     log_stdin: bool = True
     system: bool = False
     load_json: bool = False
-    # strict: bool = True
 
     def __call__(self):
         if self.system:
@@ -139,6 +140,11 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
                 loaded_json = json.loads(exec_cmd.stdout)
             except (json.decoder.JSONDecodeError,) as exc:
                 loaded_json = dict(error=str(exc))
+        if self.strict and not exec_cmd.succeeded:
+            LOGGER.critical(f"Invocation failed and strict={self.strict}")
+            # raise InvocationError
+            LOGGER.critical(exec_cmd.stderr)
+            raise RuntimeError(exec_cmd.stderr)
         return InvocationResult(
             **{
                 **self._dict,
