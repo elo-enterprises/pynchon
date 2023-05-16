@@ -24,6 +24,7 @@ class Goal(metaclass=meta.namespace):
     command: str = "?c"
     type: str = "?t"
     owner: str = "?o"
+    label: str = "?l"
 
     def __rich__(self) -> str:
         from pynchon import shfmt
@@ -81,9 +82,7 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
 
     def __init__(self, *args):
         """
-
         :param *args:
-
         """
         for arg in args:
             if not isinstance(arg, (Goal,)):

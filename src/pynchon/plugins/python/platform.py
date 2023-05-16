@@ -57,36 +57,26 @@ class PythonPlatform(models.Planner):
     def gen(self):
         """Generates code for python modules, packages, etc"""
 
+    def _goal_libcst_refresh(self,libcst_config):
+        from pynchon.util import text
+        min = text.to_json(libcst_config, minified=True)
+        rsrc = ".libcst.codemod.yaml"
+        cmd=f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}"
+        return self.goal(
+            type="render",
+            label='refresh libcst-config',
+            resource=rsrc, command=cmd,)
+
     def plan(self):
         plan = super(self.__class__, self).plan()
         libcst_config = self["libcst"]
         if libcst_config:
-            from pynchon.util import text
-
-            min = text.to_json(libcst_config, minified=True)
-            rsrc = ".libcst.codemod.yaml"
-            plan.append(
-                self.goal(
-                    resource=rsrc,
-                    type="render",
-                    command=f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}",
-                )
-            )
+            plan.append(self._goal_libcst_refresh(libcst_config))
         return plan
 
     @gen.command
-    @cli.click.option(
-        "--ignore-private",
-        help='ignore names that start with "_")',
-        default=False,
-        is_flag=True,
-    )
-    @cli.click.option(
-        "--ignore-missing",
-        help="ignore missing docstrings (only updates empty or out-dated ones)",
-        default=False,
-        is_flag=True,
-    )
+    @cli.options.ignore_private
+    @cli.options.ignore_missing
     @cli.click.option(
         "--modules", help="create docstrings for modules", default=False, is_flag=True
     )

@@ -18,13 +18,11 @@ letter=/\w/;
 strict_word = ?"[^-]([\w][.])+";
 path=?"[^-][\S]+";
 word = strict_word | path |qblock;
-_opt=?"-[\S]+";
+_opt = ?"-[\S]+";
 opt_val = ?"[^-]([\S])+";
 opt = _opt word | _opt path | _opt;
 word_list = {word};
 assignment_word = word '=' word;
-
-# semi=';'; bash_and = '&&'; bash_bg = '&'; Bash_pipe = /[|]/; bash_or = '||';
 backtick = /`(.*)`/; squote = /'(.*)'/; dquote = /"(.*)"/;
 qblock = backtick | squote |dquote;
 
@@ -55,14 +53,21 @@ redirection='>' word
     | '<>' word
     | '>|' word
     | number '>|' word;
-simple_command={simple_command_element};
+simple_command= {simple_command_element}
+    # |
+;
+# subcommands = {word};
+entry=word;
 simple_command_element= word
     | opt
     | assignment_word
     | redirection;
 redirection_list=redirection
     |  redirection_list redirection;
-command=simple_command
+subcommands={word};
+drilldown=entry {subcommands} {simple_command};
+command= drilldown
+    | simple_command
     |  shell_command
     |  shell_command redirection_list;
 shell_command= for_command

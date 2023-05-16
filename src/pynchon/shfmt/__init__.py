@@ -197,40 +197,98 @@ class Semantics:
             assert type(vals) == "bonk", type(vals)
         return f"{option}{tmp}"
 
+
 class Semantics:
-    def word(self,ast):
-        print(f'word: {ast}')
+    def word(self, ast):
+        print(f"word: {ast}")
         return ast
-    def simple_command(self,ast):
-        print(f'simple_command: {ast}')
+
+    def simple_command(self, ast):
+        print(f"simple_command: {ast}")
+        tail = ast
+        biggest=''
+        for i,l in enumerate(tail):
+            if len(l)>len(biggest):
+                biggest=l
+        result = []
+        skip_next=False
+        for i,l in enumerate(tail):
+            if skip_next:
+                skip_next=False
+                continue
+            try:
+                n=tail[i+1]
+            except:
+                n=''
+                # print(f'looking at {[i,l,n]}')
+            comb=f'{l} {n}'
+            if len(comb)<len(biggest):
+                result.append(comb)
+                skip_next=True
+            else:
+                result.append(l)
+        # import IPython; IPython.embed()
+        return '\n  '.join(result)
+
+    def shell_command(self, ast):
+        print(f"shell_command: {ast}")
         return ast
-    def shell_command(self,ast):
-        print(f'shell_command: {ast}')
+
+    def path(self, ast):
+        print(f"path: {ast}")
+        # if '/' in ast:
         return ast
-    def pipeline_command(self,ast):
-        print(f'pipeline_command: {ast}')
+
+    def pipeline_command(self, ast):
+        print(f"pipeline_command: {ast}")
         return ast
-    def word_list(self,ast):
-        print(f'word_list: {ast}')
+
+    def word_list(self, ast):
+        print(f"word_list: {ast}")
         return ast
+
     def opt(self, ast):
-        print(f'opt: {ast}')
-        return ast
+        print(f"opt: {ast}")
+        return ast if isinstance(ast,(str,)) else ' '.join(ast)
+
     def opt_val(self, ast):
-        print(f'opt_val: {ast}')
+        print(f"opt_val: {ast}")
         return ast
+
+    def subcommands(self, ast):
+        print(f"subcommands: {ast}")
+        return ' '.join(ast)
+
+    def drilldown(self,ast):
+        print(f"drilldown: {ast}")
+        return ast
+
+    def entry(self, ast):
+        print(f"entry: {ast}")
+        return str(ast)
+
 def fmt(text, filename="?"):
     semantics = Semantics()
     parser = bashParser()
     try:
-        return parser.parse(
-        text,
-        parseinfo=True,
-        filename=filename,
-        semantics=semantics,
+        parsed = parser.parse(
+            text,
+            parseinfo=True,
+            filename=filename,
+            semantics=semantics,
         )
     except (tatsu.exceptions.FailedParse,):
         return text
+    else:
+        out = []
+        for item in parsed:
+            if isinstance(item, (list,tuple)):
+                item=' '.join([str(x) for x in item])
+            out.append(item)
+        head=out.pop(0)
+        # tail=out.copy()
+        tail='\n  '.join(out)
+        return f"{head} {tail}"
 
 
 bash_fmt = fmt
