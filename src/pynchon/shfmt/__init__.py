@@ -222,15 +222,15 @@ class Semantics:
 def fmt(text, filename="?"):
     semantics = Semantics()
     parser = bashParser()
-    # try:
-    return parser.parse(
+    try:
+        return parser.parse(
         text,
         parseinfo=True,
         filename=filename,
         semantics=semantics,
-    )
-    # except (tatsu.exceptions.FailedParse,):
-    #     return text
+        )
+    except (tatsu.exceptions.FailedParse,):
+        return text
 
 
 bash_fmt = fmt

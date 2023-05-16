@@ -17,12 +17,16 @@ number=/(\d)+/;
 letter=/\w/;
 strict_word = ?"[^-]([\w][.])+";
 path=?"[^-][\S]+";
-word = strict_word | path;
+word = strict_word | path |qblock;
 _opt=?"-[\S]+";
 opt_val = ?"[^-]([\S])+";
 opt = _opt word | _opt path | _opt;
 word_list = {word};
 assignment_word = word '=' word;
+
+# semi=';'; bash_and = '&&'; bash_bg = '&'; Bash_pipe = /[|]/; bash_or = '||';
+backtick = /`(.*)`/; squote = /'(.*)'/; dquote = /"(.*)"/;
+qblock = backtick | squote |dquote;
 
 redirection='>' word
     | '<' word
@@ -142,8 +146,9 @@ pipeline_command= pipeline
     |  timespec '!' pipeline
     |  '!' timespec pipeline
 ;
-pipeline=pipeline '|' newline_list pipeline
-    | command;
+pipeline=command
+    | pipeline '|' newline_list pipeline
+;
 time_opt= '-p';
 timespec=  'time'
     | 'time' time_opt;
