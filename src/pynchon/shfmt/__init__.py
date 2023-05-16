@@ -197,19 +197,40 @@ class Semantics:
             assert type(vals) == "bonk", type(vals)
         return f"{option}{tmp}"
 
-
+class Semantics:
+    def word(self,ast):
+        print(f'word: {ast}')
+        return ast
+    def simple_command(self,ast):
+        print(f'simple_command: {ast}')
+        return ast
+    def shell_command(self,ast):
+        print(f'shell_command: {ast}')
+        return ast
+    def pipeline_command(self,ast):
+        print(f'pipeline_command: {ast}')
+        return ast
+    def word_list(self,ast):
+        print(f'word_list: {ast}')
+        return ast
+    def opt(self, ast):
+        print(f'opt: {ast}')
+        return ast
+    def opt_val(self, ast):
+        print(f'opt_val: {ast}')
+        return ast
 def fmt(text, filename="?"):
     semantics = Semantics()
     parser = bashParser()
-    try:
-        return parser.parse(
-            text,
-            parseinfo=True,
-            filename=filename,
-            # semantics=semantics,
-        )
-    except (tatsu.exceptions.FailedParse,):
-        return text
+    # try:
+    return parser.parse(
+        text,
+        parseinfo=True,
+        filename=filename,
+        semantics=semantics,
+    )
+    # except (tatsu.exceptions.FailedParse,):
+    #     return text
 
 
 bash_fmt = fmt

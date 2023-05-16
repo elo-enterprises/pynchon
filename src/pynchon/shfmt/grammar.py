@@ -3,7 +3,11 @@ r"""@@grammar::bash
 @@eol_comments :: /#.*?$/
 @@whitespace :: /[\t \n \\]/
 @@keyword :: do done for in
-start = command $;
+#
+# adapted from:
+#   https://raw.githubusercontent.com/cbeust/kash/master/src/main/resources/bash.ebnf
+#
+start = pipeline_command $;
 do='do';
 done='done';
 for='for';
@@ -11,41 +15,47 @@ in ='in';
 digit=/\d/;
 number=/(\d)+/;
 letter=/\w/;
-word=/(\w)+/;
-word_list = word | word_list word;
+strict_word = ?"[^-]([\w][.])+";
+path=?"[^-][\S]+";
+word = strict_word | path;
+_opt=?"-[\S]+";
+opt_val = ?"[^-]([\S])+";
+opt = _opt word | _opt path | _opt;
+word_list = {word};
 assignment_word = word '=' word;
 
 redirection='>' word
-    |  '<' word
-    |  number '>' word
-    |  number '<' word
-    |  '>>' word
-    |  number '>>' word
-    |  '<<' word
-    |  number '<<' word
-    |  '<&' number
-    |  number '<&' number
-    |  '>&' number
-    |  number '>&' number
-    |  '<&' word
-    |  number '<&' word
-    |  '>&' word
-    |  number '>&' word
-    |  '<<-' word
-    |  number '<<-' word
-    |  '>&' '-'
-    |  number '>&' '-'
-    |  '<&' '-'
-    |  number '<&' '-'
-    |  '&>' word
-    |  number '<>' word
-    |  '<>' word
-    |  '>|' word
-    |  number '>|' word;
-simple_command=  {simple_command_element};
+    | '<' word
+    | number '>' word
+    | number '<' word
+    | '>>' word
+    | number '>>' word
+    | '<<' word
+    | number '<<' word
+    | '<&' number
+    | number '<&' number
+    | '>&' number
+    | number '>&' number
+    | '<&' word
+    | number '<&' word
+    | '>&' word
+    | number '>&' word
+    | '<<-' word
+    | number '<<-' word
+    | '>&' '-'
+    | number '>&' '-'
+    | '<&' '-'
+    | number '<&' '-'
+    | '&>' word
+    | number '<>' word
+    | '<>' word
+    | '>|' word
+    | number '>|' word;
+simple_command={simple_command_element};
 simple_command_element= word
-    |  assignment_word
-    |  redirection;
+    | opt
+    | assignment_word
+    | redirection;
 redirection_list=redirection
     |  redirection_list redirection;
 command=simple_command
@@ -62,11 +72,11 @@ shell_command= for_command
   # |  function_def
 ;
 for_command=for word newline_list do compound_list done
-    # | for word newline_list '{' compound_list '}'
-    # | for word ';' newline_list do compound_list done
-    # | for word ';' newline_list '{' compound_list '}'
-    # | for word newline_list in word_list list_terminator newline_list do compound_list done
-    # | for word newline_list in word_list list_terminator newline_list '{' compound_list '}'
+    | for word newline_list '{' compound_list '}'
+    | for word ';' newline_list do compound_list done
+    | for word ';' newline_list '{' compound_list '}'
+    | for word newline_list in word_list list_terminator newline_list do compound_list done
+    | for word newline_list in word_list list_terminator newline_list '{' compound_list '}'
 ;
 # select_command=  select word newline_list do list done
 #                |  select word newline_list '{' list '}'
@@ -93,48 +103,50 @@ group_command=  '{' list '}';
 #        | elif compound_list then compound_list <elif_clause>
 # case_clause=  <pattern_list>
 #             |  <case_clause_sequence> <pattern_list>
-# pattern_list=  newline_list <pattern> ')' compound_list
-#              |  newline_list <pattern> ')' newline_list
-#              |  newline_list '(' <pattern> ')' compound_list
-#              |  newline_list '(' <pattern> ')' newline_list
+# pattern_list=  newline_list pattern ')' compound_list
+#              |  newline_list pattern ')' newline_list
+#              |  newline_list '(' pattern ')' compound_list
+#              |  newline_list '(' pattern ')' newline_list
 # case_clause_sequence=  <pattern_list> ';;'
 #                      |  <case_clause_sequence> <pattern_list> ';;'
 # pattern=  word
-#         |  <pattern> '|' word
+#         |  pattern '|' word
 list=   newline_list list0;
-compound_list=  list |  newline_list list1;
+compound_list=list |  newline_list list1;
 list0=   list1 '\n' newline_list
-       |  list1 '&' newline_list
-       |  list1 ';' newline_list
+   |  list1 '&' newline_list
+   |  list1 ';' newline_list
 ;
 list1= list1 '&&' newline_list list1
-       |  list1 '||' newline_list list1
-       |  list1 '&' newline_list list1
-       |  list1 ';' newline_list list1
-       |  list1 '\n' newline_list list1
-       |  pipeline_command
+   |  list1 '||' newline_list list1
+   |  list1 '&' newline_list list1
+   |  list1 ';' newline_list list1
+   |  list1 '\n' newline_list list1
+   |  pipeline_command
 ;
 list_terminator= '\n' |  ';';
 newline_list= '\n' | newline_list '\n';
-# simple_list=  simple_list1
-#                 |  simple_list1 '&'
-#                 |  simple_list1 ';'
-# simple_list1=  simple_list1 '&&' newline_list simple_list1
-#                  |  simple_list1 '||' newline_list simple_list1
-#                  |  simple_list1 '&' simple_list1
-#                  |  simple_list1 ';' simple_list1
-#                  |  pipeline_command
+simple_list=  simple_list1
+    |  simple_list1 '&'
+    |  simple_list1 ';'
+;
+simple_list1=  simple_list1 '&&' newline_list simple_list1
+    |  simple_list1 '||' newline_list simple_list1
+    |  simple_list1 '&' simple_list1
+    |  simple_list1 ';' simple_list1
+    |  pipeline_command
+;
 pipeline_command= pipeline
     |  '!' pipeline
-    # |  <timespec> pipeline
-    # |  <timespec> '!' pipeline
-    # |  '!' <timespec> pipeline
+    |  timespec pipeline
+    |  timespec '!' pipeline
+    |  '!' timespec pipeline
 ;
 pipeline=pipeline '|' newline_list pipeline
-       |  command
-;
-# time_opt= '-p'
-# timespec=  time |  time <time_opt>
+    | command;
+time_opt= '-p';
+timespec=  'time'
+    | 'time' time_opt;
 """
 
 # """
