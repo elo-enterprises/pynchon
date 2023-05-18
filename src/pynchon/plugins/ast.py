@@ -1,5 +1,4 @@
-"""
-"""
+""" pynchon.plugins.ast """
 #
 #
 # @groop("ast", parent=entry)

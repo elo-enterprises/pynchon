@@ -1,5 +1,4 @@
-"""
-"""
+""" pynchon.util.click """
 import sys
 
 from click.core import Context as ClickContext

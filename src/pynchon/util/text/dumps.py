@@ -1,5 +1,4 @@
-"""
-"""
+""" pynchon.util.text.dumps """
 import json as modjson
 
 import yaml as modyaml

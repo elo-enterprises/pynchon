@@ -1,4 +1,4 @@
-""" """
+""" pynchon.annotate """
 import os
 import inspect
 import importlib
