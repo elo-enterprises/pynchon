@@ -93,7 +93,7 @@ class javadoc(VisitorBasedCodemodCommand):
             base = updated_node.children[0]
         except IndexError:
             tmp=self.context.full_module_name
-            LOGGER.critical(f"{original_node.__class__.__name__} @ {tmp} is empty-file!")
+            LOGGER.critical(f"{original_node.__class__.__name__} @ '{tmp}' is empty-file!")
             from libcst import matchers as m, parse_statement
             return updated_node.with_changes(body=[parse_statement(f'"""{tmp}"""')])
         expr = base.children[0]
