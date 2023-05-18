@@ -89,38 +89,24 @@ class javadoc(VisitorBasedCodemodCommand):
         original_node: cst.Module,
         updated_node: cst.Module,
     ) -> cst.Module:
+        from libcst import parse_statement
+        full_module_name=self.context.full_module_name
         try:
             base = updated_node.children[0]
         except IndexError:
-            tmp=self.context.full_module_name
-            LOGGER.critical(f"{original_node.__class__.__name__} @ '{tmp}' is empty-file!")
-            from libcst import matchers as m, parse_statement
-            return updated_node.with_changes(body=[parse_statement(f'"""{tmp}"""')])
-        expr = base.children[0]
-        sstring = expr.children[0]
+            LOGGER.critical(f"{original_node.__class__.__name__} @ '{full_module_name}' is empty-file!")
+            return updated_node.with_changes(body=[parse_statement(f'"""{full_module_name}"""')])
+        try:
+            expr = base.children[0]
+            sstring = expr.children[0]
+        except IndexError:
+            # FIXME: module starts with whitespace?
+            return original_node
         sstring = updated_node.children[0].children[0].children.pop(0)
         tmp = sstring.value
-        # LOGGER.critical(f"found module docstring:\n\n{tmp}'")
         if not eval(tmp).strip():
-            better = sstring.with_changes(value='"""bonk"""')
-            import IPython; IPython.embed()
+            better = sstring.with_changes(value=f'"""{full_module_name}"""')
         else:
             better = sstring
-            # import IPython
-            # IPython.embed()
-        # updated_node.children[0].children[0].children[0].insert(0, sstring)
         updated_node = updated_node.deep_replace(sstring, better)
-        # original_node.children[0].children[0].children[0]=original_node.children[0].children[0].children[0].with_changes(value='"""bonk"""')
-        # print(updated_node.children[0].children[0].children[0])
         return updated_node
-        # import IPython; IPython.embed()
-        # if len(updated_node.args) < self.argument_count:
-        #     return updated_node
-        # else:
-        #     last_arg = updated_node.args[-1]
-        #     return updated_node.with_changes(
-        #         args=(
-        #             *updated_node.args[:-1],
-        #             last_arg.with_changes(comma=cst.Comma()),
-        #         ),
-        #     )
