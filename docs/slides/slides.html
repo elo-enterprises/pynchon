@@ -2,9 +2,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <meta name="author" content="John Doe">
-  <meta name="dcterms.date" content="2005-03-22">
-  <title>Habits</title>
+  <meta name="author" content="Status &amp; Planning Deck">
+  <meta name="dcterms.date" content="2023-05-15">
+  <title>Lineage &amp; Metadata</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -19,192 +19,495 @@
     }
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
-<link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet'>
-
-<style>
-  html, .view body { background-color: black; counter-reset: slideidx; }
-  body, .view section { background-color: white; border-radius: 12px }
-  /* A section is a slide. It's size is 800x600, and this will never change */
-  section, .view head > title {
-      /* The font from Google */
-      font-family: 'Oswald', arial, serif;
-      font-size: 30px;
-  }
-
-  .view section:after {
-    counter-increment: slideidx;
-    content: counter(slideidx, decimal-leading-zero);
-    position: absolute; bottom: -80px; right: 100px;
-    color: white;
-  }
-
-  .view head > title {
-    color: white;
-    text-align: center;
-    margin: 1em 0 1em 0;
-  }
-
-  h1, h2 {
-    margin-top: 200px;
-    text-align: center;
-    font-size: 80px;
-  }
-  h3 {
-    margin: 100px 0 50px 100px;
-  }
-
-  ul {
-      margin: 50px 200px;
-  }
-  li > ul {
-      margin: 15px 50px;
-  }
-
-  p {
-    margin: 75px;
-    font-size: 50px;
-  }
-
-  blockquote {
-    height: 100%;
-    background-color: black;
-    color: white;
-    font-size: 60px;
-    padding: 50px;
-  }
-  blockquote:before {
-    content: open-quote;
-  }
-  blockquote:after {
-    content: close-quote;
-  }
-
-  /* Figures are displayed full-page, with the caption
-     on top of the image/video */
-  figure {
-    background-color: black;
-    width: 100%;
-    height: 100%;
-  }
-  figure > * {
-    position: absolute;
-  }
-  figure > img, figure > video {
-    width: 100%; height: 100%;
-  }
-  figcaption {
-    margin: 70px;
-    font-size: 50px;
-  }
-
-  footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 40px;
-    text-align: right;
-    background-color: #F3F4F8;
-    border-top: 1px solid #CCC;
-  }
-
-  /* Transition effect */
-  /* Feel free to change the transition effect for original
-     animations. See here:
-     https://developer.mozilla.org/en/CSS/CSS_transitions
-     How to use CSS3 Transitions: */
-  section {
-    -moz-transition: left 400ms linear 0s;
-    -webkit-transition: left 400ms linear 0s;
-    -ms-transition: left 400ms linear 0s;
-    transition: left 400ms linear 0s;
-  }
-  .view section {
-    -moz-transition: none;
-    -webkit-transition: none;
-    -ms-transition: none;
-    transition: none;
-  }
-
-  .view section[aria-selected] {
-    border: 5px red solid;
-  }
-
-  /* Before */
-  section { left: -150%; }
-  /* Now */
-  section[aria-selected] { left: 0; }
-  /* After */
-  section[aria-selected] ~ section { left: +150%; }
-
-  /* Incremental elements */
-
-  /* By default, visible */
-  .incremental > * { opacity: 1; }
-
-  /* The current item */
-  .incremental > *[aria-selected] { opacity: 1; }
-
-  /* The items to-be-selected */
-  .incremental > *[aria-selected] ~ * { opacity: 0; }
-
-  /* The progressbar, at the bottom of the slides, show the global
-     progress of the presentation. */
-  #progress-bar {
-    height: 2px;
-    background: #AAA;
-  }
-</style>
+  <link rel="stylesheet" href="dzslides.css">
 </head>
 <body>
 <section class="title">
-  <h1 class="title">Habits</h1>
+  <h1 class="title">Lineage &amp; Metadata</h1>
   <footer>
-    <span class="author">John Doe</span> · <span class="date">March 22,
-2005</span>
+    <span class="author">Status &amp; Planning
+Deck</span> · <span class="date">May 15, 2023</span>
   </footer>
 </section>
-<section id="in-the-morning" class="title-slide slide level1">
-<h1>In the morning</h1>
-
-</section>
-<section id="getting-up" class="slide level2">
-<h2>Getting up</h2>
-<ul>
-<li>Turn off alarm</li>
-<li>Get out of bed</li>
+<section id="core-metadata-model" class="slide level1">
+<h1>Core Metadata Model</h1>
+<p>AKA Tags / Properties / Attributes for data assets.<br />
+Tags help us to encode 605-specific business logic.</p>
+<h3 id="tags-are-optional">Tags are <strong>optional</strong>:</h3>
+<ul class="incremental">
+<li>None of these tags are required anywhere</li>
+<li>But <em>best-practice</em> is that every asset Atlan tracks should
+have as many tags as possible.</li>
+</ul>
+<h3 id="tags-are-reusable">Tags are <strong>reusable</strong>:</h3>
+<ul class="incremental">
+<li>Can be attached to any data assets Atlan is tracking,</li>
+<li>But also to documentation-assets or process-assets
+(i.e. data-pipelines )</li>
+</ul>
+<h3 id="tags-are-automatic">Tags are <strong>automatic</strong>:</h3>
+<ul class="incremental">
+<li><strong>With caveats!</strong></li>
+<li>Best mechanism for this is propagating tags “downstream”, but this
+requires lineage telemetry already flowing in.</li>
+<li>There are other rule-based ways to do this, but we have to define
+the rules.</li>
+<li>➔ Propagate tags between docs &amp; related data-assets.<br />
+</li>
+<li>➔ Ex: <em>Advisories on Tables become visible on landing pages for
+VendorX &amp; sync to Jira</em>.</li>
+<li>Overall, bootstrap is <strong>much</strong> easier when we have
+<strong>some</strong> high quality metadata that’s already
+available.</li>
 </ul>
 </section>
-<section id="breakfast" class="slide level2">
-<h2>Breakfast</h2>
-<ul>
-<li>Eat eggs</li>
-<li>Drink coffee</li>
+<section id="core-metadata-model-1" class="slide level1">
+<h1>Core Metadata Model</h1>
+<h2 id="case-study-data-deletion-compliance">Case-study: Data-Deletion
+Compliance</h2>
+<p>With asset time-stamps available by default, we only need 1 tag for
+this use-case:</p>
+<pre><code>vendor_list: (type=List[Vendor])
+  description:
+    Describes the vendor(s) associated with this
+    data.  (Core-datasets will have 1 vendor;
+    derivative data from joins may have several.)</code></pre>
+<ul class="incremental">
+<li><p>
+Several ways this tag can be made initially available, but after it’s
+set once then it can propagate downstream. <em>Data</em> changes
+frequently but dataset <em>properties</em> are fairly static.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+Flagging deletion-candidates is the hard part here. Then, the business
+process for deletion is still open: automatic or interactive. We can
+discuss/accept/reject the deletion-proposal in any combination of
+Atlan/Jira/Slack with an automated process.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+If/when we delete data, empty Atlan search results afterwards
+<strong>are</strong> our deletion certs.
+</p></li>
 </ul>
 </section>
-
-<section id="in-the-evening" class="title-slide slide level1">
-<h1>In the evening</h1>
-
-</section>
-<section id="dinner" class="slide level2">
-<h2>Dinner</h2>
-<ul>
-<li>Eat spaghetti</li>
-<li>Drink wine</li>
+<section id="core-metadata-model-2" class="slide level1">
+<h1>Core Metadata Model</h1>
+<h2 id="use-case-data-driven-decisions-about-storage-costs">Use Case:
+Data-driven Decisions About Storage Costs</h2>
+<p>Some storage stats are easy, in fact <em>we automatically know the
+location/size/last write/storage unit-cost for everything in the
+DataCatalog.</em></p>
+<p>But connecting these stats back to details about business-operations
+is what we usually want. <strong>Are we holding on to data that we don’t
+need? How does contract-ROI stack up to storage costs?</strong> One
+additional tag can do a lot here:</p>
+<pre><code>po_list: (type=List[integer])
+  description:
+    Basically a foreign-key to SalesForce
+    product-orders, this tag ties this DataSet
+    back to the engagement details with client(s).
+    (Deliverable-data has 1 client; intermediate
+    data for 605 use may have several.)</code></pre>
+<ul class="incremental">
+<li><p>
+BizOps, Legal, and Compliance all expressed interest in this tag &amp;
+related ones like <em>“client_list”</em>.
+</p></li>
+<li><p>
+A <em>“contract_type”</em> attribute for DataSets is interesting to
+imagine.. querying for unencumbered data that allows joins might help to
+identify new product-lines.
+</p></li>
 </ul>
 </section>
-<section class="slide level2">
+<section id="core-metadata-model-3" class="slide level1">
+<h1>Core Metadata Model</h1>
+<h2 id="use-case-faster-pipeline-debugging">Use Case: Faster Pipeline
+Debugging</h2>
+<p><strong>Cheaper Pipeline Development</strong>, <strong>Faster
+Pipeline Debugging</strong>, <strong>Higher Data Quality</strong>, and
+<strong>Less Spending on Compute</strong> might seem like different
+goals, but these are all very closely related.</p>
+<p>Tracking a few tags and rallying around them for business-processes
+will bring significant improvements to each area almost immediately:</p>
+<pre><code>pipeline_version: (type=String)
+  description:
+    A version-string for the code that wrote this data.
+    Combined with info from upstream, this fingerprints
+    the whole code-path that made this data.
 
-<figure>
-<img src="images/spaghetti.jpg" alt="picture of spaghetti" />
-<figcaption aria-hidden="true">picture of spaghetti</figcaption>
-</figure>
+data_quality_check: (type=URL)
+  description:
+    A URL for the quality-check job that certified
+    this data.  Null if no quality-check has run. URL
+    may link to a DAG-run, or a DataBrew job, or a
+    Databricks notebook.</code></pre>
 </section>
-<section id="going-to-sleep" class="slide level2">
-<h2>Going to sleep</h2>
+<section id="core-data-catalog" class="slide level1">
+<h1>Core Data Catalog</h1>
+<h3 id="athena-assets-via-glue-crawlers">Athena Assets via Glue
+Crawlers</h3>
+<p>Atlan’s data-ingestion (really, metadata-ingestion) here is
+<strong>automatic</strong>, and includes <strong>accurate</strong> and
+<strong>up-to-date</strong> details for S3-location, row-count,
+timestamps, and data-schema, plus any other detail we get from
+tag-propagation.</p>
+<ul class="incremental">
+<li>This is <strong>live information</strong>, minimizing maintenance
+chores on stale Confluence pages.<br />
+</li>
+<li>This is table-based, so unlike searching S3, <strong>you can
+actually find things</strong>.</li>
+<li>This decouples data-access from metadata access, which is usually
+what we want</li>
+<li>This decouples the data itself from the metadata, and makes tagging
+feasible.</li>
+</ul>
+<h3 id="hey-this-is-easy">Hey, this is easy!</h3>
+<ul class="incremental">
+<li><font color=red>But!</font></li>
+<li>➔ We have to curate our Glue Crawlers</li>
+<li>➔ ➔ No, seriously. We can’t just ingest from S3</li>
+<li><font color=red><em>Well..</em></font> realistically we already
+needed Crawlers, so at least this isn’t false-work.</li>
+</ul>
+</section>
+<section id="core-data-catalog-1" class="slide level1">
+<h1>Core Data Catalog</h1>
+<h3 id="assets-via-other-sources">Assets via Other Sources</h3>
+<ul class="incremental">
+<li><p>
+Natively, Atlan is capable of directly ingesting metadata from other
+sources, including <em>Databricks</em> and <em>Redshift</em>. Those are
+still options, but using Athena is preferred, because glue-crawlers
+<strong>directly facilitate</strong> follow-up work with ETLs or
+DataBrew.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+<strong>Clickhouse</strong> is an outlier, and there was some question
+about whether this was just a “view” on the datalake. But feedback here
+says there is some value, and PoC’s show that Atlan can accommodate.
+</p></li>
+</ul>
+</section>
+<section id="pipelines-data-lineage" class="slide level1">
+<h1>Pipelines &amp; Data Lineage</h1>
+<h3 id="preferred-mechanism-for-tag-propagation">Preferred Mechanism for
+Tag-Propagation</h3>
+<p>To know basic information like the <em>vendor</em> or <em>client</em>
+for a given dataset, we can’t rely on individually tagging everything
+because of sheer volume.</p>
+<p>Luckily most tags like this can be inherited from “upstream”. As an
+example: The <em>vendors</em> for a derivative data-set are just the
+combined vendor-info for the constituents. This can only work if we are
+capturing the “upstream” relationship. Lineage is how we do that.</p>
+<h3 id="lineage-captures-pipeline-details">Lineage Captures Pipeline
+Details</h3>
+<p>Besides facilitating a bunch of tagging that then enables business
+logic, making implicit pipeline-dependencies <em>and</em>
+data-dependencies explicit is itself very useful:</p>
+<ul class="incremental">
+<li><p>
+<strong>When pipelines fail,</strong> we know what downstream pipelines
+cannot run, or may have to run with incomplete/incorrect data.
+</p></li>
+<li><p>
+Visibility on explicit status &amp; deps is good for humans, but also
+<strong>implies pipelines can decide for themselves whether they are
+ready to run</strong>. This saves tons of human effort spent on
+alignment, &amp; also fixes the problem that time-based no-conflict
+scheduling rules are hard to decide on, and fundamentally can’t scale.
+</p></li>
+<li><p>
+<strong>Onboarding / offboarding whole data-products
+efficiently</strong> basically requires explicit relationships between
+pipelines/data. Doing this right can save us a lot of money and
+confusion.
+</p></li>
+</ul>
+</section>
+<section id="pipelines-data-lineage-1" class="slide level1">
+<h1>Pipelines &amp; Data Lineage</h1>
+<h3 id="pipeline-deps-reflect-org-level-deps">Pipeline Deps Reflect
+Org-level Deps</h3>
+<p>Jira is great, but as a data-company, cross-department collaboration
+ultimately happens <em>with data, and on data</em>.</p>
+<p>Most pipelines can’t run without making assumptions about the health
+and quality of their parent-pipelines. Most pipelines <em>shouldn’t</em>
+run if that information is completely missing.</p>
+<p>A few practical observations:</p>
 <ul>
-<li>Get in bed</li>
-<li>Count sheep</li>
+<li><p><strong>We already have to organize work along these lines
+anyway,</strong> by considering upstream/downstream. But the problems of
+ordering new work and alignment involved usually require several
+department-heads and SMEs to unpack and resolve.</p></li>
+<li><p><strong>We already have to conduct debugging by considering
+what’s going on upstream.</strong> But the people doing that debugging
+are likely only SMEs for their pipeline, and not for the entire
+datalake. <em>Even if we assume that debugging happens during
+development and not in production,</em> the cost and the frustration
+involved here is huge.</p></li>
+</ul>
+</section>
+<section id="pipelines-data-lineage-2" class="slide level1">
+<h1>Pipelines &amp; Data Lineage</h1>
+<h3 id="implementation-details-loe">Implementation Details &amp;
+LOE</h3>
+<p><strong>Required lineage-related tagging</strong> only uses
+information pipelines are already handling:</p>
+<pre><code>s3_output: (type=str)
+  description:
+    Specific S3 URI for the data this process is creating
+
+s3_inputs: (type=List[str])
+  description:
+    A list of S3 URIs used as input for this output.</code></pre>
+<p><strong>Optionally,</strong> pipelines can push any other tag defined
+by the Core Metadata Model. Airflow DAGs in particular are the best
+place for us to do as much additional annotation as possible for tags
+like <em>“vendor”</em> and <em>“client”</em>. As an orchestration
+platform, Airflow often already has these details, plus tagging here
+helps to keep these details from leaking into ETL code, notebooks,
+etc.</p>
+<p>From a caller’s perspective like an Airflow DAG or a Databricks
+notebook, pushing this data is done by calling a Lambda.</p>
+</section>
+<section id="status" class="slide level1">
+<h1>Status</h1>
+<h3 id="status-summary">Status Summary</h3>
+<ul class="incremental">
+<li><p>
+🟢 <strong>Vendor Selection:</strong> Atlan seems to be a clear winner
+here, and after lots of design / PoCs it’s always been flexible enough
+to even accommodate weirder use-cases. Our needs as far as
+business-logic will never have a completely “no-code” solution, but
+Atlan’s SDK has made huge improvements since we started looking, and new
+integrations are becoming available all the time.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+🟢 <strong>Core Metadata Model:</strong> This list may never be
+<em>finished</em> but it’s good enough to use, reflects what we know
+about needs from several departments, and gives us room to grow.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+🔴 <strong>Core Data Catalog:</strong> Our Glue-Crawlers need serious
+attention: we have stuff that is stale / misconfigured as well as stuff
+that’s been completely skipped. Crawler creation &amp; curation
+historically have been optional. <em>But Crawlers <em>are</em> our Core
+Catalog, not s3</em>. Proceeding as if this were not true hurts us in
+many ways, and several of those ways are completely independent of
+efforts related to metadata/lineage.
+</p></li>
+</ul>
+</section>
+<section id="status-1" class="slide level1">
+<h1>Status</h1>
+<h3 id="status-summary-1">Status Summary</h3>
+<ul class="incremental">
+<li><p>
+🟡 <strong>Pipeline Lineage:</strong>
+</p></li>
+<li>Client-side, pushing lineage from our pipelines is easy today
+regardless of pipeline-type, maybe <em>really</em> easy if we’re
+starting from airflow.<br />
+</li>
+<li>But this assumes the pipelines we’re looking at are <em>reasonably
+modern</em>. Ad-hoc pipelines outside of version control or things
+running on completely deprecated platforms need to address tech-debt
+first.</li>
+<li>On the backend, stuff that makes lineage useful is still hard. The
+main reason for that is trying to accommodate lineage even with our
+incomplete catalog, and most of that complexity goes away if we simply
+fix the catalog.</li>
+</ul>
+<ul class="incremental">
+<li><p>
+🟡 <strong>Living Documentation:</strong>
+</p></li>
+<li>Living documentation gets a section here, and PoCs have started to
+show what’s possible. This deserves more attention, since it ties
+everything together and is the obvious place to start collaboration,
+search, and dashboarding.</li>
+</ul>
+</section>
+<section id="moving-forward" class="slide level1">
+<h1>Moving Forward</h1>
+<h3 id="basic-assumptions">Basic Assumptions</h3>
+<p>Atlan is essentially a tool that can facilitate the whole
+<strong>data-lifecycle</strong>. Because everyone is involved in that
+life-cycle here’s some things we should probably take for granted:</p>
+<ul>
+<li><p>One person or team can’t make metadata/lineage magically work for
+605.</p></li>
+<li><p>There is no team/product/data that doesn’t have <em>both</em>
+interests <em>and</em> obligations in terms of 605 metadata.</p></li>
+</ul>
+<h3 id="more-controversial-assumptions">More Controversial
+Assumptions</h3>
+<ul>
+<li><p>It’s not OK for a data-company to not know where their data is,
+what it’s for, where it comes from, and where it’s going.</p></li>
+<li><p>In the end you can’t plan to fix this by “getting the right
+people in meetings” because actually at some level,
+<strong>everyone</strong> needs to know this almost daily.</p></li>
+</ul>
+</section>
+<section id="moving-forward-1" class="slide level1">
+<h1>Moving Forward</h1>
+<h3 id="blockers-circular-dependencies-the-adoption-problem">Blockers,
+Circular Dependencies &amp; the Adoption Problem</h3>
+<p>Here’s a trace of a typical problem, where maybe it’s easier to see
+the vicious circle we’re in.</p>
+<ul class="incremental">
+<li><p>
+We don’t want to migrate documentation to Atlan because attaching live
+schema-metadata/table-instances to those docs is half the value, and
+this info is missing.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+Schema details can’t be attached because they weren’t ingested because
+the Data Catalog is broken.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+Without documentation/dashboards, there’s no useful baseline landing
+page to bring anyone to Atlan as the easiest way to start their project.
+No traffic means no interest in iterative improvements. And no
+improvements to visibility ensures that need-to-know information stays
+in silos.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+Outside Atlan, because the Data Catalog is neglected, pipelines that
+should be trivial with tools like DataBrew end up as large projects that
+we get from vendors and have trouble maintaining later.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+Legacy maintenance then reduces engineering availability to fix
+crawlers, reducing interest in a better approach for docs; missing docs
+increases friction for other project startups and silent errors for
+established pipelines; and …. you get the idea.
+</p></li>
+</ul>
+</section>
+<section id="moving-forward-2" class="slide level1">
+<h1>Moving Forward</h1>
+<h3 id="fixing-alignment-by-adding-feedback-loops">Fixing Alignment by
+Adding Feedback Loops</h3>
+<p>Fundamental causes for the situation on the last slide might be
+summarized like this:</p>
+<ul class="incremental">
+<li><p>
+There’s a sense that nothing can be done until everything else is done.
+</p></li>
+<li><p>
+In general, it’s really hard to get work done across team/department
+boundaries.
+</p></li>
+<li><p>
+Reading between the lines a bit, maybe we’re all naturally more
+interested in <strong>consuming</strong> metadata than we are in
+<strong>producing</strong> it.
+</p></li>
+<li><p>
+One way of fixing this is to start thinking of Atlan as a system that
+sits at the interface between departments/teams.
+</p></li>
+</ul>
+</section>
+<section id="moving-forward-3" class="slide level1">
+<h1>Moving Forward</h1>
+<h3 id="fixing-alignment-by-adding-feedback-loops-1">Fixing Alignment by
+Adding Feedback Loops</h3>
+<p>Quoting from an earlier slide: <strong>Jira is great, but as a
+data-company, cross-department collaboration ultimately happens with
+data, and on data.</strong></p>
+<p>Obviously we wouldn’t get rid of Jira, and actually Atlan integrates
+with Jira. Jira tickets that are cut via Atlan are actually likely to
+have much better information from the start.</p>
+<ul class="incremental">
+<li>For example: work <em>begins</em> with reference to a concrete S3
+URI, rather than a vendor name + research-task to <em>find</em> the
+latest location for the data, find schema details, health-info and the
+rest.</li>
+</ul>
+</section>
+<section id="moving-forward-4" class="slide level1">
+<h1>Moving Forward</h1>
+<h3 id="fixing-alignment-by-adding-feedback-loops-2">Fixing Alignment by
+Adding Feedback Loops</h3>
+<p><strong>Bugs in our metadata, including missing/incomplete details,
+are serious.</strong> These essentially correspond directly to existing
+bugs with compliance, or inefficiencies in storage/compute, or future
+bugs in pipelines.</p>
+<p><strong>Treating this seriously means that:</strong></p>
+<ul class="incremental">
+<li>Cross-team communication works via Atlan as much as possible</li>
+<li>Teams own different parts of the data-lifecycle, but Atlan is always
+the SSoT for related metadata.</li>
+<li>Teams should be able <em>task each other</em> to fix problems with
+Atlan and have confidence it will get done.</li>
+<li>DataSets don’t exist unless they are properly onboarded into
+Atlan</li>
+<li>Pipelines don’t start on random/undefined datasets</li>
+<li>Pipelines don’t start with data of unknown quality, and quality
+checks haven’t happened if they aren’t recorded in public</li>
+<li>Docs didn’t happen if they don’t exist in Atlan</li>
+</ul>
+</section>
+<section id="moving-forward-5" class="slide level1">
+<h1>Moving Forward</h1>
+<h3 id="standardization-formal-automated-processes">Standardization
+&amp; Formal, Automated Processes</h3>
+<p>We won’t get far with the point of view that sure, everyone’s job is
+way easier if they can <em>consume</em> metadata, but no one wants to
+<em>produce</em> it, even if that means 1 new line of code, or 1
+additional step to an existing business process.</p>
+<p>“Lineage for thee and not for me” usually comes with an argument that
+the case under consideration is somehow exceptional.</p>
+<p><strong>But this is the baseline:</strong></p>
+<ul class="incremental">
+<li><p>
+If data is worth storing, we should know exactly what it’s for and when
+it’s used, otherwise we need the budget to literally store it forever.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+If data is worth computing, it’s worth testing, otherwise why bother?
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+If compute is worth running once, it probably runs semi-frequently and
+is part of a family of related tasks, so it belongs in a structured
+pipeline. Ad-hoc stuff threatens business continuity, stability, and
+quality because it just isn’t maintainable, reproducible, or deployable.
+</p></li>
+</ul>
+<ul class="incremental">
+<li><p>
+The rest of the org really needs this stuff from you, even if you’re not
+interested! If this costs you effort in one spot, it saves effort in
+another when you can rely on <em>consuming</em> metadata as well as
+<em>producing it</em>
+<p></li>
 </ul>
 </section>
 <!-- {{{{ dzslides core

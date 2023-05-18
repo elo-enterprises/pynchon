@@ -6,8 +6,10 @@ import textwrap
 import libcst as cst
 from libcst.codemod import CodemodContext, VisitorBasedCodemodCommand
 
+from pynchon.util import lme
+LOGGER = lme.get_logger(__name__)
 
-class AddTrailingCommas(VisitorBasedCodemodCommand):
+class javadoc(VisitorBasedCodemodCommand):
     DESCRIPTION: str = textwrap.dedent(
         """
         Add docstrings to functions
@@ -91,14 +93,15 @@ class AddTrailingCommas(VisitorBasedCodemodCommand):
         expr = updated_node.children[0].children[0]
         sstring = expr.children[0]
         sstring = updated_node.children[0].children[0].children.pop(0)
-        if not eval(sstring.value).strip():
+        tmp = sstring.value
+        LOGGER.critical(f"found module docstring:\n\n{tmp}'")
+
+        if not eval(tmp).strip():
             better = sstring.with_changes(value='"""bonk"""')
         else:
-            print("norep")
             better = sstring
-            import IPython
-
-            IPython.embed()
+            # import IPython
+            # IPython.embed()
         # updated_node.children[0].children[0].children[0].insert(0, sstring)
         updated_node = updated_node.deep_replace(sstring, better)
         # original_node.children[0].children[0].children[0]=original_node.children[0].children[0].children[0].with_changes(value='"""bonk"""')
