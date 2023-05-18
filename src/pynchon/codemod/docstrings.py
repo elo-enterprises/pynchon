@@ -55,12 +55,11 @@ class javadoc(VisitorBasedCodemodCommand):
         #     default=None,
         # )
 
-    def leave_Parameters(
-        self,
-        original_node: cst.Parameters,
-        updated_node: cst.Parameters,
-    ) -> cst.Parameters:
-        pass
+    # def leave_Parameters(
+    #     self,
+    #     original_node: cst.Parameters,
+    #     updated_node: cst.Parameters,
+    # ) -> cst.Parameters:
         # skip = (
         #     #
         #     self.parameter_count is None
@@ -90,14 +89,22 @@ class javadoc(VisitorBasedCodemodCommand):
         original_node: cst.Module,
         updated_node: cst.Module,
     ) -> cst.Module:
-        expr = updated_node.children[0].children[0]
+        try:
+            base = updated_node.children[0]
+        except IndexError:
+            tmp='bonk' #self.__name__ #self.full_module_name
+            LOGGER.critical(f"{original_node} @ {self.context.full_module_name} is empty-file!")
+            children =cst.SimpleString(value=f'"""{tmp}"""')
+            # return original_node.with_changes(children=children)
+            return original_node.with_changes(body=[children])
+        expr = base.children[0]
         sstring = expr.children[0]
         sstring = updated_node.children[0].children[0].children.pop(0)
         tmp = sstring.value
-        LOGGER.critical(f"found module docstring:\n\n{tmp}'")
-
+        # LOGGER.critical(f"found module docstring:\n\n{tmp}'")
         if not eval(tmp).strip():
             better = sstring.with_changes(value='"""bonk"""')
+            import IPython; IPython.embed()
         else:
             better = sstring
             # import IPython
@@ -105,7 +112,7 @@ class javadoc(VisitorBasedCodemodCommand):
         # updated_node.children[0].children[0].children[0].insert(0, sstring)
         updated_node = updated_node.deep_replace(sstring, better)
         # original_node.children[0].children[0].children[0]=original_node.children[0].children[0].children[0].with_changes(value='"""bonk"""')
-        print(updated_node.children[0].children[0].children[0])
+        # print(updated_node.children[0].children[0].children[0])
         return updated_node
         # import IPython; IPython.embed()
         # if len(updated_node.args) < self.argument_count:
