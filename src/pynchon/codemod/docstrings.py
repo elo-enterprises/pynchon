@@ -90,23 +90,27 @@ class javadoc(VisitorBasedCodemodCommand):
         updated_node: cst.Module,
     ) -> cst.Module:
         from libcst import parse_statement
-        full_module_name=self.context.full_module_name
+        full_module_name = self.context.full_module_name
+        default_docstring = f'""" {full_module_name} """'
+        lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
         try:
             base = updated_node.children[0]
         except IndexError:
-            LOGGER.critical(f"{original_node.__class__.__name__} @ '{full_module_name}' is empty-file!")
-            return updated_node.with_changes(body=[parse_statement(f'"""{full_module_name}"""')])
+            LOGGER.critical(f"{lctx}: empty-file!")
+            return updated_node.with_changes(body=[parse_statement(default_docstring)])
         try:
             expr = base.children[0]
             sstring = expr.children[0]
         except IndexError:
             # FIXME: module starts with whitespace?
+            LOGGER.critical(f"{lctx}: starts with whitespace?")
             return original_node
         sstring = updated_node.children[0].children[0].children.pop(0)
         tmp = sstring.value
         if not eval(tmp).strip():
-            better = sstring.with_changes(value=f'"""{full_module_name}"""')
+            LOGGER.critical(f"{lctx}: docstring present but empty")
+            better = sstring.with_changes(value=default_docstring)
         else:
-            better = sstring
+            return original_node
         updated_node = updated_node.deep_replace(sstring, better)
         return updated_node
