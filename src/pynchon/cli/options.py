@@ -8,7 +8,7 @@ from pynchon.cli import click
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
-ignore_missing=click.option(
+ignore_missing = click.option(
     "--ignore-missing",
     help="ignore missing docstrings (only updates empty or out-dated ones)",
     default=False,

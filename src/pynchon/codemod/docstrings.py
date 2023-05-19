@@ -7,7 +7,9 @@ import libcst as cst
 from libcst.codemod import CodemodContext, VisitorBasedCodemodCommand
 
 from pynchon.util import lme
+
 LOGGER = lme.get_logger(__name__)
+
 
 class javadoc(VisitorBasedCodemodCommand):
     DESCRIPTION: str = textwrap.dedent(
@@ -60,25 +62,25 @@ class javadoc(VisitorBasedCodemodCommand):
     #     original_node: cst.Parameters,
     #     updated_node: cst.Parameters,
     # ) -> cst.Parameters:
-        # skip = (
-        #     #
-        #     self.parameter_count is None
-        #     or len(updated_node.params) < self.parameter_count
-        #     or (
-        #         len(updated_node.params) == 1
-        #         and updated_node.params[0].name.value in {"self", "cls"}
-        #     )
-        # )
-        # if skip:
-        #     return updated_node
-        # else:
-        #     last_param = updated_node.params[-1]
-        #     return updated_node.with_changes(
-        #         params=(
-        #             *updated_node.params[:-1],
-        #             last_param.with_changes(comma=cst.Comma()),
-        #         ),
-        #     )
+    # skip = (
+    #     #
+    #     self.parameter_count is None
+    #     or len(updated_node.params) < self.parameter_count
+    #     or (
+    #         len(updated_node.params) == 1
+    #         and updated_node.params[0].name.value in {"self", "cls"}
+    #     )
+    # )
+    # if skip:
+    #     return updated_node
+    # else:
+    #     last_param = updated_node.params[-1]
+    #     return updated_node.with_changes(
+    #         params=(
+    #             *updated_node.params[:-1],
+    #             last_param.with_changes(comma=cst.Comma()),
+    #         ),
+    #     )
 
     # def leave_SimpleString(
     #     self, onode, unode
@@ -90,6 +92,7 @@ class javadoc(VisitorBasedCodemodCommand):
         updated_node: cst.Module,
     ) -> cst.Module:
         from libcst import parse_statement
+
         full_module_name = self.context.full_module_name
         default_docstring = f'""" {full_module_name} """'
         lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"

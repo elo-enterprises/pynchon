@@ -57,15 +57,18 @@ class PythonPlatform(models.Planner):
     def gen(self):
         """Generates code for python modules, packages, etc"""
 
-    def _goal_libcst_refresh(self,libcst_config):
+    def _goal_libcst_refresh(self, libcst_config):
         from pynchon.util import text
+
         min = text.to_json(libcst_config, minified=True)
         rsrc = ".libcst.codemod.yaml"
-        cmd=f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}"
+        cmd = f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}"
         return self.goal(
             type="render",
-            label='refresh libcst-config',
-            resource=rsrc, command=cmd,)
+            label="refresh libcst-config",
+            resource=rsrc,
+            command=cmd,
+        )
 
     def plan(self):
         plan = super(self.__class__, self).plan()
