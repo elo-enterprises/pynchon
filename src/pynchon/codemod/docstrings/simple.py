@@ -12,10 +12,10 @@ LOGGER = lme.get_logger(__name__)
 
 class klass(base):
     DESCRIPTION: str = """\n\tWhere missing, adds docstrings to classes"""
-        # from libcst import parse_statement
-        # default_docstring = f'"""  """'
-        # lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
-        # raise Exception([ltx, original_node])
+    # from libcst import parse_statement
+    # default_docstring = f'"""  """'
+    # lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
+    # raise Exception([ltx, original_node])
 
 
 from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,

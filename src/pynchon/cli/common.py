@@ -5,17 +5,16 @@ import json
 import functools
 
 import click
-from rich import print_json
 
 from pynchon import shimport
 from pynchon.cli import click
+
 from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
 def load_groups_from_children(root=None, parent=None):
-
     shimport.wrap(root).filter_folder(include_main=True).prune(
         name_is="entry",  # default
     ).map(
@@ -77,6 +76,7 @@ class handler:
 #                 f"skipping output_handler; result is not a string! (got {type(result)})"
 #             )
 #
+
 
 def entry_for(
     name,

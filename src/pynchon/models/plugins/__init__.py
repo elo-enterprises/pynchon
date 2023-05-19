@@ -2,25 +2,22 @@
 """
 import typing
 
-from pynchon import fleks, shimport # noqa
-from pynchon import api, cli, events # noqa
+from pynchon import api, cli, events, fleks, shimport  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
-
-
-from . import validators # noqa
-from .cli import CliPlugin # noqa
-from .provider import Provider # noqa
-from .tool import ToolPlugin # noqa
-from .pynchon import PynchonPlugin # noqa
+from . import validators  # noqa
+from .cli import CliPlugin  # noqa
+from .provider import Provider  # noqa
+from .pynchon import PynchonPlugin  # noqa
+from .tool import ToolPlugin  # noqa
 
 LOGGER = lme.get_logger(__name__)
 classproperty = typing.classproperty
 
 
-
 class BasePlugin(CliPlugin):
     """The default plugin-type most new plugins will use"""
+
     priority = 10
 
 
