@@ -16,19 +16,14 @@ class Plugin(metaclass=Meta):
 
     def __init__(self, final=None) -> typing.NoneType:
         """
-
-        :param final: Default value = None)
-
         """
         self.final = final
 
     @classmethod
     def classmethod_dispatch(kls, *args):
         """
-
-        :param kls: param *args:
+        :param kls:
         :param *args:
-
         """
         from multipledispatch import dispatch
 

@@ -31,24 +31,31 @@ class Generators(models.NameSpace):
         cmd_names = []
 
         def acqcmd(cmd, group=None):
-            cmd_name = getattr(cmd, "name", getattr(cmd, "__name__", ""))
+            cmd_name = getattr(
+                cmd, "name",
+                getattr(
+                    cmd, "__name__", ""))
+            ocmd_name=cmd_name
             if cmd_name in [target_name]:
                 cmd_name = sibling.name
             if cmd_name in cmd_names:
                 cmd_name = f"{sibling.name}-{cmd_name}"
             cmd_name = cmd_name.replace("_", "-")
+            if cmd_name in ['toc','detail']:
+                cmd_name = '-'.join([cmd_name, sibling.name.split('-')[-1]])
             if cmd_name in cmd_names:
                 raise Exception(f"collision acquiring subcommand: [{cmd_name}, {cmd}]")
             assert cmd_name, [cmd]
             gname = f"{group.name} " if group else ""
             cname = f"{gname}{cmd_name}"
-            ocli = f"`{sibling.cli_path} {cname}`"
-            descr = "from" if group else "to"
+            ocli = f"`{sibling.cli_path} {gname}{ocmd_name}`"
+            still_group = isinstance(cmd,(cli.click.Group,))
+            descr = "Aliases from" if still_group else "Alias to"
             kls.click_acquire(
                 cmd,
                 copy=True,
                 name=cmd_name,
-                help=f"Alias {descr} {ocli}",
+                help=f"{descr} {ocli}",
             )
 
         for sibling, cmd in kls.siblings_with_subcommand("gen", **kwargs).items():

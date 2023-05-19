@@ -24,6 +24,8 @@ class PythonAPI(models.ShyPlanner):
     def gen(self):
         """Generates API docs from python modules, packages, etc"""
 
+    # FIXME: not bound correctly: missing 1 req pos arg 'self'
+    @gen.command('toc')
     @cli.options.file
     @cli.options.header
     @cli.options.should_print
@@ -39,8 +41,6 @@ class PythonAPI(models.ShyPlanner):
         default="",
         help=("comma-separated list of modules to exclude (optional)"),
     )
-    # FIXME: not bound correctly: missing 1 req pos arg 'self'
-    # @gen.command('toc')
     def toc(
         self,
         package=None,

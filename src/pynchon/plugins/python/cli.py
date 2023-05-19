@@ -9,6 +9,7 @@ config_mod = shimport.lazy(
     "pynchon.config",
 )
 LOGGER = lme.get_logger(__name__)
+import glob
 
 
 class PythonCliConfig(abcs.Config):
@@ -20,9 +21,7 @@ class PythonCliConfig(abcs.Config):
     @property
     def src_root(self):
         """ """
-        from pynchon.config import src
-
-        src_root = src["root"]
+        src_root = config_mod.src["root"]
         # FIXME: support for subprojects
         # # src_root = abcs.Path(
         # # config_mod.project.get(
@@ -33,7 +32,6 @@ class PythonCliConfig(abcs.Config):
     @property
     def entrypoints(self) -> dict:
         """ """
-        import glob
 
         src_root = self.src_root
         pat = src_root / "**" / "__main__.py"
@@ -67,31 +65,27 @@ class PythonCLI(models.ShyPlanner):
     def gen(self):
         """Generates CLI docs for python packages"""
 
-    # @common.kommand(
-    #     name="toc",
-    #     parent=Core.gen_cli,
-    #     formatters=dict(markdown=constants.T_TOC_CLI),
-    #     options=[
-    #         options.file_setupcfg,
-    #         options.format_markdown,
-    #         click.option(
-    #             "--output",
-    #             "-o",
-    #             default="docs/cli/README.md",
-    #             help=("output file to write.  (optional)"),
-    #         ),
-    #         options.stdout,
-    #         options.header,
-    #     ],
-    # )
-    # def toc(format, file, stdout, output, header):
-    #     """
-    #     Describe entrypoints for this project (parses setup.cfg)
-    #     """
-    #     from pynchon.api import project
-    #
-    #     config, plan = project.plan()
-    #     return config
+    # formatters=dict(markdown=constants.T_TOC_CLI),
+    @gen.command('toc')
+    @cli.options.stdout
+    @cli.options.header
+    # options.file_setupcfg,
+    # click.option(
+    #     "--output",
+    #     "-o",
+    #     default="docs/cli/README.md",
+    #     help=("output file to write.  (optional)"),
+    # ),
+    def toc(self,
+        format, file, stdout,
+        output, header):
+        """
+        Describe entrypoints for this project (parses setup.cfg)
+        """
+        from pynchon.api import project
+
+        config, plan = project.plan()
+        return config
     #
     # @common.kommand(
     #     name="all",

@@ -12,6 +12,7 @@ from . import validators
 
 from pynchon.util import lme, tagging, typing  # noqa
 
+IPython = shimport.lazy('IPython')
 
 pydash = shimport.lazy(
     "pydash",
@@ -34,6 +35,35 @@ class PynchonPlugin(fleks.Plugin):
         validators.require_conf_key,
         validators.warn_config_kls,
     ]
+
+    @classproperty
+    def siblings(kls):
+        """ """
+        result = []
+        from pynchon.plugins import registry
+
+        for plugin in registry.keys():
+            if plugin == kls.name:
+                continue
+            result.append(plugins_util.get_plugin_obj(plugin))
+        result = sorted(result, key=lambda p: p.priority)
+
+        class Siblings(collections.OrderedDict):
+            def collect_config_list(self, key):
+                """collects the named key across all sibling-plugins"""
+                out = []
+                for name, plugin_obj in self.items():
+                    out += plugin_obj[key::[]]
+                return out
+
+            def collect_config_dict(self, key):
+                """collects the named key across all sibling-plugins"""
+                out = {}
+                for name, plugin_obj in self.items():
+                    out.update(plugin_obj[key::{}])
+                return out
+
+        return Siblings([p.name, p] for p in result)
 
     @typing.classproperty
     def instance(kls):
@@ -70,49 +100,10 @@ class PynchonPlugin(fleks.Plugin):
         """ """
         return self.get_current_config()
 
-    @classproperty
-    def siblings(kls):
-        """ """
-        result = []
-        from pynchon.plugins import registry
-
-        for plugin in registry.keys():
-            if plugin == kls.name:
-                continue
-            result.append(plugins_util.get_plugin_obj(plugin))
-        result = sorted(result, key=lambda p: p.priority)
-
-        class Siblings(collections.OrderedDict):
-            def collect_config_list(self, key):
-                """collects the named key across all sibling-plugins"""
-                out = []
-                for name, plugin_obj in self.items():
-                    out += plugin_obj[key::[]]
-                return out
-
-            def collect_config_dict(self, key):
-                """collects the named key across all sibling-plugins"""
-                out = {}
-                for name, plugin_obj in self.items():
-                    out.update(plugin_obj[key::{}])
-                return out
-
-        return Siblings([p.name, p] for p in result)
-
     @property
     def config(self):
         """ """
         return self.cfg()
-
-    def cfg(self):
-        """Shows current config for this plugin"""
-        kls = self.__class__
-        conf_class = getattr(kls, "config_class", None)
-        conf_class_name = conf_class.__name__ if conf_class else "(None)"
-        LOGGER.debug(f"config class: {conf_class_name}")
-        LOGGER.debug("current config:")
-        result = kls.get_current_config()
-        return result
 
     def __getitem__(self, key: str):
         """shortcut for accessing local plugin-config
@@ -173,11 +164,24 @@ class PynchonPlugin(fleks.Plugin):
                 if strict:
                     raise
 
+    def cfg(self):
+        """Shows current config for this plugin"""
+        kls = self.__class__
+        conf_class = getattr(kls, "config_class", None)
+        conf_class_name = conf_class.__name__ if conf_class else "(None)"
+        LOGGER.debug(f"config class: {conf_class_name}")
+        LOGGER.debug("current config:")
+        result = kls.get_current_config()
+        return result
+
 
 @tagging.tags(cli_label="<<Default>>")
 class CliPlugin(PynchonPlugin):
     cli_label = "<<Default>>"
     _finalized_click_groups = dict()
+    @typing.classproperty
+    def cli_path(kls):
+        return f"{kls.click_entry.name} {kls.click_group.name}"
 
     @typing.classproperty
     def click_entry(kls):
@@ -209,9 +213,36 @@ class CliPlugin(PynchonPlugin):
 
         return plugin_main
 
-    @typing.classproperty
-    def cli_path(kls):
-        return f"{kls.click_entry.name} {kls.click_group.name}"
+    @classproperty
+    @functools.lru_cache(maxsize=None)
+    def click_commands(kls) -> typing.List[str]:
+        return [
+            name
+            for name in dir(kls)
+            if name not in kls.__class_properties__
+            and all(
+                [
+                    name not in "click_entry click_group".split(),
+                    isinstance(getattr(kls, name), (cli.click.Command,)),
+                    not isinstance(getattr(kls, name), (cli.click.Group,)),
+                ]
+            )
+        ]
+
+    @classproperty
+    @functools.lru_cache(maxsize=None)
+    def click_subgroups(kls) -> typing.List[str]:
+        return [
+            name
+            for name in dir(kls)
+            if name not in kls.__class_properties__
+            and all(
+                [
+                    name not in "click_entry click_group".split(),
+                    isinstance(getattr(kls, name), (cli.click.Group,)),
+                ]
+            )
+        ]
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
     def click_acquire(
@@ -255,37 +286,6 @@ class CliPlugin(PynchonPlugin):
             cmd = cli.click.group_copy(cmd, **update_kwargs)
         parent.add_command(cmd)
         return parent
-
-    @classproperty
-    @functools.lru_cache(maxsize=None)
-    def click_commands(kls) -> typing.List[str]:
-        return [
-            name
-            for name in dir(kls)
-            if name not in kls.__class_properties__
-            and all(
-                [
-                    name not in "click_entry click_group".split(),
-                    isinstance(getattr(kls, name), (cli.click.Command,)),
-                    not isinstance(getattr(kls, name), (cli.click.Group,)),
-                ]
-            )
-        ]
-
-    @classproperty
-    @functools.lru_cache(maxsize=None)
-    def click_subgroups(kls) -> typing.List[str]:
-        return [
-            name
-            for name in dir(kls)
-            if name not in kls.__class_properties__
-            and all(
-                [
-                    name not in "click_entry click_group".split(),
-                    isinstance(getattr(kls, name), (cli.click.Group,)),
-                ]
-            )
-        ]
 
     @PynchonPlugin.classmethod_dispatch(typing.MethodType)
     def click_acquire(
@@ -442,19 +442,14 @@ class CliPlugin(PynchonPlugin):
     @cli.click.option("--command", "-c", default="")
     def shell(self, command: str = "") -> None:
         """drop to debugging shell
-
         :param command: str:  (Default value = '')
-        :param command: str:  (Default value = '')
-
         """
         before = locals()
         if command:
             self.logger.warning(f"executing command: {command} ")
             return eval(command)
         else:
-            import IPython
-
-            IPython.embed()  # noqa
+            IPython.embed()
         after = {k: v for k, v in locals().items() if k not in before}
         LOGGER.warning(f"namespace changes: {after}")
 
@@ -478,10 +473,9 @@ class Provider(CliPlugin):
 
 @tagging.tags(cli_label="Tool")
 class ToolPlugin(CliPlugin):
-    """Tool plugins may have their own config,
+    """
+    Tool plugins may have their own config,
     but generally should not need project-config.
-
-
     """
 
     cli_label = "Tool"

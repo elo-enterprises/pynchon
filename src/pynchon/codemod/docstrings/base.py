@@ -8,8 +8,8 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
-
-class base(VisitorBasedCodemodCommand):
+from libcst.codemod import ContextAwareTransformer
+class base(ContextAwareTransformer): #VisitorBasedCodemodCommand):
     DESCRIPTION: str = """\n\tAbstract, don't use this directly"""
 
     def __init__(

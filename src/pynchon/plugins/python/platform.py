@@ -112,11 +112,6 @@ class PythonPlatform(models.Planner):
         """Generates python docstrings"""
         self.logger.critical(locals())
 
-    @gen.command
-    def click_command_typing(self):
-        """reflects click-options typing into click-command function-signatures"""
-        raise NotImplementedError()
-
     @cli.click.group("src")
     def src(self):
         """Generates code for python modules, packages, etc"""
