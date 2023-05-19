@@ -11,7 +11,7 @@ from pynchon.util.tagging import tags
 
 # from .planning import *
 from . import planning
-from .plugin_types import BasePlugin
+from .plugins import BasePlugin
 
 from pynchon.util import lme, typing  # noqa
 

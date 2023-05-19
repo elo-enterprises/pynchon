@@ -2,4 +2,4 @@
 """
 from .planner import *  # noqa
 from .planning import *  # noqa
-from .plugin_types import *  # noqa
+from .plugins import *  # noqa

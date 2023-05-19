@@ -1,15 +1,16 @@
 """ pynchon.codemod.docstrings.base """
 import argparse
 
-import libcst as cst
-from libcst.codemod import CodemodContext, VisitorBasedCodemodCommand
+from libcst.codemod import CodemodContext
 
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
 from libcst.codemod import ContextAwareTransformer
-class base(ContextAwareTransformer): #VisitorBasedCodemodCommand):
+
+
+class base(ContextAwareTransformer):  # VisitorBasedCodemodCommand):
     DESCRIPTION: str = """\n\tAbstract, don't use this directly"""
 
     def __init__(

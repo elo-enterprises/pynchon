@@ -15,8 +15,7 @@ class Plugin(metaclass=Meta):
     priority = 0
 
     def __init__(self, final=None) -> typing.NoneType:
-        """
-        """
+        """ """
         self.final = final
 
     @classmethod

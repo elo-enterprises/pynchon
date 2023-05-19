@@ -25,7 +25,7 @@ class PythonAPI(models.ShyPlanner):
         """Generates API docs from python modules, packages, etc"""
 
     # FIXME: not bound correctly: missing 1 req pos arg 'self'
-    @gen.command('toc')
+    @gen.command("toc")
     @cli.options.file
     @cli.options.header
     @cli.options.should_print

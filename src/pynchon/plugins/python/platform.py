@@ -6,6 +6,7 @@ from memoized_property import memoized_property
 
 from pynchon import abcs, cli, models
 from pynchon.util import lme, tagging, typing
+from pynchon.util import python
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
@@ -24,8 +25,6 @@ class PythonPlatform(models.Planner):
 
         @memoized_property
         def is_package(self) -> bool:
-            from pynchon.util import python
-
             return python.is_package(".")
 
         @property
@@ -57,12 +56,22 @@ class PythonPlatform(models.Planner):
     def gen(self):
         """Generates code for python modules, packages, etc"""
 
+    @gen.command('codemod')
+    @cli.click.argument('transform_name',nargs=1)
+    @cli.click.argument('src_root',default='',nargs=1)
+    def _gen_codemod(
+        self,
+        transform_name='docstrings.simple.module',
+        src_root=''):
+        """ run a libcst codemod """
+        src_root = src_root or self[:'src.root':]
+        return invoke(f'python3 -m libcst.tool codemod docstrings.simple.module {src_root}',system=True)
+
     @cli.click.command("libcst-list")
     def _libcst_list(self):
         """libcst-codemods-list"""
-        from pynchon.util.os import invoke
-        out = invoke('python -mlibcst.tool list',strict=True)
-        out=out.stdout
+        out = invoke("python -mlibcst.tool list", strict=True)
+        out = out.stdout
         print(f"\n{out}")
 
     def _goal_libcst_refresh(self, libcst_config):

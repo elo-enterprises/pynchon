@@ -1,21 +1,20 @@
 """ pynchon.cli.common:
     Common options/arguments and base classes for CLI
 """
-# import io
 import json
 import functools
 
 import click
 from rich import print_json
 
+from pynchon import shimport
+from pynchon.cli import click
 from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
 def load_groups_from_children(root=None, parent=None):
-    from pynchon import shimport
-    from pynchon.cli import click
 
     shimport.wrap(root).filter_folder(include_main=True).prune(
         name_is="entry",  # default
@@ -42,120 +41,42 @@ class handler:
         self.logger = lme.get_logger(self.__class__.__name__)
 
     def match(self, call_kwargs):
-        """
-
-        :param call_kwargs:
-
-        """
         return False
 
     def __call__(self, result, **call_kwargs):
-        """
-
-        :param result: param **call_kwargs:
-        :param **call_kwargs:
-
-        """
         return self.handle(result, **call_kwargs)
 
 
-class stdout_handler(handler):
-    """ """
-
-    priority = 9
-
-    def match(self, kwargs):
-        """
-
-        :param kwargs:
-
-        """
-        return "stdout" in kwargs and kwargs["stdout"]
-
-    def handle(self, result, **call_kwargs):
-        """
-
-        :param result: param **call_kwargs:
-        :param **call_kwargs:
-
-        """
-        print_json(result)
-
-
-class output_handler(handler):
-    """ """
-
-    priority = 10
-
-    def match(_, kwargs):
-        """
-
-        :param _: param kwargs:
-        :param kwargs:
-
-        """
-        return "output" in kwargs and kwargs["output"]
-
-    def handle(self, result, output=None, **call_kwargs) -> None:
-        """
-
-        :param result: param output:  (Default value = None)
-        :param output:  (Default value = None)
-        :param **call_kwargs:
-
-        """
-        if isinstance(result, (str,)):
-            self.logger.debug(f"Saving to file: {output}")
-            with open(output, "w") as fhandle:
-                fhandle.write(result)
-        else:
-            self.logger.warning(
-                f"skipping output_handler; result is not a string! (got {type(result)})"
-            )
-
-
-class format_handler(handler):
-    """ """
-
-    def match(_, kwargs):
-        """
-
-        :param _: param kwargs:
-        :param kwargs:
-
-        """
-        return "format" in kwargs and kwargs["format"]
-
-    def transform(self, result, format: str = None, **call_kwargs):
-        """
-
-        :param result: param format: str:  (Default value = None)
-        :param format: str:  (Default value = None)
-        :param **call_kwargs:
-
-        """
-        if format.lower() == "json":
-            warning = "JSON used for `format`; header will be ignored"
-            self.logger.warning(warning)
-            msg = self.parent.formatters[format](result)
-        elif format == "markdown":
-            fmt = self.parent.formatters[format]
-            if not callable(fmt):
-                template = fmt
-
-                def fmt(**kargs):
-                    return template.render({**kargs, **result}) + "\n"
-
-            self.logger.debug(f"Dispatching formatter for `markdown` @ {fmt.__name__}")
-            self.logger.debug(f"context={result}")
-            return fmt(**result)
-        else:
-            err = f"Unsupported mode for `format`: {format}"
-            self.logger.critical(err)
-            raise ValueError(err)
-        self.logger.debug(f"Transform output: {type(msg)}")
-        return msg
-
+# class stdout_handler(handler):
+#     """ """
+#
+#     priority = 9
+#
+#     def match(self, kwargs):
+#         return "stdout" in kwargs and kwargs["stdout"]
+#
+#     def handle(self, result, **call_kwargs):
+#         print_json(result)
+#
+#
+# class output_handler(handler):
+#     """ """
+#
+#     priority = 10
+#
+#     def match(_, kwargs):
+#         return "output" in kwargs and kwargs["output"]
+#
+#     def handle(self, result, output=None, **call_kwargs) -> None:
+#         if isinstance(result, (str,)):
+#             self.logger.debug(f"Saving to file: {output}")
+#             with open(output, "w") as fhandle:
+#                 fhandle.write(result)
+#         else:
+#             self.logger.warning(
+#                 f"skipping output_handler; result is not a string! (got {type(result)})"
+#             )
+#
 
 def entry_for(
     name,
@@ -197,21 +118,6 @@ class kommand:
         help=None,
         **click_kwargs,
     ):
-        """
-
-        :param name: Default value = None)
-        :param parent: Default value = None)
-        :param arguments: Default value = [])
-        :param alias: Default value = None)
-        :param options: Default value = [])
-        :param transformers: Default value = [])
-        :param handlers: Default value = [])
-        :param formatters: Default value = {})
-        :param cls: Default value = None)
-        :param help: Default value = None)
-        :param **click_kwargs:
-
-        """
         self.name = name
         self.alias = alias
         self.parent = parent or click
@@ -220,17 +126,14 @@ class kommand:
         self.click_kwargs = click_kwargs
         self.formatters = {**formatters, **dict(json=self.format_json)}
         self.transformers = sorted(
-            transformers
-            + [
-                format_handler(parent=self),
-            ],
+            transformers,
             key=lambda t: t.priority,
         )
         self.handlers = sorted(
             handlers
             + [
-                output_handler(parent=self),
-                stdout_handler(parent=self),
+                # output_handler(parent=self),
+                # stdout_handler(parent=self),
             ],
             key=lambda h: h.priority,
         )
@@ -253,12 +156,6 @@ class kommand:
         return json.dumps(result, indent=2)
 
     def wrapper(self, *args, **call_kwargs):
-        """
-
-        :param *args:
-        :param **call_kwargs:
-
-        """
         assert self.fxn
 
         @functools.wraps(self.fxn)
@@ -275,12 +172,6 @@ class kommand:
         return newf
 
     def __call__(self, fxn: typing.Callable):
-        """
-
-        :param fxn: typing.Callable:
-        :param fxn: typing.Callable:
-
-        """
         self.fxn = fxn
         assert fxn, "function cannot be None!"
 

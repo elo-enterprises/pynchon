@@ -66,7 +66,7 @@ class PythonCLI(models.ShyPlanner):
         """Generates CLI docs for python packages"""
 
     # formatters=dict(markdown=constants.T_TOC_CLI),
-    @gen.command('toc')
+    @gen.command("toc")
     @cli.options.stdout
     @cli.options.header
     # options.file_setupcfg,
@@ -76,9 +76,7 @@ class PythonCLI(models.ShyPlanner):
     #     default="docs/cli/README.md",
     #     help=("output file to write.  (optional)"),
     # ),
-    def toc(self,
-        format, file, stdout,
-        output, header):
+    def toc(self, format, file, stdout, output, header):
         """
         Describe entrypoints for this project (parses setup.cfg)
         """
@@ -86,6 +84,7 @@ class PythonCLI(models.ShyPlanner):
 
         config, plan = project.plan()
         return config
+
     #
     # @common.kommand(
     #     name="all",
