@@ -71,36 +71,36 @@ class function(base):
             tmp = cst.parse_statement(default_docstring)
             cst.ensure_type(expr.body, cst.IndentedBlock)
             # cst.ensure_type(expr.body.body[0], cst.SimpleStatementLine)
-            return expr.with_changes(
+            return updated_node.with_changes(
                 body=expr.body.with_changes(body=(tmp,) + expr.body.body)
             )
             # updated_node.deep_replace(
             #     # cst.ensure_type(expr.body.body[0], cst.SimpleStatementLine)
             #     cst.ensure_type(expr.body.body, cst.SimpleStatementLine),
             #
-            iblock = expr.body
-            # iblock=iblock.deep_replace(iblock.children,
-            #     [cst.parse_statement(default_docstring)] \
-            #     + list(iblock.children)
+            # iblock = expr.body
+            # # iblock=iblock.deep_replace(iblock.children,
+            # #     [cst.parse_statement(default_docstring)] \
+            # #     + list(iblock.children)
+            # # )
+            # newbody = [tmp] + list(iblock.body)
+            # iblock = iblock.with_changes(body=newbody)
+            # result = updated_node.deep_replace(expr.body, iblock)
+            # import IPython
+            #
+            # IPython.embed()
+            # return result
+            # # return updated_node.deep_replace(
+            # #     expr, expr.with_changes())
+            # # import IPython; IPython.embed()
+            # return updated_node.with_changes(
+            #     body=original_node.body.body.with_changes(
+            #         body=[
+            #             [cst.parse_statement(default_docstring)]
+            #             + list(original_node.body.children)
+            #         ]
+            #     )
             # )
-            newbody = [tmp] + list(iblock.body)
-            iblock = iblock.with_changes(body=newbody)
-            result = updated_node.deep_replace(expr.body, iblock)
-            import IPython
-
-            IPython.embed()
-            return result
-            # return updated_node.deep_replace(
-            #     expr, expr.with_changes())
-            # import IPython; IPython.embed()
-            return updated_node.with_changes(
-                body=original_node.body.body.with_changes(
-                    body=[
-                        [cst.parse_statement(default_docstring)]
-                        + list(original_node.body.children)
-                    ]
-                )
-            )
             # return updated_node.with_changes(
             #     body=iblock)
 
@@ -115,6 +115,12 @@ from libcst._nodes.statement import *
 
 
 def _get_docstring(body):
+    """:param body: argument
+    :type body: body
+    :param body: argument
+        :type body: body
+        Function _get_docstring
+    """
     """:param body: argument
     :type body: body
     Function _get_docstring
