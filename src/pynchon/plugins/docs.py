@@ -108,16 +108,24 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @cli.options.output
     @cli.options.should_print
     @gen.command("version-file")
-    def version_file(self, output, should_print):
+    def version_file(
+        self,
+        should_print,
+        output=None,
+    ):
         """Creates {docs.root}/VERSION.md file
         :param output: param should_print:
         :param should_print:
         """
         from pynchon.api import render
+        from pynchon.util import files
 
+        output = output or abcs.Path(self[:"docs.root":]) / "VERSION.md"
         tmpl = render.get_template("pynchon/plugins/core/VERSIONS.md.j2")
         result = tmpl.render(**self.project_config)
-        print(result, file=open(output, "w"))
+        files.dumps(
+            content=result, file=output, quiet=False, logger=self.logger.warning
+        )
         if should_print and output != "/dev/stdout":
             print(result)
         return True
@@ -128,7 +136,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         self,
         background: bool = True,
         force: bool = False,
-    ):
+    ) -> typing.Dict[str, str]:
         """
         Runs a `grip` server for this project
 
@@ -141,9 +149,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         return dict(url=self.server_url, pid=self.server_pid)
 
     @tagging.tags(click_aliases=["op", "opn"])
-    @cli.click.argument(
-        "file",
-    )
+    @cli.arguments.file
     def open(self, file, server=None):
         """Open a docs-artifact (based on file type)
         :param file: param server:  (Default value = None)
@@ -164,7 +170,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         else:
             return fxn(file)
 
-    def open_changes(self):
+    def open_changes(self) -> typing.List[str]:
         """Open changed files"""
         result = []
         changes = self.list(changes=True)
@@ -181,18 +187,14 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         return result
 
     def plan(self, config=None):
-        """Creates a plan for this plugin
-
-        :param config: Default value = None)
-
-        """
+        """Creates a plan for this plugin"""
         plan = super(self.__class__, self).plan(config=config)
         rsrc = self.config["root"]
         if not abcs.Path(rsrc).exists():
             plan.append(
                 self.goal(resource=rsrc, type="mkdir", command=f"mkdir -p {rsrc}")
             )
-        cmd_t = "pynchon docs gen version-file"
+        cmd_t = f"{self.cli_path} gen version-file"
         rsrc = abcs.Path(rsrc) / "VERSION.md"
         plan.append(
             self.goal(

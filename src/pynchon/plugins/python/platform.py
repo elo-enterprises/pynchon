@@ -57,6 +57,14 @@ class PythonPlatform(models.Planner):
     def gen(self):
         """Generates code for python modules, packages, etc"""
 
+    @cli.click.command("libcst-list")
+    def _libcst_list(self):
+        """libcst-codemods-list"""
+        from pynchon.util.os import invoke
+        out = invoke('python -mlibcst.tool list',strict=True)
+        out=out.stdout
+        print(f"\n{out}")
+
     def _goal_libcst_refresh(self, libcst_config):
         from pynchon.util import text
 

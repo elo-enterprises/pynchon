@@ -209,6 +209,10 @@ class CliPlugin(PynchonPlugin):
 
         return plugin_main
 
+    @typing.classproperty
+    def cli_path(kls):
+        return f"{kls.click_entry.name} {kls.click_group.name}"
+
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
     def click_acquire(
         kls, group: cli.click.Group, copy: bool = False, **update_kwargs
@@ -242,10 +246,7 @@ class CliPlugin(PynchonPlugin):
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Command)
     def click_acquire(
-        kls,
-        cmd: cli.click.Command,
-        copy: bool = False,
-        **update_kwargs
+        kls, cmd: cli.click.Command, copy: bool = False, **update_kwargs
     ):  # noqa F811
         """ """
         parent = kls.click_group
