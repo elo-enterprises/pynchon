@@ -14,26 +14,52 @@ class Generators(models.NameSpace):
     priority = 1
     config_class = None
 
-    @typing.classproperty
-    def siblings_with_gen(kls):
+    @classmethod
+    def siblings_with_subcommand(kls,
+        target_name:str,
+        siblings:typing.Dict={}) -> typing.Dict[object, typing.Callable]:
         result = {}
-        for name, obj in kls.siblings.items():
+        for name, obj in siblings.items():
             if obj.name == "core":
                 continue
-            elif "gen" in dir(obj):
-                result[obj] = obj.gen
+            elif target_name in dir(obj):
+                result[obj] = getattr(obj, target_name)
         return result
+
+    @classmethod
+    def acquire_cli_subcommands(kls, target_name, **kwargs) -> None:
+
+         cmd_names = []
+
+         def acqcmd(cmd, group=None):
+            cmd_name = getattr(cmd, 'name', getattr(cmd,'__name__', ''))
+            if cmd_name in [target_name]:
+                cmd_name = sibling.name
+            if cmd_name in cmd_names:
+                cmd_name = f"{sibling.name}-{cmd_name}"
+            assert cmd_name, [cmd]
+            cmd_name=cmd_name.replace('_','-')
+            gname=f"{group.name} " if group else ''
+            cname = f"{gname}{cmd_name}"
+            ocli = f"`{kls.click_entry.name} {sibling.name} {cname}`"
+            descr='from' if group else 'to'
+            kls.click_acquire(
+                cmd,
+                copy=True,
+                name=cmd_name,
+                help=f"Alias {descr} {ocli}",
+            )
+
+         for sibling, cmd in kls.siblings_with_subcommand('gen', **kwargs).items():
+            LOGGER.info(f"acquiring {cmd} (type={type(cmd)}) from {sibling}")
+            if isinstance(cmd, cli.click.Group):
+                [ acqcmd(c, group=cmd) for c in cmd.commands.values() ]
+            else:
+                acqcmd(cmd)
 
     @classmethod
     def init_cli(kls) -> cli.click.Group:
         """ """
         result = super(kls, kls).init_cli()
-        for sibling, cmd in kls.siblings_with_gen.items():
-            LOGGER.info(f"acquiring {cmd} from {sibling}")
-            kls.click_acquire(
-                cmd,
-                copy=True,
-                name=sibling.name,
-                help=f"Alias for `{kls.click_entry.name} {sibling.name} gen`",
-            )
+        kls.acquire_cli_subcommands('gen', siblings=kls.siblings)
         return result

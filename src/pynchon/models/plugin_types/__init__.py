@@ -244,10 +244,14 @@ class CliPlugin(PynchonPlugin):
     def click_acquire(
         kls,
         cmd: cli.click.Command,
+        copy: bool = False,
+        **update_kwargs
     ):  # noqa F811
         """ """
         parent = kls.click_group
         LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")
+        if copy:
+            cmd = cli.click.group_copy(cmd, **update_kwargs)
         parent.add_command(cmd)
         return parent
 
