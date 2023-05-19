@@ -37,8 +37,10 @@ class Generators(models.NameSpace):
                 cmd_name = sibling.name
             if cmd_name in cmd_names:
                 cmd_name = f"{sibling.name}-{cmd_name}"
-            assert cmd_name, [cmd]
             cmd_name=cmd_name.replace('_','-')
+            if cmd_name in cmd_names:
+                raise Exception(f"collision acquiring subcommand: [{cmd_name}, {cmd}]")
+            assert cmd_name, [cmd]
             gname=f"{group.name} " if group else ''
             cname = f"{gname}{cmd_name}"
             ocli = f"`{kls.click_entry.name} {sibling.name} {cname}`"
