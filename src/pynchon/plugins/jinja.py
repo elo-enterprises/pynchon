@@ -35,10 +35,10 @@ class Jinja(models.Planner):
         "--in-place {template_args}"
     )
 
-    cli_subsumes: typing.List[typing.Callable] = [
-        # render_main.j2cli,
-        # render_main.jinja_file,
-    ]
+    # cli_subsumes: typing.List[typing.Callable] = [
+    #     # render_main.j2cli,
+    #     # render_main.jinja_file,
+    # ]
 
     def _get_jinja_context(self):
         """ """

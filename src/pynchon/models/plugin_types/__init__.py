@@ -70,14 +70,14 @@ class PynchonPlugin(fleks.Plugin):
         """ """
         return self.get_current_config()
 
-    @property
-    def siblings(self):
+    @classproperty
+    def siblings(kls):
         """ """
         result = []
         from pynchon.plugins import registry
 
         for plugin in registry.keys():
-            if plugin == self.name:
+            if plugin == kls.name:
                 continue
             result.append(plugins_util.get_plugin_obj(plugin))
         result = sorted(result, key=lambda p: p.priority)
@@ -118,8 +118,6 @@ class PynchonPlugin(fleks.Plugin):
         """shortcut for accessing local plugin-config
 
         :param key: str:
-        :param key: str:
-
         """
         if isinstance(key, (slice,)):
             start, stop, step = key.start, key.stop, key.step
@@ -150,8 +148,6 @@ class PynchonPlugin(fleks.Plugin):
 
         :param key: str:
         :param strict: Default value = False)
-        :param key: str:
-
         """
         # return self.__mod__(key, strict=strict)
         from pynchon import api
@@ -165,7 +161,6 @@ class PynchonPlugin(fleks.Plugin):
 
         :param key: str:
         :param strict: Default value = True)
-        :param key: str:
 
         """
         try:
@@ -215,24 +210,31 @@ class CliPlugin(PynchonPlugin):
         return plugin_main
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Group)
-    def click_acquire(kls, group: cli.click.Group):  # noqa F811
+    def click_acquire(kls,
+        group: cli.click.Group,
+        copy:bool =False,
+        **update_kwargs
+        ):  # noqa F811
         """
-        :param kls: param group: cli.click.Group:
         :param group: cli.click.Group:
         """
         parent = kls.click_group
         LOGGER.info(
             f"{kls.__name__} acquires group@`{group.name}` to: parent@`{parent.name}`"
         )
+        if copy:
+            group = cli.click.group_copy(group, **update_kwargs)
         return cli.click.group_merge(group, parent)
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
-    def click_acquire(kls, fxn: typing.FunctionType):  # noqa F811
+    def click_acquire(kls,
+        fxn: typing.FunctionType,
+        copy:bool=False,
+        **update_kwargs,
+        ):  # noqa F811
         """
-
-        :param kls: param fxn: typing.FunctionType:
+        :param kls:
         :param fxn: typing.FunctionType:
-
         """
         msg = f"{kls.__name__} acquires naked fxn: {fxn.__name__}"
         assert fxn.__annotations__
@@ -240,12 +242,10 @@ class CliPlugin(PynchonPlugin):
         kls.click_group.add_command(cli.click.command(cmd_name)(fxn))
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Command)
-    def click_acquire(kls, cmd: cli.click.Command):  # noqa F811
+    def click_acquire(kls,
+        cmd: cli.click.Command,
+        ):  # noqa F811
         """
-
-        :param kls: param cmd: cli.click.Command:
-        :param cmd: cli.click.Command:
-
         """
         parent = kls.click_group
         LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")
@@ -283,13 +283,52 @@ class CliPlugin(PynchonPlugin):
             )
         ]
 
+    @PynchonPlugin.classmethod_dispatch(typing.MethodType)
+    def click_acquire(kls,
+            cmd: typing.MethodType,
+            copy:bool=False, #irrelevant here
+            **update_kwargs
+            ):  # noqa F811
+            """
+            """
+            fxn=cmd
+            tags = tagging.tags[fxn]
+            hidden = tags.get("click_hidden", False)
+            click_aliases = tags.get("click_aliases", [])
+            publish_to_cli = tags.get("publish_to_cli", True)
+            if not publish_to_cli:
+                return
+
+            def wrapper(*args, fxn=fxn, **kwargs):
+                LOGGER.debug(f"calling {fxn} from wrapper")
+                result = fxn(*args, **kwargs)
+                # FIXME: this wraps twice?
+                # from rich import print_json
+                # print_json(text.to_json(result))
+                # if hasattr(result, 'display'):
+                rproto = getattr(result, "__rich__", None)
+                if rproto:
+                    from pynchon.util.lme import CONSOLE
+
+                    CONSOLE.print(result)
+                return result
+
+            commands = [
+                kls.click_create_cmd(fxn, wrapper=wrapper,
+                **{**update_kwargs,**dict(hidden=hidden, alias=None), })
+            ]
+            for alias in click_aliases:
+                tmp = kls.click_create_cmd(
+                    fxn, wrapper=wrapper,
+                    **{**update_kwargs,**dict(hidden=hidden, alias=alias), })
+                commands.append(tmp)
+            return commands
+
     @classmethod
-    def init_cli(kls):
+    def init_cli(kls) -> cli.click.Group:
         """ """
         events.lifecycle.send(kls, plugin="initializing CLI")
-
-        from pynchon.plugins.core import Core
-
+        Core = shimport.lazy('pynchon.plugins.core').Core
         if kls != Core:
             # FIXME: this is needed, .. but why?
             config_mod.finalize()
@@ -328,38 +367,9 @@ class CliPlugin(PynchonPlugin):
                 msg = f"    retrieved empty `{method_name}` from {obj}!"
                 LOGGER.critical(msg)
                 raise TypeError(msg)
-
-            tags = tagging.tags[fxn]
-            hidden = tags.get("click_hidden", False)
-            click_aliases = tags.get("click_aliases", [])
-            publish_to_cli = tags.get("publish_to_cli", True)
-            if not publish_to_cli:
-                continue
-
-            def wrapper(*args, fxn=fxn, **kwargs):
-                LOGGER.debug(f"calling {fxn} from wrapper")
-                result = fxn(*args, **kwargs)
-                # FIXME: this wraps twice?
-                # from rich import print_json
-                # print_json(text.to_json(result))
-                # if hasattr(result, 'display'):
-                rproto = getattr(result, "__rich__", None)
-                if rproto:
-                    from pynchon.util.lme import CONSOLE
-
-                    CONSOLE.print(result)
-                return result
-
-            commands = [
-                kls.click_create_cmd(fxn, wrapper=wrapper, hidden=hidden, alias=None)
-            ]
-            for alias in click_aliases:
-                tmp = kls.click_create_cmd(
-                    fxn, alias=alias, wrapper=wrapper, hidden=hidden
-                )
-                commands.append(tmp)
-            cli_commands += commands
-
+            result=kls.click_acquire(fxn)
+            if result is not None:
+                cli_commands += result
         msg = [cmd.name for cmd in cli_commands]
         if len(msg) > 1:
             events.lifecycle.send(kls, plugin=f"created {len(msg)} commands")
@@ -369,15 +379,14 @@ class CliPlugin(PynchonPlugin):
     @classmethod
     def init_cli_children(kls):
         """
-
         :param kls:
-
         """
         cli_subsumes = getattr(kls, "cli_subsumes", [])
         cli_subsumes and LOGGER.info(
             f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}"
         )
         for fxn in cli_subsumes:
+            raise Exception(fxn)
             kls.click_acquire(fxn)
 
     @classmethod
@@ -393,13 +402,13 @@ class CliPlugin(PynchonPlugin):
         """
         assert fxn
         assert wrapper
-        name = alias or fxn.__name__
+        name = click_kwargs.pop('name', alias or fxn.__name__)
         name = name.replace("_", "-")
-        help = (
+        help = click_kwargs.pop('help', (
             f"(alias for `{alias}`)"
             if alias
             else (fxn.__doc__ or "").lstrip().split("\n")[0]
-        )
+        ))
         help = help.lstrip()
         cmd = cli.common.kommand(
             name, help=help, alias=alias, parent=kls.click_group, **click_kwargs

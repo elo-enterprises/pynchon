@@ -30,4 +30,5 @@ registry = collections.OrderedDict(
     ]
 )
 registry["core"]["obj"] = registry["core"]["kls"]()
+# registry = collections.OrderedDict(sorted(registry.items(), key=lambda x: x[1]['kls'].priority))
 events.lifecycle.send(__name__, msg="Finished creating plugin registry")
