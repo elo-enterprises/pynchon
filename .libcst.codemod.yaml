@@ -5,5 +5,5 @@ formatter:
 generated_code_marker: '@generated'
 modules:
 - pynchon.codemod
-repo_root: /home/matt/code/elo/pynchon/src
+repo_root: '{{src.root}}'
 

@@ -8,6 +8,9 @@ release:
     * shimport.filter_module
 
 research:
+  https://github.com/Textualize/trogon
+  https://pypi.org/project/lazydict/
+  https://github.com/Textualize/frogmouth
   promises for lazy config-
     https://github.com/syrusakbary/promise#promisefor_dictd
   griffe labels/visitors:

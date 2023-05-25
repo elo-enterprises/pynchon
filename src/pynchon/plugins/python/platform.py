@@ -46,84 +46,24 @@ class PythonPlatform(models.Planner):
         """bootstrap .libcst.codemod.yaml"""
         # @cli.click.option('--libcst',help='bootstrap .libcst.codemod.yaml', default=False, is_flag=True)
 
-    @bootstrap.command("new")
-    @cli.click.argument("name")
-    def bootstrap_new(self):
-        """shortcut for `pynchon cut new py/NAME`"""
+    # @bootstrap.command("new")
+    # @cli.click.argument("name")
+    # def bootstrap_new(self):
+    #     """shortcut for `pynchon cut new py/NAME`"""
 
-    @cli.click.group("gen")
-    def gen(self):
-        """Generates code for python modules, packages, etc"""
+    # def plan(self):
+    #     plan = super(self.__class__, self).plan()
+    #     libcst_config = self["libcst"]
+    #     if libcst_config:
+    #         plan.append(self._goal_libcst_refresh(libcst_config))
+    #     return plan
 
-    @gen.command("codemod")
-    @cli.click.argument("transform_name", nargs=1)
-    @cli.click.argument("src_root", default="", nargs=1)
-    def _gen_codemod(self, transform_name="docstrings.simple.module", src_root=""):
-        """run a libcst codemod"""
-        src_root = src_root or self[:"src.root":]
-        return invoke(
-            f"python3 -m libcst.tool codemod {transform_name} {src_root}", system=True
-        )
+    # @cli.click.group("src")
+    # def src(self):
+    #     """Generates code for python modules, packages, etc"""
 
-    @cli.click.command("libcst-list")
-    def _libcst_list(self):
-        """libcst-codemods-list"""
-        out = invoke("python -mlibcst.tool list", strict=True)
-        out = out.stdout
-        print(f"\n{out}")
-
-    def _goal_libcst_refresh(self, libcst_config):
-        from pynchon.util import text
-
-        min = text.to_json(libcst_config, minified=True)
-        rsrc = ".libcst.codemod.yaml"
-        cmd = f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}"
-        return self.goal(
-            type="render",
-            label="refresh libcst-config",
-            resource=rsrc,
-            command=cmd,
-        )
-
-    def plan(self):
-        plan = super(self.__class__, self).plan()
-        libcst_config = self["libcst"]
-        if libcst_config:
-            plan.append(self._goal_libcst_refresh(libcst_config))
-        return plan
-
-    @gen.command
-    @cli.options.ignore_private
-    @cli.options.ignore_missing
-    @cli.click.option(
-        "--modules", help="create docstrings for modules", default=False, is_flag=True
-    )
-    @cli.click.option(
-        "--functions",
-        help="create docstrings for functions",
-        default=False,
-        is_flag=True,
-    )
-    @cli.click.option(
-        "--methods", help="create docstrings for methods", default=False, is_flag=True
-    )
-    def docstrings(
-        self,
-        ignore_missing: bool = False,
-        ignore_private: bool = True,
-        modules: bool = True,
-        functions: bool = True,
-        methods: bool = True,
-        classes: bool = True,
-    ):
-        """Generates python docstrings"""
-        self.logger.critical(locals())
-
-    @cli.click.group("src")
-    def src(self):
-        """Generates code for python modules, packages, etc"""
-
-    @src.command
+    # @src.command
+    @tagging.tags(click_parent_plugin='src')
     def sorted(self):
         """Sorts code-ordering with `ssort`"""
         plan = super(self.__class__, self).plan()

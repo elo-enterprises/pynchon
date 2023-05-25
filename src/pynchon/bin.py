@@ -101,6 +101,8 @@ class RootGroup(click.Group):
         return super(click.Group, self).parse_args(ctx, args)
 
 
+from trogon import tui
+@tui()
 @click.version_option()
 @click.option("--plugins", help="shortcut for `--set plugins=...`")
 @click.option("--set", "set_config", help="config overrides")

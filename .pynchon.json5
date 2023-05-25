@@ -10,7 +10,7 @@
     "docs", "src", "tests", "cicd", "fixme", "github",
 
     // Standard if there's a python-project
-    "pypi", "python-api", "python-cli",
+    "pypi", "python-api", "python-cli", "python-libcst",
 
     // For projects with intermediate representations
     "dot",   // graphviz dot-files
@@ -26,7 +26,26 @@
   ],
   // END: top-level config
   // BEGIN: core plugins-config
+  "python-libcst":{
+    // .libcst.codemod.yaml file:
+    // leave this empty to use a static one
+    // that's already present.  fill it in
+    // to have it recreated when needed and
+    // use pynchon's context for templating it
+    ".libcst.codemod.yaml": {
+      "repo_root": "{{src.root}}",
+      "generated_code_marker": '@generated',
+      "formatter": ['black', '-'],
+      "blacklist_patterns": [],
+      "modules": [
+        'pynchon.codemod',
+        //'libcst.codemod.commands',
+      ],
+    },
+    // "apply_hooks": ["display-modified"],
 
+
+  },
   // Config for `globals` plugin: (priority=..)
   //   All well-behaved plugins will honor values here, appending
   //   these values to whatever is set explicitly for that plugin
@@ -152,24 +171,7 @@
   },
   // Config for `python-api` plugin:
   // This generates API docs for python-packages
-  "python":{
-    // .libcst.codemod.yaml file:
-    // leave this empty to use a static one
-    // that's already present.  fill it in
-    // to have it recreated when needed and
-    // use pynchon's context for templating it
-    "libcst": {
-      "repo_root": "{{src.root}}",
-      "generated_code_marker": '@generated',
-      "formatter": ['black', '-'],
-      "blacklist_patterns": [],
-      "modules": [
-        'pynchon.codemod',
-        //'libcst.codemod.commands',
-      ],
-    },
-    // "apply_hooks": ["display-modified"],
-  },
+  "python":{},
   // Config for `python-api` plugin:
   // This generates API docs for python-packages
   "python-api":{
