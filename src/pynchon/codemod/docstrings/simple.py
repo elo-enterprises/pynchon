@@ -134,9 +134,15 @@ def write_docstring(mod=None, dotpath=None,
             LOGGER.critical(f'cannot import {obits}')
             return
     LOGGER.critical(f"imported {_import}")
-    default_docstring = docs_from_typing(
-        _import, style="rest", remove_linebreak=True)
+    try:
+        default_docstring = docs_from_typing(
+            _import, style="rest", remove_linebreak=True)
+    except (AttributeError,) as exc:
+        return
     # import IPython; IPython.embed()
+    doc_actual = inspect.getdoc(_import)
+    if doc_actual:
+        return
     src = inspect.getsource(_import).split('\n')
     base_indent = src[0][:len(src[0])-len(dedent(src[0]))]
     index = [i for i,x in enumerate(src) if x.endswith(':')][0]
