@@ -1,5 +1,8 @@
 """ pynchon.codemod.docstrings.simple """
 import libcst as cst
+from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,
+                                     Sequence, SimpleStatementLine,
+                                     SimpleString, inspect)
 from strongtyping.docs_from_typing import docs_from_typing
 
 from pynchon import shimport
@@ -16,11 +19,6 @@ class klass(base):
     # default_docstring = f'"""  """'
     # lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
     # raise Exception([ltx, original_node])
-
-
-from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,
-                                     Sequence, SimpleStatementLine,
-                                     SimpleString, inspect)
 
 
 def _get_docstring(body):
@@ -80,6 +78,7 @@ class function(base):
         dotpath = f"{self.this_class_name+'.' if self.this_class_name else '' }{original_node.name.value}"
         ctx = f"{mod}.{dotpath}"
         expr, docstring = _get_docstring(original_node)
+        # import IPython; IPython.embed()
         if docstring is not None and docstring.strip():
             LOGGER.critical("docstring ok")
             return original_node
@@ -88,37 +87,74 @@ class function(base):
                 LOGGER.critical(f"{ctx}:: docstring is empty")
             elif docstring == None:
                 LOGGER.critical(f"{ctx}:: no docstring!")
-            bits = dotpath.split(".")
-            assert mod
-            _import = shimport.import_module(mod)
-            while bits:
-                _import = getattr(_import, bits.pop(0))
-            LOGGER.critical(f"imported {_import}")
-            default_docstring = docs_from_typing(
-                _import, style="rest", remove_linebreak=True
+            src=write_docstring(
+                mod=mod,
+                dotpath=dotpath,
+                # indent=self.context.module.default_indent
             )
-            default_docstring = "\n".join(default_docstring)
-            default_docstring = f'"""\n{default_docstring.strip()}\n"""'
-            LOGGER.critical(f"{ctx}:: suggest:\n\n{default_docstring}")
-            # expr=expr.deep_clone()
-            tmp = cst.parse_statement(default_docstring)
-            tmp = tmp.body[0].value
-            cst.ensure_type(original_node.body, cst.IndentedBlock)
-            # import IPython; IPython.embed()
-            # raise Exception()
-            # return updated_node
-            # .with_changes(name=cst.Name('bonk'))
-            result = updated_node.with_changes(
-                body=updated_node.body.with_changes(
-                    body=[tmp] + list(original_node.body.body)
+            if src:
+                # import IPython; IPython.embed()
+                return cst.parse_statement(
+                    src,
+                    # cst.PartialParserConfig(
+                    #     default_indent=self.context.module.default_indent
+                    # ),
                 )
-            )
-            # import IPython; IPython.embed()
-
-            return result
+            # # expr=expr.deep_clone()
+            # tmp = cst.parse_statement(default_docstring)
+            # tmp = tmp.body[0].value
+            # cst.ensure_type(original_node.body, cst.IndentedBlock)
+            # # import IPython; IPython.embed()
+            # # raise Exception()
+            # # return updated_node
+            # # .with_changes(name=cst.Name('bonk'))
+            # result = updated_node.with_changes(
+            #     body=updated_node.body.with_changes(
+            #         body=[tmp] + list(original_node.body.body)
+            #     )
+            # )
+            # # import IPython; IPython.embed()
+            #
+            # return result
 
         return original_node
 
+def write_docstring(mod=None, dotpath=None,
+    # indent=''
+    ):
+    from textwrap import dedent
+    assert mod,'mod not set.. check .libcst.codemod.yaml src root'
+    bits = dotpath.split(".")
+    obits=[x for x in bits]
+    _import = shimport.import_module(mod)
+    while bits:
+        try:
+            _import = getattr(_import, bits.pop(0))
+        except:
+            LOGGER.critical(f'cannot import {obits}')
+            return
+    LOGGER.critical(f"imported {_import}")
+    default_docstring = docs_from_typing(
+        _import, style="rest", remove_linebreak=True)
+    # import IPython; IPython.embed()
+    src = inspect.getsource(_import).split('\n')
+    base_indent = src[0][:len(src[0])-len(dedent(src[0]))]
+    index = [i for i,x in enumerate(src) if x.endswith(':')][0]
+    ctx_indent = src[index+1][:len(src[index+1])-len(dedent(src[index+1]))]
+    default_docstring = [x for x in default_docstring if x.strip().startswith(':')]
+    default_docstring = reversed(sorted(default_docstring))
+    default_docstring = "\n".join(default_docstring)
+    default_docstring = f'"""\n{default_docstring.strip()}\n"""'
+    default_docstring = [(ctx_indent)+x for x in default_docstring.split('\n')]
+    default_docstring = '\n'.join(default_docstring)
+    # LOGGER.critical(f"{dotpath}:: suggest:\n\n{default_docstring}")
+    src = src[:index+1] + [default_docstring]+src[index+1:]
+    src='\n'+'\n'.join([x for x in src])
+    src=dedent(src)
+    LOGGER.critical(src)
+    return src
+    # IPython.embed()
+    # raise Exception()
 
 class module(base):
     DESCRIPTION: str = """\n\tWhere missing, adds docstrings to modules"""

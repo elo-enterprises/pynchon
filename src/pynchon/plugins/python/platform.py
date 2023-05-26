@@ -63,7 +63,7 @@ class PythonPlatform(models.Planner):
     #     """Generates code for python modules, packages, etc"""
 
     # @src.command
-    @tagging.tags(click_parent_plugin='src')
+    @tagging.tags(click_parent_plugin="src")
     def sorted(self):
         """Sorts code-ordering with `ssort`"""
         plan = super(self.__class__, self).plan()

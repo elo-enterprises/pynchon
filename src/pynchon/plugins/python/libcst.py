@@ -1,12 +1,10 @@
-import platform as stdlib_platform
-from memoized_property import memoized_property
 from pynchon import abcs, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
-from pynchon.util import python
+from pynchon.util import lme, python, tagging, typing  # noqa
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 F_CODEMOD_YAML = ".libcst.codemod.yaml"
+
 
 class LibCST(models.Planner):
     """
@@ -28,7 +26,7 @@ class LibCST(models.Planner):
     @cli.click.argument("transform_name", nargs=1)
     @cli.click.argument("src_root", default="", nargs=1)
     def _gen_codemod(self, transform_name="docstrings.simple.module", src_root=""):
-        """ Runs the given libcst transform on {src.root} """
+        """Runs the given libcst transform on {src.root}"""
         src_root = src_root or self[:"src.root":]
         return invoke(
             f"python -m libcst.tool codemod {transform_name} {src_root}", system=True
@@ -53,6 +51,7 @@ class LibCST(models.Planner):
             resource=rsrc,
             command=cmd,
         )
+
     def plan(self):
         plan = super(self.__class__, self).plan()
         libcst_config = self[F_CODEMOD_YAML]

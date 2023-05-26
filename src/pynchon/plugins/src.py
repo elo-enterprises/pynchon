@@ -65,10 +65,11 @@ class SourceMan(models.ResourceManager):
                     ext_meta = EXT_MAP[x]
                     break
             else:
-                import IPython
-
-                IPython.embed()
-                raise
+                # import IPython
+                #
+                # IPython.embed()
+                LOGGER.warning(f"no match for {x}")
+                return
         return ext_meta
 
     def _get_missing_headers(self, resources):
@@ -82,6 +83,8 @@ class SourceMan(models.ResourceManager):
             # ext_info = self._rsrc_ext_info(p_rsrc)
             tmp = p_rsrc.full_extension()
             ext_meta = self._get_meta(p_rsrc)
+            if ext_meta is None:
+                continue
             preamble_patterns = ext_meta["pre"]
             assert isinstance(preamble_patterns, (list,))
             with p_rsrc.open("r") as fhandle:

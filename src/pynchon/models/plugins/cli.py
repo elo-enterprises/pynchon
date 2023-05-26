@@ -145,6 +145,7 @@ class CliPlugin(PynchonPlugin):
         if click_parent_plugin:
             update_kwargs.update(via=kls)
             kls = kls.siblings[click_parent_plugin]
+
         def wrapper(*args, fxn=fxn, **kwargs):
             LOGGER.debug(f"calling {fxn} from wrapper")
             result = fxn(*args, **kwargs)
@@ -155,6 +156,7 @@ class CliPlugin(PynchonPlugin):
             rproto = getattr(result, "__rich__", None)
             if rproto:
                 from pynchon.util.lme import CONSOLE
+
                 CONSOLE.print(result)
             return result
 
@@ -248,10 +250,11 @@ class CliPlugin(PynchonPlugin):
     @classmethod
     def click_create_cmd(
         kls,
-
         fxn: typing.Callable,
-        via:typing.Any = None,
-        wrapper=None, alias: str = None, **click_kwargs
+        via: typing.Any = None,
+        wrapper=None,
+        alias: str = None,
+        **click_kwargs,
     ) -> cli.click.Command:
         """
         :param kls: param fxn: typing.Callable:
@@ -262,17 +265,14 @@ class CliPlugin(PynchonPlugin):
         """
         assert fxn
         assert wrapper
-        via = via.__name__ if via else ''
+        via = via.__name__ if via else ""
         name = click_kwargs.pop("name", alias or fxn.__name__)
         name = name.replace("_", "-")
-        alt = f"(alias for `{alias}`)" if alias else ''
-        alt = alt or (f'(via {via})' if via else '')
+        alt = f"(alias for `{alias}`)" if alias else ""
+        alt = alt or (f"(via {via})" if via else "")
         help = click_kwargs.pop(
             "help",
-            (
-                alt if alt
-                else (fxn.__doc__ or "").lstrip().split("\n")[0]
-            ),
+            (alt if alt else (fxn.__doc__ or "").lstrip().split("\n")[0]),
         )
         help = help.lstrip()
         cmd = cli.common.kommand(
