@@ -2,8 +2,8 @@
 """
 import collections
 
-from pynchon.fleks.meta import Meta
 from pynchon.util import lme, text, typing
+from pynchon.fleks.meta import Meta
 from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)

@@ -72,7 +72,7 @@ class Pattern(models.ResourceManager):
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
         tmp = self.pattern_names
         if kind not in tmp:
-            LOGGER.critical(f'unrecognized pattern `{kind}`; expected one of {tmp}')
+            LOGGER.critical(f"unrecognized pattern `{kind}`; expected one of {tmp}")
             raise SystemExit(1)
 
     @cli.click.argument("dest", nargs=1)

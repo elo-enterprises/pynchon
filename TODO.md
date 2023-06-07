@@ -29,6 +29,7 @@ research:
     abstract mcls into interface?
   d2-diagramming:
     https://github.com/terrastruct/d2/blob/v0.1.2/docs/INSTALL.md#docker
+  https://github.com/ronny-rentner/ultraimport/tree/main/docs
 
 refactor:
   app model

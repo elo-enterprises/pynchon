@@ -1,13 +1,14 @@
 """ pynchon.cli.common:
     Common options/arguments and base classes for CLI
 """
-import functools
 import json
+import functools
 
 import click
 
 from pynchon import shimport
 from pynchon.cli import click
+
 from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)

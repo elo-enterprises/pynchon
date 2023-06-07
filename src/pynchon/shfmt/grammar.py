@@ -1,4 +1,6 @@
-r"""@@grammar::bash
+""" pynchon.shfmt.grammar
+"""
+GRAMMAR = r"""@@grammar::bash
 @@comments :: /\(\*.*?\*\)/
 @@eol_comments :: /#.*?$/
 @@whitespace :: /[\t \n \\]/
@@ -172,6 +174,6 @@ timespec=  'time'
 # """
 import tatsu
 
-src = tatsu.to_python_sourcecode(__doc__)
+src = tatsu.to_python_sourcecode(GRAMMAR)
 src = src[: src.rfind("""def main(filename, **kwargs)""")]
 exec(src)

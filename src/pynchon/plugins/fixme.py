@@ -3,9 +3,10 @@
 from fnmatch import fnmatch
 
 from pynchon import abcs, constants, models
-from pynchon.cli import click, common, options  # noqa
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
+
+from pynchon.cli import click, common, options  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

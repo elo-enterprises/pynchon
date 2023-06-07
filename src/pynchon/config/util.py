@@ -1,13 +1,15 @@
 """ pynchon.config.util
 """
-import collections
 import functools
+import collections
 from types import MappingProxyType
 
-from pynchon import abcs, config as config_module, constants, events
-from pynchon.plugins.util import PluginNotRegistered, get_plugin
+from pynchon import abcs
+from pynchon import config as config_module
+from pynchon import constants, events
 from pynchon.util import lme, typing
 from pynchon.util.text import loadf, loads
+from pynchon.plugins.util import PluginNotRegistered, get_plugin
 
 LOGGER = lme.get_logger(__name__)
 

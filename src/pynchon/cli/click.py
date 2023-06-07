@@ -1,6 +1,9 @@
 """ pynchon.click
 """
 import click
+
+from pynchon.util import typing
+
 from click import HelpFormatter  # noqa
 from click import (  # noqa
     Command,
@@ -16,7 +19,6 @@ from click import (  # noqa
     version_option,
 )
 
-from pynchon.util import typing
 
 
 def flag(*args, **kwargs):

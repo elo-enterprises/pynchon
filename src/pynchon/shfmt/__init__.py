@@ -5,10 +5,12 @@ import json
 import tatsu
 
 from pynchon import abcs
-from pynchon.util import lme, tagging, typing  # noqa
 from pynchon.util.text import loads
 
 from .grammar import bashParser
+
+from pynchon.util import lme, tagging, typing  # noqa
+
 
 #     def backtick(self, ast):
 #         return f"`{ast}`"

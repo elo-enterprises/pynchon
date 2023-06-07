@@ -4,9 +4,10 @@
 from pynchon.api import render
 from pynchon.app import app
 from pynchon.core import Config as CoreConfig
-from pynchon.fleks.plugin import Meta
-from pynchon.plugins.git import GitConfig  # noqa
 from pynchon.util import lme  # typing
+from pynchon.fleks.plugin import Meta
+
+from pynchon.plugins.git import GitConfig  # noqa
 
 from .util import config_folders  # noqa
 from .util import finalize  # noqa

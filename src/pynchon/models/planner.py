@@ -4,8 +4,6 @@ import typing
 from memoized_property import memoized_property
 
 from pynchon import cli, events
-from pynchon.util import lme, typing  # noqa
-
 # from pynchon.bin import entry
 # from pynchon.fleks.plugin import Plugin as AbstractPlugin
 # from pynchon.plugins.util import get_plugin_obj
@@ -14,6 +12,10 @@ from pynchon.util.tagging import tags
 # from .planning import *
 from . import planning
 from .plugins import BasePlugin
+
+from pynchon.util import lme, typing  # noqa
+
+
 
 
 @tags(cli_label="Planner")

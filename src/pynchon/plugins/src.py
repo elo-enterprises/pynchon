@@ -9,9 +9,13 @@ EXT_MAP = {
     ".ini": dict(
         template="pynchon/plugins/src/header/ini.j2", pre=["#", "###"], post="###"
     ),
-    ".j2": dict(template="pynchon/plugins/src/header/jinja.j2", pre=["{#"], post="#}"),
+    ".j2": dict(
+        template="pynchon/plugins/src/header/jinja.j2", pre=["{#", "<!--"], post="#}"
+    ),
     "*.md.j2": dict(
-        template="pynchon/plugins/src/header/jinja-md.md.j2", pre=["{#"], post="#}"
+        template="pynchon/plugins/src/header/jinja-md.md.j2",
+        pre=["{#", "<!--"],
+        post="#}",
     ),
     ".json5": dict(
         template="includes/pynchon/src/json5-header.j2", pre=["//", "///"], post="///"
@@ -65,8 +69,9 @@ class SourceMan(models.ResourceManager):
     #     return files.find_globs(include_patterns)
     def list_modified(self):
         """
-        lists modified files
+        Lists modified files
         """
+        raise NotImplementedError()
 
     def _get_meta(self, rsrc):
         import fnmatch
@@ -80,9 +85,6 @@ class SourceMan(models.ResourceManager):
                     ext_meta = EXT_MAP[x]
                     break
             else:
-                # import IPython
-                #
-                # IPython.embed()
                 LOGGER.warning(f"no match for {x}")
                 return
         return ext_meta
@@ -104,7 +106,7 @@ class SourceMan(models.ResourceManager):
             assert isinstance(preamble_patterns, (list,))
             with p_rsrc.open("r") as fhandle:
                 content = fhandle.read().lstrip()
-                if any([content.startswith(pre) for pre in preamble_patterns]):
+                if any([content.startswith(pre.lstrip()) for pre in preamble_patterns]):
                     # we detected expected comment at the top of the file,
                     # so the appropriate header *might* be present; skip it
                     continue

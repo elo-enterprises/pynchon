@@ -1,11 +1,13 @@
 """ pynchon.models.plugins.pynchon """
 import collections
 
-from pynchon import api, cli, events, fleks, shimport  # noqa
 from pynchon.plugins import util as plugins_util
-from pynchon.util import lme, tagging, typing  # noqa
 
 from . import validators
+
+from pynchon import api, cli, events, fleks, shimport  # noqa
+from pynchon.util import lme, tagging, typing  # noqa
+
 
 LOGGER = lme.get_logger(__name__)
 classproperty = typing.classproperty

@@ -1,6 +1,7 @@
 """ pynchon.plugins.project
 """
 from pynchon import abcs, config, constants, models
+
 from pynchon.cli import common, options  # noqa
 from pynchon.util import lme, typing  # noqa
 

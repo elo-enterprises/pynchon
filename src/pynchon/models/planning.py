@@ -1,11 +1,12 @@
 """ pynchon.models.planning
 """
-import collections
 import typing
+import collections
 from dataclasses import dataclass
 
 from pynchon import abcs, app
 from pynchon.fleks import meta
+
 from pynchon.util import lme, typing  # noqa
 
 # from pynchon.fleks.plugin import Plugin as AbstractPlugin

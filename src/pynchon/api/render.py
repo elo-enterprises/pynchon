@@ -5,15 +5,17 @@
     Looking for the JinjaPlugin?  See pynchon.plugins.jinja
 """
 
-import functools
 import os
+import functools
 
-import jinja2  # noqa
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
 import pynchon
 from pynchon import abcs, constants, events
+
+import jinja2  # noqa
+
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)

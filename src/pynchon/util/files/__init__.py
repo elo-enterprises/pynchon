@@ -1,10 +1,11 @@
 """ pynchon.util.files
 """
-import functools
-import glob
 import re
+import glob
+import functools
 
 from pynchon import abcs, cli
+
 from pynchon.util import lme, os, typing  # noqa
 
 from .diff import diff, diff_percent, diff_report  # noqa
@@ -20,30 +21,54 @@ LOGGER = lme.get_logger(__name__)
     default=False,
     help="when provided, prepend_file will be removed afterwards",
 )
+def is_prefix(
+    prepend_file: str = None,
+    target_file: str = None,
+    clean: bool = False,
+):
+    """
+    True if given file already prepends given target
+    """
+    with open(prepend_file) as fhandle:
+        prep_c = fhandle.read()
+    with open(target_file) as fhandle:
+        target_c = fhandle.read()
+    return target_c.lstrip().startswith(prep_c.lstrip())
+
+
+@cli.click.argument("prepend_file", nargs=1)
+@cli.click.argument("target_file", nargs=1)
+@cli.click.option(
+    "--clean",
+    is_flag=True,
+    default=False,
+    help="when provided, prepend_file will be removed afterwards",
+)
 def prepend(
     prepend_file: str = None,
     target_file: str = None,
     clean: bool = False,
 ):
-    """prepends given file contents to given target
-
-    :param prepend_file: str:  (Default value = None)
-    :param target_file: str:  (Default value = None)
-    :param clean: bool:  (Default value = False)
-    :param prepend_file: str:  (Default value = None)
-    :param target_file: str:  (Default value = None)
-    :param clean: bool:  (Default value = False)
-
     """
-    clean = "" if not clean else f" && rm {prepend_file}"
-    cmd = " ".join(
-        [
-            "printf '%s\n%s\n'",
-            f'"$(cat {prepend_file})" "$(cat {target_file})"',
-            f"> {target_file} {clean}",
-        ]
-    )
-    return os.invoke(cmd)
+    Prepends given file contents to given target
+    """
+    if not is_prefix(prepend_file=prepend_file, target_file=target_file):
+        with open(prepend_file) as fhandle:
+            prep_c = fhandle.read()
+        with open(target_file) as fhandle:
+            target_c = fhandle.read()
+        with open(target_file, "w") as fhandle:
+            fhandle.write(f"""{prep_c}\n{target_c}""".lstrip())
+        return True
+    # clean = "" if not clean else f" && rm {prepend_file}"
+    # cmd = " ".join(
+    #     [
+    #         "printf '%s\n%s\n'",
+    #         f'"$(cat {prepend_file})" "$(cat {target_file})"',
+    #         f"> {target_file} {clean}",
+    #     ]
+    # )
+    # return os.invoke(cmd)
 
 
 def find_suffix(root: str = "", suffix: str = "") -> typing.StringMaybe:

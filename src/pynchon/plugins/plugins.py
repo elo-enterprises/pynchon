@@ -1,8 +1,9 @@
 """ pynchon.plugins.plugins
 """
 from pynchon import abcs, cli, models
-from pynchon.util import lme, tagging, typing  # noqa
 from pynchon.util.os import invoke
+
+from pynchon.util import lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

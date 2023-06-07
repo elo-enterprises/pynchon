@@ -5,6 +5,7 @@
 # import collections
 
 from pynchon import fleks
+
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)

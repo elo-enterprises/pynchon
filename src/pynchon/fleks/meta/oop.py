@@ -1,6 +1,6 @@
 """ pynchon.fleks.meta.oop """
-import collections
 import functools
+import collections
 
 from pynchon.util import lme, typing
 

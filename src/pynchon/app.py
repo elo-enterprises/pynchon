@@ -1,11 +1,15 @@
 """ pynchon.app
 """
 
-import atexit
 import sys
+import atexit
 
 import enlighten
 from memoized_property import memoized_property
+
+from pynchon import events
+from pynchon.util import lme
+
 from rich.align import Align  # noqa
 from rich.console import Console  # noqa
 from rich.console import Theme  # noqa
@@ -17,8 +21,6 @@ from rich.syntax import Syntax  # noqa
 from rich.table import Table  # noqa
 from rich.text import Text  # noqa
 
-from pynchon import events
-from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
