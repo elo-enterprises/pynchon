@@ -37,15 +37,15 @@ class Core(models.Planner):
         """Show current project config (with templating/interpolation)"""
         return self.project_config
 
-    @cli.click.option("--bash", default=False, is_flag=True, help="bootstrap bash")
-    @cli.click.option("--bashrc", default=False, is_flag=True, help="bootstrap bashrc")
-    @cli.click.option(
-        "--bash-completions", default=False, is_flag=True, help="bootstrap completions"
+    @cli.click.flag("--bash", help="bootstrap bash")
+    @cli.click.flag("--bashrc", help="bootstrap bashrc")
+    @cli.click.flag(
+        "--bash-completions", help="bootstrap completions"
     )
-    @cli.click.option(
-        "--makefile", default=False, is_flag=True, help="bootstrap Makefile"
+    @cli.click.flag(
+        "--makefile", help="bootstrap Makefile"
     )
-    @cli.click.option("--tox", default=False, is_flag=True, help="bootstrap tox")
+    @cli.click.flag("--tox", help="bootstrap tox")
     def bootstrap(
         self,
         bash: bool = False,

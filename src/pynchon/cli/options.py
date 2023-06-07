@@ -8,22 +8,17 @@ from pynchon.cli import click
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
-ignore_missing = click.option(
+ignore_missing = click.flag(
     "--ignore-missing",
     help="ignore missing docstrings (only updates empty or out-dated ones)",
-    default=False,
-    is_flag=True,
+
 )
-ignore_private = click.option(
+ignore_private = click.flag(
     "--ignore-private",
     help='ignore names that start with "_")',
-    default=False,
-    is_flag=True,
 )
-strict = click.option(
+strict = click.flag(
     "--strict",
-    is_flag=True,
-    default=False,
     help=("if true, runs in strict mode"),
 )
 
@@ -31,19 +26,15 @@ org_name = click.option(
     "--org-name", "-o", default="", help="defaults to {github.org_name}"
 )
 
-inplace = in_place = click.option(
+inplace = in_place = click.flag(
     "--in-place",
-    is_flag=True,
-    default=False,
     help=("if true, writes to {file}.{ext} (dropping any other extensions)"),
 )
 
-should_print = click.option(
+should_print = click.flag(
     "--print",
     "should_print",
     help="if set, displays result on stdout even when `--output <file>` is passed",
-    default=False,
-    is_flag=True,
 )
 
 includes = click.option(
@@ -62,8 +53,8 @@ header = click.option(
     "--header", default="", help=("header to prepend output with. (optional)")
 )
 name = click.option("--name", default="", help=("name to use"))
-stdout = click.option(
-    "--stdout", is_flag=True, default=True, help=("whether to write to stdout.")
+stdout = click.flag(
+    "--stdout", help=("whether to write to stdout.")
 )
 output = click.option(
     "--output",
@@ -81,8 +72,8 @@ format_markdown = click.option(
     "--format", "-m", default="markdown", help=("output format to write")
 )
 file = click.option("--file", "-f", default="", help=("file to read as input"))
-stdout = click.option(
-    "--stdout", is_flag=True, default=True, help=("whether to write to stdout.")
+stdout = click.flag(
+    "--stdout", help=("whether to write to stdout.")
 )
 output = click.option(
     "--output", "-o", default="", help=("output file to write.  (optional)")

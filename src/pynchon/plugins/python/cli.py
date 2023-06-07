@@ -76,6 +76,7 @@ class PythonCLI(models.ShyPlanner):
     def gen(self):
         """Generates CLI docs for python packages"""
 
+
     # formatters=dict(markdown=constants.T_TOC_CLI),
     @gen.command("toc")
     @cli.options.stdout
@@ -148,10 +149,14 @@ class PythonCLI(models.ShyPlanner):
     #         options.module,
     #     ],
     # )
-    # def main_docs(format, module, file, output_dir, stdout, header, name):
-    #     """
-    #     Autogenenerate docs for python modules using __main__
-    #     """
+    @gen.command("main")
+    @cli.options.stdout
+    @cli.options.header
+    @cli.click.flag('--click',help='treat as click')
+    def main_docs(format, module, file, output_dir, stdout, header, name):
+        """
+        Autogenenerate docs for python modules using __main__
+        """
     #     from pynchon.api import project
     #     from pynchon.util.os import invoke
     #

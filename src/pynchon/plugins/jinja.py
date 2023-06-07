@@ -55,7 +55,7 @@ class Jinja(models.Planner):
         includes = api.render.get_jinja_includes(*includes)
         return includes
 
-    @cli.click.option("--local", default=False, is_flag=True)
+    @cli.click.flag("--local")
     def list_includes(
         self,
         local: bool = False,
@@ -74,7 +74,7 @@ class Jinja(models.Planner):
         matches = files.find_globs(includes)
         return matches
 
-    @cli.click.option("--local", default=False, is_flag=True)
+    @cli.click.flag("--local")
     def list_include_args(
         self,
         local: bool = False,
