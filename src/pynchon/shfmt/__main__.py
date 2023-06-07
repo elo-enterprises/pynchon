@@ -29,13 +29,15 @@ def entry(filename: str = "/dev/stdin"):
     print(text)
     print()
     print(formatted)
-    # lme.CONSOLE.print(
-    #     Syntax(
-    #         fmt(text, filename=filename),
-    #         "bash",
-    #         word_wrap=True,
-    #     )
-    # )
+    from pynchon.app import Syntax
+
+    lme.CONSOLE.print(
+        Syntax(
+            fmt(text, filename=filename),
+            "bash",
+            word_wrap=True,
+        )
+    )
 
 
 if __name__ == "__main__":

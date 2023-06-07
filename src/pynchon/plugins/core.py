@@ -39,12 +39,8 @@ class Core(models.Planner):
 
     @cli.click.flag("--bash", help="bootstrap bash")
     @cli.click.flag("--bashrc", help="bootstrap bashrc")
-    @cli.click.flag(
-        "--bash-completions", help="bootstrap completions"
-    )
-    @cli.click.flag(
-        "--makefile", help="bootstrap Makefile"
-    )
+    @cli.click.flag("--bash-completions", help="bootstrap completions")
+    @cli.click.flag("--makefile", help="bootstrap Makefile")
     @cli.click.flag("--tox", help="bootstrap tox")
     def bootstrap(
         self,

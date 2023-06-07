@@ -7,7 +7,7 @@ r"""@@grammar::bash
 # adapted from:
 #   https://raw.githubusercontent.com/cbeust/kash/master/src/main/resources/bash.ebnf
 #
-start = pipeline_command $;
+start = pipeline_command $ | '|' pipeline_command;
 do='do';
 done='done';
 for='for';
@@ -16,9 +16,11 @@ digit=/\d/;
 number=/(\d)+/;
 letter=/\w/;
 strict_word = ?"[^-]([\w][.])+";
-path=?"[^-][\S]+";
-word = strict_word | path |qblock;
-_opt = ?"-[\S]+";
+path=?"[^-\>][^ \t\n\r\f\v\|\<\>]+";
+word = qblock
+    | strict_word
+    | path ;
+_opt = ?"-[^ \t\n\r\f\v\|\<\>]+";
 opt_val = ?"[^-]([\S])+";
 opt = _opt word | _opt path | _opt;
 word_list = {word};
@@ -27,6 +29,7 @@ backtick = /`(.*)`/; squote = /'(.*)'/; dquote = /"(.*)"/;
 qblock = backtick | squote |dquote;
 
 redirection='>' word
+    | '|' word
     | '<' word
     | number '>' word
     | number '<' word
@@ -58,7 +61,7 @@ simple_command= {simple_command_element}
 ;
 # subcommands = {word};
 entry=word;
-simple_command_element= word
+simple_command_element = word
     | opt
     | assignment_word
     | redirection;
@@ -69,7 +72,8 @@ drilldown=entry {subcommands} {simple_command};
 command= drilldown
     | simple_command
     |  shell_command
-    |  shell_command redirection_list;
+    |  shell_command redirection_list
+    ;
 shell_command= for_command
   # |  case_command
   # |  while compound_list do compound_list done

@@ -87,7 +87,7 @@ class function(base):
                 LOGGER.critical(f"{ctx}:: docstring is empty")
             elif docstring == None:
                 LOGGER.critical(f"{ctx}:: no docstring!")
-            src=write_docstring(
+            src = write_docstring(
                 mod=mod,
                 dotpath=dotpath,
                 docstring=docstring
@@ -104,7 +104,6 @@ class function(base):
                     )
                 except (Exception,) as exc:
                     LOGGER.critical(exc)
-
 
             # # expr=expr.deep_clone()
             # tmp = cst.parse_statement(default_docstring)
@@ -125,30 +124,34 @@ class function(base):
 
         return original_node
 
+
 def write_docstring(
-    mod=None, dotpath=None,
+    mod=None,
+    dotpath=None,
     docstring=None,
     # indent=''
-    ):
-    is_param_doc = lambda l: l.lstrip().startswith(':param')
+):
+    def is_param_doc(l): return l.lstrip().startswith(":param")
     # def merge_docs(old=None,new=None):
     #     assert isinstance(old,(list,))
     #     assert isinstance(new,(list,))
     from textwrap import dedent
-    assert mod,'mod not set.. check .libcst.codemod.yaml src root'
+
+    assert mod, "mod not set.. check .libcst.codemod.yaml src root"
     bits = dotpath.split(".")
-    obits=[x for x in bits]
+    obits = [x for x in bits]
     _import = shimport.import_module(mod)
     while bits:
         try:
             _import = getattr(_import, bits.pop(0))
         except:
-            LOGGER.critical(f'cannot import {obits}')
+            LOGGER.critical(f"cannot import {obits}")
             return
     LOGGER.critical(f"imported {_import}")
     try:
         default_docstring = docs_from_typing(
-            _import, style="numpy", remove_linebreak=True)
+            _import, style="numpy", remove_linebreak=True
+        )
     except (AttributeError,) as exc:
         return
     default_docstring = [x for x in default_docstring if is_param_doc(x)]
@@ -163,40 +166,47 @@ def write_docstring(
         # jdocs = sorted(jdocs)
         # default_docstring=doc_actual+sorted(list(set(default_docstring+jdocs)))
         # import IPython; IPython.embed()
-        LOGGER.warning(f'doc string for {obits} already exists; skipping..')
+        LOGGER.warning(f"doc string for {obits} already exists; skipping..")
         return
-    src = inspect.getsource(_import).split('\n')
+    src = inspect.getsource(_import).split("\n")
     # src = [line for line in src
     #     if not line.lstrip().startswith('@')]
     # base_indent = src[0][:len(src[0])-len(dedent(src[0]))]
-    index = [i for i,x in enumerate(src) if x.endswith(':')][0]
-    ctx_indent = src[index+1][:len(src[index+1])-len(dedent(src[index+1]))]
+    index = [i for i, x in enumerate(src) if x.endswith(":")][0]
+    ctx_indent = src[index + 1][: len(src[index + 1]) - len(dedent(src[index + 1]))]
     default_docstring = reversed(sorted(default_docstring))
     default_docstring = "\n".join(default_docstring)
     default_docstring = f'"""\n{default_docstring.strip()}\n"""'
-    default_docstring = [(ctx_indent)+x for x in default_docstring.split('\n')]
-    default_docstring = '\n'.join(default_docstring)
+    default_docstring = [(ctx_indent) + x for x in default_docstring.split("\n")]
+    default_docstring = "\n".join(default_docstring)
     # LOGGER.critical(f"{dotpath}:: suggest:\n\n{default_docstring}")
-    dstart=index+1
+    dstart = index + 1
     dpre = src[dstart].lstrip().rstrip()
-    dpre = '"""' if dpre.startswith('"""') else ''
-    dpre = "'''" if dpre.startswith("'''") else ''
-    for i, x in enumerate(src[dstart+1:]):
-        x=x.lstrip().strip()
+    dpre = '"""' if dpre.startswith('"""') else ""
+    dpre = "'''" if dpre.startswith("'''") else ""
+    for i, x in enumerate(src[dstart + 1 :]):
+        x = x.lstrip().strip()
         if x.endswith(dpre):
             dend = i + dstart
             break
     else:
         raise Exception()
         # if x.startswith(dend = index+1
-    print([dstart,dend,dpre,])
-    src = src[:dstart] + [default_docstring]+src[dend:]
+    print(
+        [
+            dstart,
+            dend,
+            dpre,
+        ]
+    )
+    src = src[:dstart] + [default_docstring] + src[dend:]
     # src='\n'.join(src).replace(doc_actual,'\n'.join(default_docstring))
-    src='\n'+'\n'.join([x for x in src])
-    src=dedent(src)
+    src = "\n" + "\n".join([x for x in src])
+    src = dedent(src)
     LOGGER.critical(src)
     # import IPython; IPython.embed()
     return src
+
 
 class module(base):
     DESCRIPTION: str = """\n\tWhere missing, adds docstrings to modules"""

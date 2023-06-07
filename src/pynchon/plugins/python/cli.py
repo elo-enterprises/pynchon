@@ -3,13 +3,14 @@
 import glob
 
 from pynchon import abcs, cli, models, shimport
-
-from pynchon.util import lme, tagging, typing  # noqa
 from pynchon.api import project
 from pynchon.util.os import invoke
-from pynchon.api import project
 
-config_mod = shimport.lazy("pynchon.config",)
+from pynchon.util import lme, tagging, typing  # noqa
+
+config_mod = shimport.lazy(
+    "pynchon.config",
+)
 LOGGER = lme.get_logger(__name__)
 
 
@@ -39,17 +40,17 @@ class PythonCLI(models.ShyPlanner):
     def entrypoints(self) -> dict:
         """ """
 
-        src_root = self['src_root']
+        src_root = self["src_root"]
         pat = src_root / "**" / "__main__.py"
         # src = self.siblings['src']
-        excludes = self.siblings['src']['exclude_patterns']
+        excludes = self.siblings["src"]["exclude_patterns"]
         matches = glob.glob(str(pat), recursive=True)
-        LOGGER.critical(f'{len(matches)} matches')
-        LOGGER.critical(f'filtering with: {excludes}')
-        matches = list(filter(
-            lambda x: not abcs.Path(x).match_any_glob(excludes),
-            matches))
-        LOGGER.critical(f'{len(matches)} matches survived filter')
+        LOGGER.critical(f"{len(matches)} matches")
+        LOGGER.critical(f"filtering with: {excludes}")
+        matches = list(
+            filter(lambda x: not abcs.Path(x).match_any_glob(excludes), matches)
+        )
+        LOGGER.critical(f"{len(matches)} matches survived filter")
         matches = [[x, {}] for x in matches]
         matches = dict(matches)
         pkg_name = (
@@ -73,7 +74,6 @@ class PythonCLI(models.ShyPlanner):
     @cli.click.group
     def gen(self):
         """Generates CLI docs for python packages"""
-
 
     # formatters=dict(markdown=constants.T_TOC_CLI),
     @gen.command("toc")
@@ -165,6 +165,7 @@ class PythonCLI(models.ShyPlanner):
                     **dict(help=help),
                 }
                 return config
+
     #
     # @common.kommand(
     #     name="entrypoint",

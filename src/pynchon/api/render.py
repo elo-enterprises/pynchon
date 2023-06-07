@@ -8,23 +8,22 @@
 import os
 import functools
 
+from jinja2 import Environment  # Template,; UndefinedError,
+from jinja2 import FileSystemLoader, StrictUndefined
+
 import pynchon
-from pynchon import abcs, events
+from pynchon import abcs, constants, events
+
+import jinja2  # noqa
 
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-import jinja2  # noqa
-from jinja2 import Environment  # Template,; UndefinedError,
-from jinja2 import FileSystemLoader, StrictUndefined
 
 
 def dictionary(input, context):
     """
-
-    :param input: param context:
     :param context:
-
     """
     from pynchon.abcs.visitor import JinjaDict
 
@@ -43,7 +42,6 @@ def get_jinja_globals():
 
         :param *args:
         :param **kwargs:
-
         """
         out = invoke(*args, **kwargs)
         assert out.succeeded
@@ -54,8 +52,6 @@ def get_jinja_globals():
 
         :param fname: str:
         :param level: Default value = None)
-        :param fname: str:
-
         """
         fname = abcs.Path(fname)
         assert fname.exists()
@@ -74,9 +70,6 @@ def get_jinja_globals():
         eval=eval,
         env=os.getenv,
     )
-
-
-from pynchon import constants
 
 
 def get_jinja_includes(*includes):
@@ -130,10 +123,8 @@ def get_template_from_string(
 
 def get_template_from_file(
     file: str = None,
-    # env=None,
     **kwargs,
 ):
-    # env = env or get_jinja_env()
     with open(file) as fhandle:
         content = fhandle.read()
     return get_template_from_string(content, **kwargs)
@@ -144,11 +135,6 @@ def get_template(
     env=None,
     from_string: str = None,
 ):
-    """
-    :param template_name: str:  (Default value = None)
-    :param env: Default value = None)
-    :param from_string: str:  (Default value = None)
-    """
     env = env or get_jinja_env()
     try:
         if from_string:
@@ -162,12 +148,4 @@ def get_template(
         LOGGER.critical(f"Problem template: {err}")
         raise
     template.render = functools.partial(template.render, __template__=template_name)
-    # @functools.wraps(template.render)
-    # def myrender(*args, **kwargs):
-    #     """ """
-    #     kwargs.update(
-    #         __template__ = kwargs.get('__template__', template_name))
-    #     tmp = template.render(*args, **kwargs)
-    #     return tmp
-    # template.render = myrender
     return template

@@ -1,31 +1,17 @@
 """ pynchon.shfmt
 """
+import json
+
 import tatsu
+
+from pynchon import abcs
+from pynchon.util.text import loads
 
 from .grammar import bashParser
 
 from pynchon.util import lme, tagging, typing  # noqa
 
 
-# class Semantics:
-#     """a value, for simple elements such as token, pattern, or constant
-#     a tuple, for closures, gatherings, and the right-hand-side of rules with more than one element but without named elements
-#     a dict-derived object (AST) that contains one item for every named element in the grammar rule, with items can be accessed through the standard dict syntax (ast['key']), or as attributes (ast.key).
-#
-#
-#     """
-#
-#     def __init__(self):
-#         self.record = []
-#         self._joiner = None
-#         self.indention = "  "
-#
-#     @property
-#     def _pre(self):
-#         pre = f"{self._joiner} " if self._joiner else ""
-#         self._joiner = None
-#         return pre
-#
 #     def backtick(self, ast):
 #         return f"`{ast}`"
 #
@@ -35,30 +21,6 @@ from pynchon.util import lme, tagging, typing  # noqa
 #         if len(ast) > 12:
 #             ast = "\n".join([f"{a} \\" for a in ast.split(" ")])
 #         return f"'{ast}'"
-#
-#     def dquote(self, ast):
-#         return f'"{ast}"'
-#
-#     def redir(self, ast):
-#         return f"{ast}"
-#
-#     def lparen(self, ast):
-#         return f"{self._pre}{ast}"
-#
-#     def joiner(self, ast):
-#         self._joiner = ast
-#         return ""
-#
-#     def indent(self, text):
-#         return text  # '\n'.join([self.indention + x for x in text.split('\n')])
-#
-#     def subproc(self, ast):
-#         lparen, command, rparen = ast
-#         command = self.indent(command)
-#         return f"(\n{command}\n)"
-#
-#     def qblock(self, ast):
-#         return f"{ast}"
 #
 #     def opts(self, ast):
 #         def is_lopt(o):
@@ -88,7 +50,7 @@ from pynchon.util import lme, tagging, typing  # noqa
 #
 #     def compound_command(self, ast):
 #         ast = list(ast)
-#         print(f"compound {ast}")
+#         LOGGER.warning(f"compound {ast}")
 #         first = ast.pop(0)
 #         joiner = ast.pop(0)
 #         rest = ast.pop(0)
@@ -102,19 +64,13 @@ from pynchon.util import lme, tagging, typing  # noqa
 #         ast = "".join(ast) if ast else ""
 #         return f"{first}\n{joiner}\n{rest}"
 #
-#     def anything(self, ast):
-#         # print(f'anythin {ast}')
-#         return ast
-#
 #     def command(self, ast):
-#         # print(f'command {ast}')
 #         # if 'printf' in str(ast):
 #         #     import IPython; IPython.embed()
 #         return ast
 #
 #     def python_command(self, ast):
-#         # print(f'python {ast}')
-#         # print( ast )
+#         # LOGGER.warning( ast )
 #         ast = list(ast)
 #         python = ast.pop(0)
 #         shopt = ast.pop(0)
@@ -129,8 +85,6 @@ from pynchon.util import lme, tagging, typing  # noqa
 #         tmp = f"{python.upper()} {shopt} \\\n{subs} \\\n{args} \\\n{opts}\n{ast}"
 #         return tmp.strip()
 #
-#     # def redirect_command(self,ast):
-#     #     import IPython; IPython.embed()#return ' '.join(ast)
 #     def docker_tag(self, ast):
 #         return "".join(ast)
 #
@@ -150,11 +104,10 @@ from pynchon.util import lme, tagging, typing  # noqa
 #         opts = "\n".join([f"  {o}" for o in opts])
 #         img = ast.pop(0)
 #         rest = ast.pop(0)
-#         ast and print(f"got extra: {ast}")
+#         ast and LOGGER.warning(f"got extra: {ast}")
 #         return f"{docker.upper()} {sub} {epoint}\n{opts}\n  {img}\n    {rest}"
 #
 #     def simple_command(self, ast):
-#         # print(f'simple {ast}')
 #         if isinstance(ast, (str,)):
 #             return ast
 #         name, cmd_args, opts = ast
@@ -162,29 +115,6 @@ from pynchon.util import lme, tagging, typing  # noqa
 #         opts = "".join(opts)
 #         tmp = f"{self._pre}{name}{cmd_args} {opts}"
 #         return tmp
-#
-#     def careful_opt(self, ast):
-#         try:
-#             option, vals = ast
-#         except:
-#             option, vals = str(ast), []
-#         tmp = ""
-#         if isinstance(vals, (closure,)):
-#             for c in vals:
-#                 tmp += f" {c}"
-#         elif isinstance(vals, (str,)):
-#             tmp = vals
-#         elif isinstance(
-#             vals,
-#             (
-#                 tuple,
-#                 list,
-#             ),
-#         ):
-#             tmp = "".join(vals)
-#         else:
-#             assert type(vals) == "bonk", type(vals)
-#         return f"{option} {tmp}"
 #
 #     def opt(self, ast):
 #         option, vals = ast
@@ -197,18 +127,49 @@ from pynchon.util import lme, tagging, typing  # noqa
 #         else:
 #             assert type(vals) == "bonk", type(vals)
 #         return f"{option}{tmp}"
-from pynchon import abcs
 
 LOGGER = lme.get_logger(__name__)
 
 
 class Semantics:
+    def strict_word(self, ast):
+        LOGGER.warning(f"strict_word: {ast}")
+        return ast
+
+    def dquote(self, ast):
+        LOGGER.warning(f"dquote: {ast}")
+        if len(ast) > 10:
+            ast = ast.lstrip()
+            return f'"\\n{ast}\\n"'
+        return ast
+
+    def squote(self, ast):
+        LOGGER.warning(f"squote: {ast}")
+        ast = ast.strip().lstrip()
+        is_json = ast.startswith("{") and ast.strip().endswith("}")
+        if is_json:
+            try:
+                tmp = loads.json5(ast)
+            except:
+                is_json = False
+            else:
+                LOGGER.critical(f"found json: {tmp}")
+                ast = json.dumps(tmp, indent=2)
+            out = [x + " \\" for x in ast.split("\n")]
+            out = "\n".join(out)
+            return f"'{out}'"
+        return ast
+
+    # def group_command(self, ast):
+    #     LOGGER.warning(f"group_command: {ast}")
+    #     return ast
+
     def word(self, ast):
-        print(f"word: {ast}")
+        LOGGER.warning(f"word: {ast}")
         return ast
 
     def simple_command(self, ast):
-        print(f"simple_command: {ast}")
+        LOGGER.warning(f"simple_command: {ast}")
         tail = ast
         biggest = ""
         for i, l in enumerate(tail):
@@ -224,7 +185,7 @@ class Semantics:
                 n = tail[i + 1]
             except:
                 n = ""
-                # print(f'looking at {[i,l,n]}')
+                # LOGGER.warning(f'looking at {[i,l,n]}')
             comb = f"{l} {n}"
             if len(comb) < len(biggest):
                 result.append(comb)
@@ -232,51 +193,58 @@ class Semantics:
             else:
                 result.append(l)
         # import IPython; IPython.embed()
+        newp = []
+        while result:
+            item = result.pop(0)
+            if isinstance(item, (tuple,)):
+                item = " ".join(item)
+            newp.append(item)
+        result = newp
         return "\n  ".join(result)
 
     def shell_command(self, ast):
-        print(f"shell_command: {ast}")
+        LOGGER.warning(f"shell_command: {ast}")
         return ast
 
     def path(self, ast):
-        print(f"path: {ast}")
+        LOGGER.warning(f"path: {ast}")
         try:
-            tmp=abcs.Path(ast).relative_to(abcs.Path('.').absolute())
+            tmp = abcs.Path(ast).relative_to(abcs.Path(".").absolute())
         except ValueError:
             return ast
         else:
             return f"'{tmp}'"
 
     def pipeline_command(self, ast):
-        print(f"pipeline_command: {ast}")
+        LOGGER.warning(f"pipeline_command: {ast}")
         return ast
 
     def simple_list(self, ast):
-        print(f"simple_list: {ast}")
+        LOGGER.warning(f"simple_list: {ast}")
         return ast
 
     def word_list(self, ast):
-        print(f"word_list: {ast}")
+        LOGGER.warning(f"word_list: {ast}")
         return ast
 
     def opt(self, ast):
-        print(f"opt: {ast}")
+        LOGGER.warning(f"opt: {ast}")
         return ast if isinstance(ast, (str,)) else " ".join(ast)
 
     def opt_val(self, ast):
-        print(f"opt_val: {ast}")
+        LOGGER.warning(f"opt_val: {ast}")
         return ast
 
     def subcommands(self, ast):
-        print(f"subcommands: {ast}")
+        LOGGER.warning(f"subcommands: {ast}")
         return " ".join(ast)
 
     def drilldown(self, ast):
-        print(f"drilldown: {ast}")
+        LOGGER.warning(f"drilldown: {ast}")
         return ast
 
     def entry(self, ast):
-        print(f"entry: {ast}")
+        LOGGER.warning(f"entry: {ast}")
         return str(ast)
 
 
@@ -297,7 +265,7 @@ def fmt(text, filename="?"):
             semantics=semantics,
         )
     except (tatsu.exceptions.FailedParse,) as exc:
-        # LOGGER.critical(exc)
+        LOGGER.critical(exc)
         return text
     else:
         out = []

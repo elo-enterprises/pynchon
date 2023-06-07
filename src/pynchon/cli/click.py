@@ -19,12 +19,12 @@ from click import (  # noqa
     version_option,
 )
 
+
+
 def flag(*args, **kwargs):
-    kwargs.update(
-        is_flag=True,
-        default=kwargs.get('default',False))
-    return option(
-        *args, **kwargs)
+    kwargs.update(is_flag=True, default=kwargs.get("default", False))
+    return option(*args, **kwargs)
+
 
 def do_filter(item, filter_kwargs):
     return all([getattr(item, f, None) == v for f, v in filter_kwargs.items()])

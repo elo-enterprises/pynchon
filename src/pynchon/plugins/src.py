@@ -44,6 +44,7 @@ class SourceMan(models.ResourceManager):
     @tagging.tagged_property(conflict_strategy="override")
     def exclude_patterns(self):
         from pynchon.plugins import util as plugin_util
+
         globals = plugin_util.get_plugin("globals").get_current_config()
         global_ex = globals["exclude_patterns"]
         my_ex = self.get("exclude_patterns", [])

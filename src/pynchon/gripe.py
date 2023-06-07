@@ -133,10 +133,10 @@ def _list():
     return result
 
 
-@cli.click.flag("--fg",
-    help="run in foreground")
+@cli.click.flag("--fg", help="run in foreground")
 @cli.click.flag(
-    "--force", help="force kill if already running",
+    "--force",
+    help="force kill if already running",
 )
 @cli.click.option(
     "--port",

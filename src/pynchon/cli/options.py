@@ -11,7 +11,6 @@ LOGGER = lme.get_logger(__name__)
 ignore_missing = click.flag(
     "--ignore-missing",
     help="ignore missing docstrings (only updates empty or out-dated ones)",
-
 )
 ignore_private = click.flag(
     "--ignore-private",
@@ -53,9 +52,7 @@ header = click.option(
     "--header", default="", help=("header to prepend output with. (optional)")
 )
 name = click.option("--name", default="", help=("name to use"))
-stdout = click.flag(
-    "--stdout", help=("whether to write to stdout.")
-)
+stdout = click.flag("--stdout", help=("whether to write to stdout."))
 output = click.option(
     "--output",
     "-o",
@@ -72,9 +69,7 @@ format_markdown = click.option(
     "--format", "-m", default="markdown", help=("output format to write")
 )
 file = click.option("--file", "-f", default="", help=("file to read as input"))
-stdout = click.flag(
-    "--stdout", help=("whether to write to stdout.")
-)
+stdout = click.flag("--stdout", help=("whether to write to stdout."))
 output = click.option(
     "--output", "-o", default="", help=("output file to write.  (optional)")
 )
