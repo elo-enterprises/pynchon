@@ -61,7 +61,7 @@ class Pattern(models.ResourceManager):
     def sync(self, should_plan: bool = False, dest: str = None, kind: str = None):
         """Synchronize DEST from KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
-
+        LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
     @cli.click.argument("dest", nargs=1)
     def render(self, dest):
         """Renders content in DEST"""
