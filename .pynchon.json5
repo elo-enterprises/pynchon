@@ -72,6 +72,10 @@
   //   This provides find/search tooling, plus file-header generators, etc
   "src": {
     "root": "{{pynchon.root}}/src",
+    "exclude_patterns": [
+      "**/pynchon/templates/scaffolds/**",
+    ],
+
     "include_patterns": [
         "{{src.root}}/**/*.py",
         "{{src.root}}/**/*.j2",

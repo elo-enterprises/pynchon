@@ -1,5 +1,6 @@
 """ pynchon.plugins.python.cli
 """
+import glob
 
 from pynchon import abcs, cli, models, shimport
 
@@ -9,7 +10,6 @@ config_mod = shimport.lazy(
     "pynchon.config",
 )
 LOGGER = lme.get_logger(__name__)
-import glob
 
 
 class PythonCliConfig(abcs.Config):
@@ -29,13 +29,30 @@ class PythonCliConfig(abcs.Config):
         # # )).absolute()
         return abcs.Path(src_root)
 
+
+@tagging.tags(click_aliases=["pc"])
+class PythonCLI(models.ShyPlanner):
+    """Generators for Python CLI docs"""
+
+    name = "python-cli"
+    config_class = PythonCliConfig
+
     @property
     def entrypoints(self) -> dict:
         """ """
 
-        src_root = self.src_root
+        src_root = self['src_root']
         pat = src_root / "**" / "__main__.py"
-        matches = [[x, {}] for x in glob.glob(str(pat), recursive=True)]
+        # src = self.siblings['src']
+        excludes = self.siblings['src']['exclude_patterns']
+        matches = glob.glob(str(pat), recursive=True)
+        LOGGER.critical(f'{len(matches)} matches')
+        LOGGER.critical(f'filtering with: {excludes}')
+        matches = list(filter(
+            lambda x: not abcs.Path(x).match_any_glob(excludes),
+            matches))
+        LOGGER.critical(f'{len(matches)} matches survived filter')
+        matches = [[x, {}] for x in matches]
         matches = dict(matches)
         pkg_name = (
             "unknown"  # self.siblings['python']['package'].get("name") or "unknown"
@@ -43,6 +60,8 @@ class PythonCliConfig(abcs.Config):
         for f, meta in matches.items():
             LOGGER.info(f"found entry-point: {f}")
             dotpath = abcs.Path(f).relative_to(src_root)
+            # import IPython; IPython.embed()
+            # raise Exception()
             dotpath = ".".join(str(dotpath).split("/")[:-1])
             matches[f] = {
                 **matches[f],
@@ -52,14 +71,6 @@ class PythonCliConfig(abcs.Config):
                 ),
             }
         return matches
-
-
-@tagging.tags(click_aliases=["pc"])
-class PythonCLI(models.ShyPlanner):
-    """Generators for Python CLI docs"""
-
-    name = "python-cli"
-    config_class = PythonCliConfig
 
     @cli.click.group
     def gen(self):
@@ -236,7 +247,7 @@ class PythonCLI(models.ShyPlanner):
                     resource=fname,
                 )
             )
-            for fname in self["entrypoints"]
+            for fname in self.entrypoints
         ]
 
         return plan

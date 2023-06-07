@@ -40,6 +40,15 @@ class SourceMan(models.ResourceManager):
     name = "src"
     cli_name = "src"
     priority = 0
+
+    @tagging.tagged_property(conflict_strategy="override")
+    def exclude_patterns(self):
+        from pynchon.plugins import util as plugin_util
+        globals = plugin_util.get_plugin("globals").get_current_config()
+        global_ex = globals["exclude_patterns"]
+        my_ex = self.get("exclude_patterns", [])
+        return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
+
     # @tagging.tagged_property(conflict_strategy='override')
     # def exclude_patterns(self):
     #     globals = plugin_util.get_plugin('globals').get_current_config()
@@ -53,6 +62,11 @@ class SourceMan(models.ResourceManager):
     #     # src_root = config.pynchon['src_root']
     #     include_patterns = self.config.get('include_patterns', ["**"])
     #     return files.find_globs(include_patterns)
+    def list_modified(self):
+        """
+        lists modified files
+        """
+
     def _get_meta(self, rsrc):
         import fnmatch
 
@@ -154,9 +168,7 @@ class SourceMan(models.ResourceManager):
 
     def plan(self, config=None):
         """
-
         :param config: Default value = None)
-
         """
         plan = super().plan(config=config)
         resources = [abcs.Path(fsrc) for fsrc in self.list()]

@@ -22,18 +22,19 @@ class LibCST(models.Planner):
     def gen(self):
         """Generates code for python modules, packages, etc"""
 
-    @gen.command("codemod")
+    @tagging.tags(click_parent_plugin="src")
     @cli.click.argument("transform_name", nargs=1)
     @cli.click.argument("src_root", default="", nargs=1)
-    def _gen_codemod(self, transform_name="docstrings.simple.module", src_root=""):
+    def run_transform(self, transform_name="docstrings.simple.module", src_root=""):
         """Runs the given libcst transform on {src.root}"""
         src_root = src_root or self[:"src.root":]
         return invoke(
             f"python -m libcst.tool codemod {transform_name} {src_root}", system=True
         )
 
-    @cli.click.command("list")
-    def list(self):
+    @tagging.tags(click_parent_plugin="src")
+    # @cli.click.command("list-codegen")
+    def list_transforms(self):
         """Lists known libcst transforms"""
         out = invoke("python -mlibcst.tool list", strict=True)
         out = out.stdout
