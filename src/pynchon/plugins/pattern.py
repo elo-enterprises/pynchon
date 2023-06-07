@@ -35,15 +35,23 @@ class Pattern(models.ResourceManager):
         tmp = dict(list([[k, list(v)] for k, v in tmp.items() if k in keep]))
         return tmp
 
-    def list(self) -> typing.List:
-        """
-        Describe templates we can cut patterns from
-        """
+    @property
+    def pattern_folder(self):
+        return self["root"]
+
+    @property
+    def pattern_names(self):
         tmp = self.patterns
         tmp = [abcs.Path(x) for x in tmp.keys()]
         tmp = [x.parents[0] if (self.config.root / x).is_file() else x for x in tmp]
         tmp = map(str, tmp)
-        return tmp
+        return list(tmp)
+
+    def list(self) -> typing.List:
+        """
+        Describe templates we can cut patterns from
+        """
+        return self.pattern_names
 
     @cli.click.command("open")
     @cli.click.argument("kind", nargs=1)
@@ -62,6 +70,11 @@ class Pattern(models.ResourceManager):
         """Synchronize DEST from KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
+        tmp = self.pattern_names
+        if kind not in tmp:
+            LOGGER.critical(f'unrecognized pattern `{kind}`; expected one of {tmp}')
+            raise SystemExit(1)
+
     @cli.click.argument("dest", nargs=1)
     def render(self, dest):
         """Renders content in DEST"""
@@ -114,10 +127,6 @@ class Pattern(models.ResourceManager):
     def clone(self, kind: str = None, name: str = None):
         """Clones PATTERN to DEST"""
         raise NotImplementedError()
-
-    @property
-    def pattern_folder(self):
-        return self["root"]
 
     @cli.click.argument("name", nargs=1)
     @cli.click.argument("kind", nargs=1)

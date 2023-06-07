@@ -3,7 +3,6 @@
 import difflib
 
 from pynchon import cli
-
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
@@ -18,8 +17,8 @@ def diff_report(diff, logger=LOGGER.debug):
     """
     # FIXME: use rich.syntax
     import pygments
-    import pygments.lexers
     import pygments.formatters
+    import pygments.lexers
 
     tmp = pygments.highlight(
         diff,

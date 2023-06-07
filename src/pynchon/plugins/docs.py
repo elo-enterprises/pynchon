@@ -4,10 +4,9 @@ import webbrowser
 
 from memoized_property import memoized_property
 
-from pynchon.util.os import invoke
-
 from pynchon import abcs, api, cli, events, models, shimport  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util.os import invoke
 
 grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)

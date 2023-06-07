@@ -7,10 +7,9 @@ import os
 import tomli as tomllib  # NB: tomllib only available in py3.11
 
 from pynchon.cli import click, options
+from pynchon.util import lme, text, typing  # noqa
 from pynchon.util.os import invoke
 from pynchon.util.text import loads
-
-from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

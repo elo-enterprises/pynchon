@@ -1,8 +1,14 @@
 """ pynchon.codemod.docstrings.simple """
 import libcst as cst
-from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,
-                                     Sequence, SimpleStatementLine,
-                                     SimpleString, inspect)
+from libcst._nodes.statement import (
+    BaseSuite,
+    ConcatenatedString,
+    Expr,
+    Sequence,
+    SimpleStatementLine,
+    SimpleString,
+    inspect,
+)
 from strongtyping.docs_from_typing import docs_from_typing
 
 from pynchon import shimport

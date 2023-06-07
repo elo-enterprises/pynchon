@@ -1,11 +1,10 @@
 """ pynchon.util.files
 """
-import re
-import glob
 import functools
+import glob
+import re
 
 from pynchon import abcs, cli
-
 from pynchon.util import lme, os, typing  # noqa
 
 from .diff import diff, diff_percent, diff_report  # noqa

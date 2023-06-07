@@ -7,7 +7,6 @@ one convenient namespace.
 
 import typing
 from pathlib import Path as BasePath
-
 from types import *  # noqa
 from typing import *  # noqa
 

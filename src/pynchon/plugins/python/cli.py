@@ -4,9 +4,8 @@ import glob
 
 from pynchon import abcs, cli, models, shimport
 from pynchon.api import project
-from pynchon.util.os import invoke
-
 from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util.os import invoke
 
 config_mod = shimport.lazy(
     "pynchon.config",

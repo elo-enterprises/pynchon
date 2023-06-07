@@ -5,7 +5,6 @@
 import sys
 
 from pynchon import cli
-
 from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)

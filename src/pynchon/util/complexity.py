@@ -1,7 +1,7 @@
 """ pynchon.util.complexity
 """
-import os
 import ast
+import os
 import sys
 from collections import OrderedDict
 

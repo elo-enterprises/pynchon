@@ -2,8 +2,8 @@
 """
 
 
-from pynchon.util import lme, text
 from pynchon.config import initialized
+from pynchon.util import lme, text
 
 LOGGER = lme.get_logger(__name__)
 

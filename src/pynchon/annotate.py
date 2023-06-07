@@ -1,7 +1,7 @@
 """ pynchon.annotate """
-import os
-import inspect
 import importlib
+import inspect
+import os
 
 from pynchon import abcs
 from pynchon.util import complexity, lme, typing

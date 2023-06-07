@@ -2,7 +2,6 @@
 """
 from pynchon import abcs, api, cli, models
 from pynchon.plugins import util as plugin_util
-
 from pynchon.util import files, lme, tagging, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)

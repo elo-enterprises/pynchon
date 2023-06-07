@@ -2,10 +2,9 @@
 """
 import os
 
-from pynchon.util.os import invoke
-
 from pynchon import abcs, api, cli, models  # noqa
 from pynchon.util import files, lme, typing  # noqa
+from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 

@@ -1,8 +1,8 @@
 """ pynchon.gripe
 """
 import os
-import time
 import pathlib
+import time
 
 import grip
 import psutil
@@ -10,9 +10,8 @@ from flask import Flask, send_from_directory
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 from pynchon import cli
-from pynchon.util.os import filter_pids
-
 from pynchon.util import lme, typing  # noqa
+from pynchon.util.os import filter_pids
 
 LOGGER = lme.get_logger(__name__)
 THIS_PATH = pathlib.Path(".").absolute()

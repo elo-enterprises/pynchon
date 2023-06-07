@@ -1,6 +1,6 @@
 """ pynchon.util.events """
-import functools
 import collections
+import functools
 
 EventType = collections.namedtuple("Event", "type msg data")
 LifeCycle = functools.partial(EventType, type="app-lifecycle")

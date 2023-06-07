@@ -2,11 +2,11 @@
 """
 import logging
 
+from rich.console import Console
+from rich.default_styles import DEFAULT_STYLES
+from rich.logging import RichHandler
 from rich.style import Style
 from rich.theme import Theme
-from rich.console import Console
-from rich.logging import RichHandler
-from rich.default_styles import DEFAULT_STYLES
 
 from pynchon import constants
 

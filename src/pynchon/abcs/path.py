@@ -1,9 +1,9 @@
 """ {{pkg}}.abcs.path
 """
-import os
 import json
-from types import MappingProxyType
+import os
 from fnmatch import fnmatch
+from types import MappingProxyType
 
 from pynchon.util import lme, typing
 

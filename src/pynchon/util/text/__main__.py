@@ -1,7 +1,6 @@
 """ pynchon.util.text CLI
 """
 from pynchon.cli import common
-
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
