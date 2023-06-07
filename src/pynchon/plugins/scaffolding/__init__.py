@@ -22,10 +22,8 @@ class Scaffolding(models.ShyPlanner):
     config_class = ScaffoldingConfig
 
     def match(self, pattern=None):
-        """returns files that match for all scaffolds
-
-        :param pattern: Default value = None)
-
+        """
+        returns files that match for all scaffolds
         """
         if pattern:
             return files.find_globs([pattern], quiet=True)

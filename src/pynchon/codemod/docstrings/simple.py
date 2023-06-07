@@ -131,7 +131,9 @@ def write_docstring(
     docstring=None,
     # indent=''
 ):
-    def is_param_doc(l): return l.lstrip().startswith(":param")
+    def is_param_doc(l):
+        return l.lstrip().startswith(":param")
+
     # def merge_docs(old=None,new=None):
     #     assert isinstance(old,(list,))
     #     assert isinstance(new,(list,))

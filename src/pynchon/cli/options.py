@@ -8,6 +8,12 @@ from pynchon.cli import click
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
+plan = click.flag(
+    "--plan",
+    "-p",
+    "should_plan",
+    help="plan only; no action",
+)
 ignore_missing = click.flag(
     "--ignore-missing",
     help="ignore missing docstrings (only updates empty or out-dated ones)",

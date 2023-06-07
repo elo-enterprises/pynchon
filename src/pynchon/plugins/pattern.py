@@ -26,15 +26,23 @@ class Pattern(models.ResourceManager):
     name = "pattern"
     cli_name = "pattern"
 
-    def list(self) -> typing.Dict:
-        """Describe templates we can cut patterns from"""
-        tmp = [
-            [str(x.relative_to(self.config.root)), x.glob("**/*")]
-            for x in super(self.__class__, self).list()
-        ]
+    @property
+    def patterns(self) -> typing.Dict:
+        tmp = super(self.__class__, self).list()
+        tmp = [[str(x.relative_to(self.config.root)), x.glob("**/*")] for x in tmp]
         tmp = dict(tmp)
         keep = [x for x in tmp if not any([k.startswith(f"{x}/") for k in tmp])]
         tmp = dict(list([[k, list(v)] for k, v in tmp.items() if k in keep]))
+        return tmp
+
+    def list(self) -> typing.List:
+        """
+        Describe templates we can cut patterns from
+        """
+        tmp = self.patterns
+        tmp = [abcs.Path(x) for x in tmp.keys()]
+        tmp = [x.parents[0] if (self.config.root / x).is_file() else x for x in tmp]
+        tmp = map(str, tmp)
         return tmp
 
     @cli.click.command("open")
@@ -49,7 +57,8 @@ class Pattern(models.ResourceManager):
 
     @cli.click.argument("kind", nargs=1)
     @cli.click.argument("dest", nargs=1)
-    def sync(self, dest: str = None, kind: str = None):
+    @cli.options.plan
+    def sync(self, should_plan: bool = False, dest: str = None, kind: str = None):
         """Synchronize DEST from KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
 
@@ -112,10 +121,13 @@ class Pattern(models.ResourceManager):
 
     @cli.click.argument("name", nargs=1)
     @cli.click.argument("kind", nargs=1)
-    @cli.click.option(
-        "--plan", "-p", "should_plan", help="plan only", is_flag=True, default=False
-    )
-    def new(self, kind, name, should_plan: bool = False):
+    @cli.options.plan
+    def new(
+        self,
+        kind,
+        name,
+        should_plan: bool = False,
+    ):
         """Instantiates PATTERN to NAME"""
         pfolder = self.pattern_folder / kind
         if not pfolder.exists():
