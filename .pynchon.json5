@@ -55,6 +55,7 @@
       "t":"tox -e",
       "m":"make",
       "g":"git",
+      "sq": "git commit -a -m'sq'",
       "st":"git status",
       "fl":"flake8",
       "mns": "make normalize static-analysis",
