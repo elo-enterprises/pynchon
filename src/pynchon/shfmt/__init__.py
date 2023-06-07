@@ -197,7 +197,7 @@ from pynchon.util import lme, tagging, typing  # noqa
 #         else:
 #             assert type(vals) == "bonk", type(vals)
 #         return f"{option}{tmp}"
-
+from pynchon import abcs
 
 LOGGER = lme.get_logger(__name__)
 
@@ -240,8 +240,12 @@ class Semantics:
 
     def path(self, ast):
         print(f"path: {ast}")
-        # if '/' in ast:
-        return ast
+        try:
+            tmp=abcs.Path(ast).relative_to(abcs.Path('.').absolute())
+        except ValueError:
+            return ast
+        else:
+            return f"'{tmp}'"
 
     def pipeline_command(self, ast):
         print(f"pipeline_command: {ast}")

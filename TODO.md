@@ -27,6 +27,8 @@ research:
   oop:
     py protocols;
     abstract mcls into interface?
+  d2-diagramming:
+    https://github.com/terrastruct/d2/blob/v0.1.2/docs/INSTALL.md#docker
 
 refactor:
   app model

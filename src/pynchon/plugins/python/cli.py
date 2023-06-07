@@ -5,19 +5,17 @@ import glob
 from pynchon import abcs, cli, models, shimport
 
 from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.api import project
+from pynchon.util.os import invoke
+from pynchon.api import project
 
-config_mod = shimport.lazy(
-    "pynchon.config",
-)
+config_mod = shimport.lazy("pynchon.config",)
 LOGGER = lme.get_logger(__name__)
 
 
 class PythonCliConfig(abcs.Config):
     config_key = "python-cli"
 
-    # @property
-    # def plugin(self):
-    #     return PythonCLI.instance
     @property
     def src_root(self):
         """ """
@@ -92,7 +90,6 @@ class PythonCLI(models.ShyPlanner):
         """
         Describe entrypoints for this project (parses setup.cfg)
         """
-        from pynchon.api import project
 
         config, plan = project.plan()
         return config
@@ -152,25 +149,22 @@ class PythonCLI(models.ShyPlanner):
     @gen.command("main")
     @cli.options.stdout
     @cli.options.header
-    @cli.click.flag('--click',help='treat as click')
+    # @cli.click.flag('--click',help='treat as click')
     def main_docs(format, module, file, output_dir, stdout, header, name):
         """
         Autogenenerate docs for python modules using __main__
         """
-    #     from pynchon.api import project
-    #     from pynchon.util.os import invoke
-    #
-    #     config, plan = project.plan()
-    #     for fname, metadata in config["python"]["entrypoints"].items():
-    #         if fname == file:
-    #             dotpath = metadata["dotpath"]
-    #             cmd = invoke(f"python -m{dotpath} --help")
-    #             help = cmd.succeeded and cmd.stdout.strip()
-    #             config["python"]["entrypoints"][fname] = {
-    #                 **metadata,
-    #                 **dict(help=help),
-    #             }
-    #             return config
+        config, plan = project.plan()
+        for fname, metadata in config["python"]["entrypoints"].items():
+            if fname == file:
+                dotpath = metadata["dotpath"]
+                cmd = invoke(f"python -m{dotpath} --help")
+                help = cmd.succeeded and cmd.stdout.strip()
+                config["python"]["entrypoints"][fname] = {
+                    **metadata,
+                    **dict(help=help),
+                }
+                return config
     #
     # @common.kommand(
     #     name="entrypoint",
