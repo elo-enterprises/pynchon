@@ -45,6 +45,7 @@ class LibCST(models.Planner):
     def _goal_libcst_refresh(self, libcst_config):
         """ """
         from pynchon.util import text
+
         min = text.to_json(libcst_config, minified=True)
         rsrc = F_CODEMOD_YAML
         cmd = f"printf '{min}' | python -mpynchon.util.text.dumpf yaml > {rsrc}"
@@ -61,17 +62,14 @@ class LibCST(models.Planner):
         libcst_config = self[F_CODEMOD_YAML]
         if libcst_config:
             plan.append(self._goal_libcst_refresh(libcst_config))
-        plan.append(
-            *list(self.docstrings(
-                should_plan=True
-        )))
+        plan.append(*list(self.docstrings(should_plan=True)))
         return plan
 
     @gen.command
     @cli.options.ignore_private
     @cli.options.ignore_missing
     @cli.options.plan
-    @cli.click.argument('SRC_ROOT',required=False, default=None)
+    @cli.click.argument("SRC_ROOT", required=False, default=None)
     @cli.click.option(
         "--modules", help="create docstrings for modules", default=False, is_flag=True
     )
@@ -87,7 +85,7 @@ class LibCST(models.Planner):
     def docstrings(
         self,
         src_root=None,
-        should_plan:bool=False,
+        should_plan: bool = False,
         ignore_missing: bool = False,
         ignore_private: bool = True,
         modules: bool = True,
@@ -96,16 +94,17 @@ class LibCST(models.Planner):
         classes: bool = True,
     ):
         """Generates python docstrings"""
-        src_root = src_root or self[:'src.root':]
+        src_root = src_root or self[:"src.root":]
         # rsrc = "src/pynchon/shfmt/"
         cmd = "docstrings.simple.function"
         plan = self.Plan()
         plan.append(
             self.goal(
-                command=f'python -mlibcst.tool codemod {cmd} {src_root}',
+                command=f"python -mlibcst.tool codemod {cmd} {src_root}",
                 resource=src_root,
-                type='codemod',
-            ))
+                type="codemod",
+            )
+        )
         if should_plan:
             LOGGER.critical(plan)
             return plan

@@ -4,14 +4,13 @@ import typing
 from memoized_property import memoized_property
 
 from pynchon import cli, events
-from pynchon.util import lme, typing  # noqa
 from pynchon.util.os import invoke
 from pynchon.util.tagging import tags
 
 from . import planning
 from .plugins import BasePlugin
 
-
+from pynchon.util import lme, typing  # noqa
 
 
 
@@ -31,6 +30,7 @@ class AbstractPlanner(BasePlugin):
         return planning.Goal(
             owner=f"{self.__class__.__module__}.{self.__class__.__name__}", **kwargs
         )
+
     @property
     def Plan(self):
         return planning.Plan
@@ -77,11 +77,6 @@ class AbstractPlanner(BasePlugin):
         return results
 
     def _validate_hooks(self, hooks):
-        """
-
-        :param hooks:
-
-        """
         # FIXME: validation elsewhere
         for x in hooks:
             assert isinstance(x, (str,))
@@ -107,11 +102,6 @@ class AbstractPlanner(BasePlugin):
         return hooks
 
     def _hook_open_after_apply(self, result: planning.ApplyResults):
-        """
-
-        :param result: planning.ApplyResults:
-
-        """
         changes = self.list(changes=True)
         changes += [x.resource for x in result if x.ok]
         changes = list(set(changes))
@@ -123,10 +113,8 @@ class AbstractPlanner(BasePlugin):
     @typing.validate_arguments
     def run_hook(self, hook_name: str, results: planning.ApplyResults):
         """
-
         :param hook_name: str:
         :param results: planning.ApplyResults:
-
         """
 
         class HookNotFound(Exception):
