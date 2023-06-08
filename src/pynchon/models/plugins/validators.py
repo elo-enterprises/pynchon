@@ -37,8 +37,9 @@ def require_conf_key(
     return vdata
 
 
-# @validator
 def warn_config_kls(kls, self=None, vdata=None):
+    """ """
+    """ """
     pconf_kls = getattr(kls, "config_class", "NOTSET")
     if pconf_kls == "NOTSET":
         vdata.warnings["`config_class` not set!"].append(kls)

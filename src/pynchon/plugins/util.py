@@ -22,6 +22,7 @@ class PluginNotConfigured(RuntimeError):
 
 
 def get_plugin_meta(plugin_name: str) -> typing.Dict:
+    """ """
     from pynchon.plugins import registry
 
     try:

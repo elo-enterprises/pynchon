@@ -20,17 +20,19 @@ from click import (  # noqa
 )
 
 
-
 def flag(*args, **kwargs):
+    """ """
     kwargs.update(is_flag=True, default=kwargs.get("default", False))
     return option(*args, **kwargs)
 
 
 def do_filter(item, filter_kwargs):
+    """ """
     return all([getattr(item, f, None) == v for f, v in filter_kwargs.items()])
 
 
 def _subcommand_tree(parent, path=tuple(), tree={}, **filter_kwargs):
+    """ """
     # FIXME: unroll this thing
     tree = {
         **tree,
@@ -56,6 +58,7 @@ def _subcommand_tree(parent, path=tuple(), tree={}, **filter_kwargs):
 
 
 def subcommand_tree(parent, mode="default", path=tuple(), tree={}, **filter_kwargs):
+    """ """
     err = "cannot filter with None!"
     for f, val in filter_kwargs.items():
         assert val is not None, err
@@ -66,6 +69,8 @@ def subcommand_tree(parent, mode="default", path=tuple(), tree={}, **filter_kwar
 
 
 def group_merge(g1: click.Group, g2: click.Group):
+    """ """
+
     def fxn():
         pass
 
@@ -76,6 +81,7 @@ def group_merge(g1: click.Group, g2: click.Group):
 
 
 def group_copy(g1: click.Group, **kwargs: typing.OptionalAny):
+    """ """
     tmp = [[k, v] for k, v in g1.__dict__.copy().items() if not k.startswith("_")]
     tmp = dict(tmp)
     tmp.update(**kwargs)

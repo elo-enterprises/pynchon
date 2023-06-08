@@ -15,6 +15,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 def load_groups_from_children(root=None, parent=None):
+    """ """
     shimport.wrap(root).filter_folder(include_main=True).prune(
         name_is="entry",  # default
     ).map(
@@ -46,41 +47,10 @@ class handler:
         return self.handle(result, **call_kwargs)
 
 
-# class stdout_handler(handler):
-#     """ """
-#
-#     priority = 9
-#
-#     def match(self, kwargs):
-#         return "stdout" in kwargs and kwargs["stdout"]
-#
-#     def handle(self, result, **call_kwargs):
-#         print_json(result)
-#
-#
-# class output_handler(handler):
-#     """ """
-#
-#     priority = 10
-#
-#     def match(_, kwargs):
-#         return "output" in kwargs and kwargs["output"]
-#
-#     def handle(self, result, output=None, **call_kwargs) -> None:
-#         if isinstance(result, (str,)):
-#             self.logger.debug(f"Saving to file: {output}")
-#             with open(output, "w") as fhandle:
-#                 fhandle.write(result)
-#         else:
-#             self.logger.warning(
-#                 f"skipping output_handler; result is not a string! (got {type(result)})"
-#             )
-#
-
-
 def entry_for(
     name,
 ):
+    """ """
     # from pynchon import shimport
     import importlib
 

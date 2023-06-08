@@ -1,8 +1,14 @@
 """ pynchon.codemod.docstrings.simple """
 import libcst as cst
-from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,
-                                     Sequence, SimpleStatementLine,
-                                     SimpleString, inspect)
+from libcst._nodes.statement import (
+    BaseSuite,
+    ConcatenatedString,
+    Expr,
+    Sequence,
+    SimpleStatementLine,
+    SimpleString,
+    inspect,
+)
 from strongtyping.docs_from_typing import docs_from_typing
 
 from pynchon import shimport
@@ -12,16 +18,83 @@ from .base import base
 
 LOGGER = lme.get_logger(__name__)
 
+from textwrap import dedent
 
-class klass(base):
-    DESCRIPTION: str = """\n\tWhere missing, adds docstrings to classes"""
-    # from libcst import parse_statement
-    # default_docstring = f'"""  """'
-    # lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
-    # raise Exception([ltx, original_node])
+
+def write_docstring(
+    mod=None,
+    dotpath=None,
+    docstring=None,
+    # indent=''
+):
+    """ """
+
+    def is_param_doc(txt: str):
+        return txt.lstrip().startswith(":param")
+
+    assert mod, "mod not set.. check .libcst.codemod.yaml src root"
+    bits = dotpath.split(".")
+    obits = [x for x in bits]
+    _import = shimport.import_module(mod)
+    while bits:
+        try:
+            _import = getattr(_import, bits.pop(0))
+        except:
+            LOGGER.critical(f"cannot import {obits}")
+            return
+    LOGGER.critical(f"imported {_import}")
+    # try:
+    #     default_docstring = docs_from_typing(
+    #         _import, style="numpy",
+    # remove_linebreak=True
+    #     )
+    # except (AttributeError,) as exc:
+    #     return
+    import inspect
+
+    default_docstring = str(inspect.signature(_import))
+    default_docstring = [x for x in default_docstring if is_param_doc(x)]
+    doc_actual = inspect.getdoc(_import)
+    if doc_actual:
+        # LOGGER.warning(f"doc string for {obits} already exists; skipping..")
+        return
+    src = inspect.getsource(_import).split("\n")
+    index = [i for i, x in enumerate(src) if x.endswith(":")][0]
+    ctx_indent = src[index + 1][: len(src[index + 1]) - len(dedent(src[index + 1]))]
+    default_docstring = reversed(sorted(default_docstring))
+    default_docstring = "\n".join(default_docstring)
+    default_docstring = f'"""\n{default_docstring.strip()}\n"""'
+    default_docstring = [(ctx_indent) + x for x in default_docstring.split("\n")]
+    default_docstring = "\n".join(default_docstring)
+    # LOGGER.critical(f"{dotpath}:: suggest:\n\n{default_docstring}")
+    dstart = index + 1
+    dpre = src[dstart].lstrip().rstrip()
+    dpre = '"""' if dpre.startswith('"""') else ""
+    dpre = "'''" if dpre.startswith("'''") else ""
+    for i, x in enumerate(src[dstart + 1 :]):
+        x = x.lstrip().strip()
+        if x.endswith(dpre):
+            dend = i + dstart
+            break
+    else:
+        raise Exception()
+        # if x.startswith(dend = index+1
+    print(
+        [
+            dstart,
+            dend,
+            dpre,
+        ]
+    )
+    src = src[:dstart] + [default_docstring] + src[dend:]
+    src = "\n" + "\n".join([x for x in src])
+    src = dedent(src)
+    # LOGGER.critical(src)
+    return src
 
 
 def _get_docstring(body):
+    """ """
     if isinstance(body, Sequence):
         if body:
             expr = body[0]
@@ -45,6 +118,49 @@ def _get_docstring(body):
         return expr, evaluated_value
     else:
         return inspect.cleandoc(evaluated_value)
+
+
+class klass(base):
+    DESCRIPTION: str = """\n\tWhere missing, adds docstrings to classes"""
+    # from libcst import parse_statement
+    # default_docstring = f'"""  """'
+    # lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
+    # raise Exception([ltx, original_node])
+
+
+class module(base):
+    DESCRIPTION: str = """\n\tWhere missing, adds docstrings to modules"""
+
+    def leave_Module(
+        self,
+        original_node: cst.Module,
+        updated_node: cst.Module,
+    ) -> cst.Module:
+        full_module_name = self.context.full_module_name
+        default_docstring = f'""" {full_module_name} """'
+        lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
+        try:
+            base = updated_node.children[0]
+        except IndexError:
+            # LOGGER.critical(f"{lctx}: empty-file!")
+            return updated_node.with_changes(
+                body=[cst.parse_statement(default_docstring)]
+            )
+        try:
+            expr = base.children[0]
+            sstring = expr.children[0]
+        except IndexError:
+            # FIXME: module starts with whitespace?
+            # LOGGER.critical(f"{lctx}: starts with whitespace?")
+            return original_node
+        sstring = updated_node.children[0].children[0].children.pop(0)
+        tmp = sstring.value
+        if not tmp.strip():
+            return updated_node.with_changes(
+                body=[cst.parse_statement(default_docstring)] + list(original_node.body)
+            )
+        else:
+            return original_node
 
 
 class function(base):
@@ -124,123 +240,3 @@ class function(base):
             # return result
 
         return original_node
-
-
-def write_docstring(
-    mod=None,
-    dotpath=None,
-    docstring=None,
-    # indent=''
-):
-    def is_param_doc(txt:str):
-        return txt.lstrip().startswith(":param")
-
-    # def merge_docs(old=None,new=None):
-    #     assert isinstance(old,(list,))
-    #     assert isinstance(new,(list,))
-    from textwrap import dedent
-
-    assert mod, "mod not set.. check .libcst.codemod.yaml src root"
-    bits = dotpath.split(".")
-    obits = [x for x in bits]
-    _import = shimport.import_module(mod)
-    while bits:
-        try:
-            _import = getattr(_import, bits.pop(0))
-        except:
-            LOGGER.critical(f"cannot import {obits}")
-            return
-    LOGGER.critical(f"imported {_import}")
-    try:
-        default_docstring = docs_from_typing(
-            _import, style="numpy", remove_linebreak=True
-        )
-    except (AttributeError,) as exc:
-        return
-    default_docstring = [x for x in default_docstring if is_param_doc(x)]
-    doc_actual = inspect.getdoc(_import)
-    if doc_actual:
-        # doc_actual = doc_actual.split('\n')
-        # jdocs=[]
-        # for l in doc_actual:
-        #     if is_param_doc(l):
-        #         jdocs.append(l)
-        # doc_actual = [x for x in doc_actual if x not in jdocs]
-        # jdocs = sorted(jdocs)
-        # default_docstring=doc_actual+sorted(list(set(default_docstring+jdocs)))
-        # import IPython; IPython.embed()
-        LOGGER.warning(f"doc string for {obits} already exists; skipping..")
-        return
-    src = inspect.getsource(_import).split("\n")
-    # src = [line for line in src
-    #     if not line.lstrip().startswith('@')]
-    # base_indent = src[0][:len(src[0])-len(dedent(src[0]))]
-    index = [i for i, x in enumerate(src) if x.endswith(":")][0]
-    ctx_indent = src[index + 1][: len(src[index + 1]) - len(dedent(src[index + 1]))]
-    default_docstring = reversed(sorted(default_docstring))
-    default_docstring = "\n".join(default_docstring)
-    default_docstring = f'"""\n{default_docstring.strip()}\n"""'
-    default_docstring = [(ctx_indent) + x for x in default_docstring.split("\n")]
-    default_docstring = "\n".join(default_docstring)
-    # LOGGER.critical(f"{dotpath}:: suggest:\n\n{default_docstring}")
-    dstart = index + 1
-    dpre = src[dstart].lstrip().rstrip()
-    dpre = '"""' if dpre.startswith('"""') else ""
-    dpre = "'''" if dpre.startswith("'''") else ""
-    for i, x in enumerate(src[dstart + 1 :]):
-        x = x.lstrip().strip()
-        if x.endswith(dpre):
-            dend = i + dstart
-            break
-    else:
-        raise Exception()
-        # if x.startswith(dend = index+1
-    print(
-        [
-            dstart,
-            dend,
-            dpre,
-        ]
-    )
-    src = src[:dstart] + [default_docstring] + src[dend:]
-    # src='\n'.join(src).replace(doc_actual,'\n'.join(default_docstring))
-    src = "\n" + "\n".join([x for x in src])
-    src = dedent(src)
-    LOGGER.critical(src)
-    # import IPython; IPython.embed()
-    return src
-
-
-class module(base):
-    DESCRIPTION: str = """\n\tWhere missing, adds docstrings to modules"""
-
-    def leave_Module(
-        self,
-        original_node: cst.Module,
-        updated_node: cst.Module,
-    ) -> cst.Module:
-        full_module_name = self.context.full_module_name
-        default_docstring = f'""" {full_module_name} """'
-        lctx = f"{original_node.__class__.__name__} @ '{full_module_name}'"
-        try:
-            base = updated_node.children[0]
-        except IndexError:
-            LOGGER.critical(f"{lctx}: empty-file!")
-            return updated_node.with_changes(
-                body=[cst.parse_statement(default_docstring)]
-            )
-        try:
-            expr = base.children[0]
-            sstring = expr.children[0]
-        except IndexError:
-            # FIXME: module starts with whitespace?
-            LOGGER.critical(f"{lctx}: starts with whitespace?")
-            return original_node
-        sstring = updated_node.children[0].children[0].children.pop(0)
-        tmp = sstring.value
-        if not tmp.strip():
-            return updated_node.with_changes(
-                body=[cst.parse_statement(default_docstring)] + list(original_node.body)
-            )
-        else:
-            return original_node

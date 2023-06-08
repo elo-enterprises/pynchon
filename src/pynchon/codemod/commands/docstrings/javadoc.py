@@ -20,5 +20,5 @@ class function(base):
         original_node: cst.FunctionDef,
         updated_node: cst.FunctionDef,
     ) -> cst.FunctionDef:
-        LOGGER.critical(original_node)
+        # LOGGER.critical(original_node)
         return original_node
