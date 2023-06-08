@@ -4,16 +4,13 @@ import typing
 from memoized_property import memoized_property
 
 from pynchon import cli, events
-# from pynchon.bin import entry
-# from pynchon.fleks.plugin import Plugin as AbstractPlugin
-# from pynchon.plugins.util import get_plugin_obj
+from pynchon.util import lme, typing  # noqa
+from pynchon.util.os import invoke
 from pynchon.util.tagging import tags
 
-# from .planning import *
 from . import planning
 from .plugins import BasePlugin
 
-from pynchon.util import lme, typing  # noqa
 
 
 
@@ -39,10 +36,8 @@ class AbstractPlanner(BasePlugin):
         return planning.Plan
 
     def plan(self, config=None) -> planning.Plan:
-        """Creates a plan for this plugin
-
-        :param config:  (Default value = None)
-
+        """
+        Creates a plan for this plugin
         """
         # config = config or self.cfg()
         events.lifecycle.send(
@@ -53,13 +48,9 @@ class AbstractPlanner(BasePlugin):
         return plan
 
     def apply(self, plan=None) -> planning.ApplyResults:
-        """Executes the plan for this plugin
-
-        :param config:  (Default value = None)
-
         """
-        from pynchon.util.os import invoke
-
+        Executes the plan for this plugin
+        """
         events.lifecycle.send(
             # write status event (used by the app-console)
             stage=f"Applying for plugin '{self.__class__.name}'"

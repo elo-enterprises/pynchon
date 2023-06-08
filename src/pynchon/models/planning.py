@@ -9,12 +9,6 @@ from pynchon.fleks import meta
 
 from pynchon.util import lme, typing  # noqa
 
-# from pynchon.fleks.plugin import Plugin as AbstractPlugin
-# from pynchon.plugins.util import get_plugin_obj
-
-
-# from pynchon.util.tagging import tags
-
 
 @dataclass(frozen=True)
 class Goal(metaclass=meta.namespace):
