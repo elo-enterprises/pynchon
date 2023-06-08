@@ -20,6 +20,7 @@ from click import (  # noqa
 )
 
 
+
 def flag(*args, **kwargs):
     """ """
     kwargs.update(is_flag=True, default=kwargs.get("default", False))

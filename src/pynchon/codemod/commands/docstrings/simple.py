@@ -1,15 +1,8 @@
 """ pynchon.codemod.docstrings.simple """
 import libcst as cst
-from libcst._nodes.statement import (
-    BaseSuite,
-    ConcatenatedString,
-    Expr,
-    Sequence,
-    SimpleStatementLine,
-    SimpleString,
-    inspect,
-)
-from strongtyping.docs_from_typing import docs_from_typing
+from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,
+                                     Sequence, SimpleStatementLine,
+                                     SimpleString, inspect)
 
 from pynchon import shimport
 from pynchon.util import lme, typing
@@ -51,7 +44,7 @@ def write_docstring(
             LOGGER.critical(f"cannot import {obits}")
             return None
     LOGGER.warning(f"imported {_import}")
-    if not isinstance(_import, (typing.FunctionType, )):
+    if not isinstance(_import, (typing.FunctionType,)):
         LOGGER.critical(f"{_import} is not a Function!")
         return None
     # try:
@@ -62,23 +55,23 @@ def write_docstring(
     # except (AttributeError,) as exc:
     #     return
     import inspect
+
     doc_actual = inspect.getdoc(_import)
 
     default_docstring = str(inspect.signature(_import))
-    default_docstring = default_docstring[1:-1].split(', ')
+    default_docstring = default_docstring[1:-1].split(", ")
     if doc_actual is not None:
         LOGGER.warning(f"doc string for {obits} already exists; skipping..")
         default_docstring = [
-            f':param {x}:'
+            f":param {x}:"
             for x in default_docstring
-            if not any([z.lstrip().startswith(f':param {x}:') for z in doc_actual.split('\n')])
+            if not any(
+                [z.lstrip().startswith(f":param {x}:") for z in doc_actual.split("\n")]
+            )
         ]
     else:
-        default_docstring = [
-            f':param {x}:'
-            for x in default_docstring
-        ]
-    default_docstring=list(sorted(default_docstring))
+        default_docstring = [f":param {x}:" for x in default_docstring]
+    default_docstring = list(sorted(default_docstring))
     # :param arg1: description
     # :type arg1: type description
     # :return: return description
@@ -102,7 +95,7 @@ def write_docstring(
             dend = i + dstart
             break
     else:
-        LOGGER.critical('wat?')
+        LOGGER.critical("wat?")
         raise Exception()
         # if x.startswith(dend = index+1
     print(
@@ -236,16 +229,16 @@ class function(base):
                 # indent=self.context.module.default_indent
             )
             if txt is None:
-                LOGGER.warning(f'error importing {[mod,dotpath]} ?')
+                LOGGER.warning(f"error importing {[mod,dotpath]} ?")
                 return original_node
             else:
                 try:
                     updated_node = cst.parse_statement(txt)
                 except (cst._exceptions.ParserSyntaxError,) as exc:
-                    LOGGER.critical('ParserSyntaxError for update @\n\n{txt}')
+                    LOGGER.critical("ParserSyntaxError for update @\n\n{txt}")
                     return original_node
                 else:
-                    LOGGER.critical('updated node')
+                    LOGGER.critical("updated node")
                     return updated_node
 
         elif docstring is None:

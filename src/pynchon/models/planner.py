@@ -34,6 +34,9 @@ class AbstractPlanner(BasePlugin):
         return planning.Goal(
             owner=f"{self.__class__.__module__}.{self.__class__.__name__}", **kwargs
         )
+    @property
+    def Plan(self):
+        return planning.Plan
 
     def plan(self, config=None) -> planning.Plan:
         """Creates a plan for this plugin
@@ -41,12 +44,12 @@ class AbstractPlanner(BasePlugin):
         :param config:  (Default value = None)
 
         """
-        config = config or self.cfg()
+        # config = config or self.cfg()
         events.lifecycle.send(
             # writes status event (used by the app-console)
             stage=f"Planning for `{self.__class__.name}`"
         )
-        plan = planning.Plan()
+        plan = self.Plan()
         return plan
 
     def apply(self, plan=None) -> planning.ApplyResults:

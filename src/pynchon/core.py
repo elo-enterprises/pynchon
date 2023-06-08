@@ -10,8 +10,12 @@ LOGGER = lme.get_logger(__name__)
 count = 0
 
 
-# @validator
 def validate(kls=None, self=None, vdata=None):
+    """
+    :param vdata=None:
+    :param self=None:
+    :param kls=None:
+    """
     global count
     count += 1
     if count > 1:

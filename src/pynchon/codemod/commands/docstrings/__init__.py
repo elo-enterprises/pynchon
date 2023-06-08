@@ -1,8 +1,9 @@
 """ pynchon.codemod.commands.docstrings
 """
 from .base import base  # noqa
+
 # from .javadoc import *  # noqa
-from .simple import *
+
 # import simple # noqa
 # from libcst.codemod import CodemodContext, VisitorBasedCodemodCommand
 

@@ -73,6 +73,9 @@ def get_jinja_globals():
 
 
 def get_jinja_includes(*includes):
+    """
+    :param *includes:
+    """
     includes = list(includes)
     includes += list(constants.PYNCHON_CORE_INCLUDES_DIRS)
 
@@ -117,6 +120,10 @@ def get_template_from_string(
     content,
     env=None,
 ):
+    """
+    :param env=None:
+    :param content:
+    """
     env = env or get_jinja_env()
     return env.from_string(content)
 
@@ -125,6 +132,10 @@ def get_template_from_file(
     file: str = None,
     **kwargs,
 ):
+    """
+    :param file: str = None:
+    :param **kwargs:
+    """
     with open(file) as fhandle:
         content = fhandle.read()
     return get_template_from_string(content, **kwargs)
@@ -135,6 +146,11 @@ def get_template(
     env=None,
     from_string: str = None,
 ):
+    """
+    :param template_name: str = None:
+    :param from_string: str = None:
+    :param env=None:
+    """
     env = env or get_jinja_env()
     try:
         if from_string:

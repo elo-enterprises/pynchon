@@ -38,8 +38,8 @@
       "formatter": ['black', '-'],
       "blacklist_patterns": [],
       "modules": [
-        'pynchon.codemod',
-        //'libcst.codemod.commands',
+        'libcst.codemod.commands',
+        'pynchon.codemod.commands',
       ],
     },
     // "apply_hooks": ["display-modified"],
