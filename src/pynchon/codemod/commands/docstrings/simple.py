@@ -12,7 +12,7 @@ from libcst._nodes.statement import (
 from strongtyping.docs_from_typing import docs_from_typing
 
 from pynchon import shimport
-from pynchon.util import lme
+from pynchon.util import lme, typing
 
 from .base import base
 
@@ -50,7 +50,10 @@ def write_docstring(
         except:
             LOGGER.critical(f"cannot import {obits}")
             return None
-    LOGGER.critical(f"imported {_import}")
+    LOGGER.warning(f"imported {_import}")
+    if not isinstance(_import, (typing.FunctionType, )):
+        LOGGER.critical(f"{_import} is not a Function!")
+        return None
     # try:
     #     default_docstring = docs_from_typing(
     #         _import, style="numpy",
@@ -63,18 +66,23 @@ def write_docstring(
 
     default_docstring = str(inspect.signature(_import))
     default_docstring = default_docstring[1:-1].split(', ')
-    default_docstring = [
-        f':param {x}:'
-        for x in default_docstring
-        if not any([z.lstrip().startswith(f':param {x}:') for z in doc_actual.split('\n')])
-    ]
+    if doc_actual is not None:
+        LOGGER.warning(f"doc string for {obits} already exists; skipping..")
+        default_docstring = [
+            f':param {x}:'
+            for x in default_docstring
+            if not any([z.lstrip().startswith(f':param {x}:') for z in doc_actual.split('\n')])
+        ]
+    else:
+        default_docstring = [
+            f':param {x}:'
+            for x in default_docstring
+        ]
+    default_docstring=list(sorted(default_docstring))
     # :param arg1: description
     # :type arg1: type description
     # :return: return description
     # :rtype: the return type description
-    if doc_actual:
-        LOGGER.warning(f"doc string for {obits} already exists; skipping..")
-        # return
     src = inspect.getsource(_import).split("\n")
     index = [i for i, x in enumerate(src) if x.endswith(":")][0]
     ctx_indent = src[index + 1][: len(src[index + 1]) - len(dedent(src[index + 1]))]
@@ -231,9 +239,15 @@ class function(base):
                 LOGGER.warning(f'error importing {[mod,dotpath]} ?')
                 return original_node
             else:
-                updated_node = cst.parse_statement(txt)
-                LOGGER.critical(updated_node)
-                return updated_node
+                try:
+                    updated_node = cst.parse_statement(txt)
+                except (cst._exceptions.ParserSyntaxError,) as exc:
+                    LOGGER.critical('ParserSyntaxError for update @\n\n{txt}')
+                    return original_node
+                else:
+                    LOGGER.critical('updated node')
+                    return updated_node
+
         elif docstring is None:
             LOGGER.info(f"{ctx}:: no docstring!")
             return original_node

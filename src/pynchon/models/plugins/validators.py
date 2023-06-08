@@ -38,6 +38,11 @@ def require_conf_key(
 
 
 def warn_config_kls(kls, self=None, vdata=None):
+    """
+    :param vdata=None:
+    :param self=None:
+    :param kls:
+    """
     """ """
     """ """
     pconf_kls = getattr(kls, "config_class", "NOTSET")
