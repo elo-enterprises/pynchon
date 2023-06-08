@@ -87,7 +87,7 @@ def write_docstring(
     dstart = index + 1
     dpre = src[dstart].lstrip().rstrip()
     dpre = '"""' if dpre.startswith('"""') else ""
-    dpre = "'''" if dpre.startswith("'''") else ""
+    dpre = dpre or ("'''" if dpre.startswith("'''") else "")
     for i, x in enumerate(src[dstart + 1 :]):
         x = x.lstrip().strip()
         if x.endswith(dpre):
