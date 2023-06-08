@@ -21,17 +21,25 @@ LOGGER = lme.get_logger(__name__)
 from textwrap import dedent
 
 
+def is_param_doc(txt: str):
+    """
+    txt: str
+    """
+    return txt.lstrip().startswith(":param")
+
+
 def write_docstring(
     mod=None,
     dotpath=None,
     docstring=None,
     # indent=''
 ):
+    """
+    mod=None
+    dotpath=None
+    docstring=None
+    """
     """ """
-
-    def is_param_doc(txt: str):
-        return txt.lstrip().startswith(":param")
-
     assert mod, "mod not set.. check .libcst.codemod.yaml src root"
     bits = dotpath.split(".")
     obits = [x for x in bits]
@@ -41,7 +49,7 @@ def write_docstring(
             _import = getattr(_import, bits.pop(0))
         except:
             LOGGER.critical(f"cannot import {obits}")
-            return
+            return None
     LOGGER.critical(f"imported {_import}")
     # try:
     #     default_docstring = docs_from_typing(
@@ -53,7 +61,18 @@ def write_docstring(
     import inspect
 
     default_docstring = str(inspect.signature(_import))
-    default_docstring = [x for x in default_docstring if is_param_doc(x)]
+    default_docstring = default_docstring[1:-1].split(', ')
+    default_docstring = [
+        f':param {x}:'
+        for x in default_docstring
+        # if is_param_doc(x)
+    ]
+    :param arg1: description
+    # :param arg2: description
+    # :type arg1: type description
+    # :type arg1: type description
+    # :return: return description
+    # :rtype: the return type description
     doc_actual = inspect.getdoc(_import)
     if doc_actual:
         # LOGGER.warning(f"doc string for {obits} already exists; skipping..")
@@ -94,6 +113,9 @@ def write_docstring(
 
 
 def _get_docstring(body):
+    """
+    body
+    """
     """ """
     if isinstance(body, Sequence):
         if body:
@@ -195,48 +217,36 @@ class function(base):
         dotpath = f"{self.this_class_name+'.' if self.this_class_name else '' }{original_node.name.value}"
         ctx = f"{mod}.{dotpath}"
         expr, docstring = _get_docstring(original_node)
-        # import IPython; IPython.embed()
         if docstring is not None and docstring.strip():
             LOGGER.critical("docstring ok")
             return original_node
-        else:
-            if not (docstring and docstring.strip()):
-                LOGGER.critical(f"{ctx}:: docstring is empty")
-            elif docstring is None:
-                LOGGER.critical(f"{ctx}:: no docstring!")
-            src = write_docstring(
+        elif not (docstring and docstring.strip()):
+            LOGGER.critical(f"{ctx}:: docstring is empty")
+            txt = write_docstring(
                 mod=mod,
                 dotpath=dotpath,
                 docstring=docstring
                 # indent=self.context.module.default_indent
             )
-            if src:
-                # import IPython; IPython.embed()
-                try:
-                    return cst.parse_statement(
-                        src,
-                        # cst.PartialParserConfig(
-                        #     default_indent=self.context.module.default_indent
-                        # ),
-                    )
-                except (Exception,) as exc:
-                    LOGGER.critical(exc)
-
-            # # expr=expr.deep_clone()
-            # tmp = cst.parse_statement(default_docstring)
-            # tmp = tmp.body[0].value
-            # cst.ensure_type(original_node.body, cst.IndentedBlock)
-            # # import IPython; IPython.embed()
-            # # raise Exception()
-            # # return updated_node
-            # # .with_changes(name=cst.Name('bonk'))
-            # result = updated_node.with_changes(
-            #     body=updated_node.body.with_changes(
-            #         body=[tmp] + list(original_node.body.body)
-            #     )
-            # )
-            # # import IPython; IPython.embed()
-            #
-            # return result
+            if txt is None:
+                LOGGER.warning(f'error importing {[mod,dotpath]} ?')
+                return original_node
+            else:
+                updated_node = cst.parse_statement(txt)
+                LOGGER.critical(updated_node)
+                return updated_node
+        elif docstring is None:
+            LOGGER.info(f"{ctx}:: no docstring!")
+            return original_node
+            # if src:
+            #     try:
+            #         return cst.parse_statement(
+            #             src,
+            #             # cst.PartialParserConfig(
+            #             #     default_indent=self.context.module.default_indent
+            #             # ),
+            #         )
+            #     except (Exception,) as exc:
+            #         LOGGER.critical(exc)
 
         return original_node
