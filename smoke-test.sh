@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
+pynchon python-libcst gen docstrings --help
 pynchon --help
 python -mpynchon --help
 python -mpynchon.util.files --help
