@@ -41,9 +41,10 @@ def _get_docstring(body):
     else:
         return expr, None
 
-    if evaluated_value is not None and clean:
+    if evaluated_value is None:
+        return expr, evaluated_value
+    else:
         return inspect.cleandoc(evaluated_value)
-    return expr, evaluated_value
 
 
 class function(base):
@@ -85,7 +86,7 @@ class function(base):
         else:
             if not (docstring and docstring.strip()):
                 LOGGER.critical(f"{ctx}:: docstring is empty")
-            elif docstring == None:
+            elif docstring is None:
                 LOGGER.critical(f"{ctx}:: no docstring!")
             src = write_docstring(
                 mod=mod,
@@ -131,8 +132,8 @@ def write_docstring(
     docstring=None,
     # indent=''
 ):
-    def is_param_doc(l):
-        return l.lstrip().startswith(":param")
+    def is_param_doc(txt:str):
+        return txt.lstrip().startswith(":param")
 
     # def merge_docs(old=None,new=None):
     #     assert isinstance(old,(list,))
