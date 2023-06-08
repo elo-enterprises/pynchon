@@ -59,24 +59,22 @@ def write_docstring(
     # except (AttributeError,) as exc:
     #     return
     import inspect
+    doc_actual = inspect.getdoc(_import)
 
     default_docstring = str(inspect.signature(_import))
     default_docstring = default_docstring[1:-1].split(', ')
     default_docstring = [
         f':param {x}:'
         for x in default_docstring
-        # if is_param_doc(x)
+        if not any([z.lstrip().startswith(f':param {x}:') for z in doc_actual.split('\n')])
     ]
-    :param arg1: description
-    # :param arg2: description
-    # :type arg1: type description
+    # :param arg1: description
     # :type arg1: type description
     # :return: return description
     # :rtype: the return type description
-    doc_actual = inspect.getdoc(_import)
     if doc_actual:
-        # LOGGER.warning(f"doc string for {obits} already exists; skipping..")
-        return
+        LOGGER.warning(f"doc string for {obits} already exists; skipping..")
+        # return
     src = inspect.getsource(_import).split("\n")
     index = [i for i, x in enumerate(src) if x.endswith(":")][0]
     ctx_indent = src[index + 1][: len(src[index + 1]) - len(dedent(src[index + 1]))]
@@ -96,6 +94,7 @@ def write_docstring(
             dend = i + dstart
             break
     else:
+        LOGGER.critical('wat?')
         raise Exception()
         # if x.startswith(dend = index+1
     print(
