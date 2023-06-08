@@ -7,7 +7,7 @@ LOGGER = lme.get_logger(__name__)
 
 def get_config() -> dict:
     """ """
-    from pynchon.config import finalize
+    from pynchon.config.util import finalize
 
     return finalize()
 

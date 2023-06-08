@@ -122,6 +122,9 @@ def entry(
 
 
 def bootstrap():
+    """
+    :param :
+    """
     from pynchon.app import app
     from pynchon.plugins import registry as plugin_registry
 

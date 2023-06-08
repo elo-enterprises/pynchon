@@ -4,8 +4,6 @@
 import json
 import functools
 
-import click
-
 from pynchon import shimport
 from pynchon.cli import click
 

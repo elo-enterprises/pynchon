@@ -40,10 +40,17 @@ def get_port(proc):
 
 
 def _used_ports():
+    """
+    :param :
+    """
     return list(filter(None, [get_port(p) for p in _current_gripe_procs()]))
 
 
 def _do_serve(background=True, port="6149"):
+    """
+    :param port='6149':
+    :param background=True:
+    """
     bg = "&" if background else ""
     port = int(port)
     port_used = port in _used_ports()
@@ -56,6 +63,9 @@ def _do_serve(background=True, port="6149"):
 
 
 def _is_my_grip(g) -> bool:
+    """
+    :param g) -> boo:
+    """
     return g["cwd"] == str(THIS_PATH)
 
 

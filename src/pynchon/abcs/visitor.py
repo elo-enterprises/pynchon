@@ -21,17 +21,6 @@ class Visitor:
         obj=None,
         **kwargs,
     ):
-        """
-
-        :param filter_path: Default value = lambda _: True)
-        :param filter_value: Default value = lambda _: True)
-        :param trigger: Default value = lambda p)
-        :param v: p:
-        :param obj: Default value = None)
-        :param paths:  (Default value = [])
-        :param **kwargs:
-
-        """
         self.conf = kwargs
         self.filter_path = filter_path
         self.filter_value = filter_value
@@ -39,10 +28,8 @@ class Visitor:
 
     def matched(self, path=None, value=None):
         """
-
         :param path: Default value = None)
         :param value: Default value = None)
-
         """
         default = self.trigger(path, value)
         if "accumulate_paths" in self.conf:
@@ -58,10 +45,8 @@ class Visitor:
         value=None,
     ):
         """
-
         :param path: Default value = None)
         :param value: Default value = None)
-
         """
         if all([self.filter_path(path), self.filter_value(value)]):
             return self.matched(path=path, value=value)

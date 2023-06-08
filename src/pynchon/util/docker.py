@@ -75,7 +75,8 @@ class DockerCtx:
     @property
     def name(self):
         hash = ""  # FIXME
-        return f"same"
+        raise NotImplementedError()
+        # return f"same"
 
     @property
     def tag(self):

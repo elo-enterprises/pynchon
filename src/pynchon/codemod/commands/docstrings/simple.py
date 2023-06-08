@@ -1,8 +1,11 @@
 """ pynchon.codemod.docstrings.simple """
+import inspect
+from textwrap import dedent
+
 import libcst as cst
 from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,
                                      Sequence, SimpleStatementLine,
-                                     SimpleString, inspect)
+                                     SimpleString)
 
 from pynchon import shimport
 from pynchon.util import lme, typing
@@ -11,57 +14,61 @@ from .base import base
 
 LOGGER = lme.get_logger(__name__)
 
-from textwrap import dedent
-
 
 def is_param_doc(txt: str):
     """
-    txt: str
+    :param txt: str:
     """
     return txt.lstrip().startswith(":param")
+
+
+def get_obj(
+    mod=None,
+    dotpath=None,
+):
+    assert mod, "mod not set.. check .libcst.codemod.yaml src root"
+    bits = dotpath.split(".")
+    obits = [x for x in bits]
+    obj = shimport.import_module(mod)
+    while bits:
+        try:
+            obj = getattr(obj, bits.pop(0))
+        except:
+            LOGGER.critical(f"cannot import {obits}: got to {obj}; unfinished={bits} ")
+            return None
+    LOGGER.warning(f"imported {obj}")
+    return obj
 
 
 def write_docstring(
     mod=None,
     dotpath=None,
+    obj=None,
     docstring=None,
     # indent=''
 ):
     """
-    mod=None
-    dotpath=None
-    docstring=None
+    :param mod=None:
+    :param dotpath=None:
+    :param docstring=None:
     """
-    """ """
-    assert mod, "mod not set.. check .libcst.codemod.yaml src root"
-    bits = dotpath.split(".")
-    obits = [x for x in bits]
-    _import = shimport.import_module(mod)
-    while bits:
-        try:
-            _import = getattr(_import, bits.pop(0))
-        except:
-            LOGGER.critical(f"cannot import {obits}")
-            return None
-    LOGGER.warning(f"imported {_import}")
-    if not isinstance(_import, (typing.FunctionType,)):
-        LOGGER.critical(f"{_import} is not a Function!")
+    if not isinstance(obj, (typing.FunctionType,)):
+        LOGGER.critical(f"{obj} is not a Function!")
         return None
     # try:
     #     default_docstring = docs_from_typing(
-    #         _import, style="numpy",
+    #         obj, style="numpy",
     # remove_linebreak=True
     #     )
     # except (AttributeError,) as exc:
     #     return
-    import inspect
 
-    doc_actual = inspect.getdoc(_import)
+    doc_actual = inspect.getdoc(obj)
 
-    default_docstring = str(inspect.signature(_import))
+    default_docstring = str(inspect.signature(obj))
     default_docstring = default_docstring[1:-1].split(", ")
     if doc_actual is not None:
-        LOGGER.warning(f"doc string for {obits} already exists; skipping..")
+        LOGGER.warning(f"doc-string for {obj} already exists; extending it..")
         default_docstring = [
             f":param {x}:"
             for x in default_docstring
@@ -69,6 +76,7 @@ def write_docstring(
                 [z.lstrip().startswith(f":param {x}:") for z in doc_actual.split("\n")]
             )
         ]
+        default_docstring = doc_actual.split("\n") + default_docstring
     else:
         default_docstring = [f":param {x}:" for x in default_docstring]
     default_docstring = list(sorted(default_docstring))
@@ -76,7 +84,7 @@ def write_docstring(
     # :type arg1: type description
     # :return: return description
     # :rtype: the return type description
-    src = inspect.getsource(_import).split("\n")
+    src = inspect.getsource(obj).split("\n")
     index = [i for i, x in enumerate(src) if x.endswith(":")][0]
     ctx_indent = src[index + 1][: len(src[index + 1]) - len(dedent(src[index + 1]))]
     default_docstring = reversed(sorted(default_docstring))
@@ -95,9 +103,8 @@ def write_docstring(
             dend = i + dstart
             break
     else:
-        LOGGER.critical("wat?")
-        raise Exception()
-        # if x.startswith(dend = index+1
+        LOGGER.critical(f"couldn't retrieve comment from: {src}")
+        return None
     print(
         [
             dstart,
@@ -190,7 +197,8 @@ class function(base):
 
     def __init__(self, *args, **kwargs):
         super(self.__class__, self).__init__(*args, **kwargs)
-        self.this_class = None
+        self.this_class_name = None
+        self.visiting_functions = []
 
     def leave_ClassDef(
         self,
@@ -208,23 +216,56 @@ class function(base):
         self.this_class_name = original_node.name.value
         return original_node
 
+    def visit_FunctionDef(
+        self,
+        original_node: cst.FunctionDef,
+        # updated_node: cst.FunctionDef,
+    ) -> cst.FunctionDef:
+        self.visiting_functions.append(original_node.name.value)
+        return original_node
+
     def leave_FunctionDef(
         self,
         original_node: cst.FunctionDef,
         updated_node: cst.FunctionDef,
     ) -> cst.FunctionDef:
+        import os
+
+        from pynchon import abcs, api
+
+        this_fname = self.visiting_functions.pop(-1)
+        if self.visiting_functions:
+            # nested func-def
+            LOGGER.critical(
+                f"ignoring nested function {[self.visiting_functions,this_fname]}"
+            )
+            return original_node
         mod = self.context.full_module_name
+        src_root = api.project.get_config()["src"]["root"]
+        tmp = self.context.full_module_name.replace(".", os.path.sep)
+        tmp = abcs.Path(tmp).absolute()
+        mod = str(tmp.relative_to(src_root)).replace(os.path.sep, ".")
         dotpath = f"{self.this_class_name+'.' if self.this_class_name else '' }{original_node.name.value}"
         ctx = f"{mod}.{dotpath}"
+        obj = get_obj(
+            mod=mod,
+            dotpath=dotpath,
+        )
         expr, docstring = _get_docstring(original_node)
+        if obj is None:
+            LOGGER.critical(f"could not retrieve object for {[mod,dotpath]}")
+            import IPython
+
+            IPython.embed()
         if docstring is not None and docstring.strip():
             LOGGER.critical("docstring ok")
             return original_node
         elif not (docstring and docstring.strip()):
-            LOGGER.critical(f"{ctx}:: docstring is empty")
+            LOGGER.critical(f"{ctx}:: docstring is empty!")
             txt = write_docstring(
                 mod=mod,
                 dotpath=dotpath,
+                obj=obj,
                 docstring=docstring
                 # indent=self.context.module.default_indent
             )
