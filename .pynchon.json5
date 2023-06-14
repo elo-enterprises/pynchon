@@ -20,7 +20,9 @@
     "scaffolding", // a boilerplate-manager
 
     // Experimental
-    "deck",           // slide-deck tool
+    "makefile",  // makefile parsing
+    "mermaid",   // mermaid cli
+    "deck",      // slide-deck tool
     "griffe",    // ast tool
     "pattern",  // replacement for scaffold, probably
   ],

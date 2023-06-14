@@ -87,6 +87,11 @@ class PynchonPlugin(fleks.Plugin):
         return result
 
     @property
+    def project_root(self):
+        proj_conf = self[:"project.subproject":{}] or self[:"project":]
+        return proj_conf.get("root", self[:"git.root":])
+
+    @property
     def plugin_config(self):
         """ """
         return self.get_current_config()

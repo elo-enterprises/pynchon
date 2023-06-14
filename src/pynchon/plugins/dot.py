@@ -31,10 +31,8 @@ class Dot(models.Planner):
     def list(self) -> typing.List[str]:
         """ """
         # config = config or self.project_config
-        proj_conf = self[:"project.subproject":{}] or self[:"project":]
-        project_root = proj_conf.get("root", self[:"git.root":])
         search = [
-            abcs.Path(project_root).joinpath("**/*.dot"),
+            abcs.Path(self.project_root).joinpath("**/*.dot"),
         ]
         self.logger.debug(f"search pattern is {search}")
         result = files.find_globs(search)
