@@ -21,9 +21,6 @@ class PluginsMan(models.Manager):
 
         :param name: str:  (Default value = None)
         :param template_skeleton: bool:  (Default value = False)
-        :param name: str:  (Default value = None)
-        :param template_skeleton: bool:  (Default value = False)
-
         """
         # FIXME: use pattern?
         plugins_d = abcs.Path(__file__).parents[0]
@@ -36,11 +33,7 @@ class PluginsMan(models.Manager):
         return result.succeeded
 
     def list(self, **kwargs):
-        """List all plugins
-
-        :param **kwargs:
-
-        """
+        """List all plugins"""
         return list(self.status()["plugins"].keys())
 
     @tagging.tags(click_aliases=["st", "stat"])

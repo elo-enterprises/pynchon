@@ -1,11 +1,15 @@
 """ pynchon.plugins.mermaid
 """
 import os
+
+from pynchon.util.os import invoke
+
 from pynchon import abcs, cli, events, models  # noqa
 from pynchon.util import files, lme, tagging, typing  # noqa
-from pynchon.util.os import invoke
+
 LOGGER = lme.get_logger(__name__)
-IMG = 'ghcr.io/mermaid-js/mermaid-cli/mermaid-cli'
+IMG = "ghcr.io/mermaid-js/mermaid-cli/mermaid-cli"
+
 
 class Mermaid(models.Planner):
     """Mermaid"""
@@ -41,11 +45,11 @@ class Mermaid(models.Planner):
             assert not output
             output = os.path.splitext(file)[0] + ".png"
         # cmd = f"cat {file} | docker run --rm --entrypoint dot -i {img} -T{output_mode} > {output}"
-        wd=abcs.Path('.').absolute()
+        wd = abcs.Path(".").absolute()
         file = abcs.Path(file).relative_to(wd)
         output = abcs.Path(output).relative_to(wd)
         uid = os.getuid()
-        cmd = f'docker run -v {wd}:/workspace -w /workspace -u {uid} {IMG} -i {file} -o {output} -b transparent'
+        cmd = f"docker run -v {wd}:/workspace -w /workspace -u {uid} {IMG} -i {file} -o {output} -b transparent"
         LOGGER.critical(cmd)
         result = invoke(cmd, strict=True)
         # assert result.succeeded
@@ -58,7 +62,9 @@ class Mermaid(models.Planner):
     ) -> models.Plan:
         plan = super(self.__class__, self).plan(config=config)
         self.logger.debug("planning for rendering for .dot graph files..")
-        cmd_t = f"pynchon {self.cli_name} "+"render {rsrc} --in-place --output-mode png"
+        cmd_t = (
+            f"pynchon {self.cli_name} " + "render {rsrc} --in-place --output-mode png"
+        )
         for rsrc in self.list():
             plan.append(
                 self.goal(
@@ -71,5 +77,7 @@ class Mermaid(models.Planner):
 
     # cli_label = "Tool"
     # def run(self):
+
+
 # mmdc -i input.mmd -o output.png -t dark -b transparent
 # https://github.com/mermaid-js/mermaid-cli
