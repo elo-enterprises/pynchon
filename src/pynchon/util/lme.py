@@ -53,7 +53,7 @@ def set_global_level(level):
         #     logger.debug('Debug logging enabled')
 
 
-def get_logger(name, console=CONSOLE):
+def get_logger(name, console=CONSOLE, fake=False):
     """utility function for returning a logger
     with standard formatting patterns, etc
 
@@ -61,7 +61,8 @@ def get_logger(name, console=CONSOLE):
     :param console:  (Default value = CONSOLE)
 
     """
-
+    if fake:
+        return Fake()
     log_handler = RichHandler(
         rich_tracebacks=True,
         console=CONSOLE,
@@ -88,3 +89,7 @@ def get_logger(name, console=CONSOLE):
     logger.setLevel(constants.LOG_LEVEL.upper())
 
     return logger
+
+
+class Fake:
+    warning = debug = info = critical = lambda *args, **kwargs: None

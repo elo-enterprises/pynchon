@@ -26,37 +26,49 @@ class Make(models.Provider):
         """ """
         return abcs.Path(self.plugin_templates_prefix)
 
-    # @memoized_property
-    # def database(self) -> typing.List:
-    #     return api.parsers.makefile.database()
+    def _get_template(self, relpath: str = ""):
+        tfile = self.plugin_templates_root / relpath
+        return api.render.get_template(str(tfile))
 
     @property
     def parsed(self) -> typing.Dict:
-        return api.parsers.makefile.parse(
-            # database=self.database,
-            fpath=self.fpath
-        )
+        """ """
+        return api.parsers.makefile.parse(fpath=self.fpath)
 
     @cli.click.group
     def render(self):
-        """generate"""
+        """Subcommands for rendering"""
 
     @render.command("mermaid")
-    def _diagram(self):
-        """ """
-        tmpl = api.render.get_template(
-            self.plugin_templates_root / "mermaid-graph.mmd.j2"
+    @cli.click.option("--title", help="diagram title", default="Makefile Targets")
+    @cli.click.option(
+        "--template",
+        help="mermaid template to use",
+        default="mermaid-graph.mmd.j2",
+    )
+    def _render_mermaid(self, title: str = "", template: str = ""):
+        """Renders mermaid diagram for makefile targets"""
+        tmpl = self._get_template(template)
+
+        print(
+            api.render.clean_whitespace(
+                tmpl.render(
+                    **dict(
+                        title=title,
+                        parsed=self.parse(),
+                    )
+                )
+            )
         )
-        print(tmpl.render(**dict(title="bar")))
 
     @cli.click.flag("--graph", "only_graph", help="Return only the prerequisites-graph")
     def parse(self, only_graph: bool = False):
-        """placeholder"""
+        """Parse Makefile to JSON.  (Includes DAGs for target)"""
         out = self.parsed
         if only_graph:
             out = {t: out[t]["prereqs"] for t in out}
         return out
 
-    def bootstrap(self):
-        """placeholder"""
-        raise NotImplementedError()
+    # def bootstrap(self):
+    #     """ placeholder """
+    #     raise NotImplementedError()

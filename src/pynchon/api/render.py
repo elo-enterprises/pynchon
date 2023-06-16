@@ -165,3 +165,8 @@ def get_template(
         raise
     template.render = functools.partial(template.render, __template__=template_name)
     return template
+
+
+def clean_whitespace(txt: str):
+    # return txt
+    return "\n".join([x for x in txt.split("\n") if x.strip()])

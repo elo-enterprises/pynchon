@@ -31,7 +31,7 @@ class Mermaid(models.Planner):
     @cli.options.in_place
     @cli.options.output
     @cli.click.option("--img", default="nshine/dot")
-    @cli.click.option("--output-mode")
+    # @cli.click.option("--output-mode")
     @cli.click.argument("file", nargs=1)
     def render(
         self,
@@ -44,10 +44,14 @@ class Mermaid(models.Planner):
         if in_place:
             assert not output
             output = os.path.splitext(file)[0] + ".png"
+        assert output
         # cmd = f"cat {file} | docker run --rm --entrypoint dot -i {img} -T{output_mode} > {output}"
         wd = abcs.Path(".").absolute()
-        file = abcs.Path(file).relative_to(wd)
-        output = abcs.Path(output).relative_to(wd)
+        file = abcs.Path(file).absolute().relative_to(wd)
+        output = abcs.Path(output).absolute().relative_to(wd)
+        # import IPython
+        #
+        # IPython.embed()
         uid = os.getuid()
         cmd = f"docker run -v {wd}:/workspace -w /workspace -u {uid} {IMG} -i {file} -o {output} -b transparent"
         LOGGER.critical(cmd)
