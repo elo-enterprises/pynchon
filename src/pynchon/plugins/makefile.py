@@ -3,6 +3,7 @@
 
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import makefile
 
 LOGGER = lme.get_logger(__name__)
 
@@ -33,7 +34,7 @@ class Make(models.Provider):
     @property
     def parsed(self) -> typing.Dict:
         """ """
-        return api.parsers.makefile.parse(fpath=self.fpath)
+        return makefile.parse(fpath=self.fpath)
 
     @cli.click.group
     def render(self):

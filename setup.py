@@ -15,7 +15,7 @@ if __name__ == "__main__":
         setup(
             # use_calver=f"%Y.%m.%d.%H.%M+{GIT_COMMIT}",
             use_calver=USE_CALVER,
-            setup_requires=["calver"],
+            setup_requires=["setuptools", "calver"],
         )
     except:  # noqa
         print(

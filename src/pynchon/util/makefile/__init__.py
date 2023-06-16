@@ -1,20 +1,19 @@
 import re
 
+from pynchon import cli 
 from pynchon import abcs
 from pynchon.util.os import invoke
 
 from pynchon.util import lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-
-
 zzz = "#  recipe to execute (from '"
 vvv="# Variables"
 fff="# files hash-table stats:"
 
-def database(fpath, make='make'):
-    """
-    """
+
+def _get_database(fpath, make='make'):
+    """ """
     tmp = abcs.Path(fpath)
     if not all([tmp.exists,tmp.is_file,]):
         raise ValueError(f"{fpath} does not exist")
@@ -24,9 +23,9 @@ def database(fpath, make='make'):
     resp = invoke(cmd)
     out = resp.stdout.split("\n")
     return out
-get_database=database
 
-def test(x):
+def _test(x):
+    """ """
     return all([
         ":" in x.strip(),
         not x.startswith("#"),
@@ -34,25 +33,30 @@ def test(x):
         not x.startswith("\t"),
     ]
         )
-def get_pline(body):
+def _get_prov_line(body):
     # zzz = "#  recipe to execute (from '"
     pline = [x for x in body if zzz in x]
     pline = pline[0] if pline else None
     return pline
 
-def get_file(body=None,fpath=None):
-    pline = get_pline(body)
+def _get_file(body=None,fpath=None):
+    pline = _get_prov_line(body)
     if pline:
         return pline.split(zzz)[-1] .split('\'')[0]
     else:
         return str(fpath)
-def parser(fpath=None, database=None,
+
+@cli.click.argument('makefile')
+def parse(
+    makefile:str=None, 
     bodies=False,
     **kwargs):
     """ """
+    fpath = makefile
+    import os 
+    assert os.path.exists(fpath)
     wd = abcs.Path(".")
-    if not database:
-        database = get_database(fpath, **kwargs)
+    database = _get_database(fpath, **kwargs)
     original = open(fpath, 'r').readlines()
     variables_start = database.index(vvv)
     variables_end = database.index("", variables_start + 2)
@@ -71,8 +75,8 @@ def parser(fpath=None, database=None,
         implicit_rule_end=implicit_rule_start
     implicit_targets_section = database[implicit_rule_start:implicit_rule_end]
     file_targets_section = database[file_rule_start:file_rule_end]
-    file_target_names = list(filter(test, file_targets_section))
-    implicit_target_names = list(filter(test, implicit_targets_section))
+    file_target_names = list(filter(_test, file_targets_section))
+    implicit_target_names = list(filter(_test, implicit_targets_section))
     targets = file_target_names + implicit_target_names
     out = {}
     for tline in targets:
@@ -82,8 +86,8 @@ def parser(fpath=None, database=None,
         line_start = database.index(tline)
         line_end = database.index("", line_start)
         body = database[line_start:line_end]
-        pline = get_pline(body)
-        file = get_file(body=body,fpath=fpath)
+        pline = _get_prov_line(body)
+        file = _get_file(body=body,fpath=fpath)
         if pline:
             lineno = pline.split("', line ")[-1].split("):")[0]
         else:
@@ -136,4 +140,4 @@ def parser(fpath=None, database=None,
             tmp[k]=v
         out=tmp
     return out
-parse=parser
+parser=parse

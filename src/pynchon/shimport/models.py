@@ -355,30 +355,11 @@ class ModulesWrapper(Base):
         **kwargs,
     ) -> typing.Dict:
         """
-
-        :param exclude_private: bool:  (Default value = True)
-        :param name_is: str:  (Default value = '')
-        :param filter_names: typing.List[typing.Callable]:  (Default value = [])
-        :param filter_vals: typing.List[typing.Callable]:  (Default value = [])
-        :param types_in: typing.List[type(type)]:  (Default value = [])
-        :param filter_module_origin: str:  (Default value = '')
-        :param filter_instances: typing.List[type(type)]:  (Default value = [])
-        :param exclude_names: typing.List[str]:  (Default value = [])
-        :param exclude_private: bool:  (Default value = True)
-        :param name_is: str:  (Default value = '')
-        :param filter_names: typing.List[typing.Callable]:  (Default value = [])
-        :param filter_vals: typing.List[typing.Callable]:  (Default value = [])
-        :param types_in: typing.List[type(type)]:  (Default value = [])
-        :param filter_module_origin: str:  (Default value = '')
-        :param filter_instances: typing.List[type(type)]:  (Default value = [])
-        :param exclude_names: typing.List[str]:  (Default value = [])
-        :param **kwargs:
-
         """
         if name_is:
             filter_names = [lambda name: name == name_is] + filter_names
         if exclude_private:
-            filter_names = [lambda name: not name.startswith("__")] + filter_names
+            filter_names = [lambda name: not name.startswith("_")] + filter_names
 
         if exclude_names:
             filter_names = [
