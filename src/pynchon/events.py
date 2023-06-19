@@ -6,8 +6,17 @@ from blinker import signal  # noqa
 from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
-lifecycle = blinker.signal("lifecyle")
-bootstrap = blinker.signal("bootstrap")
+
+class Signal(blinker.base.Signal):
+    def _cleanup_receiver(self, *args, **kwargs):
+        try:
+            return super(Signal,self)._cleanup_receiver(*args, **kwargs)
+        except (Exception,) as exc:
+            pass 
+            # LOGGER.critical(f"ignoring exception")
+        
+lifecycle = Signal("lifecyle")
+bootstrap = Signal("bootstrap")
 
 
 # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
@@ -64,15 +73,18 @@ def lifecycle_msg(sender, msg=None, **unused):
         tmp = getattr(sender, "name", getattr(sender, "__name__", str(sender)))
         LOGGER.info(f"lifecycle :{tmp}: {msg}")
 
-
+ATTACHED=[]
 def _lifecycle(sender, **signals):
     """ """
     from pynchon import events as THIS
-
     for k in signals:
+        if k in ATTACHED:
+            continue 
+        LOGGER.critical(f'attaching {k}')
         dispatch = getattr(THIS, f"lifecycle_{k}", None)
         assert dispatch
         dispatch(sender, **signals)
+        ATTACHED.append(k)
 
 
 lifecycle.connect(_lifecycle)

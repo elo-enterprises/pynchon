@@ -12,14 +12,14 @@ vvv="# Variables"
 fff="# files hash-table stats:"
 
 
-def _get_database(fpath, make='make'):
+def _get_database(makefile, make='make'):
     """ """
-    tmp = abcs.Path(fpath)
+    tmp = abcs.Path(makefile)
     if not all([tmp.exists,tmp.is_file,]):
-        raise ValueError(f"{fpath} does not exist")
+        raise ValueError(f"{makefile} does not exist")
     else:
-        LOGGER.warning(f"parsing makefile @ {fpath}")
-    cmd = f"{make} --print-data-base -pqRrs -f {fpath}"
+        LOGGER.warning(f"parsing makefile @ {makefile}")
+    cmd = f"{make} --print-data-base -pqRrs -f {makefile}"
     resp = invoke(cmd)
     out = resp.stdout.split("\n")
     return out
@@ -39,12 +39,12 @@ def _get_prov_line(body):
     pline = pline[0] if pline else None
     return pline
 
-def _get_file(body=None,fpath=None):
+def _get_file(body=None,makefile=None):
     pline = _get_prov_line(body)
     if pline:
         return pline.split(zzz)[-1] .split('\'')[0]
     else:
-        return str(fpath)
+        return str(makefile)
 
 @cli.click.argument('makefile')
 def parse(
@@ -52,12 +52,11 @@ def parse(
     bodies=False,
     **kwargs):
     """ """
-    fpath = makefile
     import os 
-    assert os.path.exists(fpath)
+    assert os.path.exists(makefile)
     wd = abcs.Path(".")
-    database = _get_database(fpath, **kwargs)
-    original = open(fpath, 'r').readlines()
+    database = _get_database(makefile, **kwargs)
+    original = open(makefile, 'r').readlines()
     variables_start = database.index(vvv)
     variables_end = database.index("", variables_start + 2)
     vars = database[variables_start:variables_end]
@@ -67,7 +66,6 @@ def parse(
     file_rule_end = database.index(fff)
     for i,line in enumerate(database[implicit_rule_start:]):
         if 'implicit rules, ' in line and line.endswith(' terminal.'):
-
             implicit_rule_end = implicit_rule_start+i
             break
     else:
@@ -80,14 +78,20 @@ def parse(
     targets = file_target_names + implicit_target_names
     out = {}
     for tline in targets:
-        target_name, childs = tline.split(":")
+        bits=tline.split(":")
+        target_name=bits.pop(0)
+        childs = ':'.join(bits)
+        # try:
+        #     target_name, childs = 
+        # except (ValueError,) as exc:
+        #      import IPython; IPython.embed()
         type = "implicit" if tline in implicit_targets_section else "file"
         # NB: line nos are from reformatted output, not original file
         line_start = database.index(tline)
         line_end = database.index("", line_start)
         body = database[line_start:line_end]
         pline = _get_prov_line(body)
-        file = _get_file(body=body,fpath=fpath)
+        file = _get_file(body=body,makefile=makefile)
         if pline:
             lineno = pline.split("', line ")[-1].split("):")[0]
         else:

@@ -97,25 +97,34 @@ class AppConsole(AppBase):
 
 class AppExitHooks(AppBase):
     """ """
-
+    hooks_installed = False
     # https://stackoverflow.com/questions/9741351/how-to-find-exit-code-or-reason-when-atexit-callback-is-called-in-python
 
     # def uninstall(self):
     def install_exit_hooks(self) -> None:
-        self.events.lifecycle.send(self, msg="Installing exit handlers")
-        self._orig_exit = sys.exit
-        self._orig_exc_handler = self.exc_handler
-        sys.exit = self.exit
-        sys.excepthook = self.exc_handler
-        atexit.register(self.exit_handler)
+        if not self.hooks_installed:
+            msg="Installing exit handlers"
+            LOGGER.critical(msg)
+            self.events.lifecycle.send(self, msg=msg)
+            self._sys_exit = sys.exit
+            self._orig_exc_handler = sys.excepthook
+            sys.exit = self.exit
+            sys.excepthook = self.exc_handler
+            atexit.register(self.exit_handler)
+            self.hooks_installed=True
 
     def exit(self, code=0):
         self.exit_code = code
-        self._orig_exit(code)
+        self._sys_exit(code)
 
     def exc_handler(self, exc_type, exc, *args):
         self.exception = exc
-        self._orig_exc_handler(self, exc_type, exc, *args)
+        # import sys
+        # ex_type, ex_value, traceback = sys.exc_info()
+        # raise ex_type(ex_value)
+        tmp = f"death by exc: ({self.exc})"
+        self.events.lifecycle.send(self, stage=tmp)
+        return self._orig_exc_handler(exc_type, exc, *args)
 
     def sys_exit_handler(self):
         if self.exit_code is not None and not self.exit_code == 0:
@@ -133,15 +142,21 @@ class AppExitHooks(AppBase):
     def exc_exit_handler(self):
         """ """
         if self.exception is not None:
-            text = f"Exception: {self.exception}"
+            text = f"exc_exit_handler: {self.exception}"
+            LOGGER.critical(text)
             text = self.Text(text)
             text.stylize("bold red", 0, 6)
             self.console.print(text)
             self.events.lifecycle.send(self, stage="❌")
-
+            return True
     def default_exit_handler(self):
         """ """
-        # LOGGER.info("ok")
+        exc=self.exception
+        if exc:
+            LOGGER.critical(f"default_exit_handler: encountered exception")
+            self.events.lifecycle.send(self, stage="❌")
+        else:
+            LOGGER.critical("exit ok")
         return True
 
 
