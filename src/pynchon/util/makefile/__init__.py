@@ -12,8 +12,10 @@ vvv="# Variables"
 fff="# files hash-table stats:"
 
 
-def _get_database(makefile, make='make'):
+@cli.click.argument('makefile')
+def database(makefile:str='', make='make'):
     """ """
+    assert makefile
     tmp = abcs.Path(makefile)
     if not all([tmp.exists,tmp.is_file,]):
         raise ValueError(f"{makefile} does not exist")
@@ -22,7 +24,8 @@ def _get_database(makefile, make='make'):
     cmd = f"{make} --print-data-base -pqRrs -f {makefile}"
     resp = invoke(cmd)
     out = resp.stdout.split("\n")
-    return out
+    import collections 
+    return collections.OrderedDict(enumerate(out))
 
 def _test(x):
     """ """
@@ -55,24 +58,24 @@ def parse(
     import os 
     assert os.path.exists(makefile)
     wd = abcs.Path(".")
-    database = _get_database(makefile, **kwargs)
+    db = list(database(makefile, **kwargs).values())
     original = open(makefile, 'r').readlines()
-    variables_start = database.index(vvv)
-    variables_end = database.index("", variables_start + 2)
-    vars = database[variables_start:variables_end]
-    database = database[variables_end:]
-    implicit_rule_start = database.index("# Implicit Rules")
-    file_rule_start = database.index("# Files")
-    file_rule_end = database.index(fff)
-    for i,line in enumerate(database[implicit_rule_start:]):
+    variables_start = db.index(vvv)
+    variables_end = db.index("", variables_start + 2)
+    vars = db[variables_start:variables_end]
+    db = db[variables_end:]
+    implicit_rule_start = db.index("# Implicit Rules")
+    file_rule_start = db.index("# Files")
+    file_rule_end = db.index(fff)
+    for i,line in enumerate(db[implicit_rule_start:]):
         if 'implicit rules, ' in line and line.endswith(' terminal.'):
             implicit_rule_end = implicit_rule_start+i
             break
     else:
         LOGGER.critical('cannot find `implicit_rule_end`!')
         implicit_rule_end=implicit_rule_start
-    implicit_targets_section = database[implicit_rule_start:implicit_rule_end]
-    file_targets_section = database[file_rule_start:file_rule_end]
+    implicit_targets_section = db[implicit_rule_start:implicit_rule_end]
+    file_targets_section = db[file_rule_start:file_rule_end]
     file_target_names = list(filter(_test, file_targets_section))
     implicit_target_names = list(filter(_test, implicit_targets_section))
     targets = file_target_names + implicit_target_names
@@ -81,27 +84,28 @@ def parse(
         bits=tline.split(":")
         target_name=bits.pop(0)
         childs = ':'.join(bits)
-        # try:
-        #     target_name, childs = 
-        # except (ValueError,) as exc:
-        #      import IPython; IPython.embed()
         type = "implicit" if tline in implicit_targets_section else "file"
         # NB: line nos are from reformatted output, not original file
-        line_start = database.index(tline)
-        line_end = database.index("", line_start)
-        body = database[line_start:line_end]
+        line_start = db.index(tline)
+        line_end = db.index("", line_start)
+        body = db[line_start:line_end]
         pline = _get_prov_line(body)
         file = _get_file(body=body,makefile=makefile)
         if pline:
+            # take advice from make's database.  
+            # we return this because it's authoritative,
+            # but actually sometimes it's wrong.  this returns 
+            # the first like of the target that's tab-indented,
+            # but sometimes make macros like `ifeq` are not indented..
             lineno = pline.split("', line ")[-1].split("):")[0]
         else:
             try:
                 lineno = original.index(tline)
             except ValueError:
                 LOGGER.critical(f'cant find {tline} in {file}, parametric?')
-                target_name
+                # target_name
                 lineno = None
-        lineno = lineno and int(lineno)
+        lineno = lineno and (int(lineno)-1)
         prereqs = [x for x in childs.split() if x.strip()]
         out[target_name] = dict(
             file=file,

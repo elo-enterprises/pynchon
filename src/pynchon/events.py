@@ -73,18 +73,18 @@ def lifecycle_msg(sender, msg=None, **unused):
         tmp = getattr(sender, "name", getattr(sender, "__name__", str(sender)))
         LOGGER.info(f"lifecycle :{tmp}: {msg}")
 
-ATTACHED=[]
+# ATTACHED=[]
 def _lifecycle(sender, **signals):
     """ """
     from pynchon import events as THIS
     for k in signals:
-        if k in ATTACHED:
-            continue 
-        LOGGER.critical(f'attaching {k}')
+        # if k in ATTACHED:
+        #     continue 
+        # LOGGER.critical(f'attaching {k}')
         dispatch = getattr(THIS, f"lifecycle_{k}", None)
         assert dispatch
         dispatch(sender, **signals)
-        ATTACHED.append(k)
+        # ATTACHED.append(k)
 
 
 lifecycle.connect(_lifecycle)
