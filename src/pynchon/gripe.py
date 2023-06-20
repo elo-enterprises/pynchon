@@ -26,7 +26,7 @@ class PortBusy(RuntimeError):
 
 def _current_gripe_procs() -> typing.List[psutil.Process]:
     """ """
-    return filter_pids(name="flask", cmdline__contains=FLASK_GRIPE_APP)
+    return filter_pids(cmdline__contains=FLASK_GRIPE_APP)
 
 
 def get_port(proc):
@@ -56,7 +56,7 @@ def _do_serve(background=True, port="6149"):
     port_used = port in _used_ports()
     if port_used:
         raise PortBusy(f"port {port} is in use!")
-    cmd = f"flask --app {FLASK_GRIPE_APP} run --port {port}>> {logfile} 2>&1 {bg}"
+    cmd = f"flask --app {FLASK_GRIPE_APP} run --port {port} >> {logfile} 2>&1 {bg}"
     LOGGER.critical("starting server with command:")
     LOGGER.critical(f"  '{cmd}'")
     return os.system(cmd)
@@ -127,6 +127,7 @@ def entry():
 def _list():
     """Lists running all running servers"""
     result = dict(local=[], foreign=[])
+    # raise Exception(_current_gripe_procs())
     for proc in _current_gripe_procs():
         key = "local" if _is_my_grip(proc.as_dict()) else "foreign"
         result[key].append(
@@ -195,9 +196,6 @@ def start(
             raise SystemExit(error)
         else:
             LOGGER.warning("Launched server, looking for process..")
-            import IPython
-
-            IPython.embed()
             return True
 
     return result

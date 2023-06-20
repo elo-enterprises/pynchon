@@ -85,7 +85,7 @@ class Semantics:
                 item = " ".join(item)
             newp.append(item)
         result = newp
-        return "\n  ".join(result)
+        return "\n  ".join(map(str, result))
 
     def shell_command(self, ast):
         LOGGER.warning(f"shell_command: {ast}")

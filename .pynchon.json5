@@ -4,7 +4,7 @@
   "plugins": [
     // defaults; these are included anyway
     'globals', 'render', 'gen', 'project', 'plugins',
-    'jinja', 'json', 'git', 'core', 'python',
+    'jinja', 'json', 'git', 'core', 'python', 'gripe',
 
     // Recommended for projects with source-code
     "docs", "src", "tests", "cicd", "fixme", "github",

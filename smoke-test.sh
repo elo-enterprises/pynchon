@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
+python -m pynchon.gripe ls
 pynchon python-libcst gen docstrings --help
 pynchon --help
 python -mpynchon --help

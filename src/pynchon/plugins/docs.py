@@ -40,7 +40,14 @@ class OpenerMixin:
         """
         pfile = abcs.Path(file).absolute()
         relf = pfile.relative_to(abcs.Path(self.git_root))
-        grip_url = f"http://localhost:{self.server.port}/{relf}"
+        port = self.server.port
+        if port is None:
+            LOGGER.critical('no server yet..')
+            self.serve()
+            import time
+            time.sleep(3)
+            return self._open_grip(file= file)
+        grip_url = f"http://localhost:{port}/{relf}"
         LOGGER.warning(f"opening {grip_url}")
         return dict(url=grip_url, browser=webbrowser.open(grip_url))
 
@@ -59,6 +66,7 @@ class OpenerMixin:
     _open__jpg = _open_raw
     _open__jpeg = _open_raw
     _open__gif = _open_raw
+    _open__svg = _open_raw
     _open__htm = _open__html
 
 
@@ -87,7 +95,8 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
     @property
     def server_pid(self):
-        return self.server.proc.pid
+        tmp=self.server.proc 
+        return tmp and tmp.pid
 
     @property
     def server_url(self):
@@ -139,13 +148,15 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     ) -> typing.Dict[str, str]:
         """
         Runs a `grip` server for this project
-
         :param background: bool:  (Default value = True)
         :param force: bool:  (Default value = False)
         """
+        LOGGER.critical("running serve")
         args = "--force" if force else ""
         if not self.server.live or force:
-            assert invoke(f"python -m pynchon.gripe start {args}").succeeded
+            cmd = f"python -m pynchon.gripe start {args}"
+            LOGGER.critical(cmd)
+            assert invoke(cmd).succeeded
         return dict(url=self.server_url, pid=self.server_pid)
 
     @tagging.tags(click_aliases=["op", "opn"])
