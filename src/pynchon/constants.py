@@ -22,6 +22,8 @@ DEFAULT_PLUGINS = [
     "render",
     "json",
     "jinja",
+    "src",
+    "docs",
 ]
 PYNCHON_EMBEDDED_TEMPLATES_ROOT = PETR = Path(__file__).parents[0] / "templates"
 PYNCHON_CORE_INCLUDES_DIRS = (PYNCHON_EMBEDDED_TEMPLATES_ROOT / "includes",)

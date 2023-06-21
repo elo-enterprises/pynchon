@@ -3,6 +3,9 @@
 
 from pynchon import abcs, cli, constants, events, models  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util.os import invoke
+from pynchon.util import text
+from pynchon.api import render
 
 LOGGER = lme.get_logger(__name__)
 
@@ -11,7 +14,12 @@ PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
 @tagging.tags(click_aliases=["pat"])
 class Pattern(models.ResourceManager):
-    """Tools for working with file/directory patterns"""
+    """
+    Tools for working with file/directory patterns
+    """
+
+    name = "pattern"
+    cli_name = "pattern"
 
     class config_class(abcs.Config):
         config_key = "pattern"
@@ -23,8 +31,6 @@ class Pattern(models.ResourceManager):
             assert tmp.exists(), tmp
             return tmp
 
-    name = "pattern"
-    cli_name = "pattern"
 
     @property
     def patterns(self) -> typing.Dict:
@@ -57,7 +63,6 @@ class Pattern(models.ResourceManager):
     @cli.click.argument("kind", nargs=1)
     def _open(self, kind):
         """open pattern in editor"""
-        from pynchon.util.os import invoke
 
         pfolder = self.pattern_folder / kind
         ed = self[:"pynchon.editor":"atom"]
@@ -75,18 +80,18 @@ class Pattern(models.ResourceManager):
             LOGGER.critical(f"unrecognized pattern `{kind}`; expected one of {tmp}")
             raise SystemExit(1)
 
+    @cli.options.plan
     @cli.click.argument("dest", nargs=1)
-    def render(self, dest):
-        """Renders content in DEST"""
-        folder = abcs.Path(dest)
+    def render(self, dest, should_plan:bool=False):
+        """Renders content inside folder @ DEST"""
+        folder = abcs.Path(dest).absolute()
+        name = folder.name
         if not folder.exists():
-            self.logger.critical(f"folder @ {folder} does not exist!")
+            self.logger.critical(f"Folder @ {folder} does not exist!")
         else:
             plan = super(self.__class__, self).plan()
-            name = folder.stem
             dirs = list([x for x in folder.glob("**/") if x.is_dir()])
             files = list([x for x in folder.glob("*") if not x.is_dir()])
-            from pynchon.api import render
 
             # struct=dict(files=files, dirs=dirs)
             for d in dirs:
@@ -111,17 +116,46 @@ class Pattern(models.ResourceManager):
                             type="move",
                         )
                     )
-            results = self.apply(plan)
             files = list([x for x in folder.glob("*") if not x.is_dir()])
+            rendered_files=[]
+            
             for f in files:
-                LOGGER.warning(f"rendering {f} in-place")
-                tmpl = render.get_template_from_file(f)
-                assert tmpl
-                rendered = tmpl.render(name=name, **self.project_config)
-                with open(f, "w") as fhandle:
-                    fhandle.write(rendered)
-            return dict(rendered=files)
+                with open(f, "r") as fhandle:
+                    if render.is_templated(fhandle.read()):
+                        plan.append(self.goal(
+                            resource=f, 
+                            command=f"pynchon pattern render-file {f} --name {name}",
+                            type="render",
+                        ))
 
+            if should_plan:
+                return plan
+            else:
+                return self.apply(plan)
+                # return dict(rendered=rendered_files)
+
+    @cli.click.option("--name", required=True)
+    @cli.click.argument("dest", nargs=1)
+    def render_file(self, dest, name=''):
+        """
+        """
+        f = abcs.Path(dest)
+        assert f.exists()
+        
+        LOGGER.warning(f"rendering `{f}` in-place")
+        try:
+            tmpl = render.get_template_from_file(f)
+        except (Exception,) as exc:
+            LOGGER.critical(f'failed to get_template_from_file @ {f}: {exc}')
+            raise SystemExit(1)
+        else:
+            assert tmpl
+            rendered = tmpl.render(
+                name=name, 
+                **self.project_config)
+            with open(f, "w") as fhandle:
+                fhandle.write(rendered)
+            return True
     @cli.click.argument("dest", nargs=1)
     @cli.click.argument("kind", nargs=1)
     def clone(self, kind: str = None, name: str = None):
@@ -143,18 +177,16 @@ class Pattern(models.ResourceManager):
             choices = set(self.list().keys())
             tmp = pfolder.relative_to(abcs.Path(".").absolute())
             LOGGER.critical(
-                f'Kind @ "{name}" suggests pattern-folder @ "{tmp}", but folder does not exist!'
+                f'KIND @ "{name}" suggests pattern-folder @ "{tmp}", but folder does not exist!'
             )
             LOGGER.critical(f"Choices are: {choices}")
         else:
             plan = super(self.__class__, self).plan()
-            dest = abcs.Path(name).absolute()
+            dest = abcs.Path(name).absolute() 
             if dest.exists():
-                LOGGER.critical(f"{dest} already exists!")
-                return False
+                LOGGER.warning(f"{dest} already exists!")
             fadvice = pfolder / ".scaffold.advice.json5"
             if fadvice.exists():
-                from pynchon.util import text
 
                 advice = text.loadf.json5(file=fadvice)
                 inherits = advice.get("inherits", [])
@@ -165,7 +197,7 @@ class Pattern(models.ResourceManager):
             LOGGER.warning(f"{kind} inherits {len(inherits)} patterns")
             dest = dest.relative_to(abcs.Path(".").absolute())
             for parent in inherits:
-                parent = parent.relative_to(abcs.Path(".").absolute())
+                # parent = parent.relative_to(abcs.Path(".").absolute())
                 plan.append(
                     self.goal(
                         command=f"cp -rfv {parent} {dest}",
