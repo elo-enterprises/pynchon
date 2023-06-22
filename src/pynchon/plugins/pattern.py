@@ -72,26 +72,52 @@ class Pattern(models.ResourceManager):
     @cli.click.argument("dest", nargs=1)
     @cli.options.plan
     def sync(self, should_plan: bool = False, dest: str = None, kind: str = None):
-        """Synchronize DEST from KIND"""
+        """ Synchronize DEST from KIND """
         # https://github.com/cookiecutter/cookiecutter/issues/784
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
         tmp = self.pattern_names
         if kind not in tmp:
             LOGGER.critical(f"unrecognized pattern `{kind}`; expected one of {tmp}")
             raise SystemExit(1)
-
+        plan = []
+        destp = abcs.Path(dest)
+        folder = abcs.Path(dest).absolute()
+        for f in self._get_template_files(destp):
+            after = self._render_file(dest=f)
+            with open(f,'r') as fhandle:
+                before = fhandle.read()
+            if before!=after:
+                # LOGGER.critical('rendering {f} creates changes!')
+                fabs=f.absolute()
+                plan.append(self.goal(
+                    type='sync',
+                    command=f'cp {} {fabs}',
+                    resource=f,
+                    ))
+        if should_plan:
+            LOGGER.critical( plan )
+            return plan
+        else:
+            return plan.apply() #return dict(changes=changes)
+    
+    def _get_template_files(self, folder) -> typing.List:
+        return list([x for x in folder.glob("*") if not x.is_dir()])
+    
+    def _get_template_dirs(self, folder) -> typing.List:
+        return list([x for x in folder.glob("**/") if x.is_dir()])
+    
     @cli.options.plan
     @cli.click.argument("dest", nargs=1)
     def render(self, dest, should_plan:bool=False):
-        """Renders content inside folder @ DEST"""
+        """ Renders content inside folder @ DEST """
         folder = abcs.Path(dest).absolute()
         name = folder.name
         if not folder.exists():
             self.logger.critical(f"Folder @ {folder} does not exist!")
         else:
             plan = super(self.__class__, self).plan()
-            dirs = list([x for x in folder.glob("**/") if x.is_dir()])
-            files = list([x for x in folder.glob("*") if not x.is_dir()])
+            dirs = self._get_template_dirs(folder)
+            files = self._get_template_files(folder)
 
             # struct=dict(files=files, dirs=dirs)
             for d in dirs:
@@ -117,7 +143,7 @@ class Pattern(models.ResourceManager):
                         )
                     )
             files = list([x for x in folder.glob("*") if not x.is_dir()])
-            rendered_files=[]
+            # rendered_files=[]
             
             for f in files:
                 with open(f, "r") as fhandle:
@@ -132,30 +158,37 @@ class Pattern(models.ResourceManager):
                 return plan
             else:
                 return self.apply(plan)
-                # return dict(rendered=rendered_files)
 
     @cli.click.option("--name", required=True)
     @cli.click.argument("dest", nargs=1)
-    def render_file(self, dest, name=''):
-        """
-        """
+    def render_file(self, dest=None, name='') -> bool:
+        """ """
         f = abcs.Path(dest)
         assert f.exists()
-        
+        rendered = self._render_file(dest=dest,name=name)
+        if rendered is None:
+            raise SystemExit(1)
+        else:
+            with open(f, "w") as fhandle:
+                fhandle.write(rendered)
+            return True
+
+    def _render_file(self, dest=None, name='') -> str:
+        """ """
+        f = abcs.Path(dest)
         LOGGER.warning(f"rendering `{f}` in-place")
         try:
             tmpl = render.get_template_from_file(f)
         except (Exception,) as exc:
             LOGGER.critical(f'failed to get_template_from_file @ {f}: {exc}')
-            raise SystemExit(1)
+            return None
         else:
             assert tmpl
             rendered = tmpl.render(
                 name=name, 
-                **self.project_config)
-            with open(f, "w") as fhandle:
-                fhandle.write(rendered)
-            return True
+                **self.project_config)            
+            return rendered 
+
     @cli.click.argument("dest", nargs=1)
     @cli.click.argument("kind", nargs=1)
     def clone(self, kind: str = None, name: str = None):
