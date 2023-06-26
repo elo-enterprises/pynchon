@@ -88,10 +88,10 @@ class Pattern(models.ResourceManager):
                 before = fhandle.read()
             if before!=after:
                 # LOGGER.critical('rendering {f} creates changes!')
-                fabs=f.absolute()
+                fabs = f.absolute()
                 plan.append(self.goal(
                     type='sync',
-                    command=f'cp {} {fabs}',
+                    command=f'cp {destp} {fabs}',
                     resource=f,
                     ))
         if should_plan:
