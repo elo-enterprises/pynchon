@@ -11,7 +11,14 @@ LOGGER = lme.get_logger(__name__)
 class GitConfig(abcs.Config):
     """ """
 
-    config_key = "git"
+    _root: str = None
+    config_key: typing.ClassVar[str] = 'git'
+    
+    class Config:
+        fields = {
+            # '_root': 'root',
+            '_repo': 'repo',
+        }
 
     def _run(self, cmd, log_command=False, **kwargs):
         """
@@ -22,21 +29,25 @@ class GitConfig(abcs.Config):
         if self.root:
             pre = f"cd {self.root} && " if self.root else ""
             return os.invoke(f"{pre}{cmd}", log_command=log_command, **kwargs)
-
-    @memoized_property
-    def default_remote_branch(self) -> typing.StringMaybe:
-        """ """
-        tmp = self._run("git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'")
-        if tmp and tmp.succeeded:
-            return tmp.stdout.strip() or None
+    # 
+    # @memoized_property
+    # def default_remote_branch(self) -> typing.StringMaybe:
+    #     """ """
+    #     tmp = self._run("git remote show origin " "| sed -n '/HEAD branch/s/.*: //p'")
+    #     if tmp and tmp.succeeded:
+    #         return tmp.stdout.strip() or None
 
     @property
     def root(self) -> typing.StringMaybe:
         """ """
+        tmp = self.__dict__.get('_root')
+        if tmp:
+            return tmp
         tmp = files.get_git_root(abcs.Path("."))
         return tmp and tmp.parents[0]
 
-    @memoized_property
+    # @memoized_property
+    @property
     def repo(self) -> typing.StringMaybe:
         """ """
         cmd = self._run("git config --get remote.origin.url")

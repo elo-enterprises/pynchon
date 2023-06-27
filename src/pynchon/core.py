@@ -52,17 +52,24 @@ def validate(kls=None, self=None, vdata=None):
 
     for k, v in dict(self).items():
         validate_config(k, v)
-
+DEFAULT_PLUGINS = list(set(constants.DEFAULT_PLUGINS))
 
 class Config(abcs.Config):
     """ """
+    priority: typing.ClassVar[int] = 1
+    config_key: typing.ClassVar[str] = "pynchon"
+    class Config:
+        fields = {
+            '_root': 'root',
+        }
+        arbitrary_types_allowed = True
+        #https://github.com/pydantic/pydantic/discussions/5159
+        frozen = True
 
-    priority = 1
-    config_key = "pynchon"
-    defaults = dict(
-        version=__version__,
-        plugins=list(set(constants.DEFAULT_PLUGINS)),
-    )
+    # defaults = dict(
+    #     version=__version__,
+    #     # plugins=DEFAULT_PLUGINS,
+    # )
     __class_validators__ = []
     __instance_validators__ = [
         validate,
@@ -70,7 +77,7 @@ class Config(abcs.Config):
 
     def __init__(self, **core_config):
         if not core_config:
-            self.logger.critical("core config is empty!")
+            LOGGER.critical("core config is empty!")
         super().__init__(**core_config)
 
     @property
@@ -79,12 +86,9 @@ class Config(abcs.Config):
         * user-config
         * os-env
         * {{git.root}}
-
-
         """
         from pynchon import config
-
-        root = self.get("root")
+        root = self.__dict__.get('_root')
         root = root or os.environ.get("PYNCHON_ROOT")
         root = root or config.GIT.get("root")
         root = root or self.working_dir
@@ -98,13 +102,12 @@ class Config(abcs.Config):
         always decided here, and must merge user-input
         from config files, plus any overrides on cli,
         plus pynchon's core set of default plugins.
-
-
         """
-        defaults = self.__class__.defaults["plugins"]
-        result = sorted(list(set(self.get("plugins", []) + defaults)))
-        self["plugins"] = result
-        return result
+        defaults = DEFAULT_PLUGINS
+        return defaults
+        # result = sorted(list(set(self["plugins"] + defaults)))
+        # self["plugins"] = result
+        # return result
 
     @property
     def working_dir(self):

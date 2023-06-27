@@ -48,9 +48,10 @@ pynchon = PYNCHON = CoreConfig(
     **MERGED_CONFIG_FILES,
 )
 RAW = PYNCHON.copy()
-PLUGINS = PYNCHON["plugins"] = list(
-    set(PYNCHON["plugins"] + PYNCHON.plugins + ["core"])
-)
+# PLUGINS = PYNCHON["plugins"] = list(
+#     set(PYNCHON["plugins"] + PYNCHON.plugins + ["core"])
+# )
+PLUGINS = PYNCHON["plugins"] 
 
 # FIXME: get from registry or mcls
 _all_names = PLUGINS + Meta.NAMES
@@ -61,7 +62,8 @@ events.lifecycle.send(
     msg=msg,
     stage=msg,
 )
-PYNCHON_CORE = {x: PYNCHON[x] for x in PYNCHON if x not in _all_names}
+# import IPython; IPython.embed()
+PYNCHON_CORE = {x: PYNCHON[x] for x in PYNCHON.__fields__.keys() if x not in _all_names}
 PYNCHON_CORE = CoreConfig(**PYNCHON_CORE)
 
 msg = "Interpolating config.."

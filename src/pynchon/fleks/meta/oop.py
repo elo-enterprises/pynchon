@@ -15,8 +15,50 @@ class ClassMalformed(TypeError):
 
 
 from .namespace import namespace
+def filter_by_type(
+    namespace=None, 
+    kls=None, 
+    type=None
+):
+    """ """
+    assert type is not None 
+    namespace = namespace if namespace is not None else dict([[k,getattr(kls,k)] for k in dir(kls)])
+    return [
+        k for k, v in namespace.items() if isinstance(v, type)
+    ]
 
+def get_class_properties(
+    namespace=None, 
+    kls=None) -> typing.List[str]:
+    """ """
+    return filter_by_type(
+        namespace=namespace,kls=kls,
+        type=typing.classproperty)
 
+def get_properties(
+    namespace=None, 
+    kls=None) -> typing.List[str]:
+    """ """
+    return filter_by_type(
+        namespace=namespace,kls=kls,
+        type=property)
+
+def aggregate_across_bases(
+    var: str = "",
+    tspec: type_spec = None,
+    name=None, bases=None, namespace=None,
+):
+    """ aggregates values at `var` across all bases """
+    namespace = namespace if namespace is not None else tspec.namespace
+    bases = bases if bases is not None else tspec.bases
+    name = name if name is not None else tspec.name
+    tracked = namespace.get(var, [])
+    for b in bases:
+        bval = getattr(b, var, [])
+        assert isinstance(bval, list), bval
+        tracked += bval
+    return tracked
+    
 class ValidationResults(typing.NamedTuple, metaclass=namespace):
     suite: str = "default"
     warnings: typing.Dict[str, typing.List[typing.Any]] = collections.defaultdict(list)
@@ -48,26 +90,6 @@ class Meta(type):
         kls = super().__new__(mcls, name, bases, namespace)
         kls.__validate_class__(kls)
         return kls
-
-    @staticmethod
-    def aggregate_across_bases(
-        var: str = "",
-        tspec: type_spec = None,
-    ):
-        """aggregates values at `var` across all bases
-
-        :param var: str:  (Default value = '')
-        :param tspec: type_spec:  (Default value = None)
-        :param var: str:  (Default value = '')
-        :param tspec: type_spec:  (Default value = None)
-
-        """
-        tracked = tspec.namespace.get(var, [])
-        for b in tspec.bases:
-            bval = getattr(b, var, [])
-            assert isinstance(bval, list), bval
-            tracked += bval
-        return tracked
 
     @classmethod
     def register(
@@ -187,19 +209,19 @@ class Meta(type):
         name, bases, namespace = tspec.name, tspec.bases, tspec.namespace
         # __class_properties__ tracks class-properties[1]
         # from this class, and inherents them from all bases
-        class_props = mcls.aggregate_across_bases(
+        class_props = aggregate_across_bases(
             var="__class_properties__",
-            tspec=tspec,
+            name=name, bases=bases, namespace=namespace,
+            # tspec=tspec,
         )
-        class_props += [
-            k for k, v in namespace.items() if isinstance(v, typing.classproperty)
-        ]
+        class_props += get_class_properties(namespace=namespace)
         class_props = list(set(class_props))
         namespace.update({"__class_properties__": class_props})
         # __methods__ tracks instance-methods[1]
         # from this class, and inherents them from all bases
         # NB: this won't inherit private names (i.e. `_*')
-        instance_methods = mcls.aggregate_across_bases(var="__methods__", tspec=tspec)
+        instance_methods = aggregate_across_bases(
+            var="__methods__", tspec=tspec)
         instance_methods += [
             k
             for k, v in namespace.items()
@@ -210,7 +232,7 @@ class Meta(type):
         # __properties__ tracks instance-properties[1]
         # for this class, and inherents them from all bases
         # NB: this won't inherit private names (i.e. `_*')
-        instance_properties = mcls.aggregate_across_bases(
+        instance_properties = aggregate_across_bases(
             var="__properties__",
             tspec=tspec,
         )

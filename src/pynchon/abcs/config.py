@@ -8,49 +8,112 @@ from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
 
+from pydantic import BaseModel, Field,main #ModelMetaclass
+##########################
+class BaseConfig(BaseModel):
+    config_key:str = Field(required=True, default=None)
 
 class Config(
-    dict,
-    metaclass=Meta,
+    BaseModel,
+    # metaclass=type('MetaD', tuple([main.ModelMetaclass,Meta]), {})
+    # metaclass=Meta,
 ):
     """ """
+    # __hash__ = object.__hash__
+    config_key: typing.ClassVar[str] = None
+    
+    class Config:
+        arbitrary_types_allowed = True
+        #https://github.com/pydantic/pydantic/discussions/5159
+        frozen = True
+    # debug = False
+    # parent = None
+    # priority = 100
+    # config_key = None
+    # override_from_base = True
+    @classmethod
+    def get_properties(cls):
+        return [prop for prop in dir(cls) if isinstance(getattr(cls, prop), property) and prop not in ("__values__", "fields")]
 
-    debug = False
-    parent = None
-    priority = 100
-    config_key = None
-    override_from_base = True
+    def dict(
+        self,
+        *,
+        include= None,
+        exclude = None,
+        by_alias: bool = False,
+        skip_defaults: bool = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+    ) -> 'DictStrAny':
+        attribs = super().dict(
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            skip_defaults=skip_defaults,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none
+        )
+        props = self.get_properties()
+        # Include and exclude properties
+        if include:
+            props = [prop for prop in props if prop in include]
+        if exclude:
+            props = [prop for prop in props if prop not in exclude]
 
+        # Update the attribute dict with the properties
+        if props:
+            attribs.update({prop: getattr(self, prop) for prop in props})
+        return attribs
+    
+    def __getitem__(self, key, ):
+        if isinstance(key, (slice,)):
+            start, stop, step = key.start, key.stop, key.step
+            raise Exception('niy')
+        try:
+            return self.dict(exclude_unset=True, by_alias=True)[key]
+        except (KeyError,TypeError) as exc:
+            import IPython; IPython.embed()
+            raise
+    
+    def as_dict(self):
+        return self.dict(exclude_unset=True, by_alias=True)
+    
+    def get(self, k, default=None):
+        """
+        """
+        return self.as_dict().get(k,default)
+    
+    def items(self):
+        return self.as_dict().items()
     def __init__(self, **this_config) -> None:
         """
-
-        :param **this_config:
-
         """
         called_defaults = this_config
         kls_defaults = getattr(self.__class__, "defaults", {})
         super().__init__(**{**kls_defaults, **called_defaults})
-        conflicts = []
-        for pname in self.__class__.__properties__:
-            if pname in called_defaults or pname in kls_defaults:
-                conflicts.append(pname)
-                continue
-            else:
-                self[pname] = getattr(self, pname)
-        self.resolve_conflicts(conflicts)
+        # conflicts = []
+        # for pname in self.__class__.__properties__:
+        #     if pname in called_defaults or pname in kls_defaults:
+        #         conflicts.append(pname)
+        #         continue
+        #     else:
+        #         self[pname] = getattr(self, pname)
+        # self.resolve_conflicts(conflicts)
 
-    @typing.classproperty
-    def _logging_name(kls):
-        return f"<{kls.__name__}['{kls.config_key}']"
+    # @typing.classproperty
+    # def _logging_name(kls):
+    #     return f"<{kls.__name__}['{kls.config_key}']"
 
-    @typing.classproperty
-    def logger(kls):
-        """
-
-        :param kls:
-
-        """
-        return lme.get_logger(f"{kls._logging_name}")
+    # @typing.classproperty
+    # def logger(kls):
+    #     """
+    # 
+    #     :param kls:
+    # 
+    #     """
+    #     return lme.get_logger(f"{kls._logging_name}")
 
     def resolve_conflicts(self, conflicts: typing.List) -> None:
         """
@@ -87,7 +150,7 @@ class Config(
             tmp = text.to_json(user_wins)
             self.logger.info(f"{msg}\n  {tmp}")
 
-    def __repr__(self):
-        return f"<{self.__class__._logging_name}>"
+    # def __repr__(self):
+    #     return f"<{self.__class__._logging_name}>"
 
-    __str__ = __repr__
+    # __str__ = __repr__
