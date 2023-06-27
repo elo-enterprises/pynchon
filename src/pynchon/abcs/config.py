@@ -1,5 +1,6 @@
 """ pynchon.abcs.config
 """
+import json 
 import collections
 
 from pynchon.util import lme, text, typing
@@ -77,8 +78,12 @@ class Config(
             import IPython; IPython.embed()
             raise
     
-    def as_dict(self):
-        return self.dict(exclude_unset=True, by_alias=True)
+    def as_dict(self, **kwargs):
+        kwargs.update(exclude_unset=True, by_alias=True)
+        return self.dict(**kwargs)
+    
+    def json(self, **kwargs):
+        return text.to_json(self.as_dict(**kwargs))
     
     def get(self, k, default=None):
         """
@@ -104,7 +109,6 @@ class Config(
 
     # @typing.classproperty
     # def _logging_name(kls):
-    #     return f"<{kls.__name__}['{kls.config_key}']"
 
     # @typing.classproperty
     # def logger(kls):
@@ -149,8 +153,13 @@ class Config(
             msg = "these keys have defaults, but user-provided config wins: "
             tmp = text.to_json(user_wins)
             self.logger.info(f"{msg}\n  {tmp}")
+    
+    # def __iter__(self):
+    #     return iter(self.as_dict())
+    # def __rich__(self):
+    #     return self.as_dict()
+    
+    def __repr__(self):
+        return f"<{self.__class__.__name__}['{self.__class__.config_key}']>"
 
-    # def __repr__(self):
-    #     return f"<{self.__class__._logging_name}>"
-
-    # __str__ = __repr__
+    __str__ = __repr__

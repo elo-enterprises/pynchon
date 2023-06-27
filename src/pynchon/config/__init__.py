@@ -21,7 +21,7 @@ events = app.events
 msg = "Loading raw-config from OS.."
 events.lifecycle.send(__name__, stage=msg)
 git = GIT = GitConfig()
-
+# import IPython; IPython.embed()
 msg = "Building raw-config from files.."
 events.lifecycle.send(
     __name__,
@@ -73,4 +73,6 @@ events.lifecycle.send(
     stage=msg,
 )
 
-USER_DEFAULTS = render.dictionary(input=RAW.copy(), context=dict(pynchon=RAW))
+USER_DEFAULTS = {}
+# USER_DEFAULTS = render.dictionary(
+#     input=RAW.copy(), context=dict(pynchon=RAW))

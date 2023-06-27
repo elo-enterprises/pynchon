@@ -11,14 +11,14 @@ LOGGER = lme.get_logger(__name__)
 class GitConfig(abcs.Config):
     """ """
 
-    _root: str = None
+    # _root: str = None
     config_key: typing.ClassVar[str] = 'git'
     
-    class Config:
-        fields = {
-            # '_root': 'root',
-            '_repo': 'repo',
-        }
+    # class Config:
+    #     fields = {
+    #         # '_root': 'root',
+    #         '_repo': 'repo',
+    #     }
 
     def _run(self, cmd, log_command=False, **kwargs):
         """
