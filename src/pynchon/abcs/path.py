@@ -84,18 +84,29 @@ class JSONEncoder(json.JSONEncoder):
     # FIXME: use multimethod
     def default(self, obj):
         toJSON = getattr(obj, "toJSON", None)
-        if toJSON is not None:
-            LOGGER.debug(f"{type(object)} brings custom toJSON")
+        jsonify = getattr(obj, "json", None)
+        as_dict = getattr(obj, "as_dict", None)
+        if as_dict is not None and callable(as_dict):
+            LOGGER.warning(f"{type(obj)} brings custom as_dict()")
+            return obj.as_dict()
+            
+        elif jsonify is not None and callable(jsonify):
+            LOGGER.warning(f"{type(obj)} brings custom json()")
+            return obj.json()
+            
+        elif toJSON is not None:
+            assert callable(toJSON)
+            LOGGER.warning(f"{type(obj)} brings custom toJSON()")
             return obj.toJSON()
-        if isinstance(obj, Path):
+        elif isinstance(obj, Path):
             return str(obj)
-        if isinstance(obj, MappingProxyType):
-            return dict(obj)
-        if isinstance(obj, map):
+        # if isinstance(obj, MappingProxyType):
+        #     return dict(obj)
+        elif isinstance(obj, map):
             return list(obj)
         # if typing.iscoroutine(obj):
         else:
-            # LOGGER.debug(f"{coercing {object} to string")
+            LOGGER.warning(f"coercing {obj} to string")
             # import IPython; IPython.embed()
             return str(obj)
         return super().default(obj)

@@ -1,12 +1,12 @@
 """ pynchon.plugins.globals """
 from pynchon import abcs, models
-
+from pynchon.util import lme, typing # noqa
 
 class GlobalsConfig(abcs.Config):
     """ """
 
     defaults = dict(exclude_patterns=[])
-    config_key = "globals"
+    config_key: typing.ClassVar[str] =  "globals"
 
 
 class Globals(models.Provider):

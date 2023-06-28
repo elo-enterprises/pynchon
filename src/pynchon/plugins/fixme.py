@@ -12,7 +12,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class FixMeConfig(abcs.Config):
-    config_key = "fixme"
+    config_key: typing.ClassVar[str] =  "fixme"
 
 
 class FixMe(models.Planner):

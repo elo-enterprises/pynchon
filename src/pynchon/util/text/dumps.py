@@ -23,7 +23,5 @@ def json(obj, cls=None, minified=False, indent: int = 2) -> str:
     """
     indent = None if minified else indent
     from pynchon.abcs.path import JSONEncoder
-
     cls = cls or JSONEncoder
-
     return modjson.dumps(obj, indent=indent, cls=cls)

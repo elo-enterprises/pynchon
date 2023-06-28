@@ -46,7 +46,6 @@ class GitConfig(abcs.Config):
         tmp = files.get_git_root(abcs.Path("."))
         return tmp and tmp.parents[0]
 
-    # @memoized_property
     @property
     def repo(self) -> typing.StringMaybe:
         """ """

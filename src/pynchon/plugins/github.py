@@ -17,7 +17,7 @@ class GitHub(models.ToolPlugin):
     """Tools for working with GitHub"""
 
     class config_class(abcs.Config):
-        config_key = "github"
+        config_key: typing.ClassVar[str] =  "github"
         defaults = dict(enterprise=False)
 
         @property

@@ -15,7 +15,7 @@ class Mermaid(models.Planner):
     """ Mermaid Plugin """
 
     class config_class(abcs.Config):
-        config_key = "mermaid"
+        config_key: typing.ClassVar[str] =  "mermaid"
 
     name = "mermaid"
     cli_name = "mermaid"

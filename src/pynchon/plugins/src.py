@@ -36,7 +36,7 @@ class SourceMan(models.ResourceManager):
     """Management tool for project source"""
 
     class config_class(abcs.Config):
-        config_key = "src"
+        config_key: typing.ClassVar[str] =  "src"
         defaults = dict(
             goals=[],
         )
@@ -45,7 +45,8 @@ class SourceMan(models.ResourceManager):
     cli_name = "src"
     priority = 0
 
-    @tagging.tagged_property(conflict_strategy="override")
+    # @tagging.tagged_property(conflict_strategy="override")
+    @property 
     def exclude_patterns(self):
         from pynchon.plugins import util as plugin_util
 

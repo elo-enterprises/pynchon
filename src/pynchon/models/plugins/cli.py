@@ -1,6 +1,8 @@
 """ pynchon.models.plugins.cli """
 import functools
 
+import rich 
+
 from pynchon import api, cli, events, fleks, shimport  # noqa
 from pynchon.bin import entry  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
@@ -155,11 +157,12 @@ class CliPlugin(PynchonPlugin):
             # if hasattr(result, 'display'):
             rproto = getattr(result, "__rich__", None)
             if rproto:
+                LOGGER.warning(f'rproto {result}') 
                 from pynchon.util.lme import CONSOLE
                 CONSOLE.print(result)
-            import rich 
-            if hasattr(result,'as_dict'):
-                rich.print(result.json())
+            elif hasattr(result, 'as_dict'):
+                LOGGER.warning(f'as_dict {result}') 
+                rich.print(result.as_dict())
             else:
                 return result
 

@@ -12,7 +12,7 @@ class Make(models.Planner):
     """Makefile parser"""
     priority=6 # before mermaid
     class config_class(abcs.Config):
-        config_key = "makefile"
+        config_key: typing.ClassVar[str] =  "makefile"
         
         @property 
         def file(self):

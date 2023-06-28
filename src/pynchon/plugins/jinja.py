@@ -15,17 +15,17 @@ class Jinja(models.Planner):
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):
-        config_key = "jinja"
+        config_key: typing.ClassVar[str] =  "jinja"
         defaults = dict(
             template_includes=[],
         )
 
-        @tagging.tagged_property(conflict_strategy="override")
-        def exclude_patterns(self):
-            globals = plugin_util.get_plugin("globals").get_current_config()
-            global_ex = globals["exclude_patterns"]
-            my_ex = self.get("exclude_patterns", [])
-            return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
+        # @tagging.tagged_property(conflict_strategy="override")
+        # def exclude_patterns(self):
+        #     globals = plugin_util.get_plugin("globals").get_current_config()
+        #     global_ex = globals["exclude_patterns"]
+        #     my_ex = self.get("exclude_patterns", [])
+        #     return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
     name = "jinja"
     priority = 9

@@ -48,6 +48,8 @@ class AttrDictBase:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({dict.__repr__(self)})"
 
+    # def as_dict(self):
+    #     return dict([[key,getattr(self,key)] for key in self])
 
 class AttrDict(AttrDictBase, dict):
     pass

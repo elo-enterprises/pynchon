@@ -30,7 +30,7 @@ class Config(
     # debug = False
     # parent = None
     # priority = 100
-    # config_key = None
+    # config_key: typing.ClassVar[str] =  None
     # override_from_base = True
     @classmethod
     def get_properties(cls):
@@ -75,7 +75,7 @@ class Config(
         try:
             return self.dict(exclude_unset=True, by_alias=True)[key]
         except (KeyError,TypeError) as exc:
-            import IPython; IPython.embed()
+            # import IPython; IPython.embed()
             raise
     
     def as_dict(self, **kwargs):

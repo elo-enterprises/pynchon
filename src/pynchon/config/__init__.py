@@ -62,7 +62,6 @@ events.lifecycle.send(
     msg=msg,
     stage=msg,
 )
-# import IPython; IPython.embed()
 PYNCHON_CORE = {x: PYNCHON[x] for x in PYNCHON.__fields__.keys() if x not in _all_names}
 PYNCHON_CORE = CoreConfig(**PYNCHON_CORE)
 
@@ -72,7 +71,8 @@ events.lifecycle.send(
     msg=msg,
     stage=msg,
 )
+# import IPython; IPython.embed()
 
-USER_DEFAULTS = {}
-# USER_DEFAULTS = render.dictionary(
-#     input=RAW.copy(), context=dict(pynchon=RAW))
+# USER_DEFAULTS = {}
+USER_DEFAULTS = render.dictionary(
+    input=RAW.copy(), context=dict(pynchon=RAW))

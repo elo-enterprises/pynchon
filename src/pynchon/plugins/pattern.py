@@ -22,7 +22,7 @@ class Pattern(models.ResourceManager):
     cli_name = "pattern"
 
     class config_class(abcs.Config):
-        config_key = "pattern"
+        config_key: typing.ClassVar[str] =  "pattern"
         defaults = dict(include_patterns=["*/", "*/*/"])
 
         @property

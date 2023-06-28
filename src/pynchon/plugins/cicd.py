@@ -14,7 +14,7 @@ class CiCd(models.Provider):
     """Context for CI/CD"""
 
     class config_class(abcs.Config):
-        config_key = "cicd"
+        config_key: typing.ClassVar[str] =  "cicd"
         defaults = dict(
             url_base=None,
             url_deploy=None,

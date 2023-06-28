@@ -10,7 +10,7 @@ class Tests(models.ResourceManager):
     """Management tool for project tests"""
 
     class config_class(abcs.Config):
-        config_key = "tests"
+        config_key: typing.ClassVar[str] =  "tests"
         defaults = dict(
             coverage={},
             suite_patterns=[],

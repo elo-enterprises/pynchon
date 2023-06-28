@@ -38,7 +38,7 @@ class ScaffoldingItem(abcs.AttrDict):
 class ScaffoldingConfig(abcs.Config):
     """ """
 
-    config_key = "scaffolding"
+    config_key: typing.ClassVar[str] =  "scaffolding"
 
     # def scaffolds(self):
     #     return dict([

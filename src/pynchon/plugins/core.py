@@ -33,8 +33,10 @@ class Core(models.Planner):
         result = getattr(config_mod, kls.get_config_key())
         return result
 
+    # @typing.validate_arguments
     def cfg(self):
         """Show current project config (with templating/interpolation)"""
+        # import IPython; IPython.embed()
         return self.project_config
 
     @cli.click.flag("--bash", help="bootstrap bash")

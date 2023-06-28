@@ -12,7 +12,7 @@ class PythonAPI(models.ShyPlanner):
     """Generators for Python API docs"""
 
     class config_class(abcs.Config):
-        config_key = "python-api"
+        config_key: typing.ClassVar[str] =  "python-api"
         defaults = dict(
             skip_private_methods=True,
             skip_patterns=[],

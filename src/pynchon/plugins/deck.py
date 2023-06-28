@@ -10,7 +10,7 @@ class Deck(models.ResourceManager):
     """Tool for working with markdown based slide-decks"""
 
     class config_class(abcs.Config):
-        config_key = "deck"
+        config_key: typing.ClassVar[str] =  "deck"
         defaults = dict(
             pandoc_docker="pandoc/core",
             pandoc_engine="dzslides",

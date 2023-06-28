@@ -14,15 +14,22 @@ LOGGER = lme.get_logger(__name__)
 @tagging.tags(click_aliases=["py"])
 class PythonPlatform(models.Planner):
     """Context for python-platform"""
+    
+    priority = 2
+    name = "python"
 
     class config_class(abcs.Config):
-        config_key = "python"
+        config_key: typing.ClassVar[str] = "python"
+
         defaults = dict(
-            version=stdlib_platform.python_version(),
             libcst={},
         )
-
-        @memoized_property
+        
+        @property 
+        def version(self):
+            return stdlib_platform.python_version()
+        
+        @property
         def is_package(self) -> bool:
             return python.is_package(".")
 
@@ -33,9 +40,6 @@ class PythonPlatform(models.Planner):
                 return PackageConfig()
             else:
                 return {}
-
-    priority = 2
-    name = "python"
 
     @cli.click.group
     def bootstrap(self):
@@ -82,7 +86,7 @@ class PackageConfig(abcs.Config):
     """WARNING: `parent` below prevents moving this class elsewhere"""
 
     parent = PythonPlatform.config_class
-    config_key = "package"
+    config_key: typing.ClassVar[str] =  "package"
 
     @property
     def name(self) -> str:
@@ -92,7 +96,7 @@ class PackageConfig(abcs.Config):
         result = python.load_setupcfg().get("metadata", {}).get("name")
         return result
 
-    @memoized_property
+    @property
     def version(self) -> str:
         """ """
         cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)

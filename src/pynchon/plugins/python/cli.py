@@ -15,7 +15,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class PythonCliConfig(abcs.Config):
-    config_key = "python-cli"
+    config_key: typing.ClassVar[str] =  "python-cli"
 
     @property
     def src_root(self):

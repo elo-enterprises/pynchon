@@ -11,7 +11,7 @@ class Griffe(models.ToolPlugin):
     """Tools for working with Python ASTs"""
 
     class config_class(abcs.Config):
-        config_key = "griffe"
+        config_key: typing.ClassVar[str] =  "griffe"
 
     name = "griffe"
     cli_name = "griffe"

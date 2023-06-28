@@ -19,7 +19,8 @@ def finalize():
     """ """
     from pynchon.plugins import registry as plugins_registry
 
-    result = abcs.AttrDict(
+    # result = abcs.AttrDict(
+    result = dict(
         pynchon=MappingProxyType(
             {k: v for k, v in config_module.RAW.items() if not isinstance(v, (dict,))}
         ),

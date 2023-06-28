@@ -14,7 +14,7 @@ class Dot(models.Planner):
     """Finds / Renders (graphviz) dot files for this project"""
 
     class config_class(abcs.Config):
-        config_key = "dot"
+        config_key: typing.ClassVar[str] =  "dot"
         default = dict(exclude_patterns=[])
 
     name = "dot"

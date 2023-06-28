@@ -12,7 +12,7 @@ class ProjectConfig(abcs.Config):
     """ """
 
     priority = 1
-    config_key = "project"
+    config_key: typing.ClassVar[str] =  "project"
     defaults = dict(shell_aliases=dict(), subproject_patterns=[])
 
     @property

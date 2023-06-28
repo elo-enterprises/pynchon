@@ -59,9 +59,9 @@ class Config(abcs.Config):
     priority: typing.ClassVar[int] = 1
     config_key: typing.ClassVar[str] = "pynchon"
     class Config:
-        fields = {
-            '_root': 'root',
-        }
+        # fields = {
+        #     '_root': 'root',
+        # }
         arbitrary_types_allowed = True
         #https://github.com/pydantic/pydantic/discussions/5159
         frozen = True
