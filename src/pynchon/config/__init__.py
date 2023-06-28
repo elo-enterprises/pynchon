@@ -71,8 +71,8 @@ events.lifecycle.send(
     msg=msg,
     stage=msg,
 )
-# import IPython; IPython.embed()
 
 # USER_DEFAULTS = {}
 USER_DEFAULTS = render.dictionary(
-    input=RAW.copy(), context=dict(pynchon=RAW))
+    input=RAW.copy(), 
+    context=dict(pynchon=RAW))

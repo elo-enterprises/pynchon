@@ -40,6 +40,10 @@ class SourceMan(models.ResourceManager):
         defaults = dict(
             goals=[],
         )
+        
+        @property 
+        def root(self):
+            return self.__dict__.get('root','???')
 
     name = "src"
     cli_name = "src"

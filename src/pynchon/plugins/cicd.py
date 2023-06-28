@@ -12,6 +12,7 @@ LOGGER = lme.get_logger(__name__)
 
 class CiCd(models.Provider):
     """Context for CI/CD"""
+    name = "cicd"
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "cicd"
@@ -38,7 +39,6 @@ class CiCd(models.Provider):
                     return typ
             return default
 
-    name = "cicd"
 
     def open(self):
         """Opens CI/CD URL for this project"""

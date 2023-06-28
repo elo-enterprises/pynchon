@@ -58,6 +58,7 @@ class Config(abcs.Config):
     """ """
     priority: typing.ClassVar[int] = 1
     config_key: typing.ClassVar[str] = "pynchon"
+    
     class Config:
         # fields = {
         #     '_root': 'root',
@@ -75,10 +76,18 @@ class Config(abcs.Config):
         validate,
     ]
 
-    def __init__(self, **core_config):
-        if not core_config:
-            LOGGER.critical("core config is empty!")
-        super().__init__(**core_config)
+    # def __init__(self, **core_config):
+    #     self.core_config = core_config
+    #     if not core_config:
+    #         LOGGER.critical("core config is empty!")
+    #     super().__init__(**core_config)
+    # def __init__(self, *args, **kwargs):
+    #     # Do Pydantic validation
+    #     super().__init__(*args, **kwargs)
+    #     # Do things after Pydantic validation
+    #     self.core_config=kwargs 
+    #     # if not any([self.alias, self.category, self.brand]):
+    #     #     raise ValueError("No alias provided")
 
     @property
     def root(self) -> str:
@@ -88,7 +97,7 @@ class Config(abcs.Config):
         * {{git.root}}
         """
         from pynchon import config
-        root = self.__dict__.get('_root')
+        root = self.__dict__.get('root')
         root = root or os.environ.get("PYNCHON_ROOT")
         root = root or config.GIT.get("root")
         root = root or self.working_dir
@@ -103,7 +112,14 @@ class Config(abcs.Config):
         from config files, plus any overrides on cli,
         plus pynchon's core set of default plugins.
         """
-        defaults = DEFAULT_PLUGINS
+        # import IPython; IPython.embed()
+        from pynchon.config import MERGED_CONFIG_FILES
+        plugins = MERGED_CONFIG_FILES.get('plugins',[])
+        # plugins = self.__dict__.get('pynchon', {}).get('plugins',[])
+        if not plugins: 
+            raise Exception(MERGED_CONFIG_FILES)
+        defaults = DEFAULT_PLUGINS+plugins
+        # self.core_config.get('plugins',[])
         return defaults
         # result = sorted(list(set(self["plugins"] + defaults)))
         # self["plugins"] = result

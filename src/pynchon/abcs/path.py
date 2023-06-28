@@ -12,7 +12,6 @@ LOGGER = lme.get_logger(__name__)
 
 class Path(typing.PathType):
     """ """
-
     def endswith(self, other) -> bool:
         return str(self).endswith(other)
 
@@ -40,7 +39,6 @@ class Path(typing.PathType):
             if match:
                 quiet or LOGGER.info(f"{self} matches exclude @{match}")
                 return match
-
     def match_glob(self, pattern):
         """
 
@@ -60,53 +58,5 @@ class Path(typing.PathType):
     def list(self) -> typing.List[str]:
         return [x for x in os.listdir(str(self))]
 
-
-class JSONEncoder(json.JSONEncoder):
-    """ """
-
-    def encode(self, obj):
-        """
-
-        :param obj:
-
-        """
-        result = None
-
-        def default():
-            return super(JSONEncoder, self).encode(obj)
-
-        try:
-            toJSON = getattr(obj, "toJSON", default) or default
-        except (Exception,) as exc:
-            toJSON = default
-        return toJSON()
-
-    # FIXME: use multimethod
-    def default(self, obj):
-        toJSON = getattr(obj, "toJSON", None)
-        jsonify = getattr(obj, "json", None)
-        as_dict = getattr(obj, "as_dict", None)
-        if as_dict is not None and callable(as_dict):
-            LOGGER.warning(f"{type(obj)} brings custom as_dict()")
-            return obj.as_dict()
-            
-        elif jsonify is not None and callable(jsonify):
-            LOGGER.warning(f"{type(obj)} brings custom json()")
-            return obj.json()
-            
-        elif toJSON is not None:
-            assert callable(toJSON)
-            LOGGER.warning(f"{type(obj)} brings custom toJSON()")
-            return obj.toJSON()
-        elif isinstance(obj, Path):
-            return str(obj)
-        # if isinstance(obj, MappingProxyType):
-        #     return dict(obj)
-        elif isinstance(obj, map):
-            return list(obj)
-        # if typing.iscoroutine(obj):
-        else:
-            LOGGER.warning(f"coercing {obj} to string")
-            # import IPython; IPython.embed()
-            return str(obj)
-        return super().default(obj)
+from pynchon.util.text.dumps import JSONEncoder
+JSONEncoder.register_encoder(type=Path,fxn=str)
