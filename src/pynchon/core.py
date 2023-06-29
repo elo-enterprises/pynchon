@@ -99,11 +99,12 @@ class Config(abcs.Config):
         from pynchon import config
         root = self.__dict__.get('root')
         root = root or os.environ.get("PYNCHON_ROOT")
-        root = root or config.GIT.get("root")
+        root = root or config.GIT.root
         root = root or self.working_dir
         return root and abcs.Path(root)
 
-    @tagging.tagged_property(conflict_strategy="override")
+    # @tagging.tagged_property(conflict_strategy="override")
+    @property
     def plugins(self):
         """{pynchon.plugins}:
         value here ultimately determines much of the
@@ -112,18 +113,11 @@ class Config(abcs.Config):
         from config files, plus any overrides on cli,
         plus pynchon's core set of default plugins.
         """
-        # import IPython; IPython.embed()
         from pynchon.config import MERGED_CONFIG_FILES
         plugins = MERGED_CONFIG_FILES.get('plugins',[])
-        # plugins = self.__dict__.get('pynchon', {}).get('plugins',[])
         if not plugins: 
             raise Exception(MERGED_CONFIG_FILES)
-        defaults = DEFAULT_PLUGINS+plugins
-        # self.core_config.get('plugins',[])
-        return defaults
-        # result = sorted(list(set(self["plugins"] + defaults)))
-        # self["plugins"] = result
-        # return result
+        return list(set(DEFAULT_PLUGINS+plugins))
 
     @property
     def working_dir(self):

@@ -24,7 +24,7 @@ class GitHub(models.ToolPlugin):
         def org_name(self):
             from pynchon.config import git
 
-            return git.get("github_org")
+            return git.github_org
 
     name = "github"
     cli_name = "github"

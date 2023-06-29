@@ -16,16 +16,16 @@ class Jinja(models.Planner):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "jinja"
-        defaults = dict(
-            template_includes=[],
-        )
+        template_includes:typing.List[str] = abcs.Field(default=[])
+        exclude_patterns:typing.List[str] = abcs.Field()
 
         # @tagging.tagged_property(conflict_strategy="override")
-        # def exclude_patterns(self):
-        #     globals = plugin_util.get_plugin("globals").get_current_config()
-        #     global_ex = globals["exclude_patterns"]
-        #     my_ex = self.get("exclude_patterns", [])
-        #     return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
+        @property
+        def exclude_patterns(self):
+            globals = plugin_util.get_plugin("globals").get_current_config()
+            global_ex = globals.exclude_patterns
+            my_ex = self.__dict__.get('exclude_patterns',[])
+            return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
     name = "jinja"
     priority = 9
@@ -106,7 +106,7 @@ class Jinja(models.Planner):
         """
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
-        project_root = proj_conf.get("root", self[:"git.root":"."])
+        project_root = proj_conf.get('root',None) or self[:"git.root":"."]
         globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]
@@ -134,6 +134,7 @@ class Jinja(models.Planner):
 
         def _get_template_args():
             """ """
+            # import IPython; IPython.embed()
             templates = self["template_includes"]
             templates = [t for t in templates]
             templates = [f"--include {t}" for t in templates]

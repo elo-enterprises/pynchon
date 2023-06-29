@@ -9,21 +9,20 @@ LOGGER = lme.get_logger(__name__)
 class Deck(models.ResourceManager):
     """Tool for working with markdown based slide-decks"""
 
-    class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "deck"
-        defaults = dict(
-            pandoc_docker="pandoc/core",
-            pandoc_engine="dzslides",
-            pandoc_args="",
-            apply_hooks=["open-after"],
-            include_patterns=["*.md"],
-        )
-
     name = "deck"
     cli_name = "deck"
     cli_label = "Tool"
     contribute_plan_apply = True
 
+    class config_class(abcs.Config):
+        config_key: typing.ClassVar[str] =  "deck"
+        root:str = abcs.Field(default="{{docs.root}}/slides")
+        pandoc_docker:str = abcs.Field(default="pandoc/core")
+        pandoc_engine:str = abcs.Field(default="dzslides")
+        pandoc_args:str = abcs.Field(default="")
+        apply_hooks:typing.List[str] = abcs.Field(default=["open-after"])
+        include_patterns:typing.List[str] = abcs.Field(default=["*.md"])
+        
     def plan(self, **kwargs):
         plan = super().plan()
         root = self["root"]

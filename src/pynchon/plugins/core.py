@@ -130,14 +130,11 @@ class Core(models.Planner):
             print(content)
 
     def raw(self) -> None:
-        """Returns (almost) raw config,
-        without interpolation
-
-
+        """
+        Returns (almost) raw config, without interpolation
         """
         from pynchon.config import RAW
-
-        return RAW
+        print(RAW.json())
 
     def plan(
         self,

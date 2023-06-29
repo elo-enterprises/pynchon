@@ -4,9 +4,8 @@ from pynchon.util import lme, typing # noqa
 
 class GlobalsConfig(abcs.Config):
     """ """
-
-    defaults = dict(exclude_patterns=[])
     config_key: typing.ClassVar[str] =  "globals"
+    exclude_patterns:typing.List[str] = abcs.Field(default=[])
 
 
 class Globals(models.Provider):

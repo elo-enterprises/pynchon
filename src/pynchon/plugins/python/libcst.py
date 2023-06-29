@@ -59,7 +59,7 @@ class LibCST(models.Planner):
     def plan(self):
         """Run plan for this plugin"""
         plan = super(self.__class__, self).plan()
-        libcst_config = self[F_CODEMOD_YAML]
+        libcst_config = self[F_CODEMOD_YAML::{}]
         if libcst_config:
             plan.append(self._goal_libcst_refresh(libcst_config))
         plan.append(*list(self.docstrings(should_plan=True)))

@@ -89,7 +89,7 @@ class PynchonPlugin(fleks.Plugin):
     @property
     def project_root(self):
         proj_conf = self[:"project.subproject":{}] or self[:"project":]
-        return proj_conf.get("root", self[:"git.root":])
+        return proj_conf.root or self[:"git.root":]
 
     @property
     def plugin_config(self):
@@ -132,13 +132,16 @@ class PynchonPlugin(fleks.Plugin):
                 return result
         else:
             try:
-                return self.config[key]
-            except (KeyError,) as exc:
-                fallback = pydash.get(self.config, key)
-                if fallback:
-                    return fallback
-                else:
-                    raise
+                return getattr(self.config, key)
+            except (AttributeError,) as exc:
+                try:
+                    return self.config[key]
+                except (KeyError,) as exc:
+                    fallback = pydash.get(self.config, key)
+                    if fallback:
+                        return fallback
+                    else:
+                        raise
 
     def __floordiv__(self, key: str, strict=False):
         """
@@ -164,7 +167,7 @@ class PynchonPlugin(fleks.Plugin):
             return self.project_config[key]
         except (KeyError,) as exc:
             fallback = pydash.get(self.project_config, key, None)
-            if fallback:
+            if fallback is not None:
                 return fallback
             else:
                 if strict:

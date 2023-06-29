@@ -82,9 +82,8 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
         @property
         def root(self):
-            from pynchon.config import git, pynchon
-
-            tmp = git.get("root")
+            from pynchon.config import GIT, pynchon
+            tmp = GIT.root
             return tmp or pynchon["working_dir"]
 
     name = "docs"

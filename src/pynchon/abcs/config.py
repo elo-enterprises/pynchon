@@ -85,13 +85,13 @@ class Config(
     def json(self, **kwargs):
         return text.to_json(self.as_dict(**kwargs))
     
-    def get(self, k, default=None):
-        """
-        """
-        return self.as_dict().get(k,default)
+    # def get(self, k, default=None):
+    #     """ """
+    #     return self.as_dict().get(k,default)
     
     def items(self):
         return self.as_dict().items()
+    
     def __init__(self, **this_config) -> None:
         """
         """
@@ -119,41 +119,40 @@ class Config(
     #     """
     #     return lme.get_logger(f"{kls._logging_name}")
 
-    def resolve_conflicts(self, conflicts: typing.List) -> None:
-        """
-
-        :param conflicts: typing.List:
-        :param conflicts: typing.List:
-
-        """
-        conflicts and LOGGER.info(
-            f"'{self.config_key}' is resolving {len(conflicts)} conflicts.."
-        )
-
-        record = collections.defaultdict(list)
-        for pname in conflicts:
-            prop = getattr(self.__class__, pname)
-            strategy = tags.get(prop, {}).get("conflict_strategy", "user_wins")
-            if strategy == "user_wins":
-                record[strategy].append(f"{self.config_key}.{pname}")
-            elif strategy == "override":
-                val = getattr(self, pname)
-                self[pname] = val
-                record[strategy] += [pname]
-            else:
-                LOGGER.critical(f"unsupported conflict-strategy! {strategy}")
-                raise SystemExit(1)
-
-        overrides = record["override"]
-        if overrides:
-            pass
-
-        user_wins = record["user_wins"]
-        if user_wins:
-            msg = "these keys have defaults, but user-provided config wins: "
-            tmp = text.to_json(user_wins)
-            self.logger.info(f"{msg}\n  {tmp}")
-    
+    # def resolve_conflicts(self, conflicts: typing.List) -> None:
+    #     """
+    # 
+    #     :param conflicts: typing.List:
+    #     :param conflicts: typing.List:
+    # 
+    #     """
+    #     conflicts and LOGGER.info(
+    #         f"'{self.config_key}' is resolving {len(conflicts)} conflicts.."
+    #     )
+    # 
+    #     record = collections.defaultdict(list)
+    #     for pname in conflicts:
+    #         prop = getattr(self.__class__, pname)
+    #         strategy = tags.get(prop, {}).get("conflict_strategy", "user_wins")
+    #         if strategy == "user_wins":
+    #             record[strategy].append(f"{self.config_key}.{pname}")
+    #         elif strategy == "override":
+    #             val = getattr(self, pname)
+    #             self[pname] = val
+    #             record[strategy] += [pname]
+    #         else:
+    #             LOGGER.critical(f"unsupported conflict-strategy! {strategy}")
+    #             raise SystemExit(1)
+    # 
+    #     overrides = record["override"]
+    #     if overrides:
+    #         pass
+    # 
+    #     user_wins = record["user_wins"]
+    #     if user_wins:
+    #         msg = "these keys have defaults, but user-provided config wins: "
+    #         tmp = text.to_json(user_wins)
+    #         self.logger.info(f"{msg}\n  {tmp}")
     # def __iter__(self):
     #     return iter(self.as_dict())
     # def __rich__(self):

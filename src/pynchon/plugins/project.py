@@ -18,7 +18,7 @@ class ProjectConfig(abcs.Config):
     @property
     def name(self) -> typing.StringMaybe:
         """ """
-        repo_name = config.git.get("repo_name")
+        repo_name = config.git.repo_name
         return repo_name or abcs.Path(".").name
 
     @property
@@ -29,7 +29,7 @@ class ProjectConfig(abcs.Config):
     def root(self) -> str:
         """ """
         git = config.GIT
-        return constants.PYNCHON_ROOT or (git and git.get("root")) or self._workdir
+        return constants.PYNCHON_ROOT or (git and git.root) or self._workdir
 
     @property
     def subproject(self) -> typing.Dict:
