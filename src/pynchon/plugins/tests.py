@@ -11,18 +11,19 @@ class Tests(models.ResourceManager):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "tests"
-        defaults = dict(
-            coverage={},
-            suite_patterns=[],
-            # suites={
-            #     "{{tests.root}}/units/": {
-            #           name:...
-            #           descr:...
-            #           runner:...
-            #      }
-            # }
-            root=None,
-        )
+            
+        # defaults = dict(
+        #     coverage={},
+        #     suite_patterns=[],
+        #     # suites={
+        #     #     "{{tests.root}}/units/": {
+        #     #           name:...
+        #     #           descr:...
+        #     #           runner:...
+        #     #      }
+        #     # }
+        #     root=None,
+        # )
 
     name = "tests"
     cli_name = "tests"

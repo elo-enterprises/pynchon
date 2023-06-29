@@ -23,7 +23,7 @@ class Pattern(models.ResourceManager):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "pattern"
-        defaults = dict(include_patterns=["*/", "*/*/"])
+        include_patterns:typing.List[str] = abcs.Field(default=["*/", "*/*/"])
 
         @property
         def root(self):

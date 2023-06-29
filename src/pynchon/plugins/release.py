@@ -12,7 +12,6 @@
 #     """
 #
 #     name = cli_name = 'gen'
-#     defaults = dict()
 #     priority = -1
 #     config_class = None
 #     cli_subsumes: typing.List[typing.Callable] = []

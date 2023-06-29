@@ -78,7 +78,6 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "docs"
-        defaults = dict()
 
         @property
         def root(self):

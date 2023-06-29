@@ -73,13 +73,17 @@ class Config(
             start, stop, step = key.start, key.stop, key.step
             raise Exception('niy')
         try:
-            return self.dict(exclude_unset=True, by_alias=True)[key]
+            return self.dict(
+                # exclude_unset=True, 
+                by_alias=True)[key]
         except (KeyError,TypeError) as exc:
             # import IPython; IPython.embed()
             raise
     
     def as_dict(self, **kwargs):
-        kwargs.update(exclude_unset=True, by_alias=True)
+        kwargs.update(
+            # exclude_unset=True, 
+            by_alias=True)
         return self.dict(**kwargs)
     
     def json(self, **kwargs):

@@ -20,10 +20,7 @@ class PythonPlatform(models.Planner):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "python"
-
-        defaults = dict(
-            libcst={},
-        )
+        libcst: typing.Dict[str,typing.Any]=abcs.Field(default={})
         
         @property 
         def version(self):

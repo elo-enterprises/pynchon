@@ -16,19 +16,19 @@ option_api_token = cli.click.option(
 class GitHub(models.ToolPlugin):
     """Tools for working with GitHub"""
 
+    name = "github"
+    cli_name = "github"
+    cli_aliases = []
+
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "github"
-        defaults = dict(enterprise=False)
+        enterprise:bool = abcs.Field(default=False)
+        org_name:str = abcs.Field(default=None)
 
         @property
         def org_name(self):
             from pynchon.config import git
-
             return git.github_org
-
-    name = "github"
-    cli_name = "github"
-    cli_aliases = []
 
     @cli.click.option("--org", "-o")
     def open(self, org=None):

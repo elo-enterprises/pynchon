@@ -102,7 +102,6 @@ class Git(models.Provider):
 
     priority = -2
     name = "git"
-    defaults: typing.Dict = dict()
     config_class = GitConfig
 
     @property

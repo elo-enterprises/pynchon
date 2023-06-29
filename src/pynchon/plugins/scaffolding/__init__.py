@@ -17,7 +17,6 @@ class Scaffolding(models.ShyPlanner):
     priority = 3
     name = "scaffolding"
     cli_name = "scaffold"
-    defaults = dict()
     cli_label = "Manager"
     config_class = ScaffoldingConfig
 

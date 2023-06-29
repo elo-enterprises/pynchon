@@ -37,9 +37,7 @@ class SourceMan(models.ResourceManager):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "src"
-        defaults = dict(
-            goals=[],
-        )
+        goals:typing.List[str] = abcs.Field(default=[])
         
         @property 
         def root(self):

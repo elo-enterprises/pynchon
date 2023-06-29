@@ -20,7 +20,6 @@ class FixMe(models.Planner):
 
     name = "fixme"
     config_class = FixMeConfig
-    defaults = dict()
 
     def plan(self, config: dict = None) -> typing.List:
         """....

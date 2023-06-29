@@ -11,9 +11,9 @@ LOGGER = lme.get_logger(__name__)
 class ProjectConfig(abcs.Config):
     """ """
 
-    priority = 1
     config_key: typing.ClassVar[str] =  "project"
-    defaults = dict(shell_aliases=dict(), subproject_patterns=[])
+    shell_aliases:typing.Dict[str,str] = abcs.Field(default={})
+    subproject_patterns:typing.List[str] = abcs.Field(default=[])
 
     @property
     def name(self) -> typing.StringMaybe:

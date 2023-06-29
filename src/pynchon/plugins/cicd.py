@@ -16,17 +16,14 @@ class CiCd(models.Provider):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] =  "cicd"
-        defaults = dict(
-            url_base=None,
-            url_deploy=None,
-            url_build=None,
-        )
-
+        url_base:typing.Optional[str] = abcs.Field(default=None)
+        url_deploy:typing.Optional[str] = abcs.Field(default=None)
+        url_build:typing.Optional[str] = abcs.Field(default=None)
+        
         @property
         def type(self):
             """"""
             from pynchon.config import src
-
             src_root = abcs.Path(src["root"])
             default = "unknown"
             file_mapper = dict(
