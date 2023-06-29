@@ -67,34 +67,65 @@ class Pattern(models.ResourceManager):
         ed = self[:"pynchon.editor":"atom"]
         invoke(f"{ed} {pfolder}&", system=True)
 
+    @cli.click.option("--name", default=False)
     @cli.click.argument("kind", nargs=1)
     @cli.click.argument("dest", nargs=1)
     @cli.options.plan
-    def sync(self, should_plan: bool = False, dest: str = None, kind: str = None):
+    def sync(self,  should_plan: bool = False, dest: str = None, kind: str = None,name:str=None,):
         """Synchronize DEST from KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
+        
         tmp = self.pattern_names
         if kind not in tmp:
-            LOGGER.critical(f"unrecognized pattern `{kind}`; expected one of {tmp}")
+            LOGGER.critical(f"Unrecognized pattern `{kind}`; expected one of {tmp}")
             raise SystemExit(1)
         plan = []
         destp = abcs.Path(dest)
         folder = abcs.Path(dest).absolute()
-        for f in self._get_template_files(destp):
-            after = self._render_file(dest=f)
-            with open(f) as fhandle:
-                before = fhandle.read()
-            if before != after:
-                # LOGGER.critical('rendering {f} creates changes!')
-                fabs = f.absolute()
+        name = name or folder.stem
+        LOGGER.critical(f"using name={name}")
+        src = self.config.root/kind
+        for src_abc in self._get_template_files(src):
+            dest_rel=destp/(src_abc.relative_to(src))
+                
+            try:
+                tmpl = render.get_template_from_file(src_abc)
+            except (Exception,) as exc:
+                LOGGER.critical(f"failed to get_template_from_file @ {src_abc}: {exc}")
+                raise SystemExit(1)
+            else:
+                assert tmpl
+                after = tmpl.render(
+                    name=name, 
+                    **self.project_config.dict())
+
+            if dest_rel.exists():
+                LOGGER.warning(f"pattern @ {kind} requires {dest_rel}, which exists. reading it to check for changes..")
+                with open(dest_rel,'r') as fhandle:
+                    before=fhandle.read()
+            else:
+                before = None
+                LOGGER.warning(f"{dest_rel} does not exist but will be created for pattern @ {kind}")
+
+            if not before or before!=after:
+                LOGGER.critical(f"detected changes to {dest_rel}")
                 plan.append(
                     self.goal(
                         type="sync",
-                        command=f"cp {destp} {fabs}",
-                        resource=f,
+                        command=f"cp {src_abc} {dest_rel}; render",
+                        resource=destp,
                     )
                 )
+                
+                
+
+            # after = self._render_file(dest=f)
+            # with open(f) as fhandle:
+            #     before = fhandle.read()
+            # if before != after:
+                # LOGGER.critical('rendering {f} creates changes!')
+                # fabs = f.absolute()
         if should_plan:
             LOGGER.critical(plan)
             return plan
@@ -162,33 +193,35 @@ class Pattern(models.ResourceManager):
             else:
                 return self.apply(plan)
 
-    @cli.click.option("--name", required=True)
-    @cli.click.argument("dest", nargs=1)
-    def render_file(self, dest=None, name="") -> bool:
-        """ """
-        f = abcs.Path(dest)
-        assert f.exists()
-        rendered = self._render_file(dest=dest, name=name)
-        if rendered is None:
-            raise SystemExit(1)
-        else:
-            with open(f, "w") as fhandle:
-                fhandle.write(rendered)
-            return True
+    # @cli.click.option("--name", required=True)
+    # @cli.click.argument("dest", nargs=1)
+    # def render_file(self, dest=None, name="") -> bool:
+    #     """ """
+    #     f = abcs.Path(dest)
+    #     assert f.exists()
+    #     rendered = self._render_file(dest=dest, name=name)
+    #     if rendered is None:
+    #         raise SystemExit(1)
+    #     else:
+    #         with open(f, "w") as fhandle:
+    #             fhandle.write(rendered)
+    #         return True
 
-    def _render_file(self, dest=None, name="") -> str:
-        """ """
-        f = abcs.Path(dest)
-        LOGGER.warning(f"rendering `{f}` in-place")
-        try:
-            tmpl = render.get_template_from_file(f)
-        except (Exception,) as exc:
-            LOGGER.critical(f"failed to get_template_from_file @ {f}: {exc}")
-            return None
-        else:
-            assert tmpl
-            rendered = tmpl.render(name=name, **self.project_config)
-            return rendered
+    # def _render_file(self, dest=None, name="") -> str:
+    #     """ """
+    #     f = abcs.Path(dest)
+    #     LOGGER.warning(f"rendering `{f}` in-place")
+    #     try:
+    #         tmpl = render.get_template_from_file(f)
+    #     except (Exception,) as exc:
+    #         LOGGER.critical(f"failed to get_template_from_file @ {f}: {exc}")
+    #         return None
+    #     else:
+    #         assert tmpl
+    #         rendered = tmpl.render(
+    #             name="", 
+    #             **self.project_config.dict())
+    #         return rendered
 
     @cli.click.argument("dest", nargs=1)
     @cli.click.argument("kind", nargs=1)
