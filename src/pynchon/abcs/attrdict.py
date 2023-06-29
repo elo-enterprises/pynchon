@@ -51,5 +51,6 @@ class AttrDictBase:
     # def as_dict(self):
     #     return dict([[key,getattr(self,key)] for key in self])
 
+
 class AttrDict(AttrDictBase, dict):
     pass

@@ -15,40 +15,35 @@ class ClassMalformed(TypeError):
 
 
 from .namespace import namespace
-def filter_by_type(
-    namespace=None, 
-    kls=None, 
-    type=None
-):
-    """ """
-    assert type is not None 
-    namespace = namespace if namespace is not None else dict([[k,getattr(kls,k)] for k in dir(kls)])
-    return [
-        k for k, v in namespace.items() if isinstance(v, type)
-    ]
 
-def get_class_properties(
-    namespace=None, 
-    kls=None) -> typing.List[str]:
-    """ """
-    return filter_by_type(
-        namespace=namespace,kls=kls,
-        type=typing.classproperty)
 
-def get_properties(
-    namespace=None, 
-    kls=None) -> typing.List[str]:
+def filter_by_type(namespace=None, kls=None, type=None):
     """ """
-    return filter_by_type(
-        namespace=namespace,kls=kls,
-        type=property)
+    assert type is not None
+    namespace = (
+        namespace if namespace is not None else {k: getattr(kls, k) for k in dir(kls)}
+    )
+    return [k for k, v in namespace.items() if isinstance(v, type)]
+
+
+def get_class_properties(namespace=None, kls=None) -> typing.List[str]:
+    """ """
+    return filter_by_type(namespace=namespace, kls=kls, type=typing.classproperty)
+
+
+def get_properties(namespace=None, kls=None) -> typing.List[str]:
+    """ """
+    return filter_by_type(namespace=namespace, kls=kls, type=property)
+
 
 def aggregate_across_bases(
     var: str = "",
     tspec: type_spec = None,
-    name=None, bases=None, namespace=None,
+    name=None,
+    bases=None,
+    namespace=None,
 ):
-    """ aggregates values at `var` across all bases """
+    """aggregates values at `var` across all bases"""
     namespace = namespace if namespace is not None else tspec.namespace
     bases = bases if bases is not None else tspec.bases
     name = name if name is not None else tspec.name
@@ -58,7 +53,8 @@ def aggregate_across_bases(
         assert isinstance(bval, list), bval
         tracked += bval
     return tracked
-    
+
+
 class ValidationResults(typing.NamedTuple, metaclass=namespace):
     suite: str = "default"
     warnings: typing.Dict[str, typing.List[typing.Any]] = collections.defaultdict(list)
@@ -211,7 +207,9 @@ class Meta(type):
         # from this class, and inherents them from all bases
         class_props = aggregate_across_bases(
             var="__class_properties__",
-            name=name, bases=bases, namespace=namespace,
+            name=name,
+            bases=bases,
+            namespace=namespace,
             # tspec=tspec,
         )
         class_props += get_class_properties(namespace=namespace)
@@ -220,8 +218,7 @@ class Meta(type):
         # __methods__ tracks instance-methods[1]
         # from this class, and inherents them from all bases
         # NB: this won't inherit private names (i.e. `_*')
-        instance_methods = aggregate_across_bases(
-            var="__methods__", tspec=tspec)
+        instance_methods = aggregate_across_bases(var="__methods__", tspec=tspec)
         instance_methods += [
             k
             for k, v in namespace.items()

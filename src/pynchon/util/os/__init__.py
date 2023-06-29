@@ -27,9 +27,9 @@ def filter_pids(cmdline__contains: str = None, **kwargs):
                     break
             else:
                 survivors.append(p)
-        except (psutil.AccessDenied, ):
+        except (psutil.AccessDenied,):
             continue
-        except (psutil.NoSuchProcess, ):
+        except (psutil.NoSuchProcess,):
             continue
     return survivors
 

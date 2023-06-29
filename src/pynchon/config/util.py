@@ -2,7 +2,6 @@
 """
 import functools
 import collections
-from types import MappingProxyType
 
 from pynchon import abcs
 from pynchon import config as config_module
@@ -13,20 +12,30 @@ from pynchon.plugins.util import PluginNotRegistered, get_plugin
 
 LOGGER = lme.get_logger(__name__)
 
+from pydantic import create_model
+
 
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
     """ """
+    # margs=dict(__base__=abcs.Config)
+    # margs =
+    from pynchon import abcs
     from pynchon.plugins import registry as plugins_registry
 
-    # result = abcs.AttrDict(
-    result = dict(
-        pynchon=MappingProxyType(
-            {k: v for k, v in config_module.RAW.items() if not isinstance(v, (dict,))}
-        ),
+    plugins = []
+    top = dict(
+        __base__=abcs.Config,
+        pynchon=config_module.RAW,
         git=config_module.GIT,
     )
-    plugins = []
+
+    # result = dict(
+    #     pynchon=MappingProxyType(
+    #         {k: v for k, v in config_module.RAW.items() if not isinstance(v, (dict,))}
+    #     ),
+    #     git=config_module.GIT,
+    # )
 
     # NB: already sorted by priority
     for pname in plugins_registry.keys():
@@ -62,7 +71,11 @@ def finalize():
                     }
                 )
         setattr(config_module, conf_key, plugin_config)
-        result.update({conf_key: plugin_config})
+        # result.update({conf_key: plugin_config})
+        if conf_key not in ["json"]:
+            top[conf_key] = plugin_config
+        else:
+            top[f"{conf_key}_"] = typing.Field(alias=conf_key, default=plugin_config)
         events.lifecycle.send(
             __name__, config=f"plugin-config@`{plugin_config}` was finalized"
         )
@@ -73,6 +86,9 @@ def finalize():
         events.lifecycle.send(
             plugin_obj, plugin=f"plugin@`{plugin_kls.__name__}` was finalized"
         )
+    result = create_model("Top", **top)
+    result = result()
+    # import IPython; IPython.embed()
     return result
 
 

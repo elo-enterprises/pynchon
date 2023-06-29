@@ -10,7 +10,7 @@ class PluginTemplate(models.Provider):
     """PluginTemplate"""
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "template"
+        config_key: typing.ClassVar[str] = "template"
 
     name = "template"
     cli_name = "template"

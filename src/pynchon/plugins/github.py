@@ -21,13 +21,14 @@ class GitHub(models.ToolPlugin):
     cli_aliases = []
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "github"
-        enterprise:bool = abcs.Field(default=False)
-        org_name:str = abcs.Field(default=None)
+        config_key: typing.ClassVar[str] = "github"
+        enterprise: bool = typing.Field(default=False)
+        org_name: str = typing.Field(default=None)
 
         @property
         def org_name(self):
             from pynchon.config import git
+
             return git.github_org
 
     @cli.click.option("--org", "-o")

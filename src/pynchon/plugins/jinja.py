@@ -15,16 +15,16 @@ class Jinja(models.Planner):
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "jinja"
-        template_includes:typing.List[str] = abcs.Field(default=[])
-        exclude_patterns:typing.List[str] = abcs.Field()
+        config_key: typing.ClassVar[str] = "jinja"
+        template_includes: typing.List[str] = typing.Field(default=[])
+        exclude_patterns: typing.List[str] = typing.Field()
 
         # @tagging.tagged_property(conflict_strategy="override")
         @property
         def exclude_patterns(self):
             globals = plugin_util.get_plugin("globals").get_current_config()
             global_ex = globals.exclude_patterns
-            my_ex = self.__dict__.get('exclude_patterns',[])
+            my_ex = self.__dict__.get("exclude_patterns", [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
     name = "jinja"
@@ -106,7 +106,7 @@ class Jinja(models.Planner):
         """
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
-        project_root = proj_conf.get('root',None) or self[:"git.root":"."]
+        project_root = proj_conf.get("root", None) or self[:"git.root":"."]
         globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]

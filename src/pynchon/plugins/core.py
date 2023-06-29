@@ -36,8 +36,8 @@ class Core(models.Planner):
     # @typing.validate_arguments
     def cfg(self):
         """Show current project config (with templating/interpolation)"""
-        # import IPython; IPython.embed()
-        return self.project_config
+        tmp = self.project_config
+        return tmp
 
     @cli.click.flag("--bash", help="bootstrap bash")
     @cli.click.flag("--bashrc", help="bootstrap bashrc")
@@ -134,6 +134,7 @@ class Core(models.Planner):
         Returns (almost) raw config, without interpolation
         """
         from pynchon.config import RAW
+
         print(RAW.json())
 
     def plan(

@@ -12,22 +12,22 @@ IMG = "ghcr.io/mermaid-js/mermaid-cli/mermaid-cli"
 
 
 class Mermaid(models.Planner):
-    """ Mermaid Plugin """
+    """Mermaid Plugin"""
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "mermaid"
+        config_key: typing.ClassVar[str] = "mermaid"
 
     name = "mermaid"
     cli_name = "mermaid"
-    
-    @property 
+
+    @property
     def working_dir(self):
         """ """
         return abcs.Path(".").absolute()
 
     def list(self):
-        """ 
-        Find mermaid diagrams under `{{project_root}}/**/*.mmd` 
+        """
+        Find mermaid diagrams under `{{project_root}}/**/*.mmd`
         """
         includes = "**/*.mmd"
         search = [
@@ -50,7 +50,7 @@ class Mermaid(models.Planner):
         output_mode: str = "svg",
         output: str = "",
     ):
-        """ 
+        """
         Renders mermaid diagram to image
         """
         if in_place:
@@ -73,7 +73,7 @@ class Mermaid(models.Planner):
         self,
         config=None,
     ) -> models.Plan:
-        """ Run planning for this plugin """
+        """Run planning for this plugin"""
         plan = super(self.__class__, self).plan(config=config)
         self.logger.debug("planning for rendering for .mmd mermaid files..")
         cmd_t = (

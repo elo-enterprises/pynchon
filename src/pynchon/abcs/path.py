@@ -1,8 +1,6 @@
 """ {{pkg}}.abcs.path
 """
 import os
-import json
-from types import MappingProxyType
 from fnmatch import fnmatch
 
 from pynchon.util import lme, typing
@@ -12,6 +10,7 @@ LOGGER = lme.get_logger(__name__)
 
 class Path(typing.PathType):
     """ """
+
     def endswith(self, other) -> bool:
         return str(self).endswith(other)
 
@@ -39,6 +38,7 @@ class Path(typing.PathType):
             if match:
                 quiet or LOGGER.info(f"{self} matches exclude @{match}")
                 return match
+
     def match_glob(self, pattern):
         """
 
@@ -58,5 +58,7 @@ class Path(typing.PathType):
     def list(self) -> typing.List[str]:
         return [x for x in os.listdir(str(self))]
 
+
 from pynchon.util.text.dumps import JSONEncoder
-JSONEncoder.register_encoder(type=Path,fxn=str)
+
+JSONEncoder.register_encoder(type=Path, fxn=str)

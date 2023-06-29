@@ -1,7 +1,7 @@
 """ pynchon.models.plugins.cli """
 import functools
 
-import rich 
+import rich
 
 from pynchon import api, cli, events, fleks, shimport  # noqa
 from pynchon.bin import entry  # noqa
@@ -157,11 +157,12 @@ class CliPlugin(PynchonPlugin):
             # if hasattr(result, 'display'):
             rproto = getattr(result, "__rich__", None)
             if rproto:
-                LOGGER.warning(f'rproto {result}') 
+                LOGGER.warning(f"rproto {result}")
                 from pynchon.util.lme import CONSOLE
+
                 CONSOLE.print(result)
-            elif hasattr(result, 'as_dict'):
-                LOGGER.warning(f'as_dict {result}') 
+            elif hasattr(result, "as_dict"):
+                LOGGER.warning(f"as_dict {result}")
                 rich.print(result.as_dict())
             else:
                 return result

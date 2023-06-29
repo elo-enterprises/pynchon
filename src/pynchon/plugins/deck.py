@@ -15,14 +15,14 @@ class Deck(models.ResourceManager):
     contribute_plan_apply = True
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "deck"
-        root:str = abcs.Field(default="{{docs.root}}/slides")
-        pandoc_docker:str = abcs.Field(default="pandoc/core")
-        pandoc_engine:str = abcs.Field(default="dzslides")
-        pandoc_args:str = abcs.Field(default="")
-        apply_hooks:typing.List[str] = abcs.Field(default=["open-after"])
-        include_patterns:typing.List[str] = abcs.Field(default=["*.md"])
-        
+        config_key: typing.ClassVar[str] = "deck"
+        root: str = typing.Field(default="{{docs.root}}/slides")
+        pandoc_docker: str = typing.Field(default="pandoc/core")
+        pandoc_engine: str = typing.Field(default="dzslides")
+        pandoc_args: str = typing.Field(default="")
+        apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
+        include_patterns: typing.List[str] = typing.Field(default=["*.md"])
+
     def plan(self, **kwargs):
         plan = super().plan()
         root = self["root"]

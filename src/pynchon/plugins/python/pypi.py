@@ -7,10 +7,10 @@ LOGGER = lme.get_logger(__name__)
 
 
 class PyPiConfig(abcs.Config):
-    config_key: typing.ClassVar[str] =  "pypi"
-    name:str = abcs.Field(default="Public PyPI")
-    docs_url:str = abcs.Field(default="https://pypi.org/")
-    base_url:str = abcs.Field(default="https://pypi.org/project")
+    config_key: typing.ClassVar[str] = "pypi"
+    name: str = typing.Field(default="Public PyPI")
+    docs_url: str = typing.Field(default="https://pypi.org/")
+    base_url: str = typing.Field(default="https://pypi.org/project")
 
 
 class PyPI(models.Provider):

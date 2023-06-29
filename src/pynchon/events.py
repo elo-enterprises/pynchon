@@ -7,14 +7,16 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 
+
 class Signal(blinker.base.Signal):
     def _cleanup_receiver(self, *args, **kwargs):
         try:
-            return super(Signal,self)._cleanup_receiver(*args, **kwargs)
+            return super()._cleanup_receiver(*args, **kwargs)
         except (Exception,) as exc:
-            pass 
+            pass
             # LOGGER.critical(f"ignoring exception")
-        
+
+
 lifecycle = Signal("lifecyle")
 bootstrap = Signal("bootstrap")
 
@@ -73,13 +75,15 @@ def lifecycle_msg(sender, msg=None, **unused):
         tmp = getattr(sender, "name", getattr(sender, "__name__", str(sender)))
         LOGGER.info(f"lifecycle :{tmp}: {msg}")
 
+
 # ATTACHED=[]
 def _lifecycle(sender, **signals):
     """ """
     from pynchon import events as THIS
+
     for k in signals:
         # if k in ATTACHED:
-        #     continue 
+        #     continue
         # LOGGER.critical(f'attaching {k}')
         dispatch = getattr(THIS, f"lifecycle_{k}", None)
         assert dispatch

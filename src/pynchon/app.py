@@ -66,7 +66,9 @@ class AppConsole(AppBase):
         )
 
         atexit.register(
-            lambda: self.events.lifecycle.send(self, stage=r"\o/" if not self.exc else "❌", msg="")
+            lambda: self.events.lifecycle.send(
+                self, stage=r"\o/" if not self.exc else "❌", msg=""
+            )
         )  # noqa: W605
         return tmp
 
@@ -97,14 +99,15 @@ class AppConsole(AppBase):
 
 class AppExitHooks(AppBase):
     """ """
-    exc=None
+
+    exc = None
     hooks_installed = False
     # https://stackoverflow.com/questions/9741351/how-to-find-exit-code-or-reason-when-atexit-callback-is-called-in-python
 
     # def uninstall(self):
     def install_exit_hooks(self) -> None:
         if not self.hooks_installed:
-            msg="Installing exit handlers"
+            msg = "Installing exit handlers"
             LOGGER.critical(msg)
             self.events.lifecycle.send(self, msg=msg)
             self._sys_exit = sys.exit
@@ -112,7 +115,7 @@ class AppExitHooks(AppBase):
             sys.exit = self.exit
             sys.excepthook = self.exc_handler
             atexit.register(self.exit_handler)
-            self.hooks_installed=True
+            self.hooks_installed = True
 
     def exit(self, code=0):
         self.exit_code = code
@@ -150,7 +153,7 @@ class AppExitHooks(AppBase):
             self.console.print(text)
             self.events.lifecycle.send(self, stage="❌")
             return True
-    
+
     def default_exit_handler(self):
         """ """
         exc = self.exception
@@ -158,7 +161,7 @@ class AppExitHooks(AppBase):
             LOGGER.critical(f"default_exit_handler: encountered exception")
             self.events.lifecycle.send(self, stage="❌")
         else:
-            pass 
+            pass
             # LOGGER.critical(f"default_exit_handler: "+r"\o/")
             # self.events.lifecycle.send(self, stage=r"\o/")
             # self.status_bar.update(stage=r"\o/", msg="", force=True)

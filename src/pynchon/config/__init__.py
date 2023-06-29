@@ -48,11 +48,8 @@ pynchon = PYNCHON = CoreConfig(
     **MERGED_CONFIG_FILES,
 )
 RAW = PYNCHON.copy()
-# PLUGINS = PYNCHON["plugins"] = list(
-#     set(PYNCHON["plugins"] + PYNCHON.plugins + ["core"])
-# )
-PLUGINS = PYNCHON["plugins"] 
-
+PLUGINS = PYNCHON["plugins"]
+LOGGER.warning("plugins: {PLUGINS}")
 # FIXME: get from registry or mcls
 _all_names = PLUGINS + Meta.NAMES
 
@@ -72,7 +69,4 @@ events.lifecycle.send(
     stage=msg,
 )
 
-# USER_DEFAULTS = {}
-USER_DEFAULTS = render.dictionary(
-    input=RAW.copy(), 
-    context=dict(pynchon=RAW))
+USER_DEFAULTS = render.dictionary(input=RAW.copy(), context=dict(pynchon=RAW))

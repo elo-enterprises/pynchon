@@ -12,7 +12,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class FixMeConfig(abcs.Config):
-    config_key: typing.ClassVar[str] =  "fixme"
+    config_key: typing.ClassVar[str] = "fixme"
 
 
 class FixMe(models.Planner):
@@ -22,12 +22,7 @@ class FixMe(models.Planner):
     config_class = FixMeConfig
 
     def plan(self, config: dict = None) -> typing.List:
-        """....
-
-        :param config: dict:  (Default value = None)
-        :param config: dict:  (Default value = None)
-
-        """
+        """ """
         config = config or self.__class__.get_current_config()
         plan = super(self.__class__, self).plan(config)
         target = abcs.Path(self.project_config["docs"]["root"]) / "FIXME.md"

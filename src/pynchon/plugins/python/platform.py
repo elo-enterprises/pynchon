@@ -2,8 +2,6 @@
 """
 import platform as stdlib_platform
 
-from memoized_property import memoized_property
-
 from pynchon import abcs, cli, models
 from pynchon.util import lme, python, tagging, typing
 from pynchon.util.os import invoke
@@ -14,18 +12,18 @@ LOGGER = lme.get_logger(__name__)
 @tagging.tags(click_aliases=["py"])
 class PythonPlatform(models.Planner):
     """Context for python-platform"""
-    
+
     priority = 2
     name = "python"
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "python"
-        libcst: typing.Dict[str,typing.Any]=abcs.Field(default={})
-        
-        @property 
+        libcst: typing.Dict[str, typing.Any] = typing.Field(default={})
+
+        @property
         def version(self):
             return stdlib_platform.python_version()
-        
+
         @property
         def is_package(self) -> bool:
             return python.is_package(".")
@@ -83,7 +81,7 @@ class PackageConfig(abcs.Config):
     """WARNING: `parent` below prevents moving this class elsewhere"""
 
     parent = PythonPlatform.config_class
-    config_key: typing.ClassVar[str] =  "package"
+    config_key: typing.ClassVar[str] = "package"
 
     @property
     def name(self) -> str:

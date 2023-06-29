@@ -14,10 +14,9 @@ class PythonAPI(models.ShyPlanner):
     name = "python-api"
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "python-api"
-        skip_private_methods:bool =abcs.Field(default=True)
-        skip_patterns:typing.List[str] =abcs.Field(default=[])
-
+        config_key: typing.ClassVar[str] = "python-api"
+        skip_private_methods: bool = typing.Field(default=True)
+        skip_patterns: typing.List[str] = typing.Field(default=[])
 
     @cli.click.group("gen")
     def gen(self):

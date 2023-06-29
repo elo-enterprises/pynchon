@@ -14,7 +14,7 @@ class LibCST(models.Planner):
     """
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "python-libcst"
+        config_key: typing.ClassVar[str] = "python-libcst"
 
     name = "python-libcst"
     cli_name = "python-libcst"

@@ -354,8 +354,7 @@ class ModulesWrapper(Base):
         exclude_names: typing.List[str] = [],
         **kwargs,
     ) -> typing.Dict:
-        """
-        """
+        """ """
         if name_is:
             filter_names = [lambda name: name == name_is] + filter_names
         if exclude_private:

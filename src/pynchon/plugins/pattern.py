@@ -2,10 +2,10 @@
 """
 
 from pynchon import abcs, cli, constants, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
-from pynchon.util.os import invoke
-from pynchon.util import text
 from pynchon.api import render
+from pynchon.util.os import invoke
+
+from pynchon.util import lme, tagging, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -22,15 +22,14 @@ class Pattern(models.ResourceManager):
     cli_name = "pattern"
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "pattern"
-        include_patterns:typing.List[str] = abcs.Field(default=["*/", "*/*/"])
+        config_key: typing.ClassVar[str] = "pattern"
+        include_patterns: typing.List[str] = typing.Field(default=["*/", "*/*/"])
 
         @property
         def root(self):
             tmp = PETR / "scaffolds"
             assert tmp.exists(), tmp
             return tmp
-
 
     @property
     def patterns(self) -> typing.Dict:
@@ -72,7 +71,7 @@ class Pattern(models.ResourceManager):
     @cli.click.argument("dest", nargs=1)
     @cli.options.plan
     def sync(self, should_plan: bool = False, dest: str = None, kind: str = None):
-        """ Synchronize DEST from KIND """
+        """Synchronize DEST from KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
         tmp = self.pattern_names
@@ -84,32 +83,34 @@ class Pattern(models.ResourceManager):
         folder = abcs.Path(dest).absolute()
         for f in self._get_template_files(destp):
             after = self._render_file(dest=f)
-            with open(f,'r') as fhandle:
+            with open(f) as fhandle:
                 before = fhandle.read()
-            if before!=after:
+            if before != after:
                 # LOGGER.critical('rendering {f} creates changes!')
                 fabs = f.absolute()
-                plan.append(self.goal(
-                    type='sync',
-                    command=f'cp {destp} {fabs}',
-                    resource=f,
-                    ))
+                plan.append(
+                    self.goal(
+                        type="sync",
+                        command=f"cp {destp} {fabs}",
+                        resource=f,
+                    )
+                )
         if should_plan:
-            LOGGER.critical( plan )
+            LOGGER.critical(plan)
             return plan
         else:
-            return plan.apply() #return dict(changes=changes)
-    
+            return plan.apply()  # return dict(changes=changes)
+
     def _get_template_files(self, folder) -> typing.List:
         return list([x for x in folder.glob("*") if not x.is_dir()])
-    
+
     def _get_template_dirs(self, folder) -> typing.List:
         return list([x for x in folder.glob("**/") if x.is_dir()])
-    
+
     @cli.options.plan
     @cli.click.argument("dest", nargs=1)
-    def render(self, dest, should_plan:bool=False):
-        """ Renders content inside folder @ DEST """
+    def render(self, dest, should_plan: bool = False):
+        """Renders content inside folder @ DEST"""
         folder = abcs.Path(dest).absolute()
         name = folder.name
         if not folder.exists():
@@ -144,15 +145,17 @@ class Pattern(models.ResourceManager):
                     )
             files = list([x for x in folder.glob("*") if not x.is_dir()])
             # rendered_files=[]
-            
+
             for f in files:
-                with open(f, "r") as fhandle:
+                with open(f) as fhandle:
                     if render.is_templated(fhandle.read()):
-                        plan.append(self.goal(
-                            resource=f, 
-                            command=f"pynchon pattern render-file {f} --name {name}",
-                            type="render",
-                        ))
+                        plan.append(
+                            self.goal(
+                                resource=f,
+                                command=f"pynchon pattern render-file {f} --name {name}",
+                                type="render",
+                            )
+                        )
 
             if should_plan:
                 return plan
@@ -161,11 +164,11 @@ class Pattern(models.ResourceManager):
 
     @cli.click.option("--name", required=True)
     @cli.click.argument("dest", nargs=1)
-    def render_file(self, dest=None, name='') -> bool:
+    def render_file(self, dest=None, name="") -> bool:
         """ """
         f = abcs.Path(dest)
         assert f.exists()
-        rendered = self._render_file(dest=dest,name=name)
+        rendered = self._render_file(dest=dest, name=name)
         if rendered is None:
             raise SystemExit(1)
         else:
@@ -173,21 +176,19 @@ class Pattern(models.ResourceManager):
                 fhandle.write(rendered)
             return True
 
-    def _render_file(self, dest=None, name='') -> str:
+    def _render_file(self, dest=None, name="") -> str:
         """ """
         f = abcs.Path(dest)
         LOGGER.warning(f"rendering `{f}` in-place")
         try:
             tmpl = render.get_template_from_file(f)
         except (Exception,) as exc:
-            LOGGER.critical(f'failed to get_template_from_file @ {f}: {exc}')
+            LOGGER.critical(f"failed to get_template_from_file @ {f}: {exc}")
             return None
         else:
             assert tmpl
-            rendered = tmpl.render(
-                name=name, 
-                **self.project_config)            
-            return rendered 
+            rendered = tmpl.render(name=name, **self.project_config)
+            return rendered
 
     @cli.click.argument("dest", nargs=1)
     @cli.click.argument("kind", nargs=1)
@@ -215,12 +216,11 @@ class Pattern(models.ResourceManager):
             LOGGER.critical(f"Choices are: {choices}")
         else:
             plan = super(self.__class__, self).plan()
-            dest = abcs.Path(name).absolute() 
+            dest = abcs.Path(name).absolute()
             if dest.exists():
                 LOGGER.warning(f"{dest} already exists!")
             fadvice = pfolder / ".scaffold.advice.json5"
             if fadvice.exists():
-
                 advice = text.loadf.json5(file=fadvice)
                 inherits = advice.get("inherits", [])
                 inherits = [self.pattern_folder / p for p in inherits]

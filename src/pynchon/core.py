@@ -2,8 +2,8 @@
 """
 import os
 
-from pynchon import __version__, abcs, constants
-from pynchon.util import lme, tagging, typing
+from pynchon import abcs, constants
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
@@ -52,19 +52,23 @@ def validate(kls=None, self=None, vdata=None):
 
     for k, v in dict(self).items():
         validate_config(k, v)
+
+
 DEFAULT_PLUGINS = list(set(constants.DEFAULT_PLUGINS))
+
 
 class Config(abcs.Config):
     """ """
+
     priority: typing.ClassVar[int] = 1
     config_key: typing.ClassVar[str] = "pynchon"
-    
+
     class Config:
         # fields = {
         #     '_root': 'root',
         # }
         arbitrary_types_allowed = True
-        #https://github.com/pydantic/pydantic/discussions/5159
+        # https://github.com/pydantic/pydantic/discussions/5159
         frozen = True
 
     # defaults = dict(
@@ -85,7 +89,7 @@ class Config(abcs.Config):
     #     # Do Pydantic validation
     #     super().__init__(*args, **kwargs)
     #     # Do things after Pydantic validation
-    #     self.core_config=kwargs 
+    #     self.core_config=kwargs
     #     # if not any([self.alias, self.category, self.brand]):
     #     #     raise ValueError("No alias provided")
 
@@ -97,7 +101,8 @@ class Config(abcs.Config):
         * {{git.root}}
         """
         from pynchon import config
-        root = self.__dict__.get('root')
+
+        root = self.__dict__.get("root")
         root = root or os.environ.get("PYNCHON_ROOT")
         root = root or config.GIT.root
         root = root or self.working_dir
@@ -114,10 +119,12 @@ class Config(abcs.Config):
         plus pynchon's core set of default plugins.
         """
         from pynchon.config import MERGED_CONFIG_FILES
-        plugins = MERGED_CONFIG_FILES.get('plugins',[])
-        if not plugins: 
-            raise Exception(MERGED_CONFIG_FILES)
-        return list(set(DEFAULT_PLUGINS+plugins))
+
+        plugins = MERGED_CONFIG_FILES.get("plugins", [])
+        if not plugins:
+            LOGGER.warning("no user-provided plugins found so far")
+            # raise Exception(MERGED_CONFIG_FILES)
+        return list(set(DEFAULT_PLUGINS + plugins))
 
     @property
     def working_dir(self):

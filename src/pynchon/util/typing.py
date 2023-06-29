@@ -8,23 +8,16 @@ one convenient namespace.
 import typing
 from pathlib import Path as BasePath
 
+from pydantic import BaseModel,Field, validate_arguments # noqa
+
 from types import *  # noqa
 from typing import *  # noqa
+
 
 # from typing_extensions import Annotated
 
 
-try:
-    import pydantic
-
-    validate = pydantic.validate_arguments  # noqa
-except (ImportError,):
-    # FIXME: similar to deal-contracts, might want to NO-OP this for `python -O`
-    def validate(fxn):
-        return fxn
-
-
-validate_arguments = validate
+validate = validate_arguments
 
 
 def bind_method(func, instance, as_name=None):

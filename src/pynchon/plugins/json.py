@@ -51,7 +51,7 @@ class Json(models.ToolPlugin):
     """Tools for working with JSON & JSON5"""
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "json"
+        config_key: typing.ClassVar[str] = "json"
 
     # cli_subsumes: typing.List[typing.Callable] = [
     #     loadf_main.json5,

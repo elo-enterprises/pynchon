@@ -14,7 +14,9 @@ entry = common.entry_for(__name__)
 from pynchon import shimport
 
 tmp = (
-    shimport.wrapper("pynchon.util.makefile",)
+    shimport.wrapper(
+        "pynchon.util.makefile",
+    )
     .prune(
         exclude_private=True,
         filter_instances=typing.FunctionType,

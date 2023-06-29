@@ -42,11 +42,12 @@ class OpenerMixin:
         relf = pfile.relative_to(abcs.Path(self.git_root))
         port = self.server.port
         if port is None:
-            LOGGER.critical('no server yet..')
+            LOGGER.critical("no server yet..")
             self.serve()
             import time
+
             time.sleep(3)
-            return self._open_grip(file= file)
+            return self._open_grip(file=file)
         grip_url = f"http://localhost:{port}/{relf}"
         LOGGER.warning(f"opening {grip_url}")
         return dict(url=grip_url, browser=webbrowser.open(grip_url))
@@ -77,11 +78,12 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     """
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "docs"
+        config_key: typing.ClassVar[str] = "docs"
 
         @property
         def root(self):
             from pynchon.config import GIT, pynchon
+
             tmp = GIT.root
             return tmp or pynchon["working_dir"]
 
@@ -93,7 +95,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
     @property
     def server_pid(self):
-        tmp=self.server.proc 
+        tmp = self.server.proc
         return tmp and tmp.pid
 
     @property

@@ -1,6 +1,5 @@
 """ pynchon.plugins.git
 """
-from memoized_property import memoized_property
 
 from pynchon import abcs, models
 from pynchon.util import files, lme, os, tagging, typing
@@ -12,8 +11,8 @@ class GitConfig(abcs.Config):
     """ """
 
     # _root: str = None
-    config_key: typing.ClassVar[str] = 'git'
-    
+    config_key: typing.ClassVar[str] = "git"
+
     # class Config:
     #     fields = {
     #         # '_root': 'root',
@@ -29,7 +28,8 @@ class GitConfig(abcs.Config):
         if self.root:
             pre = f"cd {self.root} && " if self.root else ""
             return os.invoke(f"{pre}{cmd}", log_command=log_command, **kwargs)
-    # 
+
+    #
     # @memoized_property
     # def default_remote_branch(self) -> typing.StringMaybe:
     #     """ """
@@ -40,7 +40,7 @@ class GitConfig(abcs.Config):
     @property
     def root(self) -> typing.StringMaybe:
         """ """
-        tmp = self.__dict__.get('_root')
+        tmp = self.__dict__.get("_root")
         if tmp:
             return tmp
         tmp = files.get_git_root(abcs.Path("."))

@@ -36,19 +36,19 @@ class SourceMan(models.ResourceManager):
     """Management tool for project source"""
 
     class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] =  "src"
-        goals:typing.List[str] = abcs.Field(default=[])
-        
-        @property 
+        config_key: typing.ClassVar[str] = "src"
+        goals: typing.List[str] = typing.Field(default=[])
+
+        @property
         def root(self):
-            return self.__dict__.get('root','???')
+            return self.__dict__.get("root", "???")
 
     name = "src"
     cli_name = "src"
     priority = 0
 
     # @tagging.tagged_property(conflict_strategy="override")
-    @property 
+    @property
     def exclude_patterns(self):
         from pynchon.plugins import util as plugin_util
 

@@ -41,14 +41,16 @@ class Goal(metaclass=meta.namespace):
             ),
             subtitle=app.Text(f"{self.owner}", style="dim italic"),
         )
+
     def _asdict(self):
-        return dict(    
+        return dict(
             resource=self.resource,
             command=self.command,
             type=self.type,
             owner=self.owner,
-            label=self.label,)
-    
+            label=self.label,
+        )
+
     def __str__(self):
         """ """
         tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
