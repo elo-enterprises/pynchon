@@ -148,9 +148,7 @@ def find_globs(
     logger = logger or LOGGER
     quiet or logger.info(f"finding files matching {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
-    matches = functools.reduce(
-        lambda x, y: x + y, globs,
-        [])
+    matches = functools.reduce(lambda x, y: x + y, globs, [])
     for i, m in enumerate(matches):
         for d in includes:
             if abcs.Path(d).has_file(m):

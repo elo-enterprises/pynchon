@@ -74,10 +74,12 @@ class Action(typing.BaseModel):
 # class Plan(typing.List[Goal], metaclass=meta.namespace):
 class Plan(typing.BaseModel):
     """ """
-    goals:typing.List[Goal] = typing.Field(default=[])
+
+    goals: typing.List[Goal] = typing.Field(default=[])
 
     def __len__(self):
         return len(self.goals)
+
     # def __init__(self, *args, **kwargs):
     #     for arg in args:
     #         if not isinstance(arg, (Goal,)):
@@ -122,6 +124,7 @@ class Plan(typing.BaseModel):
             # else Text('❌', style='red'),
         )
         return panel
+
     #
     # @property
     # def _dict(self):
@@ -135,13 +138,18 @@ class Plan(typing.BaseModel):
     #     return result
     #
     def append(self, other: Goal):
-        """
-        """
+        """ """
         if isinstance(other, (Goal,)):
-            self.goals +=[other]
-        elif isinstance(other,(Plan,)):
-            self.goals +=other.goals
-        elif isinstance(other,(list,tuple,)):
+            self.goals += [other]
+        elif isinstance(other, (Plan,)):
+            self.goals += other.goals
+        elif isinstance(
+            other,
+            (
+                list,
+                tuple,
+            ),
+        ):
             self.goals += other
         else:
             raise NotImplementedError(type(other))
@@ -150,12 +158,19 @@ class Plan(typing.BaseModel):
         """ """
         if isinstance(other, (Goal,)):
             return Plan(goals=self.goals + [other])
-        elif isinstance(other,(Plan,)):
+        elif isinstance(other, (Plan,)):
             return Plan(goals=self.goals + other.goals)
-        elif isinstance(other,(list,tuple,)):
+        elif isinstance(
+            other,
+            (
+                list,
+                tuple,
+            ),
+        ):
             return Plan(goals=self.goals + other)
         else:
             raise NotImplementedError(type(other))
+
     __iadd__ = __add__
 
     # def __str__(self):
@@ -187,5 +202,7 @@ class ApplyResults(typing.List[Action], metaclass=meta.namespace):
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{len(self)} actions]>"
+
+
 # from pynchon.util.text import dumps
 # dumps.JSONEncoder.register_encoder(type=Plan,)

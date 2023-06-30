@@ -22,7 +22,7 @@ class JSONEncoder(modjson.JSONEncoder):
         :param obj:
         """
         result = None
-        if callable(getattr(obj,'json',None)):
+        if callable(getattr(obj, "json", None)):
             return obj.json()
         for _type, fxn in self.encoders.items():
             if isinstance(obj, (_type,)):

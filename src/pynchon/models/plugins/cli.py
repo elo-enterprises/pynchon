@@ -1,8 +1,6 @@
 """ pynchon.models.plugins.cli """
 import functools
 
-import rich
-
 from pynchon import api, cli, events, fleks, shimport  # noqa
 from pynchon.bin import entry  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
@@ -151,7 +149,7 @@ class CliPlugin(PynchonPlugin):
         def wrapper(*args, fxn=fxn, **kwargs):
             LOGGER.critical(f"calling {fxn} from wrapper")
             result = fxn(*args, **kwargs)
-            
+
             # FIXME: this wraps twice?
             # from rich import print_json
             # print_json(text.to_json(result))
@@ -160,6 +158,7 @@ class CliPlugin(PynchonPlugin):
             if rproto:
                 LOGGER.warning(f"rproto {result}")
                 from pynchon.util.lme import CONSOLE
+
                 CONSOLE.print(result)
             # elif hasattr(result, "as_dict"):
             #     LOGGER.warning(f"as_dict {result}")
