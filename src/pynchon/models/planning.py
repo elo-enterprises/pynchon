@@ -11,14 +11,14 @@ from pynchon.util import lme, typing  # noqa
 ResourceType = typing.Union[str, abcs.Path]
 
 
-class Goal(abcs.Config):
+class Goal(typing.BaseModel):
     """ """
 
     resource: ResourceType = typing.Field(default="?r", required=False)
     command: str = typing.Field(default="?c")
     type: str = typing.Field(default="?t", required=False)
     owner: str = typing.Field(default="?o")
-    label: str = typing.Field(default="?l")
+    label: typing.StringMaybe = typing.Field(default=None)
 
     def __rich__(self) -> str:
         from pynchon import shfmt
@@ -42,23 +42,13 @@ class Goal(abcs.Config):
             subtitle=app.Text(f"{self.owner}", style="dim italic"),
         )
 
-    # def _asdict(self):
-    #     return dict(
-    #         resource=self.resource,
-    #         command=self.command,
-    #         type=self.type,
-    #         owner=self.owner,
-    #         label=self.label,
-    #     )
-
     # def __str__(self):
     #     """ """
     #     tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
     #     return f"<{self.__class__.__name__}[{tmp}]>"
 
 
-# @dataclass(frozen=True)
-class Action(typing.BaseModel):  # metaclass=meta.namespace):
+class Action(typing.BaseModel):
     """ """
 
     type: str = typing.Field(default="unknown_action_type")
@@ -144,10 +134,8 @@ class Plan(typing.BaseModel):
     #     result.update(**actions_by_type)
     #     return result
     #
-    # @typing.validate_arguments
     def append(self, other: Goal):
         """
-        :param other: Goal:
         """
         if isinstance(other, (Goal,)):
             self.goals +=[other]
@@ -157,18 +145,19 @@ class Plan(typing.BaseModel):
             self.goals += other
         else:
             raise NotImplementedError(type(other))
-            # eturn Plan(goals=self.goals+[other])
 
-    # # @typing.validate_arguments
-    # def __add__(self, other):
-    #     """
-    #     :param other:
-    #     """
-    #     assert isinstance(other, (Plan,))
-    #     return Plan(*(other + self))
-    #
-    # __iadd__ = __add__
-    #
+    def __add__(self, other):
+        """ """
+        if isinstance(other, (Goal,)):
+            return Plan(goals=self.goals + [other])
+        elif isinstance(other,(Plan,)):
+            return Plan(goals=self.goals + other.goals)
+        elif isinstance(other,(list,tuple,)):
+            return Plan(goals=self.goals + other)
+        else:
+            raise NotImplementedError(type(other))
+    __iadd__ = __add__
+
     # def __str__(self):
     #     return f"<{self.__class__.__name__}[{len(self)} goals]>"
 
@@ -198,3 +187,5 @@ class ApplyResults(typing.List[Action], metaclass=meta.namespace):
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{len(self)} actions]>"
+# from pynchon.util.text import dumps
+# dumps.JSONEncoder.register_encoder(type=Plan,)

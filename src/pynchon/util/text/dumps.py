@@ -22,7 +22,8 @@ class JSONEncoder(modjson.JSONEncoder):
         :param obj:
         """
         result = None
-
+        if callable(getattr(obj,'json',None)):
+            return obj.json()
         for _type, fxn in self.encoders.items():
             if isinstance(obj, (_type,)):
                 LOGGER.warning(f"{obj} matches {_type}, using {fxn}")
@@ -55,9 +56,8 @@ def yaml(file=None, content=None, obj=None):
 def json(obj, cls=None, minified=False, indent: int = 2) -> str:
     """ """
     indent = None if minified else indent
-    from pynchon.abcs.path import JSONEncoder
-
-    cls = cls or JSONEncoder
+    # from pynchon.abcs.path import JSONEncoder
+    cls = cls if cls is not None else JSONEncoder
     return modjson.dumps(obj, indent=indent, cls=cls)
 
 

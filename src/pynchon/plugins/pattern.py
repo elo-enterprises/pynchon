@@ -147,7 +147,7 @@ class Pattern(models.ResourceManager):
 
         if should_plan:
             LOGGER.critical(plan)
-            import IPython; IPython.embed()
+            # import IPython; IPython.embed()
             return plan
         else:
             return plan.apply()  # return dict(changes=changes)
