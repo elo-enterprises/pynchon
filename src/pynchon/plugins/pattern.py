@@ -12,6 +12,27 @@ LOGGER = lme.get_logger(__name__)
 PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
 
+class Scaffold(abcs.Config):
+    root:typing.Union[str,abcs.Path] = typing.Field(required=True)
+    files:typing.List[str] = typing.Field(default=[])
+    dirs:typing.List[str] = typing.Field(default=[])
+    kind:str= typing.Field(required=True)
+    def __str__(self):
+        return f'<Scaffold@`{self.kind}`>'
+    __repr__=__str__
+    @property
+    def files(self) -> typing.List[str]:
+        folder=self.root
+        return list([x for x in folder.glob("*") if not x.is_dir()])
+
+    @property
+    def dirs(self) -> typing.List:
+        folder=self.root
+        return list(
+            [ x
+            for x in folder.glob("**/")
+            if x.is_dir() and not x==folder])
+
 @tagging.tags(click_aliases=["pat"])
 class Pattern(models.ResourceManager):
     """
@@ -62,7 +83,6 @@ class Pattern(models.ResourceManager):
     @cli.click.argument("kind", nargs=1)
     def _open(self, kind):
         """open pattern in editor"""
-
         pfolder = self.pattern_folder / kind
         ed = self[:"pynchon.editor":"atom"]
         invoke(f"{ed} {pfolder}&", system=True)
@@ -73,6 +93,7 @@ class Pattern(models.ResourceManager):
     def sync(self, should_plan: bool = False, dest: str = None, kind: str = None):
         """Synchronize DEST from KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
+
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
         tmp = self.pattern_names
         if kind not in tmp:
@@ -81,31 +102,49 @@ class Pattern(models.ResourceManager):
         plan = []
         destp = abcs.Path(dest)
         folder = abcs.Path(dest).absolute()
-        for f in self._get_template_files(destp):
-            after = self._render_file(dest=f)
-            with open(f) as fhandle:
-                before = fhandle.read()
-            if before != after:
-                # LOGGER.critical('rendering {f} creates changes!')
-                fabs = f.absolute()
-                plan.append(
-                    self.goal(
-                        type="sync",
-                        command=f"cp {destp} {fabs}",
-                        resource=f,
-                    )
-                )
+
+        pattern = Scaffold(
+            kind=kind,
+            root = self.pattern_folder / kind)
+        LOGGER.warning(f"found pattern:\n\t{pattern}")
+        LOGGER.warning(f'tentatively rendering {pattern} to `{destp}`')
+        for pdir in pattern['dirs']:
+            LOGGER.warning(f'\tdir: {pdir}')
+        for src in pattern['files']:
+            LOGGER.warning(f'\tsrc: {src}')
+            dst = src.relative_to(pattern.root)
+            dst = folder/dst
+            LOGGER.warning(f'\tdest: {dst}')
+            if not dst.exists():
+                LOGGER.warning(f"creates: {dest}")
+                plan.append(self.goal(
+                    type='create',
+                    label='create missing file',
+                    resource=dst,
+                    command=f"cp {src} {dest}",))
+            else:
+                LOGGER.critical(f"modifies: {dest}")
+                plan.append(self.goal(
+                    type='sync',
+                    label='sync existing file',
+                    resource=dst,
+                    command=f"cp {src} {dest}",))
+            # after = self._render_file(dest=f)
+            # with open(f) as fhandle:
+            #     before = fhandle.read()
+            # if before != after:
+            #     # LOGGER.critical('rendering {f} creates changes!')
+            #             type="sync",
+            #             command=f"cp {destp} {fabs}",
+            #             resource=f,
+            #         )
+            #     )
+
         if should_plan:
             LOGGER.critical(plan)
             return plan
         else:
             return plan.apply()  # return dict(changes=changes)
-
-    def _get_template_files(self, folder) -> typing.List:
-        return list([x for x in folder.glob("*") if not x.is_dir()])
-
-    def _get_template_dirs(self, folder) -> typing.List:
-        return list([x for x in folder.glob("**/") if x.is_dir()])
 
     @cli.options.plan
     @cli.click.argument("dest", nargs=1)
@@ -117,8 +156,8 @@ class Pattern(models.ResourceManager):
             self.logger.critical(f"Folder @ {folder} does not exist!")
         else:
             plan = super(self.__class__, self).plan()
-            dirs = self._get_template_dirs(folder)
-            files = self._get_template_files(folder)
+            # dirs = self._get_template_dirs(folder)
+            # files = self._get_template_files(folder)
 
             # struct=dict(files=files, dirs=dirs)
             for d in dirs:

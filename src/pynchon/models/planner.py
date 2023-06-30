@@ -22,13 +22,10 @@ class AbstractPlanner(BasePlugin):
 
     @tags(publish_to_cli=False)
     def goal(self, **kwargs):
-        """
-
-        :param **kwargs:
-
-        """
+        """ """
         return planning.Goal(
-            owner=f"{self.__class__.__module__}.{self.__class__.__name__}", **kwargs
+            owner=f"{self.__class__.__module__}.{self.__class__.__name__}",
+            **kwargs
         )
 
     @property

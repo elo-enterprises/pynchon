@@ -1,13 +1,12 @@
 """ pynchon.util.text.dumps """
 import json as modjson
+import yaml as modyaml
 
 from pynchon.util import lme
+from pynchon.util import text
 
 LOGGER = lme.get_logger(__name__)
 
-import yaml as modyaml
-
-from pynchon.util import text
 
 
 class JSONEncoder(modjson.JSONEncoder):
@@ -25,23 +24,24 @@ class JSONEncoder(modjson.JSONEncoder):
         """
         result = None
 
-        for type, fxn in self.encoders.items():
-            if isinstance(obj, (type,)):
-                LOGGER.warning(f"{obj} matches {type}, using {fxn}")
+        for _type, fxn in self.encoders.items():
+            if isinstance(obj, (_type,)):
+                LOGGER.warning(f"{obj} matches {_type}, using {fxn}")
                 return fxn(obj)
+        LOGGER.warning(f"no encoder for for {type(obj)}")
 
-        def default():
+        def toJSON():
             return super(JSONEncoder, self).encode(obj)
 
-        try:
-            toJSON = getattr(obj, "toJSON", default) or default
-        except (Exception,) as exc:
-            toJSON = default
+        # try:
+        #     toJSON = getattr(obj, "toJSON", default) or default
+        # except (Exception,) as exc:
+        #     toJSON = default
         return toJSON()
 
     # FIXME: use multimethod
     def default(self, obj):
-        toJSON = getattr(obj, "toJSON", None)
+        # toJSON = getattr(obj, "toJSON", None)
         # jsonify = getattr(obj, "json", None)
         as_dict = getattr(obj, "as_dict", None)
         if as_dict is not None and callable(as_dict):
@@ -50,17 +50,16 @@ class JSONEncoder(modjson.JSONEncoder):
         # elif jsonify is not None and callable(jsonify):
         #     LOGGER.warning(f"{type(obj)} brings custom json()")
         #     return obj.json()
-        elif toJSON is not None:
-            assert callable(toJSON)
-            LOGGER.warning(f"{type(obj)} brings custom toJSON()")
-            return obj.toJSON()
-        elif isinstance(obj, map):
-            return list(obj)
+        # elif toJSON is not None:
+        #     assert callable(toJSON)
+        #     LOGGER.warning(f"{type(obj)} brings custom toJSON()")
+        #     return obj.toJSON()
+
         else:
             LOGGER.warning(f"coercing {obj} to string")
             # import IPython; IPython.embed()
             return str(obj)
-        return super().default(obj)
+        # return super().default(obj)
 
 
 def yaml(file=None, content=None, obj=None):
@@ -83,3 +82,5 @@ def json(obj, cls=None, minified=False, indent: int = 2) -> str:
 
     cls = cls or JSONEncoder
     return modjson.dumps(obj, indent=indent, cls=cls)
+
+JSONEncoder.register_encoder(type=map, fxn=list)

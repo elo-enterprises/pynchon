@@ -42,22 +42,19 @@ class Core(models.Planner):
     @cli.click.flag("--bash", help="bootstrap bash")
     @cli.click.flag("--bashrc", help="bootstrap bashrc")
     @cli.click.flag("--bash-completions", help="bootstrap completions")
+    @cli.click.flag("--pynchon", help="bootstrap .pynchon.json5")
     @cli.click.flag("--makefile", help="bootstrap Makefile")
     @cli.click.flag("--tox", help="bootstrap tox")
     def bootstrap(
         self,
+        pynchon: bool = False,
         bash: bool = False,
         bash_completions: bool = False,
         bashrc: bool = False,
         makefile: bool = False,
         tox: bool = False,
     ) -> None:
-        """Bootstrap for shell integration, etc
-
-        :param bashrc: bool:  (Default value = False)
-        :param bash: bool:  (Default value = False)
-        :param tox: bool:  (Default value = False)
-        """
+        """Bootstrap for shell integration, etc """
         template_prefix = f"{self.plugin_templates_prefix}/bootstrap"
         pynchon_completions_script = ".tmp.pynchon.completions.sh"
         bashrc_snippet = ".tmp.pynchon.bashrc"
@@ -81,48 +78,56 @@ class Core(models.Planner):
             # print(list(tmp.keys()))
             print(all_known_subcommands)
             return
-        #   if bash:
-        #       rest = [
-        #           f"""    '{k}'*)
-        #         while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(subs)}")" -- "$cur" )
-        #         ;;
-        #       """
-        #           for k, subs in tmp.items()
-        #       ]
-        #       rest += [
-        #           f"""    *)
-        # while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(head)}")" -- "$cur" )
-        # ;;"""
-        #       ]
-        #       # LOGGER.warning("This is intended to be run through a pipe, as in:")
-        #       # LOGGER.critical("pynchon bootstrap --bash | bash")
-        #       tmpl = api.render.get_template(f"{template_prefix}/bash.sh")
-        #       content = tmpl.render(head=head, rest="\n".join(rest), **self.config)
-        #       files.dumps(content=content, file=pynchon_completions_script)
-        #       LOGGER.warning(
-        #           f"To refresh your shell, run: `source {pynchon_completions_script}`"
-        #       )
-        #       return dict()
-        # if bashrc:
-        #     LOGGER.critical(
-        #         "To use completion hints every time they are "
-        #         "present in a folder, adding this to .bashrc:"
-        #     )
-        #     tmpl = api.render.get_template(f"{template_prefix}/bashrc.sh")
-        #     content = tmpl.render(pynchon_completions_script=pynchon_completions_script)
-        #     files.dumps(content=content, file=bashrc_snippet, logger=LOGGER.info)
-        #     return files.block_in_file(
-        #         target_file=abcs.Path("~/.bashrc").expanduser(),
-        #         block_file=bashrc_snippet,
-        #     )
+    #   if bash:
+    #       rest = [
+    #           f"""    '{k}'*)
+    #         while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(subs)}")" -- "$cur" )
+    #         ;;
+    #       """
+    #           for k, subs in tmp.items()
+    #       ]
+    #       rest += [
+    #           f"""    *)
+    # while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_pynchon_completions_filter "{' '.join(head)}")" -- "$cur" )
+    # ;;"""
+    #       ]
+    #       # LOGGER.warning("This is intended to be run through a pipe, as in:")
+    #       # LOGGER.critical("pynchon bootstrap --bash | bash")
+    #       tmpl = api.render.get_template(f"{template_prefix}/bash.sh")
+    #       content = tmpl.render(head=head, rest="\n".join(rest), **self.config)
+    #       files.dumps(content=content, file=pynchon_completions_script)
+    #       LOGGER.warning(
+    #           f"To refresh your shell, run: `source {pynchon_completions_script}`"
+    #       )
+    #       return dict()
+    # if bashrc:
+    #     LOGGER.critical(
+    #         "To use completion hints every time they are "
+    #         "present in a folder, adding this to .bashrc:"
+    #     )
+    #     tmpl = api.render.get_template(f"{template_prefix}/bashrc.sh")
+    #     content = tmpl.render(pynchon_completions_script=pynchon_completions_script)
+    #     files.dumps(content=content, file=bashrc_snippet, logger=LOGGER.info)
+    #     return files.block_in_file(
+    #         target_file=abcs.Path("~/.bashrc").expanduser(),
+    #         block_file=bashrc_snippet,
+    #     )
+        elif pynchon:
+            tmp = abcs.Path('.') / '.pynchon.json5'
+            if tmp.exists():
+                err=f'Cowardly refusing to recreate {tmp}'
+                LOGGER.critical(err)
+                raise SystemExit(1)
+            else:
+                print('pynchon pattern sync . docs --plan')
         elif bash:
-            this_cmd = "pynchon bootstrap --bash"  # FIXME: get from click-ctx
-            LOGGER.debug("collecting `shell_aliases` from all plugins")
-            out = self.siblings.collect_config_dict("shell_aliases")
-            out = "\n".join([f"alias {k}='{v}';" for k, v in out.items()])
-            print(out)
-            LOGGER.warning(f'for this session, use "source <({this_cmd})"')
-            LOGGER.warning(f'for it to be permanent, use "{this_cmd} >> ~/.bashrc"')
+                this_cmd = "pynchon bootstrap --bash"  # FIXME: get from click-ctx
+                LOGGER.debug("collecting `shell_aliases` from all plugins")
+                out = self.siblings.collect_config_dict("shell_aliases")
+                out = "\n".join([f"alias {k}='{v}';" for k, v in out.items()])
+                print(out)
+                LOGGER.warning(f'for this session, use "source <({this_cmd})"')
+                LOGGER.warning(f'for it to be permanent, use "{this_cmd} >> ~/.bashrc"')
         elif tox or makefile:
             tail = "Makefile" if makefile else "tox.ini"
             tmpl = api.render.get_template(f"{template_prefix}/{tail}")

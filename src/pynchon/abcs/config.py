@@ -27,9 +27,8 @@ class Config(
 
     def __init__(self, **this_config) -> None:
         """ """
-        called_defaults = this_config
         kls_defaults = getattr(self.__class__, "defaults", {})
-        super().__init__(**{**kls_defaults, **called_defaults})
+        super().__init__(**{**kls_defaults, **this_config})
         # conflicts = []
         # for pname in self.__class__.__properties__:
         #     if pname in called_defaults or pname in kls_defaults:

@@ -10,15 +10,14 @@ from pynchon.fleks import meta
 from pynchon.util import lme, typing  # noqa
 
 
-@dataclass(frozen=True)
-class Goal(metaclass=meta.namespace):
+# @dataclass(frozen=True)
+class Goal(abcs.Config):#metaclass=meta.namespace):
     """ """
-
-    resource: str = "?r"
-    command: str = "?c"
-    type: str = "?t"
-    owner: str = "?o"
-    label: str = "?l"
+    resource: typing.Union[str, abcs.Path] = typing.Field(default="?r",required=False)
+    command: str = typing.Field(default="?c")
+    type: str = typing.Field(default="?t", required=False)
+    owner: str = typing.Field(default="?o")
+    label: str = typing.Field(default="?l")
 
     def __rich__(self) -> str:
         from pynchon import shfmt
@@ -42,14 +41,14 @@ class Goal(metaclass=meta.namespace):
             subtitle=app.Text(f"{self.owner}", style="dim italic"),
         )
 
-    def _asdict(self):
-        return dict(
-            resource=self.resource,
-            command=self.command,
-            type=self.type,
-            owner=self.owner,
-            label=self.label,
-        )
+    # def _asdict(self):
+    #     return dict(
+    #         resource=self.resource,
+    #         command=self.command,
+    #         type=self.type,
+    #         owner=self.owner,
+    #         label=self.label,
+    #     )
 
     def __str__(self):
         """ """
@@ -57,15 +56,15 @@ class Goal(metaclass=meta.namespace):
         return f"<{self.__class__.__name__}[{tmp}]>"
 
 
-@dataclass(frozen=True)
-class Action(metaclass=meta.namespace):
+# @dataclass(frozen=True)
+class Action(typing.BaseModel): #metaclass=meta.namespace):
     """ """
 
-    type: str = "unknown_action_type"
-    ok: bool = None
-    changed: bool = None
-    resource: str = "??"
-    command: str = "echo"
+    type: str = typing.Field(default="unknown_action_type")
+    ok: bool = typing.Field(default=None)
+    changed: bool = typing.Field(default=None)
+    resource: str = typing.Field(default="??")
+    command: str = typing.Field(default="echo")
 
     @property
     def status_string(self):
