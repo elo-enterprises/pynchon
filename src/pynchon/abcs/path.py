@@ -58,6 +58,7 @@ class Path(typing.PathType):
     def list(self) -> typing.List[str]:
         return [x for x in os.listdir(str(self))]
 
+
 from pynchon.util.text.dumps import JSONEncoder
 
 JSONEncoder.register_encoder(type=Path, fxn=str)

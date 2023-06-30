@@ -24,8 +24,7 @@ class AbstractPlanner(BasePlugin):
     def goal(self, **kwargs):
         """ """
         return planning.Goal(
-            owner=f"{self.__class__.__module__}.{self.__class__.__name__}",
-            **kwargs
+            owner=f"{self.__class__.__module__}.{self.__class__.__name__}", **kwargs
         )
 
     @property

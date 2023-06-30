@@ -1,12 +1,11 @@
 """ pynchon.util.text.dumps """
 import json as modjson
+
 import yaml as modyaml
 
-from pynchon.util import lme
-from pynchon.util import text
+from pynchon.util import lme, text
 
 LOGGER = lme.get_logger(__name__)
-
 
 
 class JSONEncoder(modjson.JSONEncoder):
@@ -28,38 +27,19 @@ class JSONEncoder(modjson.JSONEncoder):
             if isinstance(obj, (_type,)):
                 LOGGER.warning(f"{obj} matches {_type}, using {fxn}")
                 return fxn(obj)
-        LOGGER.warning(f"no encoder for for {type(obj)}")
-
-        def toJSON():
-            return super(JSONEncoder, self).encode(obj)
-
-        # try:
-        #     toJSON = getattr(obj, "toJSON", default) or default
-        # except (Exception,) as exc:
-        #     toJSON = default
-        return toJSON()
+        return super().encode(obj)
 
     # FIXME: use multimethod
     def default(self, obj):
-        # toJSON = getattr(obj, "toJSON", None)
-        # jsonify = getattr(obj, "json", None)
+        if callable(getattr(obj, "json", None)):
+            return obj.json()
         as_dict = getattr(obj, "as_dict", None)
         if as_dict is not None and callable(as_dict):
             LOGGER.warning(f"{type(obj)} brings custom as_dict()")
             return obj.as_dict()
-        # elif jsonify is not None and callable(jsonify):
-        #     LOGGER.warning(f"{type(obj)} brings custom json()")
-        #     return obj.json()
-        # elif toJSON is not None:
-        #     assert callable(toJSON)
-        #     LOGGER.warning(f"{type(obj)} brings custom toJSON()")
-        #     return obj.toJSON()
-
         else:
-            LOGGER.warning(f"coercing {obj} to string")
-            # import IPython; IPython.embed()
-            return str(obj)
-        # return super().default(obj)
+            enc = self.encoders.get(type(obj), str)
+            return enc(obj)
 
 
 def yaml(file=None, content=None, obj=None):
@@ -73,14 +53,12 @@ def yaml(file=None, content=None, obj=None):
 
 
 def json(obj, cls=None, minified=False, indent: int = 2) -> str:
-    """
-    :param indent: int:  (Default value = 2)
-    :param cls:  (Default value = JSONEncoder)
-    """
+    """ """
     indent = None if minified else indent
     from pynchon.abcs.path import JSONEncoder
 
     cls = cls or JSONEncoder
     return modjson.dumps(obj, indent=indent, cls=cls)
+
 
 JSONEncoder.register_encoder(type=map, fxn=list)

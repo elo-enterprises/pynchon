@@ -10,16 +10,6 @@ class Namespace:
         """ """
         return self._asdict()
 
-    def toJSON(self, *args):
-        """
-
-        :param *args:
-
-        """
-        from pynchon.util import text
-
-        return text.to_json(self._dict, *args)
-
     def items(self):
         """ """
         return self._dict.items()

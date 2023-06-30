@@ -13,25 +13,26 @@ PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
 
 class Scaffold(abcs.Config):
-    root:typing.Union[str,abcs.Path] = typing.Field(required=True)
-    files:typing.List[str] = typing.Field(default=[])
-    dirs:typing.List[str] = typing.Field(default=[])
-    kind:str= typing.Field(required=True)
+    root: typing.Union[str, abcs.Path] = typing.Field(required=True)
+    files: typing.List[str] = typing.Field(default=[])
+    dirs: typing.List[str] = typing.Field(default=[])
+    kind: str = typing.Field(required=True)
+
     def __str__(self):
-        return f'<Scaffold@`{self.kind}`>'
-    __repr__=__str__
+        return f"<Scaffold@`{self.kind}`>"
+
+    __repr__ = __str__
+
     @property
     def files(self) -> typing.List[str]:
-        folder=self.root
+        folder = self.root
         return list([x for x in folder.glob("*") if not x.is_dir()])
 
     @property
     def dirs(self) -> typing.List:
-        folder=self.root
-        return list(
-            [ x
-            for x in folder.glob("**/")
-            if x.is_dir() and not x==folder])
+        folder = self.root
+        return list([x for x in folder.glob("**/") if x.is_dir() and not x == folder])
+
 
 @tagging.tags(click_aliases=["pat"])
 class Pattern(models.ResourceManager):
@@ -99,36 +100,40 @@ class Pattern(models.ResourceManager):
         if kind not in tmp:
             LOGGER.critical(f"unrecognized pattern `{kind}`; expected one of {tmp}")
             raise SystemExit(1)
-        plan = []
+        plan = super(self.__class__,self).plan()
         destp = abcs.Path(dest)
         folder = abcs.Path(dest).absolute()
 
-        pattern = Scaffold(
-            kind=kind,
-            root = self.pattern_folder / kind)
+        pattern = Scaffold(kind=kind, root=self.pattern_folder / kind)
         LOGGER.warning(f"found pattern:\n\t{pattern}")
-        LOGGER.warning(f'tentatively rendering {pattern} to `{destp}`')
-        for pdir in pattern['dirs']:
-            LOGGER.warning(f'\tdir: {pdir}')
-        for src in pattern['files']:
-            LOGGER.warning(f'\tsrc: {src}')
+        LOGGER.warning(f"tentatively rendering {pattern} to `{destp}`")
+        for pdir in pattern["dirs"]:
+            LOGGER.warning(f"\tdir: {pdir}")
+        for src in pattern["files"]:
+            LOGGER.warning(f"\tsrc: {src}")
             dst = src.relative_to(pattern.root)
-            dst = folder/dst
-            LOGGER.warning(f'\tdest: {dst}')
+            dst = folder / dst
+            LOGGER.warning(f"\tdest: {dst}")
             if not dst.exists():
                 LOGGER.warning(f"creates: {dest}")
-                plan.append(self.goal(
-                    type='create',
-                    label='create missing file',
-                    resource=dst,
-                    command=f"cp {src} {dest}",))
+                plan.append(
+                    self.goal(
+                        type="create",
+                        label="create missing file",
+                        resource=dst,
+                        command=f"cp {src} {dest}",
+                    )
+                )
             else:
                 LOGGER.critical(f"modifies: {dest}")
-                plan.append(self.goal(
-                    type='sync',
-                    label='sync existing file',
-                    resource=dst,
-                    command=f"cp {src} {dest}",))
+                plan.append(
+                    self.goal(
+                        type="sync",
+                        label="sync existing file",
+                        resource=dst,
+                        command=f"cp {src} {dest}",
+                    )
+                )
             # after = self._render_file(dest=f)
             # with open(f) as fhandle:
             #     before = fhandle.read()
@@ -142,6 +147,7 @@ class Pattern(models.ResourceManager):
 
         if should_plan:
             LOGGER.critical(plan)
+            import IPython; IPython.embed()
             return plan
         else:
             return plan.apply()  # return dict(changes=changes)
@@ -201,33 +207,33 @@ class Pattern(models.ResourceManager):
             else:
                 return self.apply(plan)
 
-    @cli.click.option("--name", required=True)
-    @cli.click.argument("dest", nargs=1)
-    def render_file(self, dest=None, name="") -> bool:
-        """ """
-        f = abcs.Path(dest)
-        assert f.exists()
-        rendered = self._render_file(dest=dest, name=name)
-        if rendered is None:
-            raise SystemExit(1)
-        else:
-            with open(f, "w") as fhandle:
-                fhandle.write(rendered)
-            return True
+    # @cli.click.option("--name", required=True)
+    # @cli.click.argument("dest", nargs=1)
+    # def render_file(self, dest=None, name="") -> bool:
+    #     """ """
+    #     destp = abcs.Path(dest)
+        # assert destp.exists()
+        # rendered = self._render_file(dest=dest, name=name)
+        # if rendered is None:
+        #     raise SystemExit(1)
+        # else:
+        #     with open(f, "w") as fhandle:
+        #         fhandle.write(rendered)
+        #     return True
 
-    def _render_file(self, dest=None, name="") -> str:
-        """ """
-        f = abcs.Path(dest)
-        LOGGER.warning(f"rendering `{f}` in-place")
-        try:
-            tmpl = render.get_template_from_file(f)
-        except (Exception,) as exc:
-            LOGGER.critical(f"failed to get_template_from_file @ {f}: {exc}")
-            return None
-        else:
-            assert tmpl
-            rendered = tmpl.render(name=name, **self.project_config)
-            return rendered
+    # def _render_file(self, dest=None, name="") -> str:
+    #     """ """
+    #     f = abcs.Path(dest)
+    #     LOGGER.warning(f"rendering `{f}` in-place")
+    #     try:
+    #         tmpl = render.get_template_from_file(f)
+    #     except (Exception,) as exc:
+    #         LOGGER.critical(f"failed to get_template_from_file @ {f}: {exc}")
+    #         return None
+    #     else:
+    #         assert tmpl
+    #         rendered = tmpl.render(name=name, **self.project_config)
+    #         return rendered
 
     @cli.click.argument("dest", nargs=1)
     @cli.click.argument("kind", nargs=1)
