@@ -10,7 +10,13 @@ LOGGER = lme.get_logger(__name__)
 
 class Path(typing.PathType):
     """ """
-
+    def read(self) -> str:
+        """ """
+        assert self.exists()
+        with open(str(self),'r') as fhandle:
+            content = fhandle.read()
+        return content
+    
     def endswith(self, other) -> bool:
         return str(self).endswith(other)
 

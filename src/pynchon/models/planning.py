@@ -39,7 +39,7 @@ class Goal(typing.BaseModel):
                 bgcolor="black",
                 frame=False,
             ),
-            subtitle=app.Text(f"{self.owner}", style="dim italic"),
+            subtitle=app.Text(f"{self.label or self.owner}", style="dim italic"),
         )
 
     # def __str__(self):

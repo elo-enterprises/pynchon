@@ -151,16 +151,16 @@ class CliPlugin(PynchonPlugin):
         def wrapper(*args, fxn=fxn, **kwargs):
             LOGGER.critical(f"calling {fxn} from wrapper")
             result = fxn(*args, **kwargs)
+            
             # FIXME: this wraps twice?
             # from rich import print_json
             # print_json(text.to_json(result))
             # if hasattr(result, 'display'):
-            # rproto = getattr(result, "__rich__", None)
-            # if rproto:
-            #     LOGGER.warning(f"rproto {result}")
-            #     from pynchon.util.lme import CONSOLE
-            #
-            #     CONSOLE.print(result)
+            rproto = getattr(result, "__rich__", None)
+            if rproto:
+                LOGGER.warning(f"rproto {result}")
+                from pynchon.util.lme import CONSOLE
+                CONSOLE.print(result)
             # elif hasattr(result, "as_dict"):
             #     LOGGER.warning(f"as_dict {result}")
             #     rich.print(result.as_dict())

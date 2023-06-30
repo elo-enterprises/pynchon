@@ -4,6 +4,7 @@
 from pynchon import abcs, cli, constants, events, models  # noqa
 from pynchon.api import render
 from pynchon.util.os import invoke
+from pynchon.util.text import loads 
 
 from pynchon.util import lme, tagging, text, typing  # noqa
 
@@ -11,6 +12,30 @@ LOGGER = lme.get_logger(__name__)
 
 PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
+FNAME_ADVICE = ".scaffold.advice.json5"
+class ScaffoldAdvice(abcs.Config):
+    file: typing.Union[str, abcs.Path] = typing.Field(required=True)
+    loaded: bool = typing.Field(default=False)
+    inherits: typing.List[str] = typing.Field(default=[])
+    
+    @property 
+    def inherits(self):
+        if self.loaded:
+            return self.__dict__['inherits']
+        else:
+            return self.load().inherits
+    
+    def exists(self):
+        return abcs.Path(self.file).exists()
+    
+    def load(self):
+        cadvice = abcs.Path(self.file).read()
+        adv = loads.json5(cadvice)
+        self.__dict__.update(loaded=True, **adv)
+        return self
+
+    def __str__(self):
+        return f"<ScaffoldAdvice>"
 
 class Scaffold(abcs.Config):
     root: typing.Union[str, abcs.Path] = typing.Field(required=True)
@@ -22,16 +47,114 @@ class Scaffold(abcs.Config):
         return f"<Scaffold@`{self.kind}`>"
 
     __repr__ = __str__
+    
+    def sync(self, dest=None, goals=[]):
+        self.sync_dirs(dest=dest,goals=goals)
+        self.sync_files(dest=dest,goals=goals)
+        for p in self.get_parents():
+            p.sync(dest=dest,goals=goals)
+        return goals
+    
+    def sync_dirs(self, dest=None, goals=[]):
+        for pdir in self.dirs:
+            LOGGER.warning(f"\sync_dirs: {pdir}")
+            tmp = dest/(pdir.relative_to(self.root))
+            if tmp.exists():
+                LOGGER.warning("directory already exists @ `{pdir}`")
+            else:
+                goals.append(
+                    models.Goal(
+                        type="create",
+                        label=f"creation required by {self.kind}",
+                        resource=tmp,
+                        command=f"mkdir -p {tmp}",
+                    ))
+            
+    def sync_files(self, dest=None, goals=[]):
+        for src in self.files:
+            LOGGER.warning(f"\tsrc: {src}")
+            dst = src.relative_to(self.root)
+            dst = dest / dst
+            LOGGER.warning(f"\tdest: {dst}")
+            if not dst.exists():
+                # LOGGER.warning(f"creates: {dest}")
+                goals.append(
+                    models.Goal(
+                        type="create",
+                        label=f"creation required by scaffold @ `{self.kind}`",
+                        resource=dst,
+                        command=f"cp {src} {dst}",
+                    )
+                )
+            else:
+                LOGGER.critical(f"modifies: {dest}")
+                plan.append(
+                    self.goal(
+                        type="sync",
+                        label="sync existing file",
+                        resource=dst,
+                        command=f"cp {src} {dest}",
+                    )
+                )
+            # after = self._render_file(dest=f)
+            # with open(f) as fhandle:
+            #     before = fhandle.read()
+            # if before != after:
+            #     # LOGGER.critical('rendering {f} creates changes!')
+            #             type="sync",
+            #             command=f"cp {destp} {fabs}",
+            #             resource=f,
+            #         )
+            #     )
+        
+    def get_parents(self):
+        out = []
+        parents = self.advice.inherits if self.advice else []
+        for kind in parents:
+            pfolder = PETR / "scaffolds" / kind
+            scaf = Scaffold(kind=kind, root=pfolder)
+            out.append(scaf)
+        return out
 
+    def get_inherited_files(self):
+        """ """
+        out=[]
+        for scaf in self.get_parents():
+            out += scaf.files 
+        return out
+    
+    def get_inherited_dirs(self):
+        """ """
+        out=[]
+        for scaf in self.get_parents():
+            out += scaf.dirs 
+        return out
+    
+    @property
+    def has_advice(self) -> bool: 
+        return self.advice is not None
+    
+    @property
+    def advice(self):
+        fadvice = ScaffoldAdvice(file=self.root / FNAME_ADVICE)
+        if not fadvice.exists():
+            return None
+        else:
+            return fadvice
+    
     @property
     def files(self) -> typing.List[str]:
         folder = self.root
-        return list([x for x in folder.glob("*") if not x.is_dir()])
+        base_files = list(set([x for x in folder.glob("*") if not x.is_dir() and x.name!=FNAME_ADVICE]))
+        return base_files#+self.get_inherited_files()
 
     @property
     def dirs(self) -> typing.List:
-        folder = self.root
-        return list([x for x in folder.glob("**/") if x.is_dir() and not x == folder])
+        base_dirs = list([
+            x for x in self.root.glob("**/") 
+            if x.is_dir() and not x == self.root
+            ])
+        return base_dirs#+self.get_inherited_dirs()
 
 
 @tagging.tags(click_aliases=["pat"])
@@ -46,7 +169,7 @@ class Pattern(models.ResourceManager):
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "pattern"
         include_patterns: typing.List[str] = typing.Field(default=["*/", "*/*/"])
-
+        
         @property
         def root(self):
             tmp = PETR / "scaffolds"
@@ -97,7 +220,6 @@ class Pattern(models.ResourceManager):
         # https://github.com/cookiecutter/cookiecutter/issues/784
 
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
-        
         tmp = self.pattern_names
         if kind not in tmp:
             LOGGER.critical(f"Unrecognized pattern `{kind}`; expected one of {tmp}")
@@ -107,46 +229,15 @@ class Pattern(models.ResourceManager):
         folder = abcs.Path(dest).absolute()
 
         pattern = Scaffold(kind=kind, root=self.pattern_folder / kind)
+        
         LOGGER.warning(f"found pattern:\n\t{pattern}")
         LOGGER.warning(f"tentatively rendering {pattern} to `{destp}`")
-        for pdir in pattern["dirs"]:
-            LOGGER.warning(f"\tdir: {pdir}")
-        for src in pattern["files"]:
-            LOGGER.warning(f"\tsrc: {src}")
-            dst = src.relative_to(pattern.root)
-            dst = folder / dst
-            LOGGER.warning(f"\tdest: {dst}")
-            if not dst.exists():
-                LOGGER.warning(f"creates: {dest}")
-                plan.append(
-                    self.goal(
-                        type="create",
-                        label="create missing file",
-                        resource=dst,
-                        command=f"cp {src} {dest}",
-                    )
-                )
-            else:
-                LOGGER.critical(f"modifies: {dest}")
-                plan.append(
-                    self.goal(
-                        type="sync",
-                        label="sync existing file",
-                        resource=dst,
-                        command=f"cp {src} {dest}",
-                    )
-                )
-            # after = self._render_file(dest=f)
-            # with open(f) as fhandle:
-            #     before = fhandle.read()
-            # if before != after:
-            #     # LOGGER.critical('rendering {f} creates changes!')
-            #             type="sync",
-            #             command=f"cp {destp} {fabs}",
-            #             resource=f,
-            #         )
-            #     )
-
+        # import IPython; IPython.embed()
+        patterns = [pattern] + pattern.get_parents()
+        for pattern in patterns:
+            LOGGER.critical(f'running sync for: {pattern}')
+            goals = pattern.sync(dest=destp)
+            plan+=goals
         if should_plan:
             LOGGER.critical(plan)
             # import IPython; IPython.embed()
@@ -266,11 +357,10 @@ class Pattern(models.ResourceManager):
             dest = abcs.Path(name).absolute()
             if dest.exists():
                 LOGGER.warning(f"{dest} already exists!")
-            fadvice = pfolder / ".scaffold.advice.json5"
+            fadvice = ScaffoldAdvice(file=pfolder / ".scaffold.advice.json5")
             if fadvice.exists():
-                advice = text.loadf.json5(file=fadvice)
-                inherits = advice.get("inherits", [])
-                inherits = [self.pattern_folder / p for p in inherits]
+                fadvice.load()
+                inherits=fadvice.inherits
             else:
                 inherits = []
             inherits += [pfolder / "*"] if pfolder not in inherits else []
