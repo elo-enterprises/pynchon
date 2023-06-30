@@ -8,11 +8,10 @@ one convenient namespace.
 import typing
 from pathlib import Path as BasePath
 
-from pydantic import BaseModel,Field, validate_arguments # noqa
-
 from types import *  # noqa
 from typing import *  # noqa
 
+from pydantic import BaseModel, Field, validate_arguments  # noqa
 
 # from typing_extensions import Annotated
 

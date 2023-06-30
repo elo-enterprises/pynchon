@@ -79,6 +79,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "docs"
+        include_patterns: typing.List[str] = typing.Field(default=[])
 
         @property
         def root(self):

@@ -21,6 +21,6 @@ pynchon jinja sh -c'self.logger.debug("hello world")'
 pynchon plugins list | jq .
 pynchon docs list | jq .
 pynchon git cfg|jq .
-pynchon cut new --help
+pynchon pattern new --help
 pynchon py --help
 pynchon python src sorted --help

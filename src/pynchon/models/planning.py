@@ -2,23 +2,23 @@
 """
 import typing
 import collections
-from dataclasses import dataclass
 
 from pynchon import abcs, app
 from pynchon.fleks import meta
 
 from pynchon.util import lme, typing  # noqa
 
+ResourceType = typing.Union[str, abcs.Path]
 
-@dataclass(frozen=True)
-class Goal(metaclass=meta.namespace):
+
+class Goal(typing.BaseModel):
     """ """
 
-    resource: str = "?r"
-    command: str = "?c"
-    type: str = "?t"
-    owner: str = "?o"
-    label: str = "?l"
+    resource: ResourceType = typing.Field(default="?r", required=False)
+    command: str = typing.Field(default="?c")
+    type: str = typing.Field(default="?t", required=False)
+    owner: str = typing.Field(default="?o")
+    label: typing.StringMaybe = typing.Field(default=None)
 
     def __rich__(self) -> str:
         from pynchon import shfmt
@@ -42,30 +42,20 @@ class Goal(metaclass=meta.namespace):
             subtitle=app.Text(f"{self.owner}", style="dim italic"),
         )
 
-    def _asdict(self):
-        return dict(
-            resource=self.resource,
-            command=self.command,
-            type=self.type,
-            owner=self.owner,
-            label=self.label,
-        )
-
-    def __str__(self):
-        """ """
-        tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
-        return f"<{self.__class__.__name__}[{tmp}]>"
+    # def __str__(self):
+    #     """ """
+    #     tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
+    #     return f"<{self.__class__.__name__}[{tmp}]>"
 
 
-@dataclass(frozen=True)
-class Action(metaclass=meta.namespace):
+class Action(typing.BaseModel):
     """ """
 
-    type: str = "unknown_action_type"
-    ok: bool = None
-    changed: bool = None
-    resource: str = "??"
-    command: str = "echo"
+    type: str = typing.Field(default="unknown_action_type")
+    ok: bool = typing.Field(default=None)
+    changed: bool = typing.Field(default=None)
+    resource: ResourceType = typing.Field(default="??")
+    command: str = typing.Field(default="echo")
 
     @property
     def status_string(self):
@@ -81,21 +71,22 @@ class Action(metaclass=meta.namespace):
         return f"<{self.__class__.__name__}[{self.status_string}]>"
 
 
-class Plan(typing.List[Goal], metaclass=meta.namespace):
+# class Plan(typing.List[Goal], metaclass=meta.namespace):
+class Plan(typing.BaseModel):
     """ """
+    goals:typing.List[Goal] = typing.Field(default=[])
 
-    def __init__(self, *args):
-        """
-        :param *args:
-        """
-        for arg in args:
-            if not isinstance(arg, (Goal,)):
-                err = f"plan can only include goals, got {arg} with type={type(arg)}"
-                raise TypeError(err)
-            super().__init__(*args)
-
+    def __len__(self):
+        return len(self.goals)
+    # def __init__(self, *args, **kwargs):
+    #     for arg in args:
+    #         if not isinstance(arg, (Goal,)):
+    #             err = f"plan can only include goals, got {arg} with type={type(arg)}"
+    #             raise TypeError(err)
+    #         typing.BaseModel.__init__(self, goals=args)
+    #
     def __rich__(self) -> str:
-        syntaxes = [g.__rich__() for g in self]
+        syntaxes = [g.__rich__() for g in self.goals]
 
         table = app.Table.grid(
             # title=f'{__name__} ({len(self)} items)',
@@ -131,46 +122,44 @@ class Plan(typing.List[Goal], metaclass=meta.namespace):
             # else Text('❌', style='red'),
         )
         return panel
-
-    @property
-    def _dict(self):
-        """ """
-        result = collections.OrderedDict()
-        result["resources"] = list({g.resource for g in self})
-        actions_by_type = collections.defaultdict(list)
-        for g in self:
-            actions_by_type[g.type].append(g.command)
-        result.update(**actions_by_type)
-        return result
-
-    # @typing.validate_arguments
+    #
+    # @property
+    # def _dict(self):
+    #     """ """
+    #     result = collections.OrderedDict()
+    #     result["resources"] = list({g.resource for g in self})
+    #     actions_by_type = collections.defaultdict(list)
+    #     for g in self:
+    #         actions_by_type[g.type].append(g.command)
+    #     result.update(**actions_by_type)
+    #     return result
+    #
     def append(self, other: Goal):
         """
-        :param other: Goal:
         """
-        assert isinstance(other, (Goal,))
-        return super().append(other)
+        if isinstance(other, (Goal,)):
+            self.goals +=[other]
+        elif isinstance(other,(Plan,)):
+            self.goals +=other.goals
+        elif isinstance(other,(list,tuple,)):
+            self.goals += other
+        else:
+            raise NotImplementedError(type(other))
 
-    # @typing.validate_arguments
-    def extend(self, other):
-        """
-        :param other:
-        """
-        assert isinstance(other, (Goal,))
-        return super().extend(other)
-
-    # @typing.validate_arguments
     def __add__(self, other):
-        """
-        :param other:
-        """
-        assert isinstance(other, (Plan,))
-        return Plan(*(other + self))
-
+        """ """
+        if isinstance(other, (Goal,)):
+            return Plan(goals=self.goals + [other])
+        elif isinstance(other,(Plan,)):
+            return Plan(goals=self.goals + other.goals)
+        elif isinstance(other,(list,tuple,)):
+            return Plan(goals=self.goals + other)
+        else:
+            raise NotImplementedError(type(other))
     __iadd__ = __add__
 
-    def __str__(self):
-        return f"<{self.__class__.__name__}[{len(self)} goals]>"
+    # def __str__(self):
+    #     return f"<{self.__class__.__name__}[{len(self)} goals]>"
 
 
 class ApplyResults(typing.List[Action], metaclass=meta.namespace):
@@ -198,3 +187,5 @@ class ApplyResults(typing.List[Action], metaclass=meta.namespace):
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{len(self)} actions]>"
+# from pynchon.util.text import dumps
+# dumps.JSONEncoder.register_encoder(type=Plan,)

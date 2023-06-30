@@ -1,6 +1,6 @@
 """ pynchon.plugins.Core
 """
-from pynchon import api, cli, models
+from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme, tagging, typing
@@ -42,22 +42,19 @@ class Core(models.Planner):
     @cli.click.flag("--bash", help="bootstrap bash")
     @cli.click.flag("--bashrc", help="bootstrap bashrc")
     @cli.click.flag("--bash-completions", help="bootstrap completions")
+    @cli.click.flag("--pynchon", help="bootstrap .pynchon.json5")
     @cli.click.flag("--makefile", help="bootstrap Makefile")
     @cli.click.flag("--tox", help="bootstrap tox")
     def bootstrap(
         self,
+        pynchon: bool = False,
         bash: bool = False,
         bash_completions: bool = False,
         bashrc: bool = False,
         makefile: bool = False,
         tox: bool = False,
     ) -> None:
-        """Bootstrap for shell integration, etc
-
-        :param bashrc: bool:  (Default value = False)
-        :param bash: bool:  (Default value = False)
-        :param tox: bool:  (Default value = False)
-        """
+        """Bootstrap for shell integration, etc"""
         template_prefix = f"{self.plugin_templates_prefix}/bootstrap"
         pynchon_completions_script = ".tmp.pynchon.completions.sh"
         bashrc_snippet = ".tmp.pynchon.bashrc"
@@ -115,6 +112,14 @@ class Core(models.Planner):
         #         target_file=abcs.Path("~/.bashrc").expanduser(),
         #         block_file=bashrc_snippet,
         #     )
+        elif pynchon:
+            tmp = abcs.Path(".") / ".pynchon.json5"
+            if tmp.exists():
+                err = f"Cowardly refusing to recreate {tmp}"
+                LOGGER.critical(err)
+                raise SystemExit(1)
+            else:
+                print("pynchon pattern sync . docs --plan")
         elif bash:
             this_cmd = "pynchon bootstrap --bash"  # FIXME: get from click-ctx
             LOGGER.debug("collecting `shell_aliases` from all plugins")

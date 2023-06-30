@@ -12,6 +12,28 @@ LOGGER = lme.get_logger(__name__)
 PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
 
+class Scaffold(abcs.Config):
+    root: typing.Union[str, abcs.Path] = typing.Field(required=True)
+    files: typing.List[str] = typing.Field(default=[])
+    dirs: typing.List[str] = typing.Field(default=[])
+    kind: str = typing.Field(required=True)
+
+    def __str__(self):
+        return f"<Scaffold@`{self.kind}`>"
+
+    __repr__ = __str__
+
+    @property
+    def files(self) -> typing.List[str]:
+        folder = self.root
+        return list([x for x in folder.glob("*") if not x.is_dir()])
+
+    @property
+    def dirs(self) -> typing.List:
+        folder = self.root
+        return list([x for x in folder.glob("**/") if x.is_dir() and not x == folder])
+
+
 @tagging.tags(click_aliases=["pat"])
 class Pattern(models.ResourceManager):
     """
@@ -62,7 +84,6 @@ class Pattern(models.ResourceManager):
     @cli.click.argument("kind", nargs=1)
     def _open(self, kind):
         """open pattern in editor"""
-
         pfolder = self.pattern_folder / kind
         ed = self[:"pynchon.editor":"atom"]
         invoke(f"{ed} {pfolder}&", system=True)
@@ -74,69 +95,64 @@ class Pattern(models.ResourceManager):
     def sync(self,  should_plan: bool = False, dest: str = None, kind: str = None,name:str=None,):
         """Synchronize DEST from KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
+
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
         
         tmp = self.pattern_names
         if kind not in tmp:
             LOGGER.critical(f"Unrecognized pattern `{kind}`; expected one of {tmp}")
             raise SystemExit(1)
-        plan = []
+        plan = super(self.__class__,self).plan()
         destp = abcs.Path(dest)
         folder = abcs.Path(dest).absolute()
-        name = name or folder.stem
-        LOGGER.critical(f"using name={name}")
-        src = self.config.root/kind
-        for src_abc in self._get_template_files(src):
-            dest_rel=destp/(src_abc.relative_to(src))
-                
-            try:
-                tmpl = render.get_template_from_file(src_abc)
-            except (Exception,) as exc:
-                LOGGER.critical(f"failed to get_template_from_file @ {src_abc}: {exc}")
-                raise SystemExit(1)
-            else:
-                assert tmpl
-                after = tmpl.render(
-                    name=name, 
-                    **self.project_config.dict())
 
-            if dest_rel.exists():
-                LOGGER.warning(f"pattern @ {kind} requires {dest_rel}, which exists. reading it to check for changes..")
-                with open(dest_rel,'r') as fhandle:
-                    before=fhandle.read()
+        pattern = Scaffold(kind=kind, root=self.pattern_folder / kind)
+        LOGGER.warning(f"found pattern:\n\t{pattern}")
+        LOGGER.warning(f"tentatively rendering {pattern} to `{destp}`")
+        for pdir in pattern["dirs"]:
+            LOGGER.warning(f"\tdir: {pdir}")
+        for src in pattern["files"]:
+            LOGGER.warning(f"\tsrc: {src}")
+            dst = src.relative_to(pattern.root)
+            dst = folder / dst
+            LOGGER.warning(f"\tdest: {dst}")
+            if not dst.exists():
+                LOGGER.warning(f"creates: {dest}")
+                plan.append(
+                    self.goal(
+                        type="create",
+                        label="create missing file",
+                        resource=dst,
+                        command=f"cp {src} {dest}",
+                    )
+                )
             else:
-                before = None
-                LOGGER.warning(f"{dest_rel} does not exist but will be created for pattern @ {kind}")
-
-            if not before or before!=after:
-                LOGGER.critical(f"detected changes to {dest_rel}")
+                LOGGER.critical(f"modifies: {dest}")
                 plan.append(
                     self.goal(
                         type="sync",
-                        command=f"cp {src_abc} {dest_rel}; render",
-                        resource=destp,
+                        label="sync existing file",
+                        resource=dst,
+                        command=f"cp {src} {dest}",
                     )
                 )
-                
-                
-
             # after = self._render_file(dest=f)
             # with open(f) as fhandle:
             #     before = fhandle.read()
             # if before != after:
-                # LOGGER.critical('rendering {f} creates changes!')
-                # fabs = f.absolute()
+            #     # LOGGER.critical('rendering {f} creates changes!')
+            #             type="sync",
+            #             command=f"cp {destp} {fabs}",
+            #             resource=f,
+            #         )
+            #     )
+
         if should_plan:
             LOGGER.critical(plan)
+            # import IPython; IPython.embed()
             return plan
         else:
             return plan.apply()  # return dict(changes=changes)
-
-    def _get_template_files(self, folder) -> typing.List:
-        return list([x for x in folder.glob("*") if not x.is_dir()])
-
-    def _get_template_dirs(self, folder) -> typing.List:
-        return list([x for x in folder.glob("**/") if x.is_dir()])
 
     @cli.options.plan
     @cli.click.argument("dest", nargs=1)
@@ -148,8 +164,8 @@ class Pattern(models.ResourceManager):
             self.logger.critical(f"Folder @ {folder} does not exist!")
         else:
             plan = super(self.__class__, self).plan()
-            dirs = self._get_template_dirs(folder)
-            files = self._get_template_files(folder)
+            # dirs = self._get_template_dirs(folder)
+            # files = self._get_template_files(folder)
 
             # struct=dict(files=files, dirs=dirs)
             for d in dirs:
@@ -197,15 +213,15 @@ class Pattern(models.ResourceManager):
     # @cli.click.argument("dest", nargs=1)
     # def render_file(self, dest=None, name="") -> bool:
     #     """ """
-    #     f = abcs.Path(dest)
-    #     assert f.exists()
-    #     rendered = self._render_file(dest=dest, name=name)
-    #     if rendered is None:
-    #         raise SystemExit(1)
-    #     else:
-    #         with open(f, "w") as fhandle:
-    #             fhandle.write(rendered)
-    #         return True
+    #     destp = abcs.Path(dest)
+        # assert destp.exists()
+        # rendered = self._render_file(dest=dest, name=name)
+        # if rendered is None:
+        #     raise SystemExit(1)
+        # else:
+        #     with open(f, "w") as fhandle:
+        #         fhandle.write(rendered)
+        #     return True
 
     # def _render_file(self, dest=None, name="") -> str:
     #     """ """
@@ -218,9 +234,7 @@ class Pattern(models.ResourceManager):
     #         return None
     #     else:
     #         assert tmpl
-    #         rendered = tmpl.render(
-    #             name="", 
-    #             **self.project_config.dict())
+    #         rendered = tmpl.render(name=name, **self.project_config)
     #         return rendered
 
     @cli.click.argument("dest", nargs=1)

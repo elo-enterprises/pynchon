@@ -38,6 +38,7 @@ class SourceMan(models.ResourceManager):
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "src"
         goals: typing.List[str] = typing.Field(default=[])
+        include_patterns: typing.List[str] = typing.Field(default=[])
 
         @property
         def root(self):
