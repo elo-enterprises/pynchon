@@ -77,6 +77,9 @@ class Plan(typing.BaseModel):
 
     goals: typing.List[Goal] = typing.Field(default=[])
 
+    def __contains__(self, g):
+        return g in self.goals
+
     def __len__(self):
         return len(self.goals)
 
@@ -139,7 +142,9 @@ class Plan(typing.BaseModel):
     #
     def append(self, other: Goal):
         """ """
-        if isinstance(other, (Goal,)):
+        if other in self:
+            return
+        elif isinstance(other, (Goal,)):
             self.goals += [other]
         elif isinstance(other, (Plan,)):
             self.goals += other.goals

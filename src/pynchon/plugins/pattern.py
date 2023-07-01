@@ -52,6 +52,8 @@ class Scaffold(abcs.Config):
     __repr__ = __str__
 
     def sync(self, dest=None, goals=[]):
+        """ """
+        LOGGER.critical(f"sync: {dest}")
         self.sync_dirs(dest=dest, goals=goals)
         self.sync_files(dest=dest, goals=goals)
         for p in self.get_parents():
@@ -59,11 +61,15 @@ class Scaffold(abcs.Config):
         return goals
 
     def sync_dirs(self, dest=None, goals=[]):
+        """ """
+        LOGGER.critical(f"sync_dirs: {dest}")
         for pdir in self.dirs:
-            LOGGER.warning(rf"\sync_dirs: {pdir}")
-            tmp = dest / (pdir.relative_to(self.root))
+            # raise Exception(dest)
+            tmp = pdir.relative_to(self.root)
+            tmp = tmp.relative_to(dest)
+            LOGGER.critical(f"sync_dirs:: {dest} {tmp}")
             if tmp.exists():
-                LOGGER.warning("directory already exists @ `{pdir}`")
+                LOGGER.critical(f"directory already exists @ `{tmp}`")
             else:
                 goals.append(
                     models.Goal(
@@ -75,29 +81,27 @@ class Scaffold(abcs.Config):
                 )
 
     def sync_files(self, dest=None, goals=[]):
+        """ """
         for src in self.files:
-            LOGGER.warning(f"\tsrc: {src}")
             dst = src.relative_to(self.root)
-            dst = dest / dst
-            LOGGER.warning(f"\tdest: {dst}")
+            # dst = dest / dst
             if not dst.exists():
-                # LOGGER.warning(f"creates: {dest}")
                 goals.append(
                     models.Goal(
                         type="create",
-                        label=f"creation required by scaffold @ `{self.kind}`",
+                        label=f"file-creation required by scaffold @ `{self.kind}`",
                         resource=dst,
                         command=f"cp {src} {dst}",
                     )
                 )
             else:
                 LOGGER.critical(f"modifies: {dest}")
-                plan.append(
-                    self.goal(
+                goals.append(
+                    models.Goal(
                         type="sync",
                         label="sync existing file",
                         resource=dst,
-                        command=f"cp {src} {dest}",
+                        command=f"cp '{src}' {dest}",
                     )
                 )
             # after = self._render_file(dest=f)
@@ -227,7 +231,7 @@ class Pattern(models.ResourceManager):
         kind: str = None,
         name: str = None,
     ):
-        """Synchronize DEST from KIND"""
+        """Synchronizes DEST from scaffold KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
 
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
@@ -247,8 +251,7 @@ class Pattern(models.ResourceManager):
         patterns = [pattern] + pattern.get_parents()
         for pattern in patterns:
             LOGGER.critical(f"running sync for: {pattern}")
-            goals = pattern.sync(dest=destp)
-            plan += goals
+            goals = pattern.sync(dest=destp, goals=plan)
         if should_plan:
             LOGGER.critical(plan)
             # import IPython; IPython.embed()
