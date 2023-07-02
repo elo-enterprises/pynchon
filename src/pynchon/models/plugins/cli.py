@@ -264,7 +264,6 @@ class CliPlugin(PynchonPlugin):
     ) -> cli.click.Command:
         """
         :param kls: param fxn: typing.Callable:
-        :param wrapper: Default value = None)
         :param alias: str:  (Default value = None)
         :param fxn: typing.Callable:
         :param **click_kwargs:

@@ -17,6 +17,7 @@ DEFAULT_PLUGINS = [
     "project",
     "globals",
     "git",
+    "patterns",
     "python",
     "gen",
     "render",

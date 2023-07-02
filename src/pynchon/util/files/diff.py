@@ -36,9 +36,6 @@ def diff_percent(file1: str = None, file2: str = None):
 
     :param file1: str:  (Default value = None)
     :param file2: str:  (Default value = None)
-    :param file1: str:  (Default value = None)
-    :param file2: str:  (Default value = None)
-
     """
     with open(file1) as src:
         with open(file2) as dest:
@@ -50,23 +47,37 @@ def diff_percent(file1: str = None, file2: str = None):
 
 @cli.arguments.file1
 @cli.arguments.file2
+def strdiff(str1: str = None, str2: str = None):
+    """calculates a file-delta, returning a unified diff
+
+    :param str1: str:  (Default value = None)
+    :param str2: str:  (Default value = None)
+    """
+    xdiff = difflib.unified_diff(
+        str1,
+        str2,
+        lineterm="",
+        n=0,
+    )
+    return "".join(xdiff)
+
+
+str_diff = strdiff
+
+
+@cli.arguments.file1
+@cli.arguments.file2
 def diff(file1: str = None, file2: str = None):
     """calculates a file-delta, returning a unified diff
 
     :param file1: str:  (Default value = None)
     :param file2: str:  (Default value = None)
-    :param file1: str:  (Default value = None)
-    :param file2: str:  (Default value = None)
-
     """
     with open(file1) as src:
         with open(file2) as dest:
-            src_l = src.readlines()
-            dest_l = dest.readlines()
-    xdiff = difflib.unified_diff(
-        src_l,
-        dest_l,
-        lineterm="",
-        n=0,
-    )
-    return "".join(xdiff)
+            str1 = src.readlines()
+            str2 = dest.readlines()
+    return strdiff(str1, str2)
+
+
+file_diff = diff

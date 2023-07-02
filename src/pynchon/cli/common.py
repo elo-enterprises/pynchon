@@ -128,13 +128,16 @@ class kommand:
 
         @functools.wraps(self.fxn)
         def newf(*args, **call_kwargs):
-            self.logger.info(f"Wrapping invocation: {self.parent.name}.{self.name}")
+            self.logger.critical(f"Wrapping invocation: {self.parent.name}.{self.name}")
             call_kwargs and self.logger.debug(f" with: {call_kwargs}")
             result = self.fxn(*args, **call_kwargs)
             if result is not None:
                 result and LOGGER.info(f"json conversion for type: {type(result)}")
+                import rich
+
                 tmp = text.to_json(result)
-                print(tmp)
+                # raise Exception('bonk')
+                rich.print(tmp)
             return result
 
         return newf
@@ -166,8 +169,6 @@ class groop(kommand):
     #         super(BetterGroup,self).format_options(ctx,formatter)
     #     def format_help_text(self,ctx,formatter):
     #         super(BetterGroup,self).format_help_text(ctx,formatter)
-
-
     """
 
     is_group = True

@@ -12,6 +12,9 @@ class Make(models.Planner):
     """Makefile parser"""
 
     priority = 6  # before mermaid
+    name = "makefile"
+    cli_name = "makefile"
+    cli_label = "Meta"
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "makefile"
@@ -22,9 +25,9 @@ class Make(models.Planner):
             tmp = abcs.Path(".").absolute()
             return tmp / "Makefile"
 
-    name = "makefile"
-    cli_name = "makefile"
-    cli_label = "Meta"
+    def _get_template_file(self, relpath: str = ""):
+        tfile = self.plugin_templates_root / relpath
+        return api.render.get_template(str(tfile))
 
     @property
     def plugin_templates_root(self):
@@ -62,10 +65,6 @@ class Make(models.Planner):
         )
         return plan
 
-    def get_template_file(self, relpath: str = ""):
-        tfile = self.plugin_templates_root / relpath
-        return api.render.get_template(str(tfile))
-
     @property
     def parsed(self) -> typing.Dict:
         """ """
@@ -88,7 +87,7 @@ class Make(models.Planner):
         self, output: str = "", makefile: str = "", title: str = "", template: str = ""
     ):
         """Renders mermaid diagram for makefile targets"""
-        tmpl = self.get_template_file(template)
+        tmpl = self._get_template_file(template)
         LOGGER.warning("writing to file: {output}")
         if output in ["-", "/dev/stdout", ""]:
             import sys

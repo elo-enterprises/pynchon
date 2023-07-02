@@ -14,11 +14,31 @@ PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
 FNAME_ADVICE = ".scaffold.advice.json5"
 
+from pynchon.util.files.diff import str_diff
+
+
+class RenderResult(abcs.Config):
+    before: typing.Optional[str] = typing.Field(default=None)
+    after: typing.Optional[str] = typing.Field(default=None)
+    diff: typing.Optional[str] = typing.Field(default=None)
+    src: typing.Union[str, abcs.Path] = typing.Field(default=None)
+    dest: typing.Union[str, abcs.Path] = typing.Field(default=None)
+
+    def __str__(self):
+        return f"<RenderResult>"
+
+    @property
+    def diff(self):
+        return str_diff(self.before, self.after)
+
 
 class ScaffoldAdvice(abcs.Config):
     file: typing.Union[str, abcs.Path] = typing.Field(required=True)
     loaded: bool = typing.Field(default=False)
     inherits: typing.List[str] = typing.Field(default=[])
+
+    def __str__(self):
+        return f"<ScaffoldAdvice>"
 
     @property
     def inherits(self):
@@ -36,9 +56,6 @@ class ScaffoldAdvice(abcs.Config):
         self.__dict__.update(loaded=True, **adv)
         return self
 
-    def __str__(self):
-        return f"<ScaffoldAdvice>"
-
 
 class Scaffold(abcs.Config):
     root: typing.Union[str, abcs.Path] = typing.Field(required=True)
@@ -51,40 +68,76 @@ class Scaffold(abcs.Config):
 
     __repr__ = __str__
 
-    def sync(self, dest=None, goals=[]):
+    def sync(self, dest=None, goals=[], context: dict = {}):
         """ """
         LOGGER.critical(f"sync: {dest}")
-        self.sync_dirs(dest=dest, goals=goals)
-        self.sync_files(dest=dest, goals=goals)
+        self.sync_dirs(dest=dest, goals=goals, context=context)
+        self.sync_files(dest=dest, goals=goals, context=context)
         for p in self.get_parents():
-            p.sync(dest=dest, goals=goals)
+            p.sync(dest=dest, goals=goals, context=context)
         return goals
 
-    def sync_dirs(self, dest=None, goals=[]):
+    def sync_dirs(self, dest=None, goals=[], context: dict = {}):
         """ """
-        LOGGER.critical(f"sync_dirs: {dest}")
+        LOGGER.info(f"sync_dirs: {dest}")
         for pdir in self.dirs:
             # raise Exception(dest)
             tmp = pdir.relative_to(self.root)
             tmp = tmp.relative_to(dest)
+            if render.is_templated(str(tmp)):
+                msg = f"detected `{tmp}` is templated, "
+                tmp = abcs.Path(
+                    render.get_template_from_string(str(tmp)).render(**context)
+                )
+                msg += f"rendered it as {tmp}"
+                LOGGER.critical(msg)
             LOGGER.critical(f"sync_dirs:: {dest} {tmp}")
             if tmp.exists():
-                LOGGER.critical(f"directory already exists @ `{tmp}`")
+                LOGGER.info(f"directory already exists @ `{tmp}`")
             else:
                 goals.append(
                     models.Goal(
                         type="create",
-                        label=f"creation required by {self.kind}",
+                        label=f"dir-creation required by {self.kind}",
                         resource=tmp,
                         command=f"mkdir -p {tmp}",
                     )
                 )
 
-    def sync_files(self, dest=None, goals=[]):
+    def render_file(
+        self, src=None, dest=None, should_plan=False, goals=[], context: dict = {}
+    ) -> str:
+        """ """
+        assert context
+        if src.exists():
+            before = src.read()
+            tmpl = render.get_template_from_file(src)
+            # rendered = tmpl.render(name=name, **self.project_config)
+            LOGGER.critical(f"render_file: {context}")
+            after = tmpl.render(**context)
+            tmp = RenderResult(before=before, after=after, src=src, dest=dest)
+            if tmp.diff:
+                LOGGER.critical(f"render_file: diff present")
+                goals.append(
+                    models.Goal(
+                        type="sync",
+                        label="sync existing file",
+                        resource=dest,
+                        command=f"cp '{src}' {dest}",
+                    )
+                )
+            else:
+                LOGGER.critical(f"render_file: no diff")
+        else:
+            raise NotImplementedError()
+        # return rendered
+
+    def sync_files(
+        self, dest=None, goals=[], should_plan=False, context: dict = {}
+    ) -> models.Plan:
         """ """
         for src in self.files:
             dst = src.relative_to(self.root)
-            # dst = dest / dst
             if not dst.exists():
                 goals.append(
                     models.Goal(
@@ -95,14 +148,13 @@ class Scaffold(abcs.Config):
                     )
                 )
             else:
-                LOGGER.critical(f"modifies: {dest}")
-                goals.append(
-                    models.Goal(
-                        type="sync",
-                        label="sync existing file",
-                        resource=dst,
-                        command=f"cp '{src}' {dest}",
-                    )
+                LOGGER.critical(f"modifies?: {dest}")
+                goal_maybe = self.render_file(
+                    src=src,
+                    dest=dest,
+                    should_plan=should_plan,
+                    goals=goals,
+                    context=context,
                 )
             # after = self._render_file(dest=f)
             # with open(f) as fhandle:
@@ -226,10 +278,10 @@ class Pattern(models.ResourceManager):
     @cli.options.plan
     def sync(
         self,
-        should_plan: bool = False,
         dest: str = None,
         kind: str = None,
         name: str = None,
+        should_plan: bool = False,
     ):
         """Synchronizes DEST from scaffold KIND"""
         # https://github.com/cookiecutter/cookiecutter/issues/784
@@ -251,7 +303,11 @@ class Pattern(models.ResourceManager):
         patterns = [pattern] + pattern.get_parents()
         for pattern in patterns:
             LOGGER.critical(f"running sync for: {pattern}")
-            goals = pattern.sync(dest=destp, goals=plan)
+            goals = pattern.sync(
+                dest=destp,
+                goals=plan,
+                context=dict(name=name, **self.project_config.dict()),
+            )
         if should_plan:
             LOGGER.critical(plan)
             # import IPython; IPython.embed()
