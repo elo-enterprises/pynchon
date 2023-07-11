@@ -1,184 +1,176 @@
 """ pynchon.api.render
+
+    Basically this is core jinja stuff.
+    Looking for CLI entrypoints?  See pynchon.util.text.render
+    Looking for the JinjaPlugin?  See pynchon.plugins.jinja
 """
+
 import os
-import sys
-import json
+import functools
 
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
-from pynchon import abcs
-from pynchon.util import lme, text, typing
-from pynchon.util.os import invoke
+import pynchon
+from pynchon import abcs, constants, events
+
+import jinja2  # noqa
+
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
-def dot(
-    file: str, output: str = "", in_place: bool = False, output_mode: str = "png"
-) -> typing.Dict:
-    """renders .dot file to png"""
-    if in_place:
-        assert not output
-        output = os.path.splitext(file)[0] + ".png"
-    # Using https://github.com/nickshine/dot
-    DOT_DOCKER_IMG = "nshine/dot"
-    invoke(
-        f"cat {file} | docker run --rm --entrypoint dot -i {DOT_DOCKER_IMG} -T{output_mode} > {output}"
-    )
-    return dict(output=output)
-
-
-# def j5(
-#     file,
-#     output="",
-#     in_place=False,
-# ) -> typing.StringMaybe:
-#     """renders json5 file"""
-#     LOGGER.debug(f"Running with one file: {file}")
-#     with open(file, "r") as fhandle:
-#         data = text.json5_loads(content=fhandle.read())
-#     if in_place:
-#         assert not output, "cannot use --in-place and --output at the same time"
-#         output = os.path.splitext(file)[0]
-#         output = f"{output}.json"
-#     if output:
-#         with open(output, "w") as fhandle:
-#             content = text.to_json(data)
-#             fhandle.write(f"{content}\n")
-#     return data
-
-
-def loads_j2_file(
-    file: str, ctx: dict = {}, templates: list = ["."], strict: bool = True
-) -> str:
+def is_templated(txt: str = "") -> bool:
     """ """
-    LOGGER.debug(f"Running with one file: {file} (strict={strict})")
-    with open(file, "r") as fhandle:
-        content = fhandle.read()
-
-    LOGGER.debug("render context: \n{}".format(text.to_json(ctx)))
-    tmp = list(ctx.keys())
-    LOGGER.debug("Rendering with context:\n{}".format(text.to_json(tmp)))
-    content = j2_loads(text=content, context=ctx, templates=templates)
-    return content
+    return "{{" in txt and "}}" in txt
 
 
-def j2(
-    file: str,
-    output: str = "",
-    in_place: bool = False,
-    ctx: dict = {},
-    templates: list = ["."],
-    strict: bool = True,
-) -> str:
+def dictionary(input, context):
     """
-    render jinja2 file
+    :param context:
     """
+    from pynchon.abcs.visitor import JinjaDict
 
-    def get_pynchon_ctx():
-        from pynchon.api import project
-
-        user_ctx = ctx
-        project_config = project.get_config()
-        if not isinstance(user_ctx, (dict,)):
-            ext = os.path.splitext(ctx)[-1]
-            if "{" in user_ctx:
-                LOGGER.debug(
-                    "found bracket in context, assuming it is data instead of file."
-                )
-                ctx = json.loads(ctx)  # noqa
-            elif ext in ["json"]:
-                LOGGER.debug(f"context is json file @ `{ctx}`")
-                with open(ctx, "r") as fhandle:
-                    ctx = json.loads(fhandle.read())
-            else:
-                LOGGER.critical(f"unrecognized extension for context file: {ext}")
-                raise TypeError(ext)
-
-        return {
-            **ctx,
-            **project_config,
-        }
-
-    final_ctx = get_pynchon_ctx()
-
-    content = loads_j2_file(file=file, context=ctx, templates=templates, strict=strict)
-
-    if in_place:
-        assert not output, "cannot use --in-place and --output at the same time"
-        output = os.path.splitext(file)
-        if output[-1] == ".j2":
-            output = output[0]
-        else:
-            output = "".join(output)
-    LOGGER.warning("writing output to {}".format(output or sys.stdout.name))
-    test = all([output, output not in ["/dev/stdout", "-"]])
-    if test:
-        with open(output, "r") as fhandle:
-            before = fhandle.read()
-    else:
-        before = None
-    fhandle = open(output, "w") if output else sys.stdout
-    content = f"{content}\n"
-    fhandle.write(content)
-    fhandle.close()
-    if before and content == before:
-        LOGGER.critical(f"content in {output} did not change")
-    return content
+    return JinjaDict(input).render(context)
 
 
-def shell_helper(*args, **kwargs) -> str:
+@functools.lru_cache(maxsize=None)
+def get_jinja_globals():
+    """ """
+    events.lifecycle.send(__name__, msg="finalizing jinja globals")
+    # FIXME: use shimport.filter_module('..')
     from pynchon.util.os import invoke
 
-    out = invoke(*args, **kwargs)
-    assert out.succeeded
-    return out.stdout
+    def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
+        """A jinja filter/extension
+
+        :param *args:
+        :param **kwargs:
+        """
+        out = invoke(*args, **kwargs)
+        assert out.succeeded
+        return out.stdout
+
+    def markdown_toc(fname: str, level=None):
+        """
+
+        :param fname: str:
+        :param level: Default value = None)
+        """
+        fname = abcs.Path(fname)
+        assert fname.exists()
+        script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"
+        result = invoke(f"cat {fname} | bash {script} -")
+        assert result.succeeded
+        return result.stdout
+
+    return dict(
+        sh=invoke_helper,
+        bash=invoke_helper,
+        invoke=invoke_helper,
+        map=map,
+        markdown_toc=markdown_toc,
+        eval=eval,
+        env=os.getenv,
+    )
 
 
-import jinja2
+def get_jinja_includes(*includes):
+    """
+    :param *includes:
+    """
+    includes = list(includes)
+    includes += list(constants.PYNCHON_CORE_INCLUDES_DIRS)
+
+    return [abcs.Path(t) for t in includes]
 
 
-def j2_loads(
-    text: str = "",
-    context: dict = {},
-    templates=["."],
-    strict: bool = True,
-):
-    """ """
-    templates = [abcs.Path(t) for t in templates]
-    for template_dir in templates:
+@functools.lru_cache(maxsize=None)
+def get_jinja_env(*includes, quiet: bool = False):
+    """
+
+    :param *includes:
+    :param quiet: bool:  (Default value = False)
+
+    """
+    events.lifecycle.send(__name__, msg="finalizing jinja-Env")
+    includes = get_jinja_includes(*includes)
+    for template_dir in includes:
         if not template_dir.exists:
             err = f"template directory @ `{template_dir}` does not exist"
             raise ValueError(err)
-    if templates:
-        LOGGER.critical(f"Templates: {templates}")
+    # includes and (not quiet) and LOGGER.warning(f"Includes: {includes}")
     env = Environment(
-        loader=FileSystemLoader([str(t) for t in templates]),
+        loader=FileSystemLoader([str(t) for t in includes]),
         undefined=StrictUndefined,
     )
-    env.globals.update(shell=shell_helper, env=os.getenv)
+    env.pynchon_includes = includes
 
-    known_templates = map(abcs.Path, set(env.loader.list_templates()))
-    known_templates = [str(p) for p in known_templates if dot not in p.parents]
+    env.globals.update(**get_jinja_globals())
+
+    known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
+
     if known_templates:
-        msg = "Known templates: "
-        msg += "(excluding the ones under working-dir)"
-        msg += "\n{}".format(json.dumps(known_templates, indent=2))
-        LOGGER.warning(msg)
+        from pynchon.util import text as util_text
 
-    template = env.from_string(text)
-    context = {**dict(os.environ.items()), **context}
+        msg = "Known template search paths (includes folders only): "
+        tmp = list({p.parents[0] for p in known_templates})
+        LOGGER.info(msg + util_text.to_json(tmp))
+    return env
 
+
+def get_template_from_string(
+    content,
+    env=None,
+):
+    """
+    :param env=None:
+    :param content:
+    """
+    env = env or get_jinja_env()
+    return env.from_string(content)
+
+
+def get_template_from_file(
+    file: str = None,
+    **kwargs,
+):
+    """
+    :param file: str = None:
+    :param **kwargs:
+    """
+    with open(file) as fhandle:
+        content = fhandle.read()
+    return get_template_from_string(content, **kwargs)
+
+
+def get_template(
+    template_name: str = None,
+    env=None,
+    from_string: str = None,
+):
+    """
+    :param template_name: str = None:
+    :param from_string: str = None:
+    :param env=None:
+    """
+    env = env or get_jinja_env()
     try:
-        return template.render(**context)
+        if from_string:
+            template = env.from_string(from_string)
+        else:
+            template = env.get_template(template_name)
     except (jinja2.exceptions.TemplateNotFound,) as exc:
-        LOGGER.critical(exc)
-        LOGGER.critical(known_templates)
-        raise RuntimeError()
+        LOGGER.critical(f"Template exception: {exc}")
+        LOGGER.critical(f"Jinja-includes: {env.pynchon_includes}")
+        err = getattr(exc, "templates", exc.message)
+        LOGGER.critical(f"Problem template: {err}")
+        raise
+    template.render = functools.partial(template.render, __template__=template_name)
+    return template
 
 
-__all__ = [
-    # "j5",
-    "j2"
-]
+def clean_whitespace(txt: str):
+    # return txt
+    return "\n".join([x for x in txt.split("\n") if x.strip()])

@@ -1,3 +1,5 @@
 """ pynchon.tagging
 """
-from pynchon.util.tagging import taggers  # noqa
+from pynchon import shimport
+
+shimport.lazy("pynchon.util.tagging.taggers")

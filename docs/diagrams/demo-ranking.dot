@@ -1,0 +1,62 @@
+////
+// This is a dot-file that contains the spec for a labeled digraph.
+// It's rendered with `make docs` to an image with a similar filename
+// in this same folder.  Comments look like this.  For more info, see
+// also the docs here: https://graphviz.org/doc/info/lang.html
+////
+digraph g {
+    rankdir="LR";
+    node[colorscheme="blues9", shape = circle, style="filled", fontsize=14];
+    fontsize=18;
+    labeljust="l";
+
+    edge[style=invis, fontsize=12];
+
+    { rank=same;
+        0 [style = invis];
+        01 [style = invis];
+        02 [style=invis];
+        0 -> 01 -> 02;
+    }
+
+    subgraph clusterA {
+        label="AAAAAAA";
+        node[colorscheme="oranges9"];
+        "0A" [color=3];
+        "1A" [color=5];
+        "2A" [color=7];
+        "0A" -> "1A" -> "2A";
+        "2A" -> "0A" [label=".", constraint=false, style=solid];
+    }
+
+    subgraph clusterB {
+        label="BBB";
+        node[colorscheme="blues9"];
+        "0B" [color=3];
+        "1B" [color=5];
+        "2B" [color=7];
+        "0B" -> "1B" -> "2B";
+        "2B" -> "0B" [label=".", constraint=false, style=solid];
+    }
+
+    subgraph clusterC {
+        node[colorscheme="greens9"];
+        "0C" [color=3];
+        "1C" [color=5];
+        "2C" [color=7];
+        "0C" -> "1C" -> "2C";
+        "2C" -> "0C" [label=".", constraint=false, style=solid];
+        label="C";
+    }
+
+    0 -> "0A"[style=solid];
+    01 -> "0B"[style=invis];
+    02 -> "0C"[style=invis];
+
+    // edges between clusters
+    edge[constraint=false, style=solid];
+    "0A" -> "1B" [label=a]
+    "1A" -> "2B" [label=a]
+    "0B" -> "1C" [label=b]
+    "1B" -> "2C" [label=b]
+}

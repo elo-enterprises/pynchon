@@ -1,19 +1,17 @@
-"""
-"""
+""" pynchon.plugins.globals """
 from pynchon import abcs, models
 
-
-class GlobalsConfig(abcs.Config):
-    """ """
-
-    defaults = dict()
-    config_key = 'globals'
+from pynchon.util import lme, typing  # noqa
 
 
-class Globals(models.ContextPlugin):
-    """context-provider: pynchon-globals"""
+class Globals(models.Provider):
+    """Context for pynchon globals"""
 
     priority = 2
-    name = 'globals'
-    defaults = dict()
-    config_kls = GlobalsConfig
+    name = "globals"
+
+    class config_class(abcs.Config):
+        """ """
+
+        config_key: typing.ClassVar[str] = "globals"
+        exclude_patterns: typing.List[str] = typing.Field(default=[])

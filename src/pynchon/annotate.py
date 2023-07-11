@@ -1,17 +1,21 @@
-""" """
+""" pynchon.annotate """
 import os
 import inspect
 import importlib
 
-import pynchon
-from pynchon import util
-from pynchon.util import lme
+from pynchon import abcs
+from pynchon.util import complexity, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
-def klass(name, kls) -> None:
-    """annotates a class"""
+def klass(name, kls) -> typing.NoneType:
+    """annotates a class
+
+    :param name: param kls:
+    :param kls:
+
+    """
     LOGGER.debug(f"annotating class: {name}")
     mod = importlib.import_module(kls.parent.canonical_path)
     kls._handle = getattr(mod, name)
@@ -20,7 +24,11 @@ def klass(name, kls) -> None:
     for x in dir(kls._handle):
         if x.startswith("_"):
             continue
-        prop = getattr(kls._handle, x)
+        try:
+            prop = getattr(kls._handle, x)
+        except (Exception,) as exc:
+            LOGGER.critical(exc)
+            continue
         is_property = type(prop).__name__ == "property"
         if not is_property:
             continue
@@ -59,14 +67,22 @@ def klass(name, kls) -> None:
         if "builtin" in qname:
             tmp = tmp.format(
                 name=f"`__builtin__.{bname}`",
-                link=f"{pynchon.URL_BUILTINS}#func-{bname}",
+                link=f"https://docs.python.org/3/library/functions.html#{bname}",
             )
         else:
             tmp = tmp.format(name=bname, link=f"#{qname}")
         bases.append(tmp)
 
-    kls_code = inspect.getsource(kls._handle)
-    kls_fname = inspect.getfile(kls._handle)
+    try:
+        kls_code = inspect.getsource(kls._handle)
+    except (Exception,) as exc:
+        LOGGER.critical(exc)
+        kls_code = "?"
+    try:
+        kls_fname = inspect.getfile(kls._handle)
+    except (Exception,) as exc:
+        LOGGER.critical(exc)
+        kls_fname = "?"
     kls._metadata = dict(
         bases=bases,
         code=kls_code,
@@ -75,21 +91,34 @@ def klass(name, kls) -> None:
         properties=properties,
     )
 
-    kls._metadata.update(mccabe=util.complexity(kls_code, kls_fname))
+    kls._metadata.update(mccabe=complexity.complexity(kls_code, kls_fname))
 
 
 def module(name, module, working_dir=None) -> None:
-    """annotates a module"""
+    """annotates a module
+
+    :param name: param module:
+    :param working_dir: Default value = None)
+    :param module:
+
+    """
     LOGGER.debug(f"annotating module: {name}")
-    module._metadata = dict(base_url=str(module.filepath.relative_to(working_dir)))
+    working_dir = (working_dir or abcs.Path(".")).absolute()
+    tmp = module.filepath.relative_to(working_dir)
+    module._metadata = dict(base_url=str(tmp))
 
 
 def should_skip(name: str):
-    """ """
-    from pynchon.config import pynchon as pynchon_config
+    """
 
-    api_config = pynchon_config.get("api")
-    should_skip = api_config.get("skip_private_methods", False)
+    :param name: str:
+    :param name: str:
+
+    """
+    # from pynchon.config import pynchon as pynchon_config
+    from pynchon.plugins.util import get_plugin_obj
+
+    should_skip = get_plugin_obj("python-api")["skip_private_methods"]
     should_skip = should_skip and name.startswith("_")
     LOGGER.warning(
         f"annotation for `{name}` exits early; `pynchon.api.skip_private_methods` is set and this looks private"
@@ -98,7 +127,12 @@ def should_skip(name: str):
 
 
 def function(name, fxn) -> None:
-    """annotates a function"""
+    """annotates a function
+
+    :param name: param fxn:
+    :param fxn:
+
+    """
     LOGGER.debug(f"annotating fxn: {name}")
     fxn._metadata = dict()
     if should_skip(name):
@@ -140,4 +174,4 @@ def function(name, fxn) -> None:
         if fixme_lines
         else [],
     )
-    fxn_code and fxn._metadata.update(mccabe=util.complexity(fxn_code, fxn_fname))
+    fxn_code and fxn._metadata.update(mccabe=complexity.complexity(fxn_code, fxn_fname))

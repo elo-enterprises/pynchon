@@ -3,13 +3,27 @@
 import os
 
 from pynchon import abcs
-from pynchon.util import typing, lme
+from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
 class ScaffoldingItem(abcs.AttrDict):
     warnings = []
+
+    def __init__(
+        self, name="unnamed scaffold", scope="*", pattern=None, src=None, **kwargs
+    ):
+        assert pattern is not None
+        assert src is not None
+        super().__init__(
+            name=name,
+            scope=scope,
+            src=abcs.Path(os.path.expanduser(src)),
+            pattern=pattern,
+            **kwargs,
+        )
+        self.validate()
 
     @property
     def exists(self) -> typing.Bool:
@@ -20,25 +34,11 @@ class ScaffoldingItem(abcs.AttrDict):
             LOGGER.critical(f"Scaffolding source @ {self.src} does not exist!")
             ScaffoldingItem.warnings.append(self.src)
 
-    def __init__(
-        self, name='unnamed scaffold', scope='*', pattern=None, src=None, **kwargs
-    ):
-        assert pattern is not None
-        assert src is not None
-        super(ScaffoldingItem, self).__init__(
-            name=name,
-            scope=scope,
-            src=abcs.Path(os.path.expanduser(src)),
-            pattern=pattern,
-            **kwargs,
-        )
-        self.validate()
-
 
 class ScaffoldingConfig(abcs.Config):
     """ """
 
-    config_key = "scaffolding"
+    config_key: typing.ClassVar[str] = "scaffolding"
 
     # def scaffolds(self):
     #     return dict([

@@ -1,0 +1,11 @@
+
+<!--- This is a markdown file.  Comments look like this --->
+-------------------------------------------------------------------------------
+
+{% for cmd, metadata in commands.items() %}
+### {{metadata.invocation_sample}}
+
+```
+{{metadata.help}}
+```
+{%endfor%}

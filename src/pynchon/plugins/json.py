@@ -1,14 +1,14 @@
-""" pynchon.plugins.render
+""" pynchon.plugins.json
 """
-from pynchon import models
-from pynchon.util import lme, typing
+from pynchon import abcs, models
+
+from pynchon.util import lme, typing  # noqa
 
 # from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
 # from pynchon.util import tagging
 
-from pynchon.util.text import __main__ as text_main
 
 # import yaml
 # import click
@@ -25,48 +25,40 @@ from pynchon.util.text import __main__ as text_main
 # from pynchon.util.tagging import tags
 
 
+# def j5(
+#     file,
+#     output="",
+#     in_place=False,
+# ) -> typing.StringMaybe:
+#     """renders json5 file"""
+#     LOGGER.debug(f"Running with one file: {file}")
+#     with open(file, "r") as fhandle:
+#         data = text.json5_loads(content=fhandle.read())
+#     if in_place:
+#         assert not output, "cannot use --in-place and --output at the same time"
+#         output = os.path.splitext(file)[0]
+#         output = f"{output}.json"
+#     if output:
+#         with open(output, "w") as fhandle:
+#             content = text.to_json(data)
+#             fhandle.write(f"{content}\n")
+#     return data
+
+# from pynchon.util.text.loadf import __main__ as loadf_main
+
+
 class Json(models.ToolPlugin):
-    """
-    Tools for working with JSON & JSON5
-    """
+    """Tools for working with JSON & JSON5"""
 
-    priority = -1
-    name = cli_name = 'json'
-    defaults = dict()
-    config_kls = None
+    class config_class(abcs.Config):
+        config_key: typing.ClassVar[str] = "json"
 
-    @classmethod
-    def click_merge(kls, fxn):
-        """ """
-        parent = kls.click_group
-        import click
-
-        if isinstance(fxn, click.Command):
-            cmd = fxn
-            LOGGER.debug(f"attaching command: {fxn}")
-            parent.add_command(cmd)
-            # LOGGER.debug(f"{parent.commands}")
-            return parent
-        if isinstance(fxn, click.Group):
-            LOGGER.debug(f"attaching group: {fxn}")
-            # parent.add_group(fxn)
-            raise NotImplementedError("groups are not supported yet")
-
-    @classmethod
-    def init_cli(kls) -> typing.NoneType:
-        """ """
-        fxns = [
-            # NB: these are groups
-            # text_main.json5,
-            # text_main.json,
-            # text_main.j2,
-            text_main.json5_load,
-            # text_main.json_load,
-            text_main.j2_render,
-        ]
-        for fxn in fxns:
-            parent = kls.click_merge(fxn)
-            LOGGER.debug(f"{parent.commands}")
+    # cli_subsumes: typing.List[typing.Callable] = [
+    #     loadf_main.json5,
+    #     loadf_main.json,
+    #     loadf_main.j5,
+    #     # loadf_main.json,
+    # ]
 
     # @tags(click_aliases=['loads',])
     # def json_loads(self):
@@ -85,58 +77,61 @@ class Json(models.ToolPlugin):
     #     """ loads JSON-5 from file-input """
     #     pass
 
+    # @kommand(
+    #     name="json5",
+    #     parent=PARENT,
+    #     # formatters=dict(),
+    #     options=[
+    #         # options.file,
+    #         # options.stdout,
+    #         options.output,
+    #         options.templates,
+    #         click.option(
+    #             "--in-place",
+    #             is_flag=True,
+    #             default=False,
+    #             help=("if true, writes to {file}.json (dropping any other extensions)"),
+    #         ),
+    #     ],
+    #     arguments=[files_arg],
+    # )
+    # def render_json5(files, output, in_place, templates):
+    #     """
+    #     Render JSON5 files -> JSON
+    #     """
+    #     assert files, "expected files would be provided"
+    #     # if file:
+    #     #     return render.j5(file, output=output, in_place=in_place)
+    #     # elif files:
+    #     # files = files.split(' ')
+    #     LOGGER.debug(f"Running with many: {files}")
+    #     file = files[0]
+    #     files = files[1:]
+    #     return render.j5(file, output=output, in_place=in_place, templates=templates)
+    #
+    #
+    # DEFAULT_OPENER = "open"
+    #
+    #
+    # @kommand(
+    #     name="any",
+    #     parent=PARENT,
+    #     formatters=dict(
+    #         # markdown=pynchon.T_TOC_CLI,
+    #     ),
+    #     options=[
+    #         # options.file,
+    #         options.format,
+    #         # options.stdout,
+    #         options.output,
+    #     ],
+    # )
+    # def render_any(format, file, stdout, output):
+    #     """
+    #     Render files with given renderer
+    #     """
+    #     raise NotImplementedError()
 
-# @kommand(
-#     name="json5",
-#     parent=PARENT,
-#     # formatters=dict(),
-#     options=[
-#         # options.file,
-#         # options.stdout,
-#         options.output,
-#         options.templates,
-#         click.option(
-#             "--in-place",
-#             is_flag=True,
-#             default=False,
-#             help=("if true, writes to {file}.json (dropping any other extensions)"),
-#         ),
-#     ],
-#     arguments=[files_arg],
-# )
-# def render_json5(files, output, in_place, templates):
-#     """
-#     Render JSON5 files -> JSON
-#     """
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     return render.j5(file, output=output, in_place=in_place, templates=templates)
-#
-#
-# DEFAULT_OPENER = "open"
-#
-#
-# @kommand(
-#     name="any",
-#     parent=PARENT,
-#     formatters=dict(
-#         # markdown=pynchon.T_TOC_CLI,
-#     ),
-#     options=[
-#         # options.file,
-#         options.format,
-#         # options.stdout,
-#         options.output,
-#     ],
-# )
-# def render_any(format, file, stdout, output):
-#     """
-#     Render files with given renderer
-#     """
-#     raise NotImplementedError()
+    name = "json"
+    priority = 1
+    cli_name = name

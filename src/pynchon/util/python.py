@@ -1,55 +1,47 @@
 """ pynchon.api.python
 """
-import os
-
-import tomli as tomllib  # tomllib only available in py3.11
-
-from pynchon.util import lme, files
+from pynchon.util import files, lme, text
 
 LOGGER = lme.get_logger(__name__)
 
 
-def is_package() -> bool:
-    """ """
-    from pynchon.config import python
+def is_package(folder: str) -> bool:
+    """slightly better than just looking for setup.py-
+    we try to use it to get the current version-string
 
-    return python.is_package
+    :param folder: str:
+    :param folder: str:
+
+    """
+    from pynchon.util.os import invoke
+
+    cmd = invoke(
+        f"cd {folder} && python setup.py --version 2>/dev/null", log_command=False
+    )
+    return cmd.succeeded
 
 
-def load_setupcfg(path: str = ""):
-    """ """
-    path = path or os.path.join(files.get_git_root(), "setup.cfg")
-    from pynchon.util import config
+def load_setupcfg(file: str = "", folder: str = ""):
+    """
 
-    return config.ini_loads(path)
+    :param file: str:  (Default value = "")
+    :param folder: str:  (Default value = "")
+    :param file: str:  (Default value = "")
+    :param folder: str:  (Default value = "")
 
-
-def load_pyprojecttoml(path: str = ""):
-    """ """
-    import tomli
-
-    if not os.path.exists(path):
-        err = f"Cannot load config from nonexistent path @ `{path}`"
-        LOGGER.critical(err)
-        return None, {}
-        # raise RuntimeError(err)
-
-    with open(path, "rb") as f:
-        try:
-            config = tomllib.load(f)
-        except (tomli.TOMLDecodeError,) as exc:
-            LOGGER.critical(f"cannot decode data from toml @ {f}")
-            raise
-    # config = {s: dict(config.items(s)) for s in config.sections()}
-    pynchon_section = config.get("pynchon", {})
-    # pynchon_section['project'] = dict(x.split('=') for x in pynchon_section.get(
-    #     'project', '').split('\n') if x.strip())
-    # config['tool:pynchon'] = pynchon_section
-    return config
+    """
+    if not file:
+        folder = folder or files.get_git_root().parents[0]
+        file = folder / "setup.cfg"
+    return text.loadf.ini(file)
 
 
 def load_entrypoints(config=None) -> dict:
-    """ """
+    """
+
+    :param config: Default value = None)
+
+    """
     if not config:
         LOGGER.critical("no config provided!")
         return {}

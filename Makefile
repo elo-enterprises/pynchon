@@ -37,61 +37,42 @@ version:
 clean:
 	rm -rf tmp.pypi* dist/* build/* \
 	&& rm -rf src/*.egg-info/
+	find . -name '*.tmp.*' -delete
 	find . -name '*.pyc' -delete
 	find . -name  __pycache__ -delete
 	find . -type d -name .tox | xargs -n1 -I% bash -x -c "rm -rf %"
 	rmdir build || true
 
-pypi-release: clean
+pypi-release:
 	PYPI_RELEASE=1 make build \
 	&& twine upload \
 	--user elo-e \
 	--password `secrets get /elo/pypi/elo-e` \
 	dist/*
 
-release: normalize static-analysis test docs pypi-release
+release: clean normalize static-analysis test pypi-release
 
 tox-%:
 	tox -e ${*}
 
 normalize: tox-normalize
 static-analysis: tox-static-analysis
-test-units: test
+test-units: utest
 test-integrations: itest
 smoke-test: stest
 itest: tox-itest
 utest: tox-utest
 stest: tox-stest
-test: utest itest stest
+test: test-units test-integrations smoke-test
 # coverage:
 # 	echo NotImplementedYet
 
 plan: docs-plan
-docs-plan:
-	pynchon project plan | jq .
+apply: docs-apply
 
+docs-plan:
+	tox -e docs-plan
 .PHONY: docs
-docs:
-	set -x \
-	&& pynchon project plan \
-	&& pynchon project apply \
-	&& pynchon gen api toc --package ${PYPI_PROJECT_NAME} \
-	&& pynchon gen cli toc \
-	&& pynchon gen cli all
-purge: clean pip-purge
-pip-purge: python-require-pipenv
-	@# Purges all dependencies from the currently active virtualenv
-	set -x \
-	&& pipenv uninstall --all --quiet
-python-require-pipenv:
-	@# Installs pipenv[0] if not present.
-	@# This is sometimes useful even if the project doesn't use a Pipfile..
-	@# see `python-pip-purge` target.
-	pip freeze | grep pipenv \
-	&& ( \
-		printf '$(COLOR_GREEN)Detected pipenv is already present.$(NO_COLOR)\n' 1>&2 \
-	) \
-	|| ( \
-		printf '$(COLOR_GREEN)Detected pipenv is missing. Installing it..$(NO_COLOR)\n' 1>&2 \
-		&& pip install pipenv==2022.10.12 \
-)
+docs: docs-apply
+docs-apply:
+	tox -e docs

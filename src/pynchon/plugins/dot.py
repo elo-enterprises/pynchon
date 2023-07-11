@@ -2,7 +2,111 @@
 """
 import os
 
-import click
+from pynchon.util.os import invoke
+
+from pynchon import abcs, api, cli, models  # noqa
+from pynchon.util import files, lme, typing  # noqa
+
+LOGGER = lme.get_logger(__name__)
+
+
+class Dot(models.Planner):
+    """Finds / Renders (graphviz) dot files for this project"""
+
+    name = "dot"
+
+    class config_class(abcs.Config):
+        config_key: typing.ClassVar[str] = "dot"
+        exclude_patterns: typing.List[str] = typing.Field(default=[])
+
+    # def _get_exclude_patterns(self, config):
+    #     """ """
+    #     return list(
+    #         set(
+    #             config.dot.get('exclude_patterns', [])
+    #             + config.globals['exclude_patterns']
+    #         )
+    #     )
+
+    def list(self) -> typing.List[str]:
+        """ """
+        # config = config or self.project_config
+        search = [
+            abcs.Path(self.project_root).joinpath("**/*.dot"),
+        ]
+        self.logger.debug(f"search pattern is {search}")
+        result = files.find_globs(search)
+        self.logger.debug(f"found {len(result)} files (pre-filter)")
+        excludes = self["exclude_patterns" :: self[:"globals.exclude_patterns":]]
+        self.logger.debug(f"filtering search with {len(excludes)} excludes")
+        result = [p for p in result if not p.match_any_glob(excludes)]
+        self.logger.debug(f"found {len(result)} files (post-filter)")
+        if not result:
+            err = "jinja-plugin is included in this config, but found no .j2 files!"
+            self.logger.critical(err)
+        return result
+
+    @cli.options.in_place
+    @cli.options.output
+    @cli.click.option("--img", default="nshine/dot")
+    @cli.click.option("--output-mode")
+    @cli.click.argument("file", nargs=1)
+    def render(
+        self,
+        img: str = "??",
+        file: str = "",
+        in_place: bool = True,
+        output_mode: str = "png",
+        output: str = "",
+    ):
+        if in_place:
+            assert not output
+            output = os.path.splitext(file)[0] + ".png"
+        cmd = f"cat {file} | docker run --rm --entrypoint dot -i {img} -T{output_mode} > {output}"
+        result = invoke(cmd, strict=True)
+        # assert result.succeeded
+        return result.succeeded
+
+    def plan(
+        self,
+        config=None,
+    ) -> models.Plan:
+        plan = super(self.__class__, self).plan(config=config)
+        self.logger.debug("planning for rendering for .dot graph files..")
+        cmd_t = "pynchon dot render {rsrc} --in-place --output-mode png"
+        for rsrc in self.list():
+            plan.append(
+                self.goal(
+                    resource=rsrc,
+                    command=cmd_t.format(rsrc=rsrc),
+                    type="render",
+                )
+            )
+        return plan
+
+    # @common.kommand(
+    #     name="files",
+    #     parent=parent,
+    #     options=[
+    #         options.script,
+    #         options.includes,
+    #         click.option(
+    #             "--script",
+    #             default=None,
+    #             help=("generates .dot files using script"),
+    #         ),
+    #         cli.options.inplace,
+    #     ],
+    #     arguments=[files_arg],
+    # )
+    # def gen_dot_files(files, in_place, includes, templates, script):
+    #     """
+    #     Render .dot files for this project.
+    #     This creates the .dot files themselves; use `pynchon render dot` to convert those to an image.
+    #     """
+    #     assert os.path.exists(script), f"script file @`{script}` is missing!"
+    #     invoke(f"python {script}")
+
 
 #     assert files, "expected files would be provided"
 #     # if file:
@@ -18,113 +122,3 @@ import click
 #         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
 #         invoke(f"{DEFAULT_OPENER} {output}")
 #
-from pynchon import abcs, models
-from pynchon.bin import options
-from pynchon.util import lme, files, typing
-from pynchon.util.os import invoke
-from pynchon.bin.common import kommand
-
-# @kommand(
-#     name="dot",
-#     parent=PARENT,
-#     options=[
-#         options.output,
-#         click.option(
-#             "--open",
-#             "open_after",
-#             is_flag=True,
-#             default=False,
-#             help=(f"if true, opens the created file using {DEFAULT_OPENER}"),
-#         ),
-#         click.option(
-#             "--in-place",
-#             is_flag=True,
-#             default=False,
-#             help=("if true, writes to {file}.png (dropping any other extensions)"),
-#         ),
-#     ],
-#     arguments=[files_arg],
-# )
-# def render_dot(files, output, in_place, open_after):
-#     """
-#     Render dot file (graphviz) -> PNG
-#     """
-
-LOGGER = lme.get_logger(__name__)
-
-
-class Dot(models.Planner):
-    """Tools for rendering graphviz dot files"""
-
-    name = "dot"
-
-    class config_kls(abcs.Config):
-        config_key = 'dot'
-
-    defaults = dict()
-
-    def plan(self, config) -> typing.List[str]:
-        plan = super(self.__class__, self).plan(config)
-        # render_instructions = self.render_instructions
-        # if "dot" in render_instructions:
-        self.logger.debug("planning for rendering for .dot graph files..")
-        dot_root = config.project["root"]
-        for line in files.find_suffix(root=dot_root, suffix="dot"):
-            line = line.strip()
-            if not line:
-                continue
-            plan += [f"pynchon render dot {line} --in-place"]
-        # if "dot" in self.gen_instructions:
-        self.logger.debug("planning generation for .dot graph files..")
-        dot_config = config["pynchon"].get("dot", {})
-        script = dot_config.get("script")
-        # # assert script, '`"dot" in pynchon.generate` but pynchon.dot.script is not set!'
-        # from pynchon.api import render
-        #
-        # # FIXME: do this substition everywhere!
-        # script = render._render(text=script, context=config)
-        cmd = "pynchon gen dot files --script {script}"
-        plan += [cmd]
-        return plan
-
-    @classmethod
-    def init_cli(kls):
-        """
-        Option parsing for the `dot` subcommands
-        """
-        parent = kls.click_group
-        LOGGER = lme.get_logger(__name__)
-        files_arg = click.argument("files", nargs=-1)
-
-        @kommand(
-            name="files",
-            parent=parent,
-            # formatters=dict(),
-            options=[
-                # options.file,
-                # options.stdout,
-                options.script,
-                options.templates,
-                click.option(
-                    "--script",
-                    default=None,
-                    help=("generates .dot files using script"),
-                ),
-                click.option(
-                    "--in-place",
-                    is_flag=True,
-                    default=False,
-                    help=(
-                        "if true, writes to {file}.json (dropping any other extensions)"
-                    ),
-                ),
-            ],
-            arguments=[files_arg],
-        )
-        def gen_dot_files(files, in_place, templates, script):
-            """
-            Render .dot files for this project.
-            This creates the .dot files themselves; use `pynchon render dot` to convert those to an image.
-            """
-            assert os.path.exists(script), f"script file @`{script}` is missing!"
-            invoke(f"python {script}")

@@ -1,38 +1,20 @@
 """ pynchon.plugins.render
 """
 from pynchon import models
-from pynchon.util import lme, typing
 
-# from pynchon.util.os import invoke
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-# from pynchon.util import tagging
-
-# import yaml
-# import click
-# import pyjson5
-# from pynchon import abcs
-# from pynchon.api import render
-# from pynchon.bin import groups, options
-# from pynchon.util import lme
-# from pynchon.util.os import invoke
-# from .common import kommand
-# LOGGER = lme.get_logger(__name__)
-# PARENT = groups.render
-# files_arg = click.argument("files", nargs=-1)
 
 
-class Renderers(models.CliAliases):
-    """
-    Namespace for rendering commands from other plugins
-    """
+class Renderers(models.NameSpace):
+    """Collects `render` commands from other plugins"""
 
-    name = cli_name = 'render'
-    defaults = dict()
-    config_kls = None
-
-    def placeholder(self) -> typing.Dict:
-        return dict()
+    name = cli_name = "render"
+    config_class = None
+    # cli_subsumes: typing.List[str] = [
+    #     'pynchon.util.text.render.__main__',
+    # ]
 
 
 # @kommand(
@@ -92,24 +74,6 @@ class Renderers(models.CliAliases):
 #     ],
 #     arguments=[files_arg],
 # )
-# def render_dot(files, output, in_place, open_after):
-#     """
-#     Render dot file (graphviz) -> PNG
-#     """
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     result = render.dot(file, output=output, in_place=in_place)
-#     output = result["output"]
-#     if open_after:
-#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-#         invoke(f"{DEFAULT_OPENER} {output}")
-#
 #
 # @kommand(
 #     name="any",

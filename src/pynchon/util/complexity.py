@@ -1,5 +1,5 @@
-GLYPH_COMPLEXITY = "🐉 Complex"
-
+""" pynchon.util.complexity
+"""
 import os
 import ast
 import sys
@@ -15,14 +15,28 @@ from pynchon.util import lme
 WORKING_DIR = Path(".")
 LOGGER = lme.get_logger(__name__)
 
+GLYPH_COMPLEXITY = constants.GLYPH_COMPLEXITY
+
 
 def clean_text(txt: str) -> str:
-    """ """
+    """
+
+    :param txt: str:
+    :param txt: str:
+
+    """
     return "\n".join([line for line in txt.split("\n") if line.strip()])
 
 
 def get_module(package: str = "", file: str = ""):
-    """ """
+    """
+
+    :param package: str:  (Default value = "")
+    :param file: str:  (Default value = "")
+    :param package: str:  (Default value = "")
+    :param file: str:  (Default value = "")
+
+    """
     if not bool(package) ^ bool(file):
         err = "Expected --file or --package, but not both"
         raise RuntimeError(err)
@@ -43,22 +57,19 @@ def get_module(package: str = "", file: str = ""):
 
 
 def get_refs(working_dir=None, module=None) -> dict:
-    """ """
+    """
+
+    :param working_dir: Default value = None)
+    :param module: Default value = None)
+
+    """
     refs = dict(
-        classes=dict(
-            [
-                [k, v]
-                for k, v in module.classes.items()
-                if not module.classes[k].is_alias
-            ]
-        ),
-        modules=dict(
-            [
-                [k, v]
-                for k, v in module.modules.items()
-                if not module.modules[k].is_alias
-            ]
-        ),
+        classes={
+            k: v for k, v in module.classes.items() if not module.classes[k].is_alias
+        },
+        modules={
+            k: v for k, v in module.modules.items() if not module.modules[k].is_alias
+        },
         functions=OrderedDict(
             [
                 [k, v]
@@ -80,13 +91,25 @@ def visit_module(
     output=[],
     stats={},
     module=None,
-    template=constants.T_TOC_API,
+    template=None,
     visited=[],
     exclude: list = [],
     module_name=None,
     working_dir=WORKING_DIR,
 ):
-    """recursive visitor for this package, submodules, classes, functions, etc"""
+    """recursive visitor for this package, submodules, classes, functions, etc
+
+    :param output: Default value = [])
+    :param stats: Default value = {})
+    :param module: Default value = None)
+    :param template: Default value = None)
+    :param visited: Default value = [])
+    :param exclude: list:  (Default value = [])
+    :param module_name: Default value = None)
+    :param working_dir: Default value = WORKING_DIR)
+    :param exclude: list:  (Default value = [])
+
+    """
     if module_name in exclude:
         LOGGER.debug(f"skipping module: {module_name}")
         return output
@@ -134,13 +157,22 @@ class Checker(mccabe.McCabeChecker):
 
 
 def complexity(code: str = None, fname: str = None, threshold: int = 7):
-    """ """
+    """
+
+    :param code: str:  (Default value = None)
+    :param fname: str:  (Default value = None)
+    :param threshold: int:  (Default value = 7)
+    :param code: str:  (Default value = None)
+    :param fname: str:  (Default value = None)
+    :param threshold: int:  (Default value = 7)
+
+    """
     threshold = 7
     try:
         tree = compile(code, fname, "exec", ast.PyCF_ONLY_AST)
     except SyntaxError:
         e = sys.exc_info()[1]
-        sys.stderr.write("Unable to parse %s: %s\n" % (fname, e))
+        sys.stderr.write(f"Unable to parse {fname}: {e}\n")
         return 0
     complex = []
     Checker.max_complexity = threshold
