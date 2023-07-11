@@ -129,9 +129,9 @@ class DockerCtx:
         return self._run_bool(entrypoint="bash", command='-c "echo"')
 
 
-Dockerfile = lambda txt, **kwargs: functools.partial(
-    DockerCtx, dockerfile=txt, **kwargs
-)()
+def Dockerfile(txt, **kwargs):
+    return functools.partial(DockerCtx, dockerfile=txt, **kwargs)()
+
 
 if __name__ == "__main__":
     result = Dockerfile("""FROM python:3.8-alpine""").run(

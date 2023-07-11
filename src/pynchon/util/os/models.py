@@ -5,7 +5,7 @@ import subprocess
 
 from pynchon.util import lme
 
-LOGGER = lme.get_logger(__name__)
+LOGGER = lme.get_logger('pynchon.util.os')
 
 from pynchon.fleks import meta
 
@@ -40,11 +40,10 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
         from pynchon import app, shfmt
 
         if self.log_command:
-            msg = f"running command: (system={self.system})\n\t{self.cmd}"
+            msg = f"running command: (system={self.system})\n  {self.cmd}"
             fmt = shfmt.bash_fmt(self.cmd)
-            syntax = app.Syntax(
-                f"# {self.cmd}\n\n{fmt}", "bash", line_numbers=False, word_wrap=True
-            )
+            LOGGER.warning(msg)
+            syntax = app.Syntax(f"{fmt}", "bash", line_numbers=False, word_wrap=True)
             panel = app.Panel(
                 syntax,
                 title=(
@@ -73,6 +72,7 @@ class Invocation(meta.NamedTuple, metaclass=meta.namespace):
     load_json: bool = False
 
     def __call__(self):
+        LOGGER.warning(self.cmd)
         if self.system:
             assert not self.stdin and not self.interactive
             error = os.system(self.cmd)

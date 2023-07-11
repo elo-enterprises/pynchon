@@ -1,31 +1,30 @@
 """ pynchon.plugins.pattern
-"""
 
+    See also:
+        https://github.com/cookiecutter/cookiecutter/issues/784
+"""
+import os 
 from pynchon import abcs, cli, constants, events, models  # noqa
 from pynchon.api import render
 from pynchon.util.os import invoke
-from pynchon.util.text import loads
 
 from pynchon.util import lme, tagging, text, typing  # noqa
-
+from pynchon.util.files.diff import str_diff
+from pynchon.util.text import dumpf
 LOGGER = lme.get_logger(__name__)
 
-PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
-
 FNAME_ADVICE = ".scaffold.advice.json5"
-
-from pynchon.util.files.diff import str_diff
-
+PETR = abcs.Path(constants.PYNCHON_EMBEDDED_TEMPLATES_ROOT)
 
 class RenderResult(abcs.Config):
     before: typing.Optional[str] = typing.Field(default=None)
     after: typing.Optional[str] = typing.Field(default=None)
     diff: typing.Optional[str] = typing.Field(default=None)
-    src: typing.Union[str, abcs.Path] = typing.Field(default=None)
+    src: typing.Union[str, abcs.Path] = typing.Field(required=True)
     dest: typing.Union[str, abcs.Path] = typing.Field(default=None)
 
     def __str__(self):
-        return f"<RenderResult>"
+        return f"<RenderResult {self.src}>"
 
     @property
     def diff(self):
@@ -38,7 +37,7 @@ class ScaffoldAdvice(abcs.Config):
     inherits: typing.List[str] = typing.Field(default=[])
 
     def __str__(self):
-        return f"<ScaffoldAdvice>"
+        return f"<ScaffoldAdvice {id(self)}>"
 
     @property
     def inherits(self):
@@ -52,9 +51,10 @@ class ScaffoldAdvice(abcs.Config):
 
     def load(self):
         cadvice = abcs.Path(self.file).read()
-        adv = loads.json5(cadvice)
+        adv = text.loads.json5(cadvice)
         self.__dict__.update(loaded=True, **adv)
         return self
+
 
 
 class Scaffold(abcs.Config):
@@ -68,33 +68,54 @@ class Scaffold(abcs.Config):
 
     __repr__ = __str__
 
-    def sync(self, dest=None, goals=[], context: dict = {}):
+    def sync(self, 
+        plugin=None,
+        dest:str=None, 
+        should_plan:bool=False, 
+        goals=[], 
+        context: typing.Dict = {}):
         """ """
         LOGGER.critical(f"sync: {dest}")
-        self.sync_dirs(dest=dest, goals=goals, context=context)
-        self.sync_files(dest=dest, goals=goals, context=context)
+        self.sync_dirs(
+            plugin=plugin,
+            should_plan=should_plan, 
+            dest=dest, goals=goals, 
+            context=context)
+        self.sync_files(
+            plugin=plugin,
+            should_plan=should_plan,dest=dest, 
+            goals=goals, context=context)
         for p in self.get_parents():
-            p.sync(dest=dest, goals=goals, context=context)
+            p.sync(
+                plugin=plugin, 
+                should_plan=should_plan,
+                dest=dest, goals=goals, 
+                context=context)
         return goals
 
-    def sync_dirs(self, dest=None, goals=[], context: dict = {}):
+    def sync_dirs(self, 
+        plugin=None,
+        should_plan:bool=False, 
+        dest=None, goals=[], 
+        context: dict = {}):
         """ """
         LOGGER.info(f"sync_dirs: {dest}")
         for pdir in self.dirs:
-            # raise Exception(dest)
             tmp = pdir.relative_to(self.root)
-            tmp = tmp.relative_to(dest)
             if render.is_templated(str(tmp)):
                 msg = f"detected `{tmp}` is templated, "
                 tmp = abcs.Path(
-                    render.get_template_from_string(str(tmp)).render(**context)
+                    render.get_template_from_string(
+                        str(tmp)).render(**context)
                 )
                 msg += f"rendered it as {tmp}"
                 LOGGER.critical(msg)
+            # tmp = tmp.relative_to(dest)
             LOGGER.critical(f"sync_dirs:: {dest} {tmp}")
             if tmp.exists():
                 LOGGER.info(f"directory already exists @ `{tmp}`")
             else:
+                import IPython; IPython.embed()
                 goals.append(
                     models.Goal(
                         type="create",
@@ -104,69 +125,57 @@ class Scaffold(abcs.Config):
                     )
                 )
 
-    def render_file(
-        self, src=None, dest=None, should_plan=False, goals=[], context: dict = {}
-    ) -> str:
-        """ """
-        assert context
-        if src.exists():
-            before = src.read()
-            tmpl = render.get_template_from_file(src)
-            # rendered = tmpl.render(name=name, **self.project_config)
-            LOGGER.critical(f"render_file: {context}")
-            after = tmpl.render(**context)
-            tmp = RenderResult(before=before, after=after, src=src, dest=dest)
-            if tmp.diff:
-                LOGGER.critical(f"render_file: diff present")
-                goals.append(
-                    models.Goal(
-                        type="sync",
-                        label="sync existing file",
-                        resource=dest,
-                        command=f"cp '{src}' {dest}",
-                    )
-                )
-            else:
-                LOGGER.critical(f"render_file: no diff")
-        else:
-            raise NotImplementedError()
-        # return rendered
-
     def sync_files(
-        self, dest=None, goals=[], should_plan=False, context: dict = {}
+        self, 
+        plugin=None,
+        dest=None, goals=[], 
+        should_plan:bool=False, 
+        context: typing.Dict = {},
     ) -> models.Plan:
         """ """
+        assert plugin
+        ctx_f ='.tmp.pattern.ctx'
+        dumpf.json(
+            context,
+            file=ctx_f)
         for src in self.files:
             dst = src.relative_to(self.root)
-            if not dst.exists():
-                goals.append(
-                    models.Goal(
-                        type="create",
-                        label=f"file-creation required by scaffold @ `{self.kind}`",
-                        resource=dst,
-                        command=f"cp {src} {dst}",
-                    )
-                )
-            else:
-                LOGGER.critical(f"modifies?: {dest}")
-                goal_maybe = self.render_file(
+            plugin.render_file(
                     src=src,
-                    dest=dest,
-                    should_plan=should_plan,
+                    dest=dst,
+                    kind=self.kind,
                     goals=goals,
                     context=context,
+                    # f"--context-file {ctx_f} "
+                        # f"--output {dst}")
+                
                 )
-            # after = self._render_file(dest=f)
-            # with open(f) as fhandle:
-            #     before = fhandle.read()
-            # if before != after:
-            #     # LOGGER.critical('rendering {f} creates changes!')
-            #             type="sync",
-            #             command=f"cp {destp} {fabs}",
-            #             resource=f,
-            #         )
-            #     )
-
+                # Pattern.siblings['jinja'].render(
+                #     src=src, dest=dest,
+                #     should_plan=should_plan))
+            # if not dst.exists():
+            #     # goals.append(
+            #     #     models.Goal(
+            #     #         type="create",
+            #     #         label=f"file-creation required by scaffold @ `{self.kind}`",
+            #     #         resource=dst,
+            #     #         command=f"cp {src} {dst}",
+            #     #     )
+            #     # )
+            # else:
+            #     LOGGER.critical(f"modifies?: {dest}")
+            #     if should_plan:
+            #         # goals.append(
+            #         #     self.siblings['jinja'].render(
+            #         #         src=src, dest=dest,
+            #         #         should_plan=should_plan))
+            #         goals.append(models.Goal(
+            #         type='render',
+            #         label=f"rendering template @ `{dst}`",
+            #         resource=dst,
+            #         command=f"pynchon jinja render {src} {dst}",
+            #     ))
+    
     def get_parents(self):
         out = []
         parents = self.advice.inherits if self.advice else []
@@ -216,6 +225,7 @@ class Scaffold(abcs.Config):
             [x for x in self.root.glob("**/") if x.is_dir() and not x == self.root]
         )
         return base_dirs  # +self.get_inherited_dirs()
+
 
 
 @tagging.tags(click_aliases=["pat"])
@@ -272,6 +282,70 @@ class Pattern(models.ResourceManager):
         ed = self[:"pynchon.editor":"atom"]
         invoke(f"{ed} {pfolder}&", system=True)
 
+    @cli.options.plan
+    @cli.click.option("--kind")
+    @cli.click.argument("dest", nargs=1)
+    @cli.click.argument("src", nargs=1)
+    def render_file(self, 
+        kind:str=None, 
+        name:str=None, 
+        should_plan: bool = False,
+        src:str=None, 
+        dest:str=None, 
+        goals:typing.List=[], 
+        context: typing.Dict = {}
+        ):
+        """Render a single file @ DEST from KIND """
+        pconf=Pattern.project_config.dict()
+        context = context or dict(
+            name=name or self[:'project.name':], 
+            **pconf)
+        pattern = Scaffold(kind=kind, root=self.pattern_folder / kind)
+        dest=abcs.Path(dest)
+        src_content = abcs.Path(src).read()
+        src_templated = render.is_templated(src_content)
+        if dest.exists():
+            if src_templated:
+                LOGGER.critical(f"render_file: {[src, dest]}")
+                before = src_content
+                tmpl = render.get_template_from_string(src_content)
+                after = tmpl.render(**context)
+                tmp = RenderResult(
+                    before=before, after=after, 
+                    src=src, dest=dest)
+                if tmp.diff:
+                    LOGGER.critical("render_file: diff present")
+                    LOGGER.critical(f'\n{tmp.diff}')
+                    nsrc = abcs.Path(os.path.relpath(src, '.'))
+                    tmpf = dest.name.replace(os.path.sep, '_')
+                    tmpf = abcs.Path(f'.tmp.pattern.rendered.{tmpf}')
+                    tmpf.write(after)
+                    goal=models.Goal(
+                        type="sync",
+                        label="sync existing file",
+                        resource=dest,
+                        owner=Pattern.__name__,
+                        command=f'cp {tmpf} {dest}',
+                    )
+                    goals.append(goal)
+                else:
+                    LOGGER.critical("render_file: no diff")
+            else:
+                LOGGER.critical("render_file: destination is missing (templated)")
+        else:
+            goals.append(
+                models.Goal(
+                    type="sync",
+                    label="sync new file",
+                    resource=dest,
+                    command=f"cp '{src}' {dest}",
+                )
+            )
+        if should_plan:
+            return goals
+        else:
+            return self.apply(plan=goals)
+
     @cli.click.option("--name", default=False)
     @cli.click.argument("kind", nargs=1)
     @cli.click.argument("dest", nargs=1)
@@ -282,10 +356,9 @@ class Pattern(models.ResourceManager):
         kind: str = None,
         name: str = None,
         should_plan: bool = False,
+        context:typing.Dict={},
     ):
         """Synchronizes DEST from scaffold KIND"""
-        # https://github.com/cookiecutter/cookiecutter/issues/784
-
         LOGGER.critical(f'Synchronizing "{dest}" from `{kind}`')
         tmp = self.pattern_names
         if kind not in tmp:
@@ -293,127 +366,53 @@ class Pattern(models.ResourceManager):
             raise SystemExit(1)
         plan = super(self.__class__, self).plan()
         destp = abcs.Path(dest)
-        folder = abcs.Path(dest).absolute()
 
-        pattern = Scaffold(kind=kind, root=self.pattern_folder / kind)
+        pattern = Scaffold(
+            kind=kind, 
+            root=self.pattern_folder / kind)
 
         LOGGER.warning(f"found pattern:\n\t{pattern}")
         LOGGER.warning(f"tentatively rendering {pattern} to `{destp}`")
-        # import IPython; IPython.embed()
         patterns = [pattern] + pattern.get_parents()
+        folder = abcs.Path(dest).absolute()
+        pconf=Pattern.project_config.dict()
+        context=context or dict(
+            name=self[:'project.name':name],
+            **pconf)
         for pattern in patterns:
             LOGGER.critical(f"running sync for: {pattern}")
             goals = pattern.sync(
+                plugin=self,
                 dest=destp,
                 goals=plan,
-                context=dict(name=name, **self.project_config.dict()),
+                context=context,
+                should_plan=should_plan,
             )
         if should_plan:
             LOGGER.critical(plan)
             # import IPython; IPython.embed()
             return plan
         else:
-            return plan.apply()  # return dict(changes=changes)
+            return self.apply(plan=plan)  
+            # return dict(changes=changes)
 
-    @cli.options.plan
-    @cli.click.argument("dest", nargs=1)
-    def render(self, dest, should_plan: bool = False):
-        """Renders content inside folder @ DEST"""
-        folder = abcs.Path(dest).absolute()
-        name = folder.name
-        if not folder.exists():
-            self.logger.critical(f"Folder @ {folder} does not exist!")
-        else:
-            plan = super(self.__class__, self).plan()
-            # dirs = self._get_template_dirs(folder)
-            # files = self._get_template_files(folder)
-
-            # struct=dict(files=files, dirs=dirs)
-            for d in dirs:
-                d = str(d.absolute())
-                if "{{name}}" in d:
-                    newname = d.replace("{{name}}", name)
-                    plan.append(
-                        self.goal(
-                            resource=newname,
-                            command=f"mv '{d}' {newname}",
-                            type="move",
-                        )
-                    )
-            for f in files:
-                f = str(f.absolute())
-                if "{{name}}" in f:
-                    newname = f.replace("{{name}}", name)
-                    plan.append(
-                        self.goal(
-                            resource=newname,
-                            command=f"mv '{f}' {newname}",
-                            type="move",
-                        )
-                    )
-            files = list([x for x in folder.glob("*") if not x.is_dir()])
-            # rendered_files=[]
-
-            for f in files:
-                with open(f) as fhandle:
-                    if render.is_templated(fhandle.read()):
-                        plan.append(
-                            self.goal(
-                                resource=f,
-                                command=f"pynchon pattern render-file {f} --name {name}",
-                                type="render",
-                            )
-                        )
-
-            if should_plan:
-                return plan
-            else:
-                return self.apply(plan)
-
-    # @cli.click.option("--name", required=True)
     # @cli.click.argument("dest", nargs=1)
-    # def render_file(self, dest=None, name="") -> bool:
-    #     """ """
-    #     destp = abcs.Path(dest)
-    # assert destp.exists()
-    # rendered = self._render_file(dest=dest, name=name)
-    # if rendered is None:
-    #     raise SystemExit(1)
-    # else:
-    #     with open(f, "w") as fhandle:
-    #         fhandle.write(rendered)
-    #     return True
-
-    # def _render_file(self, dest=None, name="") -> str:
-    #     """ """
-    #     f = abcs.Path(dest)
-    #     LOGGER.warning(f"rendering `{f}` in-place")
-    #     try:
-    #         tmpl = render.get_template_from_file(f)
-    #     except (Exception,) as exc:
-    #         LOGGER.critical(f"failed to get_template_from_file @ {f}: {exc}")
-    #         return None
-    #     else:
-    #         assert tmpl
-    #         rendered = tmpl.render(name=name, **self.project_config)
-    #         return rendered
-
-    @cli.click.argument("dest", nargs=1)
-    @cli.click.argument("kind", nargs=1)
-    def clone(self, kind: str = None, name: str = None):
-        """Clones PATTERN to DEST"""
-        raise NotImplementedError()
+    # @cli.click.argument("kind", nargs=1)
+    # def clone(self, kind: str = None, name: str = None):
+    #     """Clones PATTERN to DEST"""
+    #     raise NotImplementedError()
 
     @cli.click.argument("name", nargs=1)
     @cli.click.argument("kind", nargs=1)
     @cli.options.plan
     def new(
         self,
-        kind,
-        name,
+        kind:str=None,
+        name:str=None,
         should_plan: bool = False,
     ):
         """Instantiates PATTERN to NAME"""
+        name = self[:'project.name':name],
         pfolder = self.pattern_folder / kind
         if not pfolder.exists():
             choices = set(self.list().keys())
@@ -448,7 +447,6 @@ class Pattern(models.ResourceManager):
 
             plan.append(
                 self.goal(
-                    # callable=lambda: self.render(name)
                     command=f"{self.click_entry.name} {self.cli_name} render {dest}",
                     resource=dest.absolute(),
                     type="recursive-render",

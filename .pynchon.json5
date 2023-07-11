@@ -8,6 +8,7 @@
 
     // Recommended for projects with source-code
     "docs", "src", "tests", "cicd", "fixme", "github",
+    "makefile",  // makefile parsing
 
     // Standard if there's a python-project
     "pypi", "python-api", "python-cli", "python-libcst",
@@ -15,13 +16,9 @@
     // For projects with intermediate representations
     "dot",   // graphviz dot-files
     "jinja", // projects with templated docs
-
-    // For projects management & grooming
-    "scaffolding", // a boilerplate-manager
+    "mermaid",   // mermaid cli
 
     // Experimental
-    "makefile",  // makefile parsing
-    "mermaid",   // mermaid cli
     "deck",      // slide-deck tool
     "griffe",    // ast tool
     "pattern",  // replacement for scaffold, probably

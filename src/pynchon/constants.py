@@ -13,11 +13,11 @@ CONF_FILE_SEARCH_ORDER = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
 DEFAULT_PLUGINS = [
     # FIXME: docs
     "core",
+    "pattern",
     "plugins",
     "project",
     "globals",
     "git",
-    "patterns",
     "python",
     "gen",
     "render",

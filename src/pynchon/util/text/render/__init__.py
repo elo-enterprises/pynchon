@@ -44,6 +44,7 @@ def jinja(
     context = {
         # FIXME: try to santize this
         **dict(os.environ.items()),
+        **dict(__template__=file),
         **context,
     }
     try:
@@ -164,7 +165,9 @@ def jinja_file(
         else:
             output = "".join(output)
     LOGGER.warning(f"writing output to {output or sys.stdout.name}")
-    test = all([output, output not in ["/dev/stdout", "-"]])
+    from pynchon import abcs
+
+    test = all([abcs.Path(output).exists(), output, output not in ["/dev/stdout", "-"]])
     if test:
         with open(output) as fhandle:
             before = fhandle.read()

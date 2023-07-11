@@ -26,7 +26,11 @@ class Goal(typing.BaseModel):
         fmt = shfmt.bash_fmt(self.command)
         return app.Panel(
             app.Syntax(
-                f"# {self.command}\n\n{fmt}", "bash", line_numbers=False, word_wrap=True
+                # f"# {self.command}\n\n{fmt}",
+                fmt,
+                "bash",
+                line_numbers=False,
+                word_wrap=True,
             ),
             # title=__name__,
             # title=f'[dim italic yellow]{self.type}',

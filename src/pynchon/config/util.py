@@ -53,11 +53,23 @@ def finalize():
         if pconf_kls is None:
             plugin_config = abcs.Config()
         else:
-            user_defaults = (
-                config_module.PYNCHON_CORE
-                if plugin_kls.name == "base"
-                else config_module.USER_DEFAULTS.get(plugin_kls.name, {})
-            )
+            # user_defaults = (
+            #     config_module.PYNCHON_CORE
+            #     if plugin_kls.name == "base"
+            #     else config_module.USER_DEFAULTS.get(plugin_kls.name, {})
+            # )
+            # user_defaults = config_module.USER_DEFAULTS.get(plugin_kls.name, {})
+            user_defaults = config_module.MERGED_CONFIG_FILES.get(conf_key, {})
+            ctx = {
+                **config_module.MERGED_CONFIG_FILES,
+                **dict(pynchon=config_module.PYNCHON),
+            }
+            # if conf_key=='globals':
+            #     import IPython; IPython.embed()
+            from pynchon.api import render
+
+            user_defaults = render.dictionary(user_defaults, ctx)
+
             if plugin_kls.name == "core":
                 # special case: this is already bootstrapped
                 from pynchon.config import PYNCHON_CORE

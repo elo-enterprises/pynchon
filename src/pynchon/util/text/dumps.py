@@ -32,11 +32,9 @@ class JSONEncoder(modjson.JSONEncoder):
 
     # FIXME: use multimethod
     def default(self, obj):
-        if callable(getattr(obj, "json", None)):
-            return obj.json()
-        as_dict = getattr(obj, "as_dict", None)
-        if as_dict is not None and callable(as_dict):
-            LOGGER.warning(f"{type(obj)} brings custom as_dict()")
+        if callable(getattr(obj, "dict", None)):
+            return obj.dict()
+        if callable(getattr(obj, "as_dict", None)):
             return obj.as_dict()
         else:
             enc = self.encoders.get(type(obj), str)

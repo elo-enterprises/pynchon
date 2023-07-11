@@ -1,7 +1,6 @@
 """ pynchon.plugins.jinja
 """
 from pynchon import abcs, api, cli, models
-from pynchon.plugins import util as plugin_util
 
 from pynchon.util import files, lme, tagging, text, typing  # noqa
 
@@ -22,13 +21,15 @@ class Jinja(models.Planner):
         # @tagging.tagged_property(conflict_strategy="override")
         @property
         def exclude_patterns(self):
-            globals = plugin_util.get_plugin("globals").get_current_config()
+            from pynchon.config import globals
+
+            # globals = plugin_util.get_plugin("globals").get_current_config()
             global_ex = globals.exclude_patterns
             my_ex = self.__dict__.get("exclude_patterns", [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
     name = "jinja"
-    priority = 9
+    priority = 7
     COMMAND_TEMPLATE = (
         "python -mpynchon.util.text render jinja "
         "{resource} --context-file {context_file} "
@@ -121,7 +122,27 @@ class Jinja(models.Planner):
             err = f"{self.__class__.__name__} is active, but found no .j2 files!"
             self.logger.critical(err)
         return result
-
+    
+    # def render(
+    #     self,
+    #     src: str=None, 
+    #     dest: str=None, 
+    #     should_plan: bool = False,
+    #     goals:typing.List=[], 
+    # ):
+    #     """
+    #     """
+    #     if should_plan:
+    #         goals.append(self.goal(command=(        
+    #             "python -mpynchon.util.text render jinja "
+    #             f"{src} --context-file .tmp.jinja.ctx "
+    #             f"--output {dest}"
+    #             ),
+    #         ))
+    #         return goals
+    #     else:
+    #         raise NotImplementedError()
+    
     def plan(
         self,
         config=None,
@@ -152,7 +173,7 @@ class Jinja(models.Planner):
                     type="render",
                     resource=rsrc,
                     command=self.COMMAND_TEMPLATE.format(
-                        resource=rsrc, context_file=jctx, template_args=templates
+                        resource=dest, context_file=jctx, template_args=templates
                     ),
                 )
             )

@@ -156,9 +156,7 @@ class JinjaDict(TemplatedDict):
 
     def render(self, ctx={}):
         """
-
         :param ctx: Default value = {})
-
         """
         tmp = copy.deepcopy(self)
         while tmp.unresolved:

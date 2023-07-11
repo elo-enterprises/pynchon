@@ -149,22 +149,25 @@ class CliPlugin(PynchonPlugin):
         def wrapper(*args, fxn=fxn, **kwargs):
             LOGGER.critical(f"calling {fxn} from wrapper")
             result = fxn(*args, **kwargs)
-
             # FIXME: this wraps twice?
             # from rich import print_json
             # print_json(text.to_json(result))
             # if hasattr(result, 'display'):
-            rproto = getattr(result, "__rich__", None)
-            if rproto:
-                LOGGER.warning(f"rproto {result}")
-                from pynchon.util.lme import CONSOLE
-
-                CONSOLE.print(result)
+            from pynchon.util.text import dumps
+            # rproto = getattr(result, "__rich__", None)
+            # if rproto:
+            #     LOGGER.warning(f"rproto {result}")
+            #     from pynchon.util.lme import CONSOLE
+            print(dumps.json(result))
+            #     CONSOLE.print(result)
+            # return result
+            # if not isinstance(result, (dict,list)):
+            #     raise Exception([result, type(result)])
             # elif hasattr(result, "as_dict"):
             #     LOGGER.warning(f"as_dict {result}")
             #     rich.print(result.as_dict())
             # else:
-            return result
+            # return result
 
         commands = [
             kls.click_create_cmd(

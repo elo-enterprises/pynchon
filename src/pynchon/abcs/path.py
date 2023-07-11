@@ -10,10 +10,16 @@ LOGGER = lme.get_logger(__name__)
 
 class Path(typing.PathType):
     """ """
-
+    
+    def write(self, content:str) -> None:
+        """ """
+        with open(str(self), 'w') as fhandle:
+            fhandle.write(content)
+    
     def read(self) -> str:
         """ """
-        assert self.exists()
+        if not self.exists():
+            raise ValueError(f'Cannot read nonexistant file @ {str(self)}')
         with open(str(self)) as fhandle:
             content = fhandle.read()
         return content

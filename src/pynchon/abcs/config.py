@@ -65,7 +65,8 @@ class Config(
         exclude_unset: bool = False,
         exclude_defaults: bool = False,
         exclude_none: bool = False,
-    ) -> "DictStrAny":
+    ):
+        # -> "DictStrAny":
         attribs = super().dict(
             include=include,
             exclude=exclude,

@@ -158,7 +158,7 @@ class AppExitHooks(AppBase):
         """ """
         exc = self.exception
         if exc:
-            LOGGER.critical(f"default_exit_handler: encountered exception")
+            LOGGER.critical(f"default_exit_handler: encountered exception: {exc}")
             self.events.lifecycle.send(self, stage="❌")
         else:
             pass

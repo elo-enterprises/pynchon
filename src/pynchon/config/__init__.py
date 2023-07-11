@@ -49,7 +49,7 @@ pynchon = PYNCHON = CoreConfig(
 )
 RAW = PYNCHON.copy()
 PLUGINS = PYNCHON["plugins"]
-LOGGER.warning("plugins: {PLUGINS}")
+LOGGER.warning(f"plugins: {PLUGINS}")
 # FIXME: get from registry or mcls
 _all_names = PLUGINS + Meta.NAMES
 

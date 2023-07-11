@@ -19,7 +19,7 @@ class Deck(models.ResourceManager):
         root: str = typing.Field(default="{{docs.root}}/slides")
         pandoc_docker: str = typing.Field(default="pandoc/core")
         pandoc_engine: str = typing.Field(default="dzslides")
-        pandoc_args: str = typing.Field(default="")
+        pandoc_args: typing.List[str] = typing.Field(default=[])
         apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
         include_patterns: typing.List[str] = typing.Field(default=["*.md"])
 
