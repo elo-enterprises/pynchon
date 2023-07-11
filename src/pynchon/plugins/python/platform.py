@@ -94,7 +94,7 @@ class PackageConfig(abcs.Config):
     @property
     def version(self) -> str:
         """ """
-        if 'version' not in self.__dict__:
+        if "version" not in self.__dict__:
             cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
-            self.__dict__['version']=cmd.succeeded and cmd.stdout.strip()
-        return self.__dict__['version']
+            self.__dict__.update(version=cmd.succeeded and cmd.stdout.strip())
+        return self.__dict__["version"]

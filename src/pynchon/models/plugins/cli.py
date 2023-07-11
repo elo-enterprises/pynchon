@@ -1,4 +1,5 @@
-""" pynchon.models.plugins.cli """
+""" pynchon.models.plugins.cli 
+"""
 import functools
 
 from pynchon import api, cli, events, fleks, shimport  # noqa
@@ -154,10 +155,13 @@ class CliPlugin(PynchonPlugin):
             # print_json(text.to_json(result))
             # if hasattr(result, 'display'):
             from pynchon.util.text import dumps
-            # rproto = getattr(result, "__rich__", None)
-            # if rproto:
-            #     LOGGER.warning(f"rproto {result}")
-            #     from pynchon.util.lme import CONSOLE
+
+            rproto = getattr(result, "__rich__", None)
+            if rproto:
+                LOGGER.warning(f"rproto {result}")
+                from pynchon.util.lme import CONSOLE
+
+                CONSOLE.print(rproto())
             print(dumps.json(result))
             #     CONSOLE.print(result)
             # return result

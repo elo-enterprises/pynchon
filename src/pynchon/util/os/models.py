@@ -5,7 +5,7 @@ import subprocess
 
 from pynchon.util import lme
 
-LOGGER = lme.get_logger('pynchon.util.os')
+LOGGER = lme.get_logger("pynchon.util.os")
 
 from pynchon.fleks import meta
 

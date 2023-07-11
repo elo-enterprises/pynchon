@@ -4,6 +4,7 @@ import typing
 import collections
 
 from pynchon import abcs, app
+from pynchon.base import BaseModel
 from pynchon.fleks import meta
 
 from pynchon.util import lme, typing  # noqa
@@ -11,40 +12,49 @@ from pynchon.util import lme, typing  # noqa
 ResourceType = typing.Union[str, abcs.Path]
 
 
-class Goal(typing.BaseModel):
+class Goal(BaseModel):
     """ """
+
+    class Config(BaseModel.Config):
+        exclude: typing.Set[str] = {"udiff"}
 
     resource: ResourceType = typing.Field(default="?r", required=False)
     command: str = typing.Field(default="?c")
-    type: str = typing.Field(default="?t", required=False)
-    owner: str = typing.Field(default="?o")
+    type: typing.StringMaybe = typing.Field(default=None, required=False)
+    owner: typing.StringMaybe = typing.Field(default=None)
     label: typing.StringMaybe = typing.Field(default=None)
+    udiff: typing.StringMaybe = typing.Field(default=None)
 
     def __rich__(self) -> str:
+        """ """
         from pynchon import shfmt
 
         fmt = shfmt.bash_fmt(self.command)
-        return app.Panel(
-            app.Syntax(
-                # f"# {self.command}\n\n{fmt}",
-                fmt,
-                "bash",
-                line_numbers=False,
-                word_wrap=True,
-            ),
-            # title=__name__,
-            # title=f'[dim italic yellow]{self.type}',
-            # title=f'[bold cyan on black]{self.type}',
-            title=app.Text(self.type, style="dim bold"),
-            title_align="left",
-            style=app.Style(
-                dim=True,
-                # color='green',
-                bgcolor="black",
-                frame=False,
-            ),
-            subtitle=app.Text(f"{self.label or self.owner}", style="dim italic"),
-        )
+        if self.udiff:
+            from rich.markdown import Markdown
+
+            return app.Panel(Markdown(f"```diff\n{self.udiff}\n```"))
+        else:
+            return app.Panel(
+                app.Syntax(
+                    fmt,
+                    "bash",
+                    line_numbers=False,
+                    word_wrap=True,
+                ),
+                # title=__name__,
+                # title=f'[dim italic yellow]{self.type}',
+                # title=f'[bold cyan on black]{self.type}',
+                title=app.Text(self.type, style="dim bold"),
+                title_align="left",
+                style=app.Style(
+                    dim=True,
+                    # color='green',
+                    bgcolor="black",
+                    frame=False,
+                ),
+                subtitle=app.Text(f"{self.label or self.owner}", style="dim italic"),
+            )
 
     # def __str__(self):
     #     """ """

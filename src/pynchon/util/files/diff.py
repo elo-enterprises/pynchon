@@ -47,16 +47,17 @@ def diff_percent(file1: str = None, file2: str = None):
 
 @cli.arguments.file1
 @cli.arguments.file2
-def strdiff(str1: str = None, str2: str = None,n=1):
+def strdiff(str1: str = None, str2: str = None, n=1):
     """calculates a file-delta, returning a unified diff
 
     :param str1: str:  (Default value = None)
     :param str2: str:  (Default value = None)
     """
     xdiff = difflib.unified_diff(
-        str1.split('\n'),
-        str2.split('\n'),
-        fromfile='Original', tofile='Current',
+        str1.split("\n"),
+        str2.split("\n"),
+        fromfile="Current",
+        tofile="Proposed",
         lineterm="",
         n=n,
     )

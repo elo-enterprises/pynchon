@@ -10,13 +10,13 @@ from pynchon.util import lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+
 @cli.click.argument("file", default="/dev/stdin")
 def json(obj, file=None, **kwargs) -> None:
-    """
-    """
-    with open(file,'w') as fhandle:
-        fhandle.write(text.dumps.json(
-            obj, **kwargs))
+    """ """
+    with open(file, "w") as fhandle:
+        fhandle.write(text.dumps.json(obj, **kwargs))
+
 
 @cli.click.argument("file", default="/dev/stdin")
 def yaml(file=None, output=None, **kwargs):

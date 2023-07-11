@@ -15,6 +15,8 @@ COLOR_GREEN=\033[92m
 
 PYPI_PROJECT_NAME:=pynchon
 
+.PHONY: build docs
+
 init:
 	$(call _announce_target, $@)
 	set -x \
@@ -22,7 +24,6 @@ init:
 	; pip install --quiet -e .[testing] \
 	; pip install --quiet -e .[publish]
 
-.PHONY: build
 build: clean
 	export version=`python setup.py --version` \
 	&& (git tag $$version \
@@ -56,6 +57,7 @@ tox-%:
 	tox -e ${*}
 
 normalize: tox-normalize
+lint: static-analysis
 static-analysis: tox-static-analysis
 test-units: utest
 test-integrations: itest
@@ -72,7 +74,6 @@ apply: docs-apply
 
 docs-plan:
 	tox -e docs-plan
-.PHONY: docs
 docs: docs-apply
 docs-apply:
 	tox -e docs

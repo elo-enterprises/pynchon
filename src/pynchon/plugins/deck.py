@@ -37,7 +37,7 @@ class Deck(models.ResourceManager):
             output = output.relative_to(proot)
             relr = rsrc.relative_to(proot)
             fargs = {
-                **self.config,
+                **self.config.dict(),
                 **dict(
                     relr=relr, pandoc_args=" ".join(self["pandoc_args"]), output=output
                 ),

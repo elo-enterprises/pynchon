@@ -2,7 +2,7 @@
 """
 import collections
 
-from pynchon import abcs, config, events, fleks, shimport  # noqa
+from pynchon import config, events, fleks, shimport  # noqa
 from pynchon.util import lme, typing  # noqa
 
 from .util import get_plugin, get_plugin_obj  # noqa

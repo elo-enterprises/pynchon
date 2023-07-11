@@ -16,8 +16,7 @@ def invoke(cmd: str, **kwargs):
 
 
 def slurp_json(cmd: str, **kwargs):
-    """
-    """
+    """ """
     result = invoke(f"{cmd} > .tmp.{id(cmd)}")
     assert result.succeeded
     from pynchon.util.text import loadf

@@ -5,7 +5,7 @@ from pynchon import abcs, models
 from pynchon.util import files, lme, os, tagging, typing
 
 LOGGER = lme.get_logger(__name__)
-from memoized_property import memoized_property
+
 
 class GitConfig(abcs.Config):
     """ """
@@ -49,11 +49,12 @@ class GitConfig(abcs.Config):
     @property
     def repo(self) -> typing.StringMaybe:
         """ """
-        if 'repo' not in self.__dict__:
+        if "repo" not in self.__dict__:
             cmd = self._run("git config --get remote.origin.url")
             self.__dict__.update(
-                repo=cmd and (cmd.stdout.strip() if cmd.succeeded else None))
-        return self.__dict__['repo']
+                repo=cmd and (cmd.stdout.strip() if cmd.succeeded else None)
+            )
+        return self.__dict__["repo"]
 
     @property
     def is_github(self):
@@ -87,20 +88,20 @@ class GitConfig(abcs.Config):
     @property
     def branch_name(self):
         """ """
-        if 'branch_name' not in self.__dict__:
+        if "branch_name" not in self.__dict__:
             cmd = self._run("git rev-parse --abbrev-ref HEAD")
             tmp = cmd and cmd.succeeded and cmd.stdout.strip()
             self.__dict__.update(branch_name=tmp or None)
-        return self.__dict__['branch_name']
+        return self.__dict__["branch_name"]
 
     @property
     def hash(self) -> str:
         """ """
-        if 'hash' not in self.__dict__:
+        if "hash" not in self.__dict__:
             cmd = self._run("git rev-parse HEAD")
             tmp = cmd and cmd.succeeded and cmd.stdout.strip()
             self.__dict__.update(hash=tmp or None)
-        return self.__dict__['hash']
+        return self.__dict__["hash"]
 
 
 @tagging.tags(click_aliases=["g"])

@@ -5,13 +5,13 @@ from memoized_property import memoized_property
 
 from pynchon import cli, events
 from pynchon.util.os import invoke
-from pynchon.util import lme 
 from pynchon.util.tagging import tags
 
 from . import planning
 from .plugins import BasePlugin
 
 from pynchon.util import lme, typing  # noqa
+
 
 LOGGER = lme.get_logger(__name__)
 
@@ -45,22 +45,20 @@ class AbstractPlanner(BasePlugin):
         plan = self.Plan()
         return plan
 
-    def apply(
-        self, 
-        plan:planning.Plan=None) -> planning.ApplyResults:
+    def apply(self, plan: planning.Plan = None) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
         """
-        msg=f"Applying for plugin '{self.__class__.name}'"
+        msg = f"Applying for plugin '{self.__class__.name}'"
         events.lifecycle.send(
             # write status event (used by the app-console)
             stage=msg
         )
         plan = plan or self.plan()
-        goals = getattr(plan,'goals',plan)
+        goals = getattr(plan, "goals", plan)
         results = []
-        LOGGER.critical(f'{msg} ({len(goals)} goals)')
-        for i,action_item in enumerate(goals):
+        LOGGER.critical(f"{msg} ({len(goals)} goals)")
+        for i, action_item in enumerate(goals):
             events.lifecycle.send(self, applying=action_item)
             application = invoke(action_item.command)
             tmp = planning.Action(
@@ -104,7 +102,7 @@ class AbstractPlanner(BasePlugin):
         self._validate_hooks(hooks)
         return hooks
 
-    def _hook_open_after_apply(self, result: planning.ApplyResults):
+    def _hook_open_after_apply(self, result: planning.ApplyResults) -> bool:
         changes = self.list(changes=True)
         changes += [x.resource for x in result if x.ok]
         changes = list(set(changes))
