@@ -58,6 +58,7 @@ def get_jinja_globals():
         :param fname: str:
         :param level: Default value = None)
         """
+        assert fname
         fname = abcs.Path(fname)
         assert fname.exists()
         script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"

@@ -7,9 +7,7 @@ from pynchon.util import lme, typing
 LOGGER = lme.get_logger(__name__)
 
 
-class Config(
-    BaseModel,
-):
+class Config(BaseModel,):
     """ """
 
     config_key: typing.ClassVar[str] = None

@@ -3,11 +3,11 @@ import inspect
 from textwrap import dedent
 
 import libcst as cst
+import shimport
 from libcst._nodes.statement import (BaseSuite, ConcatenatedString, Expr,
                                      Sequence, SimpleStatementLine,
                                      SimpleString)
 
-from pynchon import shimport
 from pynchon.util import lme, typing
 
 from .base import base

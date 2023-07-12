@@ -2,7 +2,9 @@
 """
 import glob
 
-from pynchon import abcs, cli, models, shimport
+import shimport
+
+from pynchon import abcs, cli, models
 from pynchon.api import project
 from pynchon.util.os import invoke
 
