@@ -123,35 +123,11 @@ class Jinja(models.Planner):
             self.logger.critical(err)
         return result
 
-    # def render(
-    #     self,
-    #     src: str=None,
-    #     dest: str=None,
-    #     should_plan: bool = False,
-    #     goals:typing.List=[],
-    # ):
-    #     """
-    #     """
-    #     if should_plan:
-    #         goals.append(self.goal(command=(
-    #             "python -mpynchon.util.text render jinja "
-    #             f"{src} --context-file .tmp.jinja.ctx "
-    #             f"--output {dest}"
-    #             ),
-    #         ))
-    #         return goals
-    #     else:
-    #         raise NotImplementedError()
-
     def plan(
         self,
         config=None,
     ) -> typing.List:
-        """Creates a plan for this plugin
-
-        :param config: Default value = None)
-
-        """
+        """Creates a plan for this plugin"""
 
         def _get_template_args():
             """ """
@@ -165,19 +141,16 @@ class Jinja(models.Planner):
         plan = super(self.__class__, self).plan()
         jctx = self._get_jinja_context()
         templates = _get_template_args()
-        # self.logger.info("using `templates` argument(s):")
-        # self.logger.info(f"  {templates}")
         for rsrc in self.list():
-            raise NotImplementedError()
-            # plan.append(
-            #     self.goal(
-            #         type="render",
-            #         resource=rsrc,
-            #         command=self.COMMAND_TEMPLATE.format(
-            #             resource=dest,
-            #             context_file=jctx,
-            #             template_args=templates
-            #         ),
-            #     )
-            # )
+            plan.append(
+                self.goal(
+                    type="render",
+                    resource=rsrc,
+                    command=self.COMMAND_TEMPLATE.format(
+                        resource='??zz',
+                        context_file=jctx,
+                        template_args=templates
+                    ),
+                )
+            )
         return plan

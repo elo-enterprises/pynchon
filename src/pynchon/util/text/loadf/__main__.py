@@ -9,7 +9,7 @@ LOGGER = lme.get_logger(__name__)
 entry = common.entry_for(__name__)
 
 
-from pynchon import shimport
+import shimport
 
 tmp = (
     shimport.wrapper("pynchon.util.text.loadf")

@@ -1,6 +1,6 @@
 """ pynchon.util.os.pids
 """
-from pynchon import shimport
+import shimport
 
 psutil = shimport.lazy("psutil")
 
