@@ -2,7 +2,9 @@
 """
 import functools
 
-from pynchon import api, cli, events, fleks, shimport  # noqa
+import shimport
+
+from pynchon import api, cli, events, fleks  # noqa
 from pynchon.bin import entry  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 

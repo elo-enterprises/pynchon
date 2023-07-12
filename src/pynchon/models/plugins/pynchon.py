@@ -1,11 +1,13 @@
 """ pynchon.models.plugins.pynchon """
 import collections
 
+import shimport
+
 from pynchon.plugins import util as plugins_util
 
 from . import validators
 
-from pynchon import api, cli, events, fleks, shimport  # noqa
+from pynchon import api, cli, events, fleks  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
 

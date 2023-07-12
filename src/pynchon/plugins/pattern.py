@@ -124,11 +124,11 @@ class Scaffold(abcs.Config):
         for src in self.files:
             dst = src.relative_to(self.root)
             plugin.render_file(
+                goals=goals,
+                kind=self.kind,
+                context=context,
                 src=src,
                 dest=dst,
-                kind=self.kind,
-                goals=goals,
-                context=context,
                 should_plan=should_plan,
             )
             # Pattern.siblings['jinja'].render(
@@ -280,6 +280,7 @@ class Pattern(models.ResourceManager):
         """Render a single file @ DEST from KIND"""
         pconf = Pattern.project_config.dict()
         context = context or dict(name=name or self[:"project.name":], **pconf)
+        context.update(__template__=dest)
         pattern = Scaffold(kind=kind, root=self.pattern_folder / kind)
         dest = abcs.Path(dest)
         src_content = abcs.Path(src).read()

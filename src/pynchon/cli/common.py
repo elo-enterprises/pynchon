@@ -4,7 +4,7 @@
 import json
 import functools
 
-from pynchon import shimport
+import shimport
 from pynchon.cli import click
 
 from pynchon.util import lme, text, typing  # noqa

@@ -64,17 +64,13 @@ class Config(abcs.Config):
     config_key: typing.ClassVar[str] = "pynchon"
 
     class Config:
+        # https://github.com/pydantic/pydantic/discussions/5159
         # fields = {
         #     '_root': 'root',
         # }
         arbitrary_types_allowed = True
-        # https://github.com/pydantic/pydantic/discussions/5159
         frozen = True
 
-    # defaults = dict(
-    #     version=__version__,
-    #     # plugins=DEFAULT_PLUGINS,
-    # )
     __class_validators__ = []
     __instance_validators__ = [
         validate,
@@ -93,6 +89,11 @@ class Config(abcs.Config):
     #     # if not any([self.alias, self.category, self.brand]):
     #     #     raise ValueError("No alias provided")
 
+    @property
+    def version(self) -> str:
+        from pynchon import __version__
+        return __version__
+    
     @property
     def root(self) -> str:
         """{pynchon.root}:

@@ -6,7 +6,7 @@ from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon import shimport
+import shimport
 
 entry = common.entry_for(__name__)
 
