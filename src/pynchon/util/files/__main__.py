@@ -1,12 +1,16 @@
 """ pynchon.util.files CLI
 """
-from pynchon.cli import click, common, options  # noqa
-from pynchon.util import lme, typing  # noqa
+import shimport
+
+from pynchon.cli import common
 from pynchon.util.tagging import tags
+
+from fleks.cli import click, options  # noqa
+
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-import shimport
 
 entry = common.entry_for(__name__)
 

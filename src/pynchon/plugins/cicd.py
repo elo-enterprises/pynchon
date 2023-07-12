@@ -4,7 +4,6 @@ import webbrowser
 
 from pynchon import abcs, models
 
-from pynchon.cli import click, common, options  # noqa
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)

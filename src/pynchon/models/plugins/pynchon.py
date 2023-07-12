@@ -1,18 +1,19 @@
 """ pynchon.models.plugins.pynchon """
 import collections
 
+import fleks
 import shimport
 
 from pynchon.plugins import util as plugins_util
 
 from . import validators
 
-from pynchon import api, cli, events, fleks  # noqa
+from pynchon import api, cli, events  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
 
 LOGGER = lme.get_logger(__name__)
-classproperty = typing.classproperty
+classproperty = fleks.util.typing.classproperty
 pydash = shimport.lazy("pydash")
 config_mod = shimport.lazy("pynchon.config")
 
@@ -58,7 +59,7 @@ class PynchonPlugin(fleks.Plugin):
 
         return Siblings([p.name, p] for p in result)
 
-    @typing.classproperty
+    @classproperty
     def instance(kls):
         """class-property: the instance for this plugin"""
         return plugins_util.get_plugin_obj(kls.name)
@@ -67,7 +68,7 @@ class PynchonPlugin(fleks.Plugin):
     def plugin_templates_prefix(kls):
         return f"pynchon/plugins/{kls.name}"
 
-    @typing.classproperty
+    @classproperty
     def project_config(self):
         """class-property: finalized project-config"""
         return api.project.get_config()

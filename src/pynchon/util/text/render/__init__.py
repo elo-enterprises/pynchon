@@ -4,7 +4,8 @@
 """
 import os
 
-from pynchon.cli import click, options
+from fleks.cli import click, options
+
 from pynchon.util.os import invoke
 from pynchon.util.tagging import tags
 

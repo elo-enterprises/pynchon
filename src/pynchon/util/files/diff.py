@@ -2,7 +2,7 @@
 """
 import difflib
 
-from pynchon import cli
+import fleks
 
 from pynchon.util import lme, typing  # noqa
 
@@ -29,8 +29,8 @@ def diff_report(diff, logger=LOGGER.debug):
     logger(f"scaffold drift: \n\n{tmp}\n\n")
 
 
-@cli.arguments.file1
-@cli.arguments.file2
+@fleks.cli.arguments.file1
+@fleks.cli.arguments.file2
 def diff_percent(file1: str = None, file2: str = None):
     """calculates file-delta, returning a percentage
 
@@ -45,8 +45,8 @@ def diff_percent(file1: str = None, file2: str = None):
     return 100 * (1.0 - sm.ratio())
 
 
-@cli.arguments.file1
-@cli.arguments.file2
+@fleks.cli.arguments.file1
+@fleks.cli.arguments.file2
 def strdiff(str1: str = None, str2: str = None, n=1):
     """calculates a file-delta, returning a unified diff
 
@@ -67,8 +67,8 @@ def strdiff(str1: str = None, str2: str = None, n=1):
 str_diff = strdiff
 
 
-@cli.arguments.file1
-@cli.arguments.file2
+@fleks.cli.arguments.file1
+@fleks.cli.arguments.file2
 def diff(file1: str = None, file2: str = None):
     """calculates a file-delta, returning a unified diff
 

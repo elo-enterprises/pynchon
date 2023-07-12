@@ -23,4 +23,4 @@ pynchon docs list | jq .
 pynchon git cfg|jq .
 pynchon pattern new --help
 pynchon py --help
-pynchon python src sorted --help
+pynchon src sorted --help

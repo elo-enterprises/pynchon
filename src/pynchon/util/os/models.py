@@ -7,7 +7,7 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger("pynchon.util.os")
 
-from pynchon.fleks import meta
+from fleks import meta
 
 
 class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):

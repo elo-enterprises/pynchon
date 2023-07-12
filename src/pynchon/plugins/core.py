@@ -3,9 +3,13 @@
 from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
-from pynchon.util import lme, tagging, typing
+from pynchon.util import lme, tagging
 
 LOGGER = lme.get_logger(__name__)
+
+import fleks
+
+classproperty = fleks.util.typing.classproperty
 
 
 @tagging.tags(click_aliases=["c"])
@@ -19,7 +23,7 @@ class Core(models.Planner):
     # NB: prevents recursion when `pynchon plan` is used!
     contribute_plan_apply = False
 
-    @typing.classproperty
+    @classproperty
     def click_group(kls):
         """ """
         kls._finalized_click_groups[kls] = entry
@@ -33,7 +37,6 @@ class Core(models.Planner):
         result = getattr(config_mod, kls.get_config_key())
         return result
 
-    # @typing.validate_arguments
     def cfg(self):
         """Show current project config (with templating/interpolation)"""
         tmp = self.project_config

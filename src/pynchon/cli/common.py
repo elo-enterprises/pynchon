@@ -5,7 +5,7 @@ import json
 import functools
 
 import shimport
-from pynchon.cli import click
+from fleks.cli import click
 
 from pynchon.util import lme, text, typing  # noqa
 
@@ -29,20 +29,20 @@ def load_groups_from_children(root=None, parent=None):
     )
 
 
-class handler:
-    """ """
-
-    priority = -1
-
-    def __init__(self, parent=None):
-        self.parent = parent
-        self.logger = lme.get_logger(self.__class__.__name__)
-
-    def match(self, call_kwargs):
-        return False
-
-    def __call__(self, result, **call_kwargs):
-        return self.handle(result, **call_kwargs)
+# class handler:
+#     """ """
+#
+#     priority = -1
+#
+#     def __init__(self, parent=None):
+#         self.parent = parent
+#         self.logger = lme.get_logger(self.__class__.__name__)
+#
+#     def match(self, call_kwargs):
+#         return False
+#
+#     def __call__(self, result, **call_kwargs):
+#         return self.handle(result, **call_kwargs)
 
 
 def entry_for(

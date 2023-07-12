@@ -147,9 +147,7 @@ class Jinja(models.Planner):
                     type="render",
                     resource=rsrc,
                     command=self.COMMAND_TEMPLATE.format(
-                        resource='??zz',
-                        context_file=jctx,
-                        template_args=templates
+                        resource=rsrc, context_file=jctx, template_args=templates
                     ),
                 )
             )

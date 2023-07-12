@@ -3,9 +3,10 @@
 import typing
 import collections
 
-from pynchon import abcs, app
+from fleks import app, meta
+
+from pynchon import abcs
 from pynchon.base import BaseModel
-from pynchon.fleks import meta
 
 from pynchon.util import lme, typing  # noqa
 

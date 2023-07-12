@@ -1,6 +1,6 @@
 """ pynchon.models.plugins.provider """
 
-from pynchon import api, cli, events, fleks  # noqa
+from pynchon import api, cli, events  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
 from . import validators

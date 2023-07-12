@@ -6,7 +6,8 @@ from pynchon import abcs, constants, models
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
 
-from pynchon.cli import click, common, options  # noqa
+from fleks.cli import click, options  # noqa
+
 
 LOGGER = lme.get_logger(__name__)
 

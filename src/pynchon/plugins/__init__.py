@@ -2,9 +2,10 @@
 """
 import collections
 
+import fleks
 import shimport
 
-from pynchon import config, events, fleks  # noqa
+from pynchon import config, events  # noqa
 from pynchon.util import lme, typing  # noqa
 
 from .util import get_plugin, get_plugin_obj  # noqa

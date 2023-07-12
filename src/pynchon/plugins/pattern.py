@@ -5,7 +5,9 @@
 """
 import os
 
-from pynchon import abcs, cli, constants, models
+from fleks import cli
+
+from pynchon import abcs, constants, models
 from pynchon.api import render
 from pynchon.util import lme, tagging, text, typing
 from pynchon.util.os import invoke

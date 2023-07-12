@@ -1,9 +1,12 @@
 """ pynchon.plugins.makefile
 """
 
-from pynchon import abcs, api, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from fleks import cli
+
 from pynchon.util.makefile import parse as makefile_parse
+
+from pynchon import abcs, api, events, models  # noqa
+from pynchon.util import lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
