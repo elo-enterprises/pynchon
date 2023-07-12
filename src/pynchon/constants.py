@@ -11,13 +11,15 @@ LOG_LEVEL = os.environ.get("PYNCHON_LOG_LEVEL", "WARNING")
 
 CONF_FILE_SEARCH_ORDER = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
 DEFAULT_PLUGINS = [
-    "core", "git",
-    "src", "docs",
+    "core",
+    "git",
+    "src",
+    "docs",
     "pattern",
     "plugins",
     "project",
     "globals",
-    "github", # NB: used by `pynchon pattern sync . github`
+    "github",  # NB: used by `pynchon pattern sync . github`
     "python",
     "gen",
     "render",

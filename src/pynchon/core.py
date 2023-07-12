@@ -92,8 +92,9 @@ class Config(abcs.Config):
     @property
     def version(self) -> str:
         from pynchon import __version__
+
         return __version__
-    
+
     @property
     def root(self) -> str:
         """{pynchon.root}:

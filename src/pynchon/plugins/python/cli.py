@@ -3,8 +3,9 @@
 import glob
 
 import shimport
+from fleks import cli
 
-from pynchon import abcs, cli, models
+from pynchon import abcs, models
 from pynchon.api import project
 from pynchon.util.os import invoke
 

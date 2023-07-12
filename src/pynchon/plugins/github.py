@@ -2,7 +2,9 @@
 """
 import webbrowser
 
-from pynchon import abcs, cli, events, models  # noqa
+from fleks import cli
+
+from pynchon import abcs, events, models  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)

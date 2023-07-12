@@ -1,6 +1,8 @@
 """ pynchon.plugins.python.api
 """
-from pynchon import abcs, cli, models
+from fleks import cli
+
+from pynchon import abcs, models
 from pynchon.api import render
 from pynchon.util import complexity, lme, tagging, typing
 

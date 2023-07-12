@@ -1,8 +1,11 @@
 """ pynchon.util.text.dumpf.__main__
 """
-from pynchon.cli import click, common, options  # noqa
-from pynchon.util import lme, typing  # noqa
+from fleks.cli import click, options  # noqa
+
+from pynchon.cli import common
 from pynchon.util.tagging import tags
+
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

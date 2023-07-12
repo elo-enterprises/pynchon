@@ -2,7 +2,9 @@
 """
 import typing
 
-from pynchon import api, cli, events, fleks  # noqa
+import fleks
+
+from pynchon import api, cli, events  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
 from . import validators  # noqa
@@ -12,7 +14,7 @@ from .pynchon import PynchonPlugin  # noqa
 from .tool import ToolPlugin  # noqa
 
 LOGGER = lme.get_logger(__name__)
-classproperty = typing.classproperty
+classproperty = fleks.util.typing.classproperty
 
 
 class BasePlugin(CliPlugin):

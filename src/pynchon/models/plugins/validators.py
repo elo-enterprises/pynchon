@@ -2,9 +2,7 @@
 
     FIXME: ntuple struct for vdata
 """
-# import collections
-
-from pynchon import fleks
+import fleks
 
 from pynchon.util import lme, typing  # noqa
 
@@ -16,16 +14,9 @@ def require_conf_key(
     kls,
     self=None,
     vdata=None,
-    strict=True,
+    strict: bool = True,
 ):
-    """
-
-    :param kls: param self:  (Default value = None)
-    :param vdata: Default value = None)
-    :param strict: Default value = True)
-    :param self:  (Default value = None)
-
-    """
+    """ """
     pconf_kls = getattr(kls, "config_class", None)
     conf_key = getattr(pconf_kls, "config_key", kls.name.replace("-", "_"))
     if not conf_key:

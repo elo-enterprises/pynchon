@@ -2,15 +2,17 @@
 """
 import webbrowser
 
+import fleks
 import shimport
+from fleks import cli
 from memoized_property import memoized_property
 
 from pynchon.util.os import invoke
-# from pynchon.api import render
-from pynchon.util import files
 
-from pynchon import abcs, api, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon import abcs, api, events, models  # noqa
+
+# from pynchon.api import render
+from pynchon.util import files, lme, tagging, typing  # noqa
 
 grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)
@@ -86,19 +88,19 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     priority = 0
     serving = None
 
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "docs"
         include_patterns: typing.List[str] = typing.Field(default=[])
 
         @property
         def root(self):
-            if 'root' not in self.__dict__:
+            if "root" not in self.__dict__:
                 from pynchon.config import GIT, pynchon
+
                 tmp = GIT.root
                 self.__dict__.update(root=tmp or pynchon["working_dir"])
-            return self.__dict__['root']
-    
+            return self.__dict__["root"]
+
     @property
     def server_pid(self):
         tmp = self.server.proc
@@ -125,7 +127,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @gen.command("version-file")
     def version_file(
         self,
-        should_print:bool,
+        should_print: bool,
         # output:str=None,
     ):
         """
@@ -135,8 +137,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         tmpl = api.render.get_template("pynchon/plugins/core/VERSIONS.md.j2")
         result = tmpl.render(**self.project_config.dict())
         files.dumps(
-            content=result, 
-            file=output, quiet=False, logger=self.logger.warning
+            content=result, file=output, quiet=False, logger=self.logger.warning
         )
         if should_print and output != "/dev/stdout":
             print(result)
@@ -163,7 +164,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         return dict(url=self.server_url, pid=self.server_pid)
 
     @tagging.tags(click_aliases=["op", "opn"])
-    @cli.arguments.file
+    @fleks.cli.arguments.file
     def open(self, file, server=None):
         """Open a docs-artifact (based on file type)
         :param file: param server:  (Default value = None)

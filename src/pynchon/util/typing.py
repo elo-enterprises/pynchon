@@ -29,7 +29,7 @@ def bind_method(func, instance, as_name=None):
     :param as_name: Default value = None)
     :param func:
     """
-    assert isinstance(func, (typing.FunctionType,))
+    assert isinstance(func, (FunctionType,))
     if as_name is None:
         as_name = func.__name__
     bound_method = func.__get__(instance, instance.__class__)
@@ -55,8 +55,3 @@ CallableNamespace = typing.Dict[str, typing.Callable]
 
 # i.e. `obj,created = model.objects.get_or_create()`
 GetOrCreateResult = typing.Tuple[object, bool]
-
-# isort: off
-from .oop import *  # noqa
-
-# isort: on

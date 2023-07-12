@@ -2,9 +2,10 @@
 """
 import functools
 
+import fleks
 import shimport
 
-from pynchon import api, cli, events, fleks  # noqa
+from pynchon import api, cli, events  # noqa
 from pynchon.bin import entry  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
@@ -12,7 +13,7 @@ from .pynchon import PynchonPlugin  # noqa
 
 LOGGER = lme.get_logger(__name__)
 IPython = shimport.lazy("IPython")
-classproperty = typing.classproperty
+classproperty = fleks.util.typing.classproperty
 config_mod = shimport.lazy("pynchon.config")
 
 
@@ -21,15 +22,15 @@ class CliPlugin(PynchonPlugin):
     cli_label = "<<Default>>"
     _finalized_click_groups = dict()
 
-    @typing.classproperty
+    @classproperty
     def cli_path(kls):
         return f"{kls.click_entry.name} {kls.click_group.name}"
 
-    @typing.classproperty
+    @classproperty
     def click_entry(kls):
         return entry
 
-    @typing.classproperty
+    @classproperty
     def click_group(kls):
         cached = kls._finalized_click_groups.get(kls, None)
         grp_name = getattr(kls, "cli_name", kls.name)

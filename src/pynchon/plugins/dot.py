@@ -2,9 +2,11 @@
 """
 import os
 
+from fleks import cli
+
 from pynchon.util.os import invoke
 
-from pynchon import abcs, api, cli, models  # noqa
+from pynchon import abcs, api, models  # noqa
 from pynchon.util import files, lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
@@ -83,42 +85,3 @@ class Dot(models.Planner):
                 )
             )
         return plan
-
-    # @common.kommand(
-    #     name="files",
-    #     parent=parent,
-    #     options=[
-    #         options.script,
-    #         options.includes,
-    #         click.option(
-    #             "--script",
-    #             default=None,
-    #             help=("generates .dot files using script"),
-    #         ),
-    #         cli.options.inplace,
-    #     ],
-    #     arguments=[files_arg],
-    # )
-    # def gen_dot_files(files, in_place, includes, templates, script):
-    #     """
-    #     Render .dot files for this project.
-    #     This creates the .dot files themselves; use `pynchon render dot` to convert those to an image.
-    #     """
-    #     assert os.path.exists(script), f"script file @`{script}` is missing!"
-    #     invoke(f"python {script}")
-
-
-#     assert files, "expected files would be provided"
-#     # if file:
-#     #     return render.j5(file, output=output, in_place=in_place)
-#     # elif files:
-#     # files = files.split(' ')
-#     LOGGER.debug(f"Running with many: {files}")
-#     file = files[0]
-#     files = files[1:]
-#     result = render.dot(file, output=output, in_place=in_place)
-#     output = result["output"]
-#     if open_after:
-#         LOGGER.debug(f"opening {output} with {DEFAULT_OPENER}")
-#         invoke(f"{DEFAULT_OPENER} {output}")
-#

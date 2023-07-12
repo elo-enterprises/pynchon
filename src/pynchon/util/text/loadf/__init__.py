@@ -5,8 +5,8 @@
 import os
 
 import tomli as tomllib  # NB: tomllib only available in py3.11
+from fleks.cli import click, options
 
-from pynchon.cli import click, options
 from pynchon.util.os import invoke
 from pynchon.util.text import loads
 

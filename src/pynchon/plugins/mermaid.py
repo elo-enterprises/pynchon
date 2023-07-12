@@ -2,9 +2,11 @@
 """
 import os
 
+from fleks import cli
+
 from pynchon.util.os import invoke
 
-from pynchon import abcs, cli, events, models  # noqa
+from pynchon import abcs, events, models  # noqa
 from pynchon.util import files, lme, tagging, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
