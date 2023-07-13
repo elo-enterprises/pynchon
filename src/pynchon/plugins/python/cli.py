@@ -93,7 +93,6 @@ class PythonCLI(models.ShyPlanner):
         """
         Describe entrypoints for this project (parses setup.cfg)
         """
-
         config, plan = project.plan()
         return config
 
@@ -153,7 +152,7 @@ class PythonCLI(models.ShyPlanner):
     @cli.options.stdout
     @cli.options.header
     # @cli.click.flag('--click',help='treat as click')
-    def main_docs(format, module, file, output_dir, stdout, header, name):
+    def main_docs(format, module, file, output_dir, stdout, header, name):  # noqa
         """
         Autogenenerate docs for python modules using __main__
         """

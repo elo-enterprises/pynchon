@@ -328,7 +328,7 @@ class Pattern(models.ResourceManager):
         else:
             return self.apply(plan=goals)
 
-    @cli.click.option("--name", default=False)
+    @cli.click.option("--name", default=None)
     @cli.click.argument("kind", nargs=1)
     @cli.click.argument("dest", nargs=1)
     @cli.options.plan
@@ -356,7 +356,7 @@ class Pattern(models.ResourceManager):
         patterns = [pattern] + pattern.get_parents()
         folder = abcs.Path(dest).absolute()
         pconf = Pattern.project_config.dict()
-        context = context or dict(name=self[:"project.name":name], **pconf)
+        context = context or dict(name=name or self[:"project.name":], **pconf)
         for pattern in patterns:
             LOGGER.critical(f"running sync for: {pattern}")
             goals = pattern.sync(

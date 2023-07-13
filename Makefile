@@ -70,10 +70,15 @@ test: test-units test-integrations smoke-test
 # 	echo NotImplementedYet
 
 plan: docs-plan
-apply: docs-apply
+plan-docs: docs-plan
 
 docs-plan:
-	tox -e docs-plan
+	@# Run from tox, not vice versa 
+	pynchon src plan 
+	pynchon docs plan
 docs: docs-apply
 docs-apply:
-	tox -e docs
+	@# Run from tox, not vice versa 
+	pynchon src apply
+	pynchon docs apply
+apply: docs-apply

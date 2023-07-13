@@ -93,12 +93,11 @@ class LibCST(models.Planner):
         ignore_private: bool = True,
         modules: bool = True,
         functions: bool = True,
-        methods: bool = True,
+        methods: bool = True,  # noqa
         classes: bool = True,
     ):
         """Generates python docstrings"""
         src_root = src_root or self[:"src.root":]
-        # rsrc = "src/pynchon/shfmt/"
         cmd = "docstrings.simple.function"
         plan = self.Plan()
         plan.append(
@@ -113,4 +112,3 @@ class LibCST(models.Planner):
             return plan
         else:
             return self.apply(plan)
-        # self.logger.critical(locals())

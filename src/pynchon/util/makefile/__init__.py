@@ -1,3 +1,5 @@
+""" pynchon.util.makefile.__init__
+"""
 import re
 
 from pynchon import abcs, cli
