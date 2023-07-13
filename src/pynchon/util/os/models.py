@@ -7,7 +7,7 @@ from pynchon.util import lme
 
 LOGGER = lme.get_logger("pynchon.util.os")
 
-from fleks import meta
+from fleks import app, meta
 
 
 class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
@@ -37,11 +37,11 @@ class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
                 return "??"
             return "[cyan]=> [green]ok" if self.succeeded else "[red]failed"
 
-        from pynchon import app, shfmt
+        import shil
 
         if self.log_command:
             msg = f"running command: (system={self.system})\n  {self.cmd}"
-            fmt = shfmt.bash_fmt(self.cmd)
+            fmt = shil.shfmt(self.cmd)
             LOGGER.warning(msg)
             syntax = app.Syntax(f"{fmt}", "bash", line_numbers=False, word_wrap=True)
             panel = app.Panel(

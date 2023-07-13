@@ -53,7 +53,7 @@ class Core(models.Planner):
         pynchon: bool = False,
         bash: bool = False,
         bash_completions: bool = False,
-        bashrc: bool = False,
+        bashrc: bool = False,  # noqa
         makefile: bool = False,
         tox: bool = False,
     ) -> None:
@@ -134,7 +134,7 @@ class Core(models.Planner):
         elif tox or makefile:
             tail = "Makefile" if makefile else "tox.ini"
             tmpl = api.render.get_template(f"{template_prefix}/{tail}")
-            content = tmpl.render(**self.project_config)
+            content = tmpl.render(**self.project_config.dict())
             print(content)
 
     def raw(self) -> None:

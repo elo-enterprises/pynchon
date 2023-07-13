@@ -103,7 +103,7 @@ class CliPlugin(PynchonPlugin):
         return cli.click.group_merge(group, parent)
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
-    def click_acquire(
+    def click_acquire(  # noqa: F811
         kls,
         fxn: typing.FunctionType,
         copy: bool = False,
@@ -119,9 +119,9 @@ class CliPlugin(PynchonPlugin):
         kls.click_group.add_command(cli.click.command(cmd_name)(fxn))
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Command)
-    def click_acquire(
+    def click_acquire(  # noqa: F811
         kls, cmd: cli.click.Command, copy: bool = False, **update_kwargs
-    ):  # noqa F811
+    ):
         """ """
         parent = kls.click_group
         LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")
@@ -131,12 +131,12 @@ class CliPlugin(PynchonPlugin):
         return parent
 
     @PynchonPlugin.classmethod_dispatch(typing.MethodType)
-    def click_acquire(
+    def click_acquire(  # noqa: F811
         kls,
         cmd: typing.MethodType,
         copy: bool = False,  # irrelevant here
         **update_kwargs,
-    ):  # noqa F811
+    ):
         """ """
         fxn = cmd
         tags = tagging.tags[fxn]
@@ -260,8 +260,8 @@ class CliPlugin(PynchonPlugin):
             f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}"
         )
         for fxn in cli_subsumes:
-            raise Exception(fxn)
-            kls.click_acquire(fxn)
+            raise NotImplementedError(fxn)
+            # kls.click_acquire(fxn)
 
     @classmethod
     def click_create_cmd(

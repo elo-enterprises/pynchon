@@ -54,7 +54,7 @@ def lifecycle_applying(sender, applying=None, **kwargs):
         lifecycle.send(lifecycle_applying, stage=tmp)
 
 
-def lifecycle_stage(sender, stage=None, **unused):
+def lifecycle_stage(sender, stage=None, **unused):  # noqa
     """
     :param sender:
     :param stage:  (Default value = None)
@@ -66,7 +66,7 @@ def lifecycle_stage(sender, stage=None, **unused):
         app.status_bar.update(stage=stage)
 
 
-def lifecycle_msg(sender, msg=None, **unused):
+def lifecycle_msg(sender, msg=None, **unused):  # noqa
     """
     :param sender: param msg:  (Default value = None)
     :param msg:  (Default value = None)

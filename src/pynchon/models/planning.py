@@ -3,6 +3,7 @@
 import typing
 import collections
 
+import shil
 from fleks import app, meta
 
 from pynchon import abcs
@@ -28,9 +29,7 @@ class Goal(BaseModel):
 
     def __rich__(self) -> str:
         """ """
-        from pynchon import shfmt
-
-        fmt = shfmt.bash_fmt(self.command)
+        fmt = shil.fmt(self.command)
         if self.udiff:
             from rich.markdown import Markdown
 

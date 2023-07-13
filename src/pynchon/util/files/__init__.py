@@ -24,7 +24,7 @@ LOGGER = lme.get_logger(__name__)
 def is_prefix(
     prepend_file: str = None,
     target_file: str = None,
-    clean: bool = False,
+    clean: bool = False,  # noqa
 ):
     """
     True if given file already prepends given target
@@ -47,7 +47,7 @@ def is_prefix(
 def prepend(
     prepend_file: str = None,
     target_file: str = None,
-    clean: bool = False,
+    clean: bool = False,  # noqa
 ):
     """
     Prepends given file contents to given target
@@ -161,6 +161,7 @@ def find_globs(
     return result
 
 
+# from nieblas.api import ansible_docker, block_in_file
 def ansible_docker(
     volumes: dict = {},
     container: str = "alpinelinux/ansible",
