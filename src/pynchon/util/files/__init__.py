@@ -161,62 +161,12 @@ def find_globs(
     return result
 
 
-# from nieblas.api import ansible_docker, block_in_file
-def ansible_docker(
-    volumes: dict = {},
-    container: str = "alpinelinux/ansible",
-    entrypoint: str = "ansible",
-    local: bool = True,
-    e: dict = {},
-    module_name: str = None,
-    extra: typing.List[str] = [],
-) -> typing.List[str]:
-    """
-
-    :param volumes: dict:  (Default value = {})
-    :param container: str:  (Default value = "alpinelinux/ansible")
-    :param entrypoint: str:  (Default value = 'ansible')
-    :param local: bool:  (Default value = True)
-    :param e: dict:  (Default value = {})
-    :param module_name: str:  (Default value = None)
-    :param extra: typing.List[str]:  (Default value = [])
-    :param volumes: dict:  (Default value = {})
-    :param container: str:  (Default value = "alpinelinux/ansible")
-    :param entrypoint: str:  (Default value = 'ansible')
-    :param local: bool:  (Default value = True)
-    :param e: dict:  (Default value = {})
-    :param module_name: str:  (Default value = None)
-    :param extra: typing.List[str]:  (Default value = [])
-
-    """
-    vextras = [f"-v {k}:{v}" for k, v in volumes.items()]
-    cmd = (
-        [
-            "docker run",
-            "-w /workspace",
-            "-v `pwd`:/workspace",
-        ]
-        + vextras
-        + [
-            "-e ANSIBLE_STDOUT_CALLBACK=json",
-            "-e ANSIBLE_CALLBACKS_ENABLED=json",
-            "-e ANSIBLE_LOAD_CALLBACK_PLUGINS=1",
-            f"--entrypoint {entrypoint} ",
-            f"{container}",
-        ]
-    )
-    local and cmd.append("local -i local, -c local")
-    e and [cmd.append(f"-e {k}={v}") for k, v in e.items()]
-    module_name and cmd.append(f"--module-name {module_name}")
-
-    return cmd + extra
-
+from nieblas.api import ansible_docker, block_in_file
 
 def dumps(
     content: str = None, file: str = None, quiet: bool = True, logger=LOGGER.info
 ):
     """
-
     :param content: str:  (Default value = None)
     :param file: str:  (Default value = None)
     :param quiet: bool:  (Default value = True)
@@ -224,72 +174,8 @@ def dumps(
     :param content: str:  (Default value = None)
     :param file: str:  (Default value = None)
     :param quiet: bool:  (Default value = True)
-
     """
     quiet or logger(f"\n{content}")
     with open(file, "w") as fhandle:
         fhandle.write(content)
     quiet or logger(f'Wrote "{file}"')
-
-
-def block_in_file(
-    target_file: str,
-    block_file: str,
-    create: str = "no",
-    insertbefore: str = "BOF",
-    backup: str = "yes",
-    marker: str = "# {mark} ANSIBLE MANAGED BLOCK - pynchon",
-    dest=".tmp.ansible.blockinfile.out",
-):
-    """
-
-    :param target_file: str:
-    :param block_file: str:
-    :param create: str:  (Default value = "no")
-    :param insertbefore: str:  (Default value = "BOF")
-    :param backup: str:  (Default value = "yes")
-    :param marker: str:  (Default value = '# {mark} ANSIBLE MANAGED BLOCK - pynchon')
-    :param dest: Default value = ".tmp.ansible.blockinfile.out")
-    :param target_file: str:
-    :param block_file: str:
-    :param create: str:  (Default value = "no")
-    :param insertbefore: str:  (Default value = "BOF")
-    :param backup: str:  (Default value = "yes")
-    :param marker: str:  (Default value = '# {mark} ANSIBLE MANAGED BLOCK - pynchon')
-
-    """
-    assert "'" not in marker
-    target_file = abcs.Path(target_file).absolute()
-    block_file = abcs.Path(block_file).absolute()
-    assert target_file.exists()
-    assert block_file.exists()
-    os.invoke(f"cp {target_file} {dest}")
-    blockinfile_args = [
-        "dest={{dest}}",
-        f"marker='{marker}'",
-        "backup={{backup}}",
-        "block=\\\"{{ lookup('file', block_file)}}\\\"",
-        "create={{create}} insertbefore={{insertbefore}} ",
-    ]
-    blockinfile_args = " ".join(blockinfile_args)
-    cmd_components = ansible_docker(
-        local=True,
-        volumes={block_file: block_file},
-        e=dict(
-            dest=dest,
-            insertbefore=insertbefore,
-            backup=backup,
-            create=create,
-            block_file=block_file,
-        ),
-        module_name="blockinfile",
-        extra=[
-            f'--args "{blockinfile_args}"',
-        ],
-    )
-    cmd = " ".join(cmd_components)
-    result = os.invoke(cmd, system=True)
-    assert result.succeeded, result.stderr
-    os.invoke(f"mv {dest} {target_file}")
-    assert result.succeeded, result.stderr
-    return True

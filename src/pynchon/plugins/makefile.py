@@ -21,6 +21,7 @@ class Make(models.Planner):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "makefile"
+        file: str = typing.Field(default=None)
 
         @property
         def file(self):
@@ -67,11 +68,6 @@ class Make(models.Planner):
             )
         )
         return plan
-
-    @property
-    def parsed(self) -> typing.Dict:
-        """ """
-        return self.parse()
 
     @cli.click.group
     def render(self):

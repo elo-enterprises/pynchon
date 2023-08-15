@@ -169,8 +169,6 @@ The modules inside the pynchon library publish several stand-alone tools.
 
 ## Pynchon as a Library
 
-### Parsers
-
 ### Planners
 
 ### Solvers
@@ -200,22 +198,15 @@ System Command Invocation
 
 ---------------------------------------------------------------------------------
 
-
-
 ## Packaging & Releases
 
 ---------------------------------------------------------------------------------
 
 ## Dependencies
 
-
-
-
 ---------------------------------------------------------------------------------
 
 ## Related Work
-
-
 
 ---------------------------------------------------------------------------------
 
@@ -223,16 +214,9 @@ System Command Invocation
 
 ### Workflow: Bug Reports or Feature Requests
 
-
-
-
 ### Workflow: Finding a Release
 
-
-
 ### Workflow: Installation for Library Developers
-
-
 
 ---------------------------------------------------------------------------------
 
