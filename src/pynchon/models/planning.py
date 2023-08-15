@@ -105,7 +105,12 @@ class Plan(typing.BaseModel):
     #         typing.BaseModel.__init__(self, goals=args)
     #
     def __rich__(self) -> str:
-        syntaxes = [g.__rich__() for g in self.goals]
+        syntaxes = [ ]
+        for g in self.goals:
+            if hasattr(g,'__rich__'):
+                syntaxes.append(g.__rich__())
+            else:
+                syntaxes.append(str(g))
 
         table = app.Table.grid(
             # title=f'{__name__} ({len(self)} items)',
