@@ -1,0 +1,19 @@
+
+<!--- This is a markdown file.  Comments look like this --->
+
+## Entrypoints for `{{project.name}}`
+
+-------------------------------------------------------------------------------
+
+These are scripts/commands that ship with the package `{{python.package.name}}`:
+{%set entrypoints=python_cli.entrypoints%}
+{% for _,metadata in entrypoints.items() %}
+{%- set dotpath = metadata.dotpath %}
+* [`{{dotpath}}`](/docs/cli/{{dotpath}}.md) @ [`{{dotpath}}`](/docs/api#{{dotpath}})
+{%-endfor%}
+
+Modules that use `__main__`:
+
+{% for fname,metadata in entrypoints.items() %}
+* [`python -m{{metadata.dotpath}}`](/docs/cli/{{metadata.dotpath}}.md) @ [`{{metadata.path}}`](/{{metadata.path}}) @
+{%-endfor%}

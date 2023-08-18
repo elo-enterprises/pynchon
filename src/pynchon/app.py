@@ -55,11 +55,11 @@ class AppConsole(fleks_app.AppBase):
             min_delta=0.1,
         )
 
-        atexit.register(
-            lambda: self.events.lifecycle.send(
-                self, stage=r"\o/" if not self.exc else "❌", msg=""
-            )
-        )  # noqa: W605
+        # atexit.register(
+        #     lambda: self.events.lifecycle.send(
+        #         self, stage=r"\o/" if not self.exc else "❌", msg=""
+        #     )
+        # )  # noqa: W605
         return tmp
 
     #

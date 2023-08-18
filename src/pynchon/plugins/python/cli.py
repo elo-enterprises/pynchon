@@ -6,6 +6,7 @@ import shimport
 from fleks import cli
 
 from pynchon import abcs, models
+from pynchon import api 
 from pynchon.api import project
 from pynchon.util.os import invoke
 from pynchon.util import lme, tagging, typing  # noqa
@@ -13,7 +14,6 @@ from pynchon.util import lme, tagging, typing  # noqa
 config_mod = shimport.lazy(
     "pynchon.config",
 )
-# config = shimport.lazy("pynchon.config")
 LOGGER = lme.get_logger(__name__)
 
 
@@ -73,18 +73,15 @@ class PythonCLI(models.ShyPlanner):
     """Generators for Python CLI docs"""
 
     name = "python-cli"
-    config_class = PythonCliConfig
     cli_name = 'python-cli'
+    config_class = PythonCliConfig
     
     @cli.click.group
     def gen(self):
         """Generates CLI docs for python packages"""
 
-    # formatters=dict(markdown=constants.T_TOC_CLI),
     @gen.command("toc")
-    # @cli.options.stdout
     @cli.options.header
-    # options.file_setupcfg,
     @cli.click.option(
         "--output",
         "-o",
@@ -95,27 +92,22 @@ class PythonCLI(models.ShyPlanner):
         # format, file, stdout, 
         output, header) -> None:
         """
-        Describe entrypoints for this project (parses setup.cfg)
+        Generate table-of-contents for project entrypoints
         """
         output = output or abcs.Path(self.siblings['docs']['root']) / "cli" / "README.md"
-        LOGGER.warning(f"toc-output: {output}")
-        raise NotImplementedError()
+        LOGGER.warning(f"writing toc to file: {output}")
+        entrypoints = self["entrypoints"]
+        for fname,meta in entrypoints.items():
+            LOGGER.warning([fname, meta])
+            entrypoints[fname]={**meta, **dict(url = fname)}
+        cfg = {**self.config.dict(), **dict(entrypoints=entrypoints)}
+        cfg = {**api.project.get_config().dict(), **{self.config_class.config_key: cfg}}
+        templatef = self.plugin_templates_root / "TOC.md.j2"
+        tmpl = api.render.get_template(templatef)
+        result = tmpl.render(**cfg)
+        with open(str(output), 'w') as fhandle:
+            fhandle.write(result)
 
-    #
-    # @common.kommand(
-    #     name="all",
-    #     parent=Core.gen_cli,
-    #     options=[
-    #         options.file_setupcfg,
-    #         options.output_dir,
-    #         options.stdout,
-    #     ],
-    # )
-    # def _all(
-    #     file,
-    #     stdout,
-    #     output_dir,
-    # ) -> list:
     #     """
     #     Generates help for every entrypoint
     #     """
@@ -138,64 +130,54 @@ class PythonCLI(models.ShyPlanner):
     #             fhandle.write(constants.T_DETAIL_CLI.render(docs[fname]))
     #         LOGGER.debug(f"wrote: {fname}")
     #     return list(docs.keys())
-    #
-    # @common.kommand(
-    #     name="main",
-    #     parent=Core.gen_cli,
-    #     formatters=dict(markdown=constants.T_CLI_MAIN_MODULE),
-    #     options=[
-    #         options.format_markdown,
-    #         options.stdout,
-    #         options.header,
-    #         options.file,
-    #         options.output_dir,
-    #         options.name,
-    #         options.module,
-    #     ],
-    # )
+
+    def get_entrypoint_metadata(self, file):
+        """
+        """
+        entrypoints = self["entrypoints"].copy()
+        found = False 
+        for fname, metadata in entrypoints.items():
+            if str(fname) == str(file):
+                dotpath = metadata["dotpath"]
+                cmd = invoke(f"python -m{dotpath} --help")
+                help = cmd.succeeded and cmd.stdout.strip()
+                metadata.update(help=help)
+                found = True 
+                break
+        assert found, f"missing {fname} in {list(entrypoints.keys())}"
+        return metadata
+
     @gen.command("main")
     @cli.options.stdout
     @cli.options.file
     @cli.options.header
     @cli.options.output_dir
-    # @cli.click.flag('--click',help='treat as click')
+    # @cli.click.flag('--click', help='treat as click')
     def main_docs(self, 
         # module, name ,format, 
-        file, output_dir, stdout, header,):  # noqa
+        file, output_dir, stdout, 
+        header,):  # noqa
         """
         Autogenenerate docs for py modules using `__main__`
         """
-        # config, plan = project.plan()
-        from pynchon import api 
         tmp = self.config.dict()
         entrypoints = self["entrypoints"]
-        found=False 
-        for fname, metadata in entrypoints.items():
-            if fname == file:
-                dotpath = metadata["dotpath"]
-                cmd = invoke(f"python -m{dotpath} --help")
-                help = cmd.succeeded and cmd.stdout.strip()
-                entrypoints[fname] = {
-                    **metadata,
-                    **dict(help=help),
-                }
-                found=True 
-                break
-        assert found,f"missing {fname}"
-        tmp['entrypoints']=entrypoints 
-        templatef = "pynchon/plugins/python/cli/main.module.md.j2"
+        metadata = self.get_entrypoint_metadata(file)
+        entrypoints.update(**{file:metadata})
+        tmp['entrypoints'] = entrypoints
+        templatef = self.plugin_templates_root / "main.module.md.j2"
         tmpl = api.render.get_template(templatef)
         core = api.project.get_config().dict()
         core.update(**{self.config_class.config_key:tmp})
         result = tmpl.render(**core)
         LOGGER.critical(result)
         p = abcs.Path(output_dir) 
-        assert p.exists()
-        p = p / f"{dotpath}.md"
+        assert p.exists(), f"{output_dir} does not exist"
+        p = p / f"{metadata['dotpath']}.md"
         LOGGER.critical(f"Writing output to: {p}")
         with open(str(p),'w') as fhandle:
             fhandle.write(result)
-    #
+
     # @common.kommand(
     #     name="entrypoint",
     #     parent=Core.gen_cli,
@@ -240,10 +222,8 @@ class PythonCLI(models.ShyPlanner):
     #         entrypoint=name,
     #         commands=result,
     #     )
-
     def plan(self):
-        # from pynchon import api
-        # config = config or api.project.get_config()
+        """ Describe plan for this plugin """
         plan = super(self.__class__, self).plan()
         # droot = config.pynchon["docs_root"]
         droot = self[:"docs.root":]
@@ -255,17 +235,12 @@ class PythonCLI(models.ShyPlanner):
         plan.append(
             self.goal(
                 command=f"{self.click_entry.name} {self.cli_name} toc --output {cli_root}/README.md",
-                type="gen",
-                resource=cli_root,
-            )
+                type="gen", resource=cli_root)
         )
         # plan.append(
         #     self.goal(
         #         command=f"{self.click_entry.name} {self.cli_name} cli all --output-dir {cli_root}",
-        #         type="gen",
-        #         resource=cli_root,
-        #     )
-        # )
+        #         type="gen", resource=cli_root,))
 
         [
             plan.append(
