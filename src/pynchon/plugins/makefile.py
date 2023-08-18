@@ -34,11 +34,6 @@ class Make(models.Planner):
         return api.render.get_template(str(tfile))
 
     @property
-    def plugin_templates_root(self):
-        """ """
-        return abcs.Path(self.plugin_templates_prefix)
-
-    @property
     def output_file(self):
         default = abcs.Path(self[:"docs.root":]) / "Makefile.mmd"
         return self["output_file"::default]

@@ -1,5 +1,6 @@
 """ pynchon.plugins.src
 """
+import fnmatch
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
@@ -42,6 +43,7 @@ class SourceMan(models.ResourceManager):
         exclude_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str,abcs.Path,None] = typing.Field(default=None)
         sorted: bool = typing.Field(default=False, help='Whether to sort source code')
+    
     name = "src"
     cli_name = "src"
     priority = 0
@@ -75,8 +77,6 @@ class SourceMan(models.ResourceManager):
         raise NotImplementedError()
 
     def _get_meta(self, rsrc):
-        import fnmatch
-
         tmp = rsrc.full_extension()
         try:
             ext_meta = EXT_MAP[tmp]
@@ -171,8 +171,7 @@ class SourceMan(models.ResourceManager):
         """opens changed files"""
 
     def plan(self, config=None):
-        """
-        """
+        """ Describe plan for this plugin """
         plan = super().plan(config=config)
         resources = [abcs.Path(fsrc) for fsrc in self.list()]
         self.logger.warning("Adding user-provided goals")

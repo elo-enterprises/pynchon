@@ -8,7 +8,7 @@ from pynchon.plugins import util as plugins_util
 
 from . import validators
 
-from pynchon import api, cli, events  # noqa
+from pynchon import abcs, api, cli, events  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
 
@@ -66,7 +66,12 @@ class PynchonPlugin(fleks.Plugin):
 
     @classproperty
     def plugin_templates_prefix(kls):
-        return f"pynchon/plugins/{kls.name}"
+        return f"pynchon/plugins/{kls.config_class.config_key}"
+
+    @classproperty
+    def plugin_templates_root(self):
+        """ """
+        return abcs.Path(self.plugin_templates_prefix)
 
     @classproperty
     def project_config(self):
