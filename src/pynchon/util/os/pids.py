@@ -2,12 +2,21 @@
 """
 import shimport
 
+from pynchon.util import lme, typing # noqa
+
+LOGGER = lme.get_logger(__name__)
+
 psutil = shimport.lazy("psutil")
 
 
 def filter_pids(cmdline__contains: str = None, **kwargs):
     """ """
-    procs = [psutil.Process(p) for p in psutil.pids()]
+    procs = []
+    for p in psutil.pids():
+        try:
+            procs.append(psutil.Process(p))
+        except (psutil.NoSuchProcess,) as exc:
+            LOGGER.critical(exc)
     survivors = []
     for p in procs:
         try:
