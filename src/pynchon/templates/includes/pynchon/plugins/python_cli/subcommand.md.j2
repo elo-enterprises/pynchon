@@ -1,0 +1,10 @@
+
+**entrypoint:** `python -m{{subcommand.invocation_sample|default(subcommand.dotpath)}}`
+**source:** [{{subcommand.url}}]({{subcommand.url}})
+{%if subcommand.click|default(false)%}**[click](#):** yes{%endif%}
+
+```
+{{subcommand}}
+```
+{%if subcommand.help%}{%endif%}
+
