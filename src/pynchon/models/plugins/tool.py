@@ -1,5 +1,5 @@
 """ pynchon.models.plugins.tool """
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import api, cli, events  # noqa
 from pynchon.util import lme, typing  # noqa

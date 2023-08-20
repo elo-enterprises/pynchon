@@ -10,6 +10,92 @@
   <tr>
     <td width=15%><img src=img/icon.png style="width:150px"></td>
     <td>
+      Placeholder
+      <br/><br/>
+      <a href=https://pypi.python.org/pypi/pynchon/><img src="https://img.shields.io/pypi/l/pynchon.svg"></a>
+      <a href=https://pypi.python.org/pypi/pynchon/><img src="https://badge.fury.io/py/pynchon.svg"></a>
+      <a href="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml"><img src="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml/badge.svg"></a>
+    </td>
+  </tr>
+</table>
+
+---------------------------------------------------------------------------------
+
+  * [Overview](#overview)
+  * [Motivation &amp; Design](#motivation--design)
+  * [Quick Start](#quick-start)
+* [Pynchon as a Suite of Utilities](#pynchon-as-a-suite-of-utilities)
+  * [pynchon.util](#pynchonutil)
+    * [pynchon.util.os](#pynchonutilos)
+    * [pynchon.util.files](#pynchonutilfiles)
+    * [pynchon.util.loadf](#pynchonutilloadf)
+    * [pynchon.util.jinja](#pynchonutiljinja)
+    * [pynchon.util.splitvt](#pynchonutilsplitvt)
+    * [pynchon.util.ansible](#pynchonutilansible)
+    * [pynchon.util.json](#pynchonutiljson)
+    * [pynchon.util.pydash](#pynchonutilpydash)
+    * [pynchon.util.shfmt](#pynchonutilshfmt)
+    * [pynchon.util.grip](#pynchonutilgrip)
+* [Pynchon as a Framework](#pynchon-as-a-framework)
+  * [Plugins](#plugins)
+    * [Plugin Priority](#plugin-priority)
+    * [Plugin Config](#plugin-config)
+      * [User Config](#user-config)
+      * [Config Defaults](#config-defaults)
+      * [Lazy Config](#lazy-config)
+      * [Dynamic Config](#dynamic-config)
+      * [Syntactic Sugar](#syntactic-sugar)
+    * [Plugin CLIs](#plugin-clis)
+      * [CLI Aliases](#cli-aliases)
+      * [Hidden Commands](#hidden-commands)
+    * [Plugin Types](#plugin-types)
+      * [Core-Plugins](#core-plugins)
+      * [Provider-Plugins](#provider-plugins)
+      * [Planner-Plugins](#planner-plugins)
+      * [Manager-Plugins](#manager-plugins)
+      * [Tool-Plugins](#tool-plugins)
+      * [Nested-Plugins](#nested-plugins)
+      * [Namespaces](#namespaces)
+  * [Rendering Engine](#rendering-engine)
+  * [Projects &amp; Subprojects](#projects--subprojects)
+  * [Data vs Display](#data-vs-display)
+  * [Hooks &amp; Events](#hooks--events)
+  * [Pynchon as a Library](#pynchon-as-a-library)
+    * [Planners](#planners)
+    * [Solvers](#solvers)
+    * [Tagging &amp; Typing](#tagging--typing)
+    * [Orchestration](#orchestration)
+    * [CLI Framework](#cli-framework)
+    * [Application Framework](#application-framework)
+    * [OOP Framework](#oop-framework)
+    * [Event Framework](#event-framework)
+  * [Example Usage](#example-usage)
+  * [Packaging &amp; Releases](#packaging--releases)
+  * [Dependencies](#dependencies)
+  * [Related Work](#related-work)
+  * [Workflows](#workflows)
+    * [Workflow: Bug Reports or Feature Requests](#workflow-bug-reports-or-feature-requests)
+    * [Workflow: Finding a Release](#workflow-finding-a-release)
+    * [Workflow: Installation for Library Developers](#workflow-installation-for-library-developers)
+  * [Implementation Notes](#implementation-notes)
+    * [Python Plugins](#python-plugins)
+  * [Known Issues](#known-issues)
+
+
+---------------------------------------------------------------------------------
+
+<table>
+  <tr>
+    <td colspan=2><strong>
+    pynchon
+      </strong>&nbsp;&nbsp;&nbsp;&nbsp;
+      <small><small>
+      </small></small>
+    </td>
+  </tr>
+  <tr>
+    <td width=15%><img src=img/icon.png style="width:150px"></td>
+    <td>
     pynchon
     </td>
   </tr>
@@ -232,7 +318,7 @@ If your project is using older packaging standards, or you're working on a group
 
 Pynchon relies heavily on [griffe](https://pypi.org/project/griffe/) for parsing and for [AST-walking](https://docs.python.org/3/library/ast.html).
 
-For cyclomatic complexity, we rely on [mccabe](https://github.com/PyCQA/mccabe).
+For cyclomatic complexity, pynchon relies on the [mccabe library](https://github.com/PyCQA/mccabe).
 
 ---------------------------------------------------------------------------------
 
@@ -243,3 +329,4 @@ For cyclomatic complexity, we rely on [mccabe](https://github.com/PyCQA/mccabe).
 * See [TODO.md](docs/TODO.md)
 
 ---------------------------------------------------------------------------------
+

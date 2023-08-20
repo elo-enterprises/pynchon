@@ -1,6 +1,6 @@
 """ pynchon.plugins.Core
 """
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, api, cli, models
 from pynchon.bin import entry

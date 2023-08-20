@@ -19,7 +19,7 @@ class Mermaid(models.Planner):
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "mermaid"
         apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
-    
+
     name = "mermaid"
     cli_name = "mermaid"
 
@@ -60,19 +60,21 @@ class Mermaid(models.Planner):
         wd = self.working_dir
         file = abcs.Path(file).absolute().relative_to(wd)
         output = abcs.Path(output)
-        output=output.absolute().relative_to(wd)
+        output = output.absolute().relative_to(wd)
         uid = os.getuid()
         cmd = (
             f"docker run -v {wd}:/workspace "
             f"-w /workspace -u {uid} {IMG} -i {file} "
-            f"-o {output} --backgroundColor efefef")
+            f"-o {output} --backgroundColor efefef"
+        )
         LOGGER.critical(cmd)
         result = invoke(cmd, strict=True)
         return True
-    @property 
+
+    @property
     def output_root(self):
-        return abcs.Path(self[:'git.root':]) / 'img'
-    
+        return abcs.Path(self[:"git.root":]) / "img"
+
     def plan(
         self,
         config=None,
@@ -80,7 +82,7 @@ class Mermaid(models.Planner):
         """Run planning for this plugin"""
         plan = super(self.__class__, self).plan(config=config)
         self.logger.debug("planning for rendering for .mmd mermaid files..")
-        output_mode='png'
+        output_mode = "png"
         for inp in self.list():
             rsrc = inp.parents[0] / inp.stem
             rsrc = f"{rsrc}.{output_mode}"
@@ -88,8 +90,7 @@ class Mermaid(models.Planner):
                 self.goal(
                     resource=rsrc,
                     command=(
-                        f"pynchon {self.cli_name} " 
-                        f"render {inp} --output {rsrc} "
+                        f"pynchon {self.cli_name} " f"render {inp} --output {rsrc} "
                     ),
                     type="render",
                 )

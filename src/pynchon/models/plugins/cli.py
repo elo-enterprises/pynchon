@@ -4,7 +4,7 @@ import functools
 
 import fleks
 import shimport
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import api, cli, events  # noqa
 from pynchon.bin import entry  # noqa

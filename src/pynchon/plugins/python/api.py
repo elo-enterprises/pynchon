@@ -1,7 +1,7 @@
 """ pynchon.plugins.python.api
 """
 from fleks import cli
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, models
 from pynchon.api import render
@@ -11,7 +11,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 @tagging.tags(click_aliases=["pa"])
-class PythonAPI(models.ShyPlanner):
+class PythonAPI(models.Planner):
     """Generators for Python API docs"""
 
     class config_class(abcs.Config):

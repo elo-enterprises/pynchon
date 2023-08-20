@@ -5,7 +5,7 @@ import webbrowser
 import fleks
 import shimport
 from fleks import cli
-from fleks.util import tagging
+from fleks import tagging
 from memoized_property import memoized_property
 
 from pynchon.util.os import invoke
@@ -57,7 +57,8 @@ class OpenerMixin:
         return dict(url=grip_url, browser=webbrowser.open(grip_url))
 
     _open__md = _open_grip
-    _open__mmd =  _open_grip
+    _open__mmd = _open_grip
+
     def _open_raw(self, file: str = None, server=None):
         """
         :param file: str:  (Default value = None)

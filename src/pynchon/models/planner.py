@@ -159,7 +159,6 @@ class ShyPlanner(AbstractPlanner):
 
 
     """
-
     contribute_plan_apply = False
 
 

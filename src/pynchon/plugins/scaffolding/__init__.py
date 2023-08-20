@@ -1,6 +1,6 @@
 """ pynchon.plugins.scaffolding
 """
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import models
 from pynchon.util import files, lme, typing

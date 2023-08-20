@@ -1,7 +1,7 @@
 """ pynchon.plugins.python.libcst
 """
 from fleks import cli
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon.util.os import invoke
 
