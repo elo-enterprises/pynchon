@@ -4,8 +4,7 @@ import webbrowser
 
 import fleks
 import shimport
-from fleks import cli
-from fleks import tagging
+from fleks import cli, tagging
 from memoized_property import memoized_property
 
 from pynchon.util.os import invoke

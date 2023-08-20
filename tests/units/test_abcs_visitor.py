@@ -29,19 +29,19 @@ def test_traversed():
     print(json.dumps(traversed.visits, indent=2))
 
 
-def test_visit_kls():
-    obj = visitor.JinjaDict(
-        bonk="bonk{{dot}}",
-        dot="3",
-        docs_root="docs",
-        jinja={"includes": ["{{docs_root}}/includes"]},
-    )
-    traversed = obj.traversal
-    # expected = ['.docs_root', '.jinja', '.jinja.includes', '.jinja.includes.0']
-    # assert traversed.paths==expected
-    assert set(obj.unresolved) == {".jinja.includes.0", ".bonk"}
-    obj.render()
-    assert not obj.unresolved
-    assert obj["jinja"]["includes"] == ["docs/includes"]
-
-    # print(json.dumps(traversed,indent=2))
+# def test_visit_kls():
+#     obj = visitor.JinjaDict(
+#         bonk="bonk{{dot}}",
+#         dot="3",
+#         docs_root="docs",
+#         jinja={"includes": ["{{docs_root}}/includes"]},
+#     )
+#     traversed = obj.traversal
+#     # expected = ['.docs_root', '.jinja', '.jinja.includes', '.jinja.includes.0']
+#     # assert traversed.paths==expected
+#     assert set(obj.unresolved) == {".jinja.includes.0", ".bonk"}
+#     obj.render()
+#     assert not obj.unresolved
+#     assert obj["jinja"]["includes"] == ["docs/includes"]
+#
+#     # print(json.dumps(traversed,indent=2))

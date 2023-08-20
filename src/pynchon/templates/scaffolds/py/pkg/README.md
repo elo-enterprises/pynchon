@@ -6,7 +6,7 @@
       <strong><u>pynchon</u></strong>&nbsp;&nbsp;&nbsp;&nbsp;
       <a href=https://pypi.python.org/pypi/pynchon/><img src="https://img.shields.io/pypi/l/pynchon.svg"></a>
       <a href=https://pypi.python.org/pypi/pynchon/><img src="https://badge.fury.io/py/pynchon.svg"></a>
-      
+      <a href="https://github.com/elo-enterprises/pynchon/actions/workflows/python-publish.yml"><img src="https://github.com/elo-enterprises/pynchon/actions/workflows/python-publish.yml/badge.svg"></a><a href="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml"><img src="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml/badge.svg"></a>
     </td>
   </tr>
   <tr>
@@ -30,7 +30,7 @@
 
 ## Overview
 
-
+<a href="https://github.com/elo-enterprises/pynchon/actions/workflows/python-publish.yml"><img src="https://github.com/elo-enterprises/pynchon/actions/workflows/python-publish.yml/badge.svg"></a><a href="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml"><img src="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml/badge.svg"></a>
 
   * [Overview](#overview)
   * [Overview](#overview-1)

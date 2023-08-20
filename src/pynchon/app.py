@@ -162,11 +162,7 @@ class AppExitHooks(fleks_app.AppBase):
 
 class App(AppConsole, AppEvents, AppExitHooks):
     def __init__(self, **kwargs):
-        """
-
-        :param **kwargs:
-
-        """
+        """ """
         AppConsole.__init__(self, **kwargs)
         AppEvents.__init__(self, **kwargs)
         self.exit_code = None

@@ -1,7 +1,6 @@
 """ pynchon.plugins.python.libcst
 """
-from fleks import cli
-from fleks import tagging
+from fleks import cli, tagging
 
 from pynchon.util.os import invoke
 
@@ -66,7 +65,7 @@ class LibCST(models.Planner):
         libcst_config = self[F_CODEMOD_YAML::{}]
         if libcst_config:
             plan.append(self._goal_libcst_refresh(libcst_config))
-        plan.append(*list(self.docstrings(should_plan=True)))
+        [plan.append(g) for g in self.docstrings(should_plan=True).goals]
         return plan
 
     @gen.command

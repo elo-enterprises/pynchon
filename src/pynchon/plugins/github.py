@@ -3,8 +3,7 @@
 import webbrowser
 
 import shimport
-from fleks import cli
-from fleks import tagging
+from fleks import cli, tagging
 
 from pynchon import abcs, events, models  # noqa
 from pynchon.util import lme, typing  # noqa

@@ -17,6 +17,12 @@ ResourceType = typing.Union[str, abcs.Path]
 class Goal(BaseModel):
     """ """
 
+    @property
+    def rel_resource(self) -> str:
+        return (
+            abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
+        )
+
     class Config(BaseModel.Config):
         exclude: typing.Set[str] = {"udiff"}
 
@@ -31,9 +37,7 @@ class Goal(BaseModel):
         """ """
         fmt = shil.fmt(self.command)
         if self.udiff:
-            from rich.markdown import Markdown
-
-            return app.Panel(Markdown(f"```diff\n{self.udiff}\n```"))
+            return app.Panel(app.Markdown(f"```diff\n{self.udiff}\n```"))
         else:
             return app.Panel(
                 app.Syntax(
@@ -53,7 +57,9 @@ class Goal(BaseModel):
                     bgcolor="black",
                     frame=False,
                 ),
-                subtitle=app.Text(f"{self.label or self.owner}", style="dim italic"),
+                subtitle=app.Text(f"{self.label or self.owner}", style="dim")
+                + app.Text(" rsrc=", style="bold italic")
+                + app.Text(f"{self.rel_resource}", style="dim italic"),
             )
 
     # def __str__(self):
@@ -100,6 +106,8 @@ class Plan(typing.BaseModel):
     #
     def __rich__(self) -> str:
         syntaxes = []
+        # import IPython; IPython.embed()
+        # raise Exception(self.goals)
         for g in self.goals:
             if hasattr(g, "__rich__"):
                 syntaxes.append(g.__rich__())
@@ -160,12 +168,12 @@ class Plan(typing.BaseModel):
         elif isinstance(other, (Goal,)):
             self.goals += [other]
         elif isinstance(other, (Plan,)):
-            self.goals += other.goals
+            self.goals += other.dict()["goals"]
         elif isinstance(
             other,
             (
                 list,
-                tuple,
+                # tuple,
             ),
         ):
             self.goals += other
@@ -191,7 +199,7 @@ class Plan(typing.BaseModel):
                 tuple,
             ),
         ):
-            return Plan(goals=self.goals + other)
+            return Plan(goals=self.goals + list(other))
         else:
             raise NotImplementedError(type(other))
 

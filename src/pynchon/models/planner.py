@@ -4,7 +4,8 @@ import typing
 from memoized_property import memoized_property
 from fleks.util.tagging import tags
 
-from pynchon import abcs, cli, events
+from pynchon import abcs, cli
+from pynchon.app import app
 from pynchon.util.os import invoke
 
 from . import planning
@@ -37,12 +38,12 @@ class AbstractPlanner(BasePlugin):
         """
         Creates a plan for this plugin
         """
-        # config = config or self.cfg()
-        events.lifecycle.send(
-            # writes status event (used by the app-console)
-            stage=f"Planning for `{self.__class__.name}`"
+        # app.manager.status_bar.update(app='PLAN')
+        app.status_bar.update(
+            app="Pynchon::PLAN", stage=f"plugin:{self.__class__.name}"
         )
         plan = self.Plan()
+        app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
     def apply(self, plan: planning.Plan = None) -> planning.ApplyResults:
@@ -51,9 +52,8 @@ class AbstractPlanner(BasePlugin):
         """
         cls_name = self.__class__.name
         msg = f"Applying for plugin '{cls_name}'"
-        events.lifecycle.send(
-            # write status event (used by the app-console)
-            stage=msg
+        app.status_bar.update(
+            app="Pynchon::APPLY", stage=f"plugin:{self.__class__.name}"
         )
         plan = plan or self.plan()
         goals = getattr(plan, "goals", plan)
@@ -61,7 +61,7 @@ class AbstractPlanner(BasePlugin):
         total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
         for i, action_item in enumerate(goals):
-            events.lifecycle.send(self, applying=action_item)
+            app.status_bar.update(stage=f"{action_item}")
             cmd = action_item.command
             LOGGER.warning(f"  {i}/{total}: {cmd}")
             application = invoke(cmd)
@@ -73,9 +73,10 @@ class AbstractPlanner(BasePlugin):
             )
             results.append(tmp)
         results = planning.ApplyResults(results)
-        events.lifecycle.send(
+        app.status_bar.update(
             # write status event (used by the app-console)
-            stage=f"Running hooks for '{cls_name}'"
+            app="Pynchon::HOOKS",
+            stage=f"{cls_name}",
         )
         resources = list({r.resource for r in results})
         LOGGER.critical(f"{msg} ({len(resources)} resources)")
@@ -159,6 +160,7 @@ class ShyPlanner(AbstractPlanner):
 
 
     """
+
     contribute_plan_apply = False
 
 
@@ -185,11 +187,7 @@ class ResourceManager(Manager):
         help="returns the git-modified subset",
     )
     def list(self, changes: bool = False):
-        """Lists resources associated with this plugin
-
-        :param changes: bool:  (Default value = False)
-
-        """
+        """Lists resources associated with this plugin"""
         if changes:
             return self.changes["modified"]
         from pynchon import abcs
@@ -217,8 +215,6 @@ class ResourceManager(Manager):
 class Planner(ShyPlanner):
     """Planner uses plan/apply workflows, and contributes it's plans
     to ProjectPlugin (or any other parent plugins).
-
-
     """
 
     contribute_plan_apply = True

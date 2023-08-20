@@ -152,7 +152,7 @@ class CliPlugin(PynchonPlugin):
             kls = kls.siblings[click_parent_plugin]
 
         def wrapper(*args, fxn=fxn, **kwargs):
-            LOGGER.critical(f"calling {fxn} from wrapper")
+            LOGGER.warning(f"calling {fxn.__name__} from wrapper")
             result = fxn(*args, **kwargs)
             # FIXME: this wraps twice?
             # from rich import print_json
@@ -167,10 +167,6 @@ class CliPlugin(PynchonPlugin):
 
                 CONSOLE.print(rproto())
             print(dumps.json(result))
-            #     CONSOLE.print(result)
-            # return result
-            # if not isinstance(result, (dict,list)):
-            #     raise Exception([result, type(result)])
             # elif hasattr(result, "as_dict"):
             #     LOGGER.warning(f"as_dict {result}")
             #     rich.print(result.as_dict())
@@ -253,9 +249,7 @@ class CliPlugin(PynchonPlugin):
 
     @classmethod
     def init_cli_children(kls):
-        """
-        :param kls:
-        """
+        """ """
         cli_subsumes = getattr(kls, "cli_subsumes", [])
         cli_subsumes and LOGGER.info(
             f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}"
@@ -273,12 +267,7 @@ class CliPlugin(PynchonPlugin):
         alias: str = None,
         **click_kwargs,
     ) -> cli.click.Command:
-        """
-        :param kls: param fxn: typing.Callable:
-        :param alias: str:  (Default value = None)
-        :param fxn: typing.Callable:
-        :param **click_kwargs:
-        """
+        """ """
         assert fxn
         assert wrapper
         via = via.__name__ if via else ""
@@ -304,9 +293,7 @@ class CliPlugin(PynchonPlugin):
     )
     @cli.click.option("--command", "-c", default="")
     def shell(self, command: str = "") -> None:
-        """drop to debugging shell
-        :param command: str:  (Default value = '')
-        """
+        """Drop to debugging shell"""
         before = locals()
         if command:
             self.logger.warning(f"executing command: {command} ")

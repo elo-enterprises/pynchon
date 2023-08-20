@@ -4,8 +4,7 @@ import glob
 import importlib
 
 import shimport
-from fleks import cli
-from fleks import tagging
+from fleks import cli, tagging
 from fleks.util.click import click_recursive_help
 
 from pynchon import abcs, api, models
@@ -168,8 +167,12 @@ class PythonCLI(models.Planner):
         if name and not module:
             module, name = name.split(":")
         if module and name:
-            mod = importlib.import_module(module)
-            entrypoint = getattr(mod, name)
+            try:
+                mod = importlib.import_module(module)
+                entrypoint = getattr(mod, name)
+            except (Exception,) as exc:
+                LOGGER.critical(exc)
+                return []
         else:
             msg = "No entrypoint found"
             LOGGER.warning(msg)

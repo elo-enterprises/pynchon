@@ -173,7 +173,7 @@ class Core(models.Planner):
                     f"subplan for '{plugin_obj.__class__.__name__}' is empty!"
                 )
             else:
-                for g in subplan:
+                for g in subplan.goals:
                     self.logger.info(f"{plugin_obj} contributes {g}")
                     plan.append(g)
         return plan
