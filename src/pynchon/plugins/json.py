@@ -7,7 +7,6 @@ from pynchon.util import lme, typing  # noqa
 # from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
-# from pynchon.util import tagging
 
 
 # import yaml
@@ -22,7 +21,7 @@ LOGGER = lme.get_logger(__name__)
 # LOGGER = lme.get_logger(__name__)
 # PARENT = groups.render
 # files_arg = click.argument("files", nargs=-1)
-# from pynchon.util.tagging import tags
+# from fleks.util.tagging import tags
 
 
 # def j5(

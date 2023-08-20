@@ -5,12 +5,13 @@ import importlib
 
 import shimport
 from fleks import cli
+from fleks.util import tagging
 from fleks.util.click import click_recursive_help
 
 from pynchon import abcs, api, models
 from pynchon.util.os import invoke
 
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 config_mod = shimport.lazy(
     "pynchon.config",

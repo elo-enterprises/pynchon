@@ -5,9 +5,9 @@
 import os
 
 from fleks.cli import click, options
+from fleks.util.tagging import tags
 
 from pynchon.util.os import invoke
-from pynchon.util.tagging import tags
 
 from pynchon.util import lme, text, typing  # noqa
 

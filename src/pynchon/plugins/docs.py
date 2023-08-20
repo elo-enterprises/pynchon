@@ -5,14 +5,13 @@ import webbrowser
 import fleks
 import shimport
 from fleks import cli
+from fleks.util import tagging
 from memoized_property import memoized_property
 
 from pynchon.util.os import invoke
 
 from pynchon import abcs, api, events, models  # noqa
-
-# from pynchon.api import render
-from pynchon.util import files, lme, tagging, typing  # noqa
+from pynchon.util import files, lme, typing  # noqa
 
 grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)

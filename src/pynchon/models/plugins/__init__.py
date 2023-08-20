@@ -3,9 +3,10 @@
 import typing
 
 import fleks
+from fleks.util import tagging
 
 from pynchon import api, cli, events  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 from . import validators  # noqa
 from .cli import CliPlugin  # noqa

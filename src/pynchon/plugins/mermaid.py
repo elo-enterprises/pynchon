@@ -7,7 +7,7 @@ from fleks import cli
 from pynchon.util.os import invoke
 
 from pynchon import abcs, events, models  # noqa
-from pynchon.util import files, lme, tagging, typing  # noqa
+from pynchon.util import files, lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 IMG = "ghcr.io/mermaid-js/mermaid-cli/mermaid-cli"

@@ -1,9 +1,11 @@
 """ pynchon.plugins.Core
 """
+from fleks.util import tagging
+
 from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
-from pynchon.util import lme, tagging
+from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
 

@@ -3,13 +3,14 @@ import collections
 
 import fleks
 import shimport
+from fleks.util import tagging
 
 from pynchon.plugins import util as plugins_util
 
 from . import validators
 
 from pynchon import abcs, api, cli, events  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 
 LOGGER = lme.get_logger(__name__)

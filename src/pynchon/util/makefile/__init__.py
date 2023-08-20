@@ -2,12 +2,11 @@
 """
 import os
 import re
-import collections
 
 from pynchon import abcs, cli
 from pynchon.util.os import invoke
 
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 zzz = "#  recipe to execute (from '"
@@ -17,7 +16,7 @@ fff = "# files hash-table stats:"
 
 @cli.click.argument("makefile")
 def database(makefile: str = "", make="make") -> typing.List[str]:
-    """ 
+    """
     Get database for Makefile (i.e. 'make --print-data-base')
     """
     assert makefile
@@ -35,6 +34,7 @@ def database(makefile: str = "", make="make") -> typing.List[str]:
     resp = invoke(cmd)
     out = resp.stdout.split("\n")
     return out
+
 
 def _test(x):
     """ """
@@ -62,9 +62,10 @@ def _get_file(body=None, makefile=None):
     else:
         return str(makefile)
 
+
 @cli.click.argument("makefile")
 def parse(makefile: str = None, bodies=False, **kwargs):
-    """ 
+    """
     Parse Makefile to JSON.  Includes targets/prereq detail
     """
     assert os.path.exists(makefile)

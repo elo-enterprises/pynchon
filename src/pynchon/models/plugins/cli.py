@@ -4,10 +4,11 @@ import functools
 
 import fleks
 import shimport
+from fleks.util import tagging
 
 from pynchon import api, cli, events  # noqa
 from pynchon.bin import entry  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 from .pynchon import PynchonPlugin  # noqa
 
