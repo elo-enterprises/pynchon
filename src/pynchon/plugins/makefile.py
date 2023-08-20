@@ -32,10 +32,14 @@ class Make(models.Planner):
     def _get_template_file(self, relpath: str = ""):
         tfile = self.plugin_templates_root / relpath
         return api.render.get_template(str(tfile))
-
+    
+    @property 
+    def diagrams_root(self):
+        return abcs.Path(self[:"docs.root":]) / "diagrams"
+    
     @property
     def output_file(self):
-        default = abcs.Path(self[:"docs.root":]) / "Makefile.mmd"
+        default = self.diagrams_root / "Makefile.mmd"
         return self["output_file"::default]
 
     def plan(self):
@@ -48,11 +52,12 @@ class Make(models.Planner):
             .relative_to(abcs.Path(".").absolute())
         )
         output_file = self.output_file
-        output_folder = output_file.parents[0]
-        if not output_folder.exists():
+        if not self.diagrams_root.exists():
             plan.append(
                 self.goal(
-                    resource=output_file, type="mkdir", command=f"mkdir {output_folder}"
+                    resource=self.diagrams_root, 
+                    type="mkdir", 
+                    command=f"mkdir {self.diagrams_root}"
                 )
             )
         plan.append(

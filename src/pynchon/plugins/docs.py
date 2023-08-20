@@ -57,7 +57,7 @@ class OpenerMixin:
         return dict(url=grip_url, browser=webbrowser.open(grip_url))
 
     _open__md = _open_grip
-
+    _open__mmd =  _open_grip
     def _open_raw(self, file: str = None, server=None):
         """
         :param file: str:  (Default value = None)
