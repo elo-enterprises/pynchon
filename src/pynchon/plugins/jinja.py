@@ -1,8 +1,10 @@
 """ pynchon.plugins.jinja
 """
+from fleks.util import tagging
+
 from pynchon import abcs, api, cli, models
 
-from pynchon.util import files, lme, tagging, text, typing  # noqa
+from pynchon.util import files, lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

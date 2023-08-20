@@ -2,8 +2,10 @@
 """
 import platform as stdlib_platform
 
+from fleks.util import tagging
+
 from pynchon import abcs, cli, models
-from pynchon.util import lme, python, tagging, typing
+from pynchon.util import lme, python, typing
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)

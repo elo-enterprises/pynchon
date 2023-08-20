@@ -2,4 +2,4 @@
 """
 import shimport
 
-shimport.lazy("pynchon.util.tagging.taggers")
+shimport.lazy("fleks.util.tagging.taggers")

@@ -1,9 +1,9 @@
 """ pynchon.util.text.dumpf.__main__
 """
 from fleks.cli import click, options  # noqa
+from fleks.util.tagging import tags
 
 from pynchon.cli import common
-from pynchon.util.tagging import tags
 
 from pynchon.util import lme, typing  # noqa
 

@@ -1,10 +1,11 @@
 """ pynchon.plugins.python.api
 """
 from fleks import cli
+from fleks.util import tagging
 
 from pynchon import abcs, models
 from pynchon.api import render
-from pynchon.util import complexity, lme, tagging, typing
+from pynchon.util import complexity, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 

@@ -2,10 +2,10 @@
 import typing
 
 from memoized_property import memoized_property
+from fleks.util.tagging import tags
 
 from pynchon import abcs, cli, events
 from pynchon.util.os import invoke
-from pynchon.util.tagging import tags
 
 from . import planning
 from .plugins import BasePlugin

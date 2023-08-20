@@ -6,10 +6,11 @@
 import os
 
 from fleks import cli
+from fleks.util import tagging
 
 from pynchon import abcs, constants, models
 from pynchon.api import render
-from pynchon.util import lme, tagging, text, typing
+from pynchon.util import lme, text, typing
 from pynchon.util.os import invoke
 from pynchon.util.files.diff import str_diff
 

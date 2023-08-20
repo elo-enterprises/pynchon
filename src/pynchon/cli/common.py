@@ -67,6 +67,32 @@ def entry_for(
     return entry
 
 
+def create_command(_name: str, fxn: typing.Callable, entry=None):
+    """
+    FIXME: move to fleks?
+    WARNING: do not change signature.  this function is used
+    with `shimport.wrapper().map(...)` so it must accept
+    (key,value) style arguments.
+    """
+    from fleks.util.tagging import tags
+
+    out = []
+    aliases = tags[fxn].get("click_aliases", []) + [fxn.__name__]
+    for alias in aliases:
+        out.append(
+            kommand(
+                name=alias.replace("_", "-"),
+                parent=entry,
+                help=(
+                    fxn.__doc__
+                    if alias == fxn.__name__
+                    else f"alias for `{fxn.__name__}`"
+                ),
+            )(fxn)
+        )
+    return out
+
+
 class kommand:
     """ """
 

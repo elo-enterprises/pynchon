@@ -4,9 +4,10 @@ import webbrowser
 
 import shimport
 from fleks import cli
+from fleks.util import tagging
 
 from pynchon import abcs, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 config = shimport.lazy("pynchon.config")
