@@ -2,14 +2,14 @@
 """
 # import os
 # import subprocess
-# 
+#
 # from pynchon.util import lme
-# 
+#
 # LOGGER = lme.get_logger("pynchon.util.os")
-# 
+#
 # from fleks import app, meta
-# 
-# 
+#
+#
 # class InvocationResult(meta.NamedTuple, metaclass=meta.namespace):
 #     cmd: str = ""
 #     stdin: str = ""
@@ -30,15 +30,15 @@
 #     pid: int = -1
 #     shell: bool = False
 #     strict: bool = False
-# 
+#
 #     def __rich__(self):
 #         def status_string():
 #             if self.succeeded is None:
 #                 return "??"
 #             return "[cyan]=> [green]ok" if self.succeeded else "[red]failed"
-# 
+#
 #         import shil
-# 
+#
 #         if self.log_command:
 #             msg = f"running command: (system={self.system})\n  {self.cmd}"
 #             fmt = shil.shfmt(self.cmd)
@@ -56,8 +56,8 @@
 #                 else app.Text("❌", style="red"),
 #             )
 #             lme.CONSOLE.print(panel)
-# 
-# 
+#
+#
 # class Invocation(meta.NamedTuple, metaclass=meta.namespace):
 #     cmd: str = ""
 #     stdin: str = ""
@@ -70,7 +70,7 @@
 #     log_stdin: bool = True
 #     system: bool = False
 #     load_json: bool = False
-# 
+#
 #     def __call__(self):
 #         LOGGER.warning(self.cmd)
 #         if self.system:
@@ -135,7 +135,7 @@
 #                 LOGGER.critical(exec_cmd.stderr)
 #                 raise RuntimeError(err)
 #             import json
-# 
+#
 #             try:
 #                 loaded_json = json.loads(exec_cmd.stdout)
 #             except (json.decoder.JSONDecodeError,) as exc:

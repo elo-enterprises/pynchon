@@ -1,6 +1,7 @@
 """ pynchon.plugins.github
 """
 import webbrowser
+
 import shimport
 from fleks import cli
 
@@ -18,10 +19,6 @@ option_api_token = cli.click.option(
 class GitHub(models.ToolPlugin):
     """Tools for working with GitHub"""
 
-    name = "github"
-    cli_name = "github"
-    cli_aliases = []
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "github"
         enterprise: bool = typing.Field(default=False)
@@ -29,31 +26,38 @@ class GitHub(models.ToolPlugin):
         org_url: str = typing.Field(default=None)
         repo_url: str = typing.Field(default=None)
         actions: typing.List[abcs.Path] = typing.Field(default=[None])
-        
+
         @property
         def actions(self) -> typing.List[typing.Dict]:
             """ """
-            wflows = abcs.Path(config.git.root)/'.github'/'workflows'
+            wflows = abcs.Path(config.git.root) / ".github" / "workflows"
             if wflows.exists():
                 return [
                     dict(
                         name=fname,
-                        file = wflows/fname,
-                        url=f"{self.repo_url}/actions/workflows/{fname}",) 
-                    for fname in wflows.list() ]
+                        file=wflows / fname,
+                        url=f"{self.repo_url}/actions/workflows/{fname}",
+                    )
+                    for fname in wflows.list()
+                ]
             else:
                 return []
-        @property 
+
+        @property
         def repo_url(self):
             return config.git.repo_url
-        
-        @property 
+
+        @property
         def org_url(self):
             return f"https://github.com/{self.org_name}"
-        
+
         @property
         def org_name(self):
             return config.git.github_org
+
+    name = "github"
+    cli_name = "github"
+    cli_aliases = []
 
     @cli.click.option("--org", "-o")
     def open(self, org=None):

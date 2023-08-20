@@ -82,17 +82,17 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     Management tool for project docs
     """
 
+    class config_class(abcs.Config):
+        config_key: typing.ClassVar[str] = "docs"
+        include_patterns: typing.List[str] = typing.Field(default=[])
+        root: typing.Union[str, abcs.Path, None] = typing.Field()
+        exclude_patterns: typing.List[str] = typing.Field(default=[])
+
     name = "docs"
     cli_name = "docs"
     cli_label = "Manager"
     priority = 0
     serving = None
-
-    class config_class(abcs.Config):
-        config_key: typing.ClassVar[str] = "docs"
-        include_patterns: typing.List[str] = typing.Field(default=[])
-        root: typing.Union[str,abcs.Path,None] = typing.Field()
-        exclude_patterns: typing.List[str] = typing.Field(default=[])
 
         # @property
         # def root(self):
@@ -212,10 +212,5 @@ class DocsMan(models.ResourceManager, OpenerMixin):
             )
         cmd_t = f"{self.cli_path} gen version-file"
         rsrc = abcs.Path(rsrc) / "VERSION.md"
-        plan.append(
-            self.goal(
-                resource=rsrc, type="gen", 
-                command=f"{cmd_t}"
-            )
-        )
+        plan.append(self.goal(resource=rsrc, type="gen", command=f"{cmd_t}"))
         return plan

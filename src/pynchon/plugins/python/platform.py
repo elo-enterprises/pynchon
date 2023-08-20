@@ -13,9 +13,6 @@ LOGGER = lme.get_logger(__name__)
 class PythonPlatform(models.Planner):
     """Context for python-platform"""
 
-    priority = 2
-    name = "python"
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "python"
         libcst: typing.Dict[str, typing.Any] = typing.Field(default={})
@@ -35,6 +32,9 @@ class PythonPlatform(models.Planner):
                 return PackageConfig()
             else:
                 return {}
+
+    priority = 2
+    name = "python"
 
     @cli.click.group
     def bootstrap(self):

@@ -9,11 +9,6 @@ LOGGER = lme.get_logger(__name__)
 class Deck(models.ResourceManager):
     """Tool for working with markdown based slide-decks"""
 
-    name = "deck"
-    cli_name = "deck"
-    cli_label = "Tool"
-    contribute_plan_apply = True
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "deck"
         root: str = typing.Field(default="{{docs.root}}/slides")
@@ -22,6 +17,11 @@ class Deck(models.ResourceManager):
         pandoc_args: typing.List[str] = typing.Field(default=[])
         apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
         include_patterns: typing.List[str] = typing.Field(default=["*.md"])
+
+    name = "deck"
+    cli_name = "deck"
+    cli_label = "Tool"
+    contribute_plan_apply = True
 
     def plan(self, **kwargs):
         plan = super().plan()

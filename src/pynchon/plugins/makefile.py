@@ -14,11 +14,6 @@ LOGGER = lme.get_logger(__name__)
 class Make(models.Planner):
     """Makefile parser"""
 
-    priority = 6  # before mermaid
-    name = "makefile"
-    cli_name = "makefile"
-    cli_label = "Meta"
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "makefile"
         file: str = typing.Field(default=None)
@@ -28,6 +23,11 @@ class Make(models.Planner):
             # from pynchon.config import project
             tmp = abcs.Path(".").absolute()
             return tmp / "Makefile"
+
+    priority = 6  # before mermaid
+    name = "makefile"
+    cli_name = "makefile"
+    cli_label = "Meta"
 
     def _get_template_file(self, relpath: str = ""):
         tfile = self.plugin_templates_root / relpath

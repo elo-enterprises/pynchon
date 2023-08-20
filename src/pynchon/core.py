@@ -60,9 +60,6 @@ DEFAULT_PLUGINS = list(set(constants.DEFAULT_PLUGINS))
 class Config(abcs.Config):
     """ """
 
-    priority: typing.ClassVar[int] = 1
-    config_key: typing.ClassVar[str] = "pynchon"
-
     class Config:
         # https://github.com/pydantic/pydantic/discussions/5159
         # fields = {
@@ -70,6 +67,9 @@ class Config(abcs.Config):
         # }
         arbitrary_types_allowed = True
         frozen = True
+
+    priority: typing.ClassVar[int] = 1
+    config_key: typing.ClassVar[str] = "pynchon"
 
     __class_validators__ = []
     __instance_validators__ = [

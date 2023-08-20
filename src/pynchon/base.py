@@ -33,9 +33,6 @@ class BaseModel(pydantic.BaseModel):
             and prop not in ("__values__", "fields")
         ]
 
-    def dict(self, *args, **kwargs):
-        return self._dict(*args, **kwargs)
-
     def _dict(
         self,
         *,
@@ -89,6 +86,9 @@ class BaseModel(pydantic.BaseModel):
                     exclude_none=exclude_none,
                 )
         return attribs
+
+    def dict(self, *args, **kwargs):
+        return self._dict(*args, **kwargs)
 
     def __repr__(self):
         return f"<{self.__class__.__name__}[..]>"

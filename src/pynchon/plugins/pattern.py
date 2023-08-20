@@ -26,21 +26,18 @@ class RenderResult(abcs.Config):
     src: typing.Union[str, abcs.Path] = typing.Field(required=True)
     dest: typing.Union[str, abcs.Path] = typing.Field(default=None)
 
-    def __str__(self):
-        return f"<RenderResult {self.src}>"
-
     @property
     def diff(self):
         return str_diff(self.before, self.after)
+
+    def __str__(self):
+        return f"<RenderResult {self.src}>"
 
 
 class ScaffoldAdvice(abcs.Config):
     file: typing.Union[str, abcs.Path] = typing.Field(required=True)
     loaded: bool = typing.Field(default=False)
     inherits: typing.List[str] = typing.Field(default=[])
-
-    def __str__(self):
-        return f"<ScaffoldAdvice {id(self)}>"
 
     @property
     def inherits(self):
@@ -58,17 +55,15 @@ class ScaffoldAdvice(abcs.Config):
         self.__dict__.update(loaded=True, **adv)
         return self
 
+    def __str__(self):
+        return f"<ScaffoldAdvice {id(self)}>"
+
 
 class Scaffold(abcs.Config):
     root: typing.Union[str, abcs.Path] = typing.Field(required=True)
     files: typing.List[str] = typing.Field(default=[])
     dirs: typing.List[str] = typing.Field(default=[])
     kind: str = typing.Field(required=True)
-
-    def __str__(self):
-        return f"<Scaffold@`{self.kind}`>"
-
-    __repr__ = __str__
 
     def sync(self, goals=[], **kwargs):
         """ """
@@ -210,15 +205,17 @@ class Scaffold(abcs.Config):
         )
         return base_dirs  # +self.get_inherited_dirs()
 
+    def __str__(self):
+        return f"<Scaffold@`{self.kind}`>"
+
+    __repr__ = __str__
+
 
 @tagging.tags(click_aliases=["pat"])
 class Pattern(models.ResourceManager):
     """
     Tools for working with file/directory patterns
     """
-
-    name = "pattern"
-    cli_name = "pattern"
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "pattern"
@@ -229,6 +226,9 @@ class Pattern(models.ResourceManager):
             tmp = PETR / "scaffolds"
             assert tmp.exists(), tmp
             return tmp
+
+    name = "pattern"
+    cli_name = "pattern"
 
     @property
     def patterns(self) -> typing.Dict:

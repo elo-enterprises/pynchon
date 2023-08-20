@@ -1,6 +1,5 @@
 """ pynchon.util
 """
-import sys
 
 from pynchon import constants
 

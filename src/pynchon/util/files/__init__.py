@@ -161,8 +161,6 @@ def find_globs(
     return result
 
 
-from nieblas.api import ansible_docker, block_in_file
-
 def dumps(
     content: str = None, file: str = None, quiet: bool = True, logger=LOGGER.info
 ):

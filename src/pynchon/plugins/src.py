@@ -1,6 +1,7 @@
 """ pynchon.plugins.src
 """
 import fnmatch
+
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import lme, tagging, typing  # noqa
 
@@ -41,9 +42,9 @@ class SourceMan(models.ResourceManager):
         goals: typing.List[str] = typing.Field(default=[])
         include_patterns: typing.List[str] = typing.Field(default=[])
         exclude_patterns: typing.List[str] = typing.Field(default=[])
-        root: typing.Union[str,abcs.Path,None] = typing.Field(default=None)
-        sorted: bool = typing.Field(default=False, help='Whether to sort source code')
-    
+        root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
+        sorted: bool = typing.Field(default=False, help="Whether to sort source code")
+
     name = "src"
     cli_name = "src"
     priority = 0
@@ -52,6 +53,7 @@ class SourceMan(models.ResourceManager):
     @property
     def exclude_patterns(self):
         from pynchon.plugins import util as plugin_util
+
         globals = plugin_util.get_plugin("globals").get_current_config()
         global_ex = globals["exclude_patterns"]
         my_ex = self.get("exclude_patterns", [])
@@ -171,20 +173,18 @@ class SourceMan(models.ResourceManager):
         """opens changed files"""
 
     def plan(self, config=None):
-        """ Describe plan for this plugin """
+        """Describe plan for this plugin"""
         plan = super().plan(config=config)
         resources = [abcs.Path(fsrc) for fsrc in self.list()]
         self.logger.warning("Adding user-provided goals")
         for g in self["goals"]:
-            plan.append(self.goal(
-                command=g, resource="?", 
-                type="user-config"))
+            plan.append(self.goal(command=g, resource="?", type="user-config"))
 
         self.logger.warning("Adding file-header related goals")
         cmd_t = "python -mpynchon.util.files prepend --clean "
         loop = self._get_missing_headers(resources)
         for rsrc in loop["files"]:
-            if rsrc.match_any_glob(self['exclude_patterns'::[]]):
+            if rsrc.match_any_glob(self["exclude_patterns"::[]]):
                 continue
             ext = rsrc.full_extension()
             ext = ext[1:] if ext.startswith(".") else ext
