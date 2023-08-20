@@ -19,13 +19,30 @@ config_mod = shimport.lazy(
 )
 LOGGER = lme.get_logger(__name__)
 
-
+# class EntryPoint(abcs.Config):
+#     is_click:bool = typing.Field(default=False)
+#     module:str = typing.Field(default=None)
+#     package:str = typing.Field(default=None)
+#     subcommands:typing.List = typing.Field(default=[])
+    
 class PythonCliConfig(abcs.Config):
     """ """
     
     config_key: typing.ClassVar[str] = "python_cli"
     src_root:str = typing.Field(help='')
     entrypoints:typing.List[typing.Dict] = typing.Field(help='')
+    hooks:typing.List[str] = typing.Field(
+        help='applicable hook names',
+        default=['open-after-apply'],
+    )
+    
+    @property
+    def root(self):
+        tmp = self.__dict__.get('root')
+        if tmp: return tmp
+        else:
+            from pynchon import config
+            return abcs.Path(config.docs.root) / 'cli'
     
     @property
     def src_root(self) -> abcs.Path:
@@ -54,7 +71,7 @@ class PythonCliConfig(abcs.Config):
         matches = list(
             filter(lambda x: not abcs.Path(x).match_any_glob(excludes), matches)
         )
-        # LOGGER.critical(f"{len(matches)} matches survived filter")
+        # LOGGER.info(f"{len(matches)} matches survived filter")
         matches = [[x, {}] for x in matches]
         matches = dict(matches)
         pkg_name = (
@@ -67,10 +84,12 @@ class PythonCliConfig(abcs.Config):
             matches[f] = {
                 **matches[f],
                 **dict(
-                    # src_root=src_root,
                     click=self.is_click(path=f),
                     dotpath=dotpath,
                     path=f,
+                    main_entrypoint=f.endswith('__main__.py'),
+                    package_entrypoint=False,
+                    resource = self.root/f"{dotpath}.md",
                 ),
             }
         return list(matches.values())
@@ -87,39 +106,52 @@ class PythonCLI(models.ShyPlanner):
     @cli.click.group
     def gen(self):
         """Generates CLI docs for python packages"""
-
+    
+    @cli.click.flag('--changes')
+    def list(self, changes:bool=False) -> typing.List[str]:
+        """ list related targets/resources """
+        if changes:
+            out=[]
+            git = self.siblings['git']
+            git_changes = git.list(changes=True)
+            for emeta in self.config.entrypoints:
+                p = abcs.Path(emeta['path']).absolute()
+                if p in git_changes:
+                    out.append(p)
+            return out
+        else:
+            return [abcs.Path(emeta['path']).absolute() for emeta in self.config.entrypoints]
+    
     @gen.command("toc")
     @cli.options.header
-    @cli.click.option(
-        "--output-dir",
-        "-o",
-        default=None,
-        help=("Directory to write output to"),
-    )
+    @cli.options.output
     def toc(self, 
         # format, file, stdout, 
-        output_dir, header) -> None:
+        output, header
+        ) -> None:
         """
         Generate table-of-contents for project entrypoints
         """
-        output_dir = output_dir or abcs.Path(self.siblings['docs']['root']) / "cli"
-        output_file=abcs.Path(output_dir)/'README.md'
-        LOGGER.warning(f"writing toc to file: {output_file}")
+        output = output or self.root/'README.md'
+        LOGGER.warning(f"writing toc to file: {output}")
         entrypoints = self.config.entrypoints
         tmp=[]
         for meta in entrypoints:
-            # LOGGER.warning([fname, meta])
             tmp.append(
                 {   **meta, 
                     **dict(
-                        url = meta['path'])})
+                        src_url = meta['path'])})
         entrypoints=tmp
         cfg = {**self.config.dict(), **dict(entrypoints=entrypoints)}
         cfg = {**api.project.get_config().dict(), **{self.config_class.config_key: cfg}}
         templatef = self.plugin_templates_root / "TOC.md.j2"
         tmpl = api.render.get_template(templatef)
-        result = tmpl.render(**cfg)
-        with open(str(output_file), 'w') as fhandle:
+        result = tmpl.render(
+            # package_entrypoints=python_cli.entrypoints,
+            package_entrypoints=[e for e in entrypoints if e['package_entrypoint']],
+            main_entrypoints=[e for e in entrypoints if e['main_entrypoint']],
+            **cfg)
+        with open(str(output), 'w') as fhandle:
             fhandle.write(result)
 
     #     """
@@ -145,9 +177,8 @@ class PythonCLI(models.ShyPlanner):
     #         LOGGER.debug(f"wrote: {fname}")
     #     return list(docs.keys())
     def get_entrypoint_metadata(self, file):
-        """
-        """
-        LOGGER.critical(f"looking up metadata for {file}")
+        """ """
+        LOGGER.critical(f"looking up metadata for '{file}'")
         # entrypoints = dict([
         #     [abcs.Path(k),v] for k,v in self['entrypoints'].items()
         #     ])
@@ -155,55 +186,62 @@ class PythonCLI(models.ShyPlanner):
         found = False 
         file = abcs.Path(file)
         for metadata in self.config['entrypoints']:
-            # raise Exception([metadata,file])
-            # raise Exception(metadata)
-            # LOGGER.critical([fname,file,fname==file])
+            LOGGER.critical(f'processing: {metadata}')
             if str(metadata['path']) == str(file):
                 dotpath = metadata["dotpath"]
                 module = f"{dotpath}.__main__" if str(file).endswith('__main__.py') else dotpath
                 try:
                     sub_entrypoints = self._click_recursive_help(
                         module=module, name='entry', 
+                        resource=self.root/f"{dotpath}.md", 
                         dotpath=dotpath, path=file.absolute(),
                         )
                 except (AttributeError,) as exc:
                     LOGGER.critical(f"exception retrieving help programmatically: {exc}")
                     cmd = f"python -m{dotpath} --help"
-                    LOGGER.critical(f"retrieving help via system CLI {cmd}")
+                    LOGGER.critical(f"error retrieving help via system CLI {cmd}")
                     cmd = invoke(cmd)
                     help = cmd.succeeded and cmd.stdout.strip()
                     metadata.update(
-                        click=False, help=help, entrypoints=[])
+                        click=False, help=help, 
+                        entrypoints=[])
                 else:
                     metadata.update(
                         click=True, help=None, 
+                        resource=self.root/f"{dotpath}.md", 
                         entrypoints=sub_entrypoints)
                     # raise Exception(sub_entrypoints)
-                metadata.update(url='relf')
+                metadata.update(src_url='relf')
                 found = True 
                 break
         if not found:
             LOGGER.critical(f"missing {fname} in {list(entrypoints.keys())}")
             return {}
         return metadata
-
+    
+    @property 
+    def root(self):
+        return self.config.root
+    #     return abcs.Path(self[:"docs.root":]) / "cli"
+    
     @gen.command("main")
     @cli.options.stdout
     @cli.options.file
     @cli.options.header
-    @cli.options.output_dir
+    @cli.options.output_file
     # @cli.click.flag('--click', help='treat as click')
     def main_docs(self, 
         # module, name ,format, 
-        file, output_dir, stdout, 
+        file, output, stdout, 
         header,):  # noqa
         """
         Autogenenerate docs for py modules using `__main__`
         """
-        assert abcs.Path(file).exists(), f'file @ {file} does not exist'
-        output_dir = abcs.Path(output_dir) 
-        assert output_dir.exists(), f"{output_dir} does not exist"
+        assert abcs.Path(file).exists(), f'input file @ {file} does not exist'
         metadata = self.get_entrypoint_metadata(file)
+        output = abcs.Path(output) if output else self.root / f"{metadata['dotpath']}.md"
+        output_dir = output.parents[0]
+        assert output_dir.exists(), f"{output_dir} does not exist"
         tmpl = api.render.get_template(self.plugin_templates_root / "main.module.md.j2")
         config = {
             **api.project.get_config().dict(), 
@@ -215,13 +253,15 @@ class PythonCLI(models.ShyPlanner):
             **config,
             )
         LOGGER.critical(result)
-        p = output_dir / f"{metadata['dotpath']}.md"
-        LOGGER.critical(f"Writing output to: {p}")
-        with open(str(p),'w') as fhandle:
+        LOGGER.critical(f"Writing output to: {output}")
+        with open(str(output),'w') as fhandle:
             fhandle.write(result)
 
-    def _click_recursive_help(self, path=None, module=None, dotpath=None, name=None, **kwargs):
+    def _click_recursive_help(self, 
+        resource=None, path=None, module=None, 
+        dotpath=None, name=None, **kwargs):
         """ """    
+        import shil 
         result = []
         if name and not module:
             module, name = name.split(":")
@@ -231,70 +271,65 @@ class PythonCLI(models.ShyPlanner):
         else:
             msg = "No entrypoint found"
             LOGGER.warning(msg)
-            return dict(error=msg)
+            # return dict(error=msg)
+            raise Exception(msg)
         LOGGER.debug(f"Recursive help for `{module}:{name}`")
         result = click_recursive_help(
             entrypoint, parent=None, 
             path=path, dotpath=dotpath, 
-            **kwargs)
-        result = result.values()
-        git_root=self.siblings['git']['root']
+            **kwargs).values()
+        git_root = self.siblings['git']['root']
         result = [
             {
                 **v,
                 **dict(
                     module=module,
+                    resource=resource or self.root/f"{v['dotpath']}.md",
+                    package = module.split(".")[0],
                     entrypoint=name,
                     dotpath=dotpath,
-                    help='....',
-                    url=abcs.Path(path).absolute().relative_to(
+                    help=shil.invoke(f"python -m{v['invocation_sample']} --help",strict=True).stdout,
+                    src_url=abcs.Path(path).absolute().relative_to(
                         abcs.Path(git_root).absolute()))
             } for v in result ]
-        # raise Exception(result[0])
         return result
-        # package = module.split(".")[0]
-        # import IPython; IPython.embed()
-        # return dict(
-        #     package=module.split(".")[0],
-        #     module=module,
-        #     entrypoint=name,
-        #     commands=result,
-        # )
 
     def plan(self):
         """ Describe plan for this plugin """
         plan = super(self.__class__, self).plan()
-        # droot = config.pynchon["docs_root"]
-        droot = self[:"docs.root":]
-        cli_root = f"{droot}/cli"
 
-        plan.append(
-            self.goal(command=f"mkdir -p {cli_root}", type="mkdir", resource=cli_root)
-        )
         plan.append(
             self.goal(
-                command=(
-                    f"{self.click_entry.name} {self.cli_name} toc "
-                    f"--output-dir {cli_root}"),
-                type="gen", resource=cli_root)
+                command=f"mkdir -p {self.root}", 
+                type="mkdir", 
+                resource=self.root)
         )
+        
+        rsrc = self.root/'README.md'
+        cmd = (
+            f"{self.click_entry.name} {self.cli_name} toc "
+            f"--output {rsrc}")
+        plan.append(self.goal(command=cmd, type="gen", resource=rsrc))
+        
         # plan.append(
         #     self.goal(
-        #         command=f"{self.click_entry.name} {self.cli_name} cli all --output-dir {cli_root}",
+        #         command=f"{self.click_entry.name} {self.cli_name} cli all --output ..",
         #         type="gen", resource=cli_root,))
 
-        [
+        for entrypoint_metadata in self.config.entrypoints:
+            entrypoint_metadata=self.get_entrypoint_metadata(entrypoint_metadata['path'])
+            inp = entrypoint_metadata['path']
+            rsrc = entrypoint_metadata['resource']
+            if not rsrc:
+                raise Exception(entrypoint_metadata)
             plan.append(
                 self.goal(
                     command=(
                         f"{self.click_entry.name} {self.click_group.name} "
-                        f"main --file {entrypoint_metadata['path']} "
-                        f"--output-dir {cli_root}"),
+                        f"main --file {inp} --output {rsrc}"),
                     type="gen",
-                    resource=entrypoint_metadata['path'],
+                    resource=rsrc,
                 )
             )
-            for entrypoint_metadata in self.config.entrypoints
-        ]
 
         return plan

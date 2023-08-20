@@ -3,7 +3,7 @@ import typing
 
 from memoized_property import memoized_property
 
-from pynchon import cli, events
+from pynchon import abcs, cli, events
 from pynchon.util.os import invoke
 from pynchon.util.tagging import tags
 
@@ -49,7 +49,8 @@ class AbstractPlanner(BasePlugin):
         """
         Executes the plan for this plugin
         """
-        msg = f"Applying for plugin '{self.__class__.name}'"
+        cls_name=self.__class__.name
+        msg = f"Applying for plugin '{cls_name}'"
         events.lifecycle.send(
             # write status event (used by the app-console)
             stage=msg
@@ -57,10 +58,13 @@ class AbstractPlanner(BasePlugin):
         plan = plan or self.plan()
         goals = getattr(plan, "goals", plan)
         results = []
-        LOGGER.critical(f"{msg} ({len(goals)} goals)")
+        total=len(goals)
+        LOGGER.critical(f"{msg} ({total} goals)")
         for i, action_item in enumerate(goals):
             events.lifecycle.send(self, applying=action_item)
-            application = invoke(action_item.command)
+            cmd = action_item.command
+            LOGGER.warning(f"  {i}/{total}: {cmd}")
+            application = invoke(cmd)
             tmp = planning.Action(
                 ok=application.succeeded,
                 command=action_item.command,
@@ -69,12 +73,20 @@ class AbstractPlanner(BasePlugin):
             )
             results.append(tmp)
         results = planning.ApplyResults(results)
+        events.lifecycle.send(
+            # write status event (used by the app-console)
+            stage=f"Running hooks for '{cls_name}'"
+        )
+        resources = list(set([r.resource for r in results]))
+        LOGGER.critical(f"{msg} ({len(resources)} resources)")
         hooks = self.apply_hooks
         if hooks:
-            self.logger.debug(f"{self.__class__} is dispatching hooks: {hooks}")
+            self.logger.warning(f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}")
             hook_results = []
             for hook in hooks:
                 hook_results.append(self.run_hook(hook, results))
+        else:
+            self.logger.warning("No applicable hooks were found")
         return results
 
     def _validate_hooks(self, hooks):
@@ -82,6 +94,7 @@ class AbstractPlanner(BasePlugin):
         for x in hooks:
             assert isinstance(x, (str,))
             assert " " not in x
+            assert "_" not in x
             assert x.strip()
 
     @memoized_property
@@ -103,10 +116,11 @@ class AbstractPlanner(BasePlugin):
         return hooks
 
     def _hook_open_after_apply(self, result: planning.ApplyResults) -> bool:
-        changes = self.list(changes=True)
-        changes += [x.resource for x in result if x.ok]
-        changes = list(set(changes))
-        # self.logger.critical(f'would have opened- {changes}')
+        """ """
+        changes = list(set([r.resource for r in result]))
+        changes = [abcs.Path(rsrc) for rsrc in changes]
+        changes = [rsrc for rsrc in changes if not rsrc.is_dir()]
+        self.logger.warning(f"Opening {len(changes)} changed resources.")
         for ch in changes:
             self.siblings["docs"].open(ch)
         return True
@@ -132,7 +146,7 @@ class AbstractPlanner(BasePlugin):
             self.logger.critical(err)
             raise HookNotFound(err)
         hook_result = hook_fxn(results)
-        self.logger.debug(hook_result)
+        self.logger.critical(hook_result)
         return hook_result
 
 
