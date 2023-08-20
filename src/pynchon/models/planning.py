@@ -91,12 +91,6 @@ class Plan(typing.BaseModel):
 
     goals: typing.List[Goal] = typing.Field(default=[])
 
-    def __contains__(self, g):
-        return g in self.goals
-
-    def __len__(self):
-        return len(self.goals)
-
     # def __init__(self, *args, **kwargs):
     #     for arg in args:
     #         if not isinstance(arg, (Goal,)):
@@ -105,9 +99,9 @@ class Plan(typing.BaseModel):
     #         typing.BaseModel.__init__(self, goals=args)
     #
     def __rich__(self) -> str:
-        syntaxes = [ ]
+        syntaxes = []
         for g in self.goals:
-            if hasattr(g,'__rich__'):
+            if hasattr(g, "__rich__"):
                 syntaxes.append(g.__rich__())
             else:
                 syntaxes.append(str(g))
@@ -177,6 +171,12 @@ class Plan(typing.BaseModel):
             self.goals += other
         else:
             raise NotImplementedError(type(other))
+
+    def __contains__(self, g):
+        return g in self.goals
+
+    def __len__(self):
+        return len(self.goals)
 
     def __add__(self, other):
         """ """

@@ -2,7 +2,7 @@
 """
 import shimport
 
-from pynchon.util import lme, typing # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

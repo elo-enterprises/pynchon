@@ -14,9 +14,6 @@ class Config(
 
     config_key: typing.ClassVar[str] = None
 
-    def __repr__(self):
-        return f"<{self.__class__.__name__}['{self.__class__.config_key}']>"
-
     def __init__(self, **this_config) -> None:
         """ """
         kls_defaults = getattr(self.__class__, "defaults", {})
@@ -50,6 +47,9 @@ class Config(
         except (KeyError, TypeError) as exc:
             # import IPython; IPython.embed()
             raise
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}['{self.__class__.config_key}']>"
 
     # def as_dict(self, **kwargs):
     #     kwargs.update(

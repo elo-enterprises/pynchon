@@ -111,17 +111,17 @@ class Git(models.Provider):
     priority = -2
     name = "git"
     config_class = GitConfig
-    
+
     def list(self, changes=False) -> typing.List[abcs.Path]:
-        """ lists files tracked by git """
+        """lists files tracked by git"""
         if changes:
-            return self.status()['modified']
+            return self.status()["modified"]
         else:
             cmd = self.config._run("git ls-files")
             lines = [line.lstrip().strip() for line in cmd.stdout.split("\n")]
             lines = [filter(None, line.split(" ")) for line in lines if line]
             return [abcs.Path(p) for p in lines]
-        
+
     @property
     def modified(self) -> typing.List[abcs.Path]:
         """ """

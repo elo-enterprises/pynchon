@@ -49,7 +49,7 @@ class AbstractPlanner(BasePlugin):
         """
         Executes the plan for this plugin
         """
-        cls_name=self.__class__.name
+        cls_name = self.__class__.name
         msg = f"Applying for plugin '{cls_name}'"
         events.lifecycle.send(
             # write status event (used by the app-console)
@@ -58,7 +58,7 @@ class AbstractPlanner(BasePlugin):
         plan = plan or self.plan()
         goals = getattr(plan, "goals", plan)
         results = []
-        total=len(goals)
+        total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
         for i, action_item in enumerate(goals):
             events.lifecycle.send(self, applying=action_item)
@@ -77,11 +77,13 @@ class AbstractPlanner(BasePlugin):
             # write status event (used by the app-console)
             stage=f"Running hooks for '{cls_name}'"
         )
-        resources = list(set([r.resource for r in results]))
+        resources = list({r.resource for r in results})
         LOGGER.critical(f"{msg} ({len(resources)} resources)")
         hooks = self.apply_hooks
         if hooks:
-            self.logger.warning(f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}")
+            self.logger.warning(
+                f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}"
+            )
             hook_results = []
             for hook in hooks:
                 hook_results.append(self.run_hook(hook, results))
@@ -117,7 +119,7 @@ class AbstractPlanner(BasePlugin):
 
     def _hook_open_after_apply(self, result: planning.ApplyResults) -> bool:
         """ """
-        changes = list(set([r.resource for r in result]))
+        changes = list({r.resource for r in result})
         changes = [abcs.Path(rsrc) for rsrc in changes]
         changes = [rsrc for rsrc in changes if not rsrc.is_dir()]
         self.logger.warning(f"Opening {len(changes)} changed resources.")
