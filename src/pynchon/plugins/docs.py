@@ -94,13 +94,13 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     priority = 0
     serving = None
 
-        # @property
-        # def root(self):
-        #     if "root" not in self.__dict__:
-        #         from pynchon.config import GIT, pynchon
-        #         tmp = GIT.root
-        #         self.__dict__.update(root=tmp or pynchon["working_dir"])
-        #     return self.__dict__["root"]
+    # @property
+    # def root(self):
+    #     if "root" not in self.__dict__:
+    #         from pynchon.config import GIT, pynchon
+    #         tmp = GIT.root
+    #         self.__dict__.update(root=tmp or pynchon["working_dir"])
+    #     return self.__dict__["root"]
 
     @property
     def server_pid(self):

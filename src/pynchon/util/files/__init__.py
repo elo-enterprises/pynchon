@@ -4,6 +4,8 @@ import re
 import glob
 import functools
 
+import shil
+
 from pynchon import abcs, cli
 
 from pynchon.util import lme, os, typing  # noqa
@@ -25,7 +27,7 @@ def is_prefix(
     prepend_file: str = None,
     target_file: str = None,
     clean: bool = False,  # noqa
-):
+) -> str:
     """
     True if given file already prepends given target
     """
@@ -48,7 +50,7 @@ def prepend(
     prepend_file: str = None,
     target_file: str = None,
     clean: bool = False,  # noqa
-):
+) -> bool:
     """
     Prepends given file contents to given target
     """
@@ -60,31 +62,20 @@ def prepend(
         with open(target_file, "w") as fhandle:
             fhandle.write(f"""{prep_c}\n{target_c}""".lstrip())
         return True
-    # clean = "" if not clean else f" && rm {prepend_file}"
-    # cmd = " ".join(
-    #     [
-    #         "printf '%s\n%s\n'",
-    #         f'"$(cat {prepend_file})" "$(cat {target_file})"',
-    #         f"> {target_file} {clean}",
-    #     ]
-    # )
-    # return os.invoke(cmd)
+    return False
 
 
 def find_suffix(root: str = "", suffix: str = "") -> typing.StringMaybe:
-    """
-    :param root: str:  (Default value = '')
-    :param suffix: str:  (Default value = '')
-    """
+    """ """
     assert root and suffix
-    return os.invoke(f"{root} -type f -name *.{suffix}").stdout.split("\n")
+    return shil.invoke(f"{root} -type f -name *.{suffix}", strict=True).stdout.split(
+        "\n"
+    )
 
 
 @functools.lru_cache(maxsize=None)
 def get_git_root(path: str = ".") -> typing.StringMaybe:
-    """
-    :param path: str:  (Default value = ".")
-    """
+    """ """
     path = abcs.Path(path).absolute()
     tmp = path / ".git"
     if tmp.exists():
@@ -103,15 +94,7 @@ def find_src(
     exclude_patterns=[],
     quiet: bool = False,
 ) -> list:
-    """
-
-    :param src_root: str:
-    :param exclude_patterns: Default value = [])
-    :param quiet: bool:  (Default value = False)
-    :param src_root: str:
-    :param quiet: bool:  (Default value = False)
-
-    """
+    """ """
     exclude_patterns = set(list(map(re.compile, exclude_patterns)))
     globs = [
         abcs.Path(src_root).joinpath("**/*"),
@@ -134,17 +117,7 @@ def find_globs(
     logger: object = None,
     quiet: bool = False,
 ) -> typing.List[str]:
-    """
-
-    :param globs: typing.List[abcs.Path]:
-    :param includes: Default value = [])
-    :param logger: object:  (Default value = None)
-    :param quiet: bool:  (Default value = False)
-    :param globs: typing.List[abcs.Path]:
-    :param logger: object:  (Default value = None)
-    :param quiet: bool:  (Default value = False)
-
-    """
+    """ """
     logger = logger or LOGGER
     quiet or logger.info(f"finding files matching {globs}")
     globs = [glob.glob(str(x), recursive=True) for x in globs]
@@ -163,16 +136,8 @@ def find_globs(
 
 def dumps(
     content: str = None, file: str = None, quiet: bool = True, logger=LOGGER.info
-):
-    """
-    :param content: str:  (Default value = None)
-    :param file: str:  (Default value = None)
-    :param quiet: bool:  (Default value = True)
-    :param logger: Default value = LOGGER.info)
-    :param content: str:  (Default value = None)
-    :param file: str:  (Default value = None)
-    :param quiet: bool:  (Default value = True)
-    """
+) -> None:
+    """ """
     quiet or logger(f"\n{content}")
     with open(file, "w") as fhandle:
         fhandle.write(content)

@@ -52,9 +52,9 @@ def set_global_level(level):
 
 class Fake:
     warning = debug = info = critical = lambda *args, **kwargs: None
-        # if isinstance(handler, type(logging.StreamHandler())):
-        #     handler.setLevel(logging.DEBUG)
-        #     logger.debug('Debug logging enabled')
+    # if isinstance(handler, type(logging.StreamHandler())):
+    #     handler.setLevel(logging.DEBUG)
+    #     logger.debug('Debug logging enabled')
 
 
 def get_logger(name, console=CONSOLE, fake=False):

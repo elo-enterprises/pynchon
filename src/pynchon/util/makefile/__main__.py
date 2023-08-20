@@ -1,20 +1,13 @@
 """ pynchon.util.makefile CLI
 """
-""" pynchon.util.text.dumpf.__main__
-"""
-from fleks.cli import click, options  # noqa
-
+# from fleks.cli import click, options  # noqa
 from pynchon.cli import common
 from pynchon.util.tagging import tags
-
+import shimport
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-
 entry = common.entry_for(__name__)
-
-
-import shimport
 
 tmp = (
     shimport.wrapper(

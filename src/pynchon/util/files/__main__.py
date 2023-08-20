@@ -15,7 +15,7 @@ LOGGER = lme.get_logger(__name__)
 entry = common.entry_for(__name__)
 
 
-tmp = (
+(
     shimport.wrapper("pynchon.util.files")
     .prune(
         filter_instances=typing.FunctionType,
@@ -38,6 +38,5 @@ tmp = (
         ]
     )
 )
-
 if __name__ == "__main__":
     entry()
