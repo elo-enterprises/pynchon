@@ -2,7 +2,7 @@
 """
 import platform as stdlib_platform
 
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, cli, models
 from pynchon.util import lme, python, typing

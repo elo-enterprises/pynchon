@@ -5,7 +5,7 @@ import importlib
 
 import shimport
 from fleks import cli
-from fleks.util import tagging
+from fleks import tagging
 from fleks.util.click import click_recursive_help
 
 from pynchon import abcs, api, models
@@ -98,7 +98,7 @@ class PythonCliConfig(abcs.Config):
 
 
 @tagging.tags(click_aliases=["pc"])
-class PythonCLI(models.ShyPlanner):
+class PythonCLI(models.Planner):
     """Generators for Python CLI docs"""
 
     name = "python-cli"

@@ -1,7 +1,7 @@
 """ pynchon.plugins.git
 """
 
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, models
 from pynchon.util import files, lme, os, typing

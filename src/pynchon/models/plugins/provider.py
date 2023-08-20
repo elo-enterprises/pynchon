@@ -1,6 +1,6 @@
 """ pynchon.models.plugins.provider """
 
-from fleks.util import tagging
+from fleks import tagging
 
 from . import validators
 

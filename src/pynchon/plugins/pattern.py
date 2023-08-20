@@ -6,7 +6,7 @@
 import os
 
 from fleks import cli
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, constants, models
 from pynchon.api import render

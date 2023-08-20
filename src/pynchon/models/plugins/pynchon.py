@@ -3,7 +3,7 @@ import collections
 
 import fleks
 import shimport
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon.plugins import util as plugins_util
 

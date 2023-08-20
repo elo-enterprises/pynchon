@@ -1,6 +1,6 @@
 """ pynchon.plugins.griffe
 """
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, cli, events, models  # noqa
 from pynchon.util import lme, os, typing  # noqa

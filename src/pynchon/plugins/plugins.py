@@ -1,6 +1,6 @@
 """ pynchon.plugins.plugins
 """
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, cli, models
 from pynchon.util.os import invoke

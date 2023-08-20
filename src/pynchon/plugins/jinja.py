@@ -1,6 +1,6 @@
 """ pynchon.plugins.jinja
 """
-from fleks.util import tagging
+from fleks import tagging
 
 from pynchon import abcs, api, cli, models
 
