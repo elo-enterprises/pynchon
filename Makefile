@@ -52,8 +52,8 @@ version:
 pypi-release:
 	PYPI_RELEASE=1 make build \
 	&& twine upload \
-	--user elo-e \
-	--password `secrets get /elo/pypi/elo-e` \
+	--user $${PYPI_USER} \
+	--password $${PYPI_TOKEN} \
 	dist/*
 
 release: clean normalize static-analysis test pypi-release
