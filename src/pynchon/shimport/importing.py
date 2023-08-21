@@ -1,2 +1,0 @@
-""" pynchon.shimport.importing
-"""

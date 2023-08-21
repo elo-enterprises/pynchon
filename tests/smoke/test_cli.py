@@ -8,8 +8,7 @@ TEST_INFO = testing.get_test_info(__file__)
 
 TEST_CMDS = [
     # used by ..
-    "pynchon project plan | jq .plan ",
-    "pynchon scaffold --help",
+    "pynchon cfg | jq . ",
     "python -m pynchon --version",
     # "python -m pynchon shell --help",
     # "pynchon project version --output /dev/stdout",
@@ -21,7 +20,7 @@ TEST_CMDS = [
     # "pynchon gen cli main --file src/pynchon/__main__.py --output-dir docs/cli"
 ]
 
-# def test_cmds():
-#     for cmd in TEST_CMDS:
-#         out = invoke(cmd)
-#         assert out.succeeded
+def test_cmds():
+    for cmd in TEST_CMDS:
+        out = invoke(cmd)
+        assert out.succeeded

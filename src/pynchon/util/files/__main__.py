@@ -1,17 +1,21 @@
 """ pynchon.util.files CLI
 """
-from pynchon.cli import click, common, options  # noqa
+import shimport
+from fleks.util.tagging import tags
+
+from pynchon.cli import common
+
+from fleks.cli import click, options  # noqa
+
 from pynchon.util import lme, typing  # noqa
-from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon import shimport
 
 entry = common.entry_for(__name__)
 
 
-tmp = (
+(
     shimport.wrapper("pynchon.util.files")
     .prune(
         filter_instances=typing.FunctionType,
@@ -34,6 +38,5 @@ tmp = (
         ]
     )
 )
-
 if __name__ == "__main__":
     entry()

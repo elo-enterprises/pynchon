@@ -1,11 +1,17 @@
 """ pynchon.plugins.Core
 """
+from fleks import tagging
+
 from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
-from pynchon.util import lme, tagging, typing
+from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
+
+import fleks
+
+classproperty = fleks.util.typing.classproperty
 
 
 @tagging.tags(click_aliases=["c"])
@@ -19,7 +25,7 @@ class Core(models.Planner):
     # NB: prevents recursion when `pynchon plan` is used!
     contribute_plan_apply = False
 
-    @typing.classproperty
+    @classproperty
     def click_group(kls):
         """ """
         kls._finalized_click_groups[kls] = entry
@@ -33,7 +39,6 @@ class Core(models.Planner):
         result = getattr(config_mod, kls.get_config_key())
         return result
 
-    # @typing.validate_arguments
     def cfg(self):
         """Show current project config (with templating/interpolation)"""
         tmp = self.project_config
@@ -50,7 +55,7 @@ class Core(models.Planner):
         pynchon: bool = False,
         bash: bool = False,
         bash_completions: bool = False,
-        bashrc: bool = False,
+        bashrc: bool = False,  # noqa
         makefile: bool = False,
         tox: bool = False,
     ) -> None:
@@ -131,7 +136,7 @@ class Core(models.Planner):
         elif tox or makefile:
             tail = "Makefile" if makefile else "tox.ini"
             tmpl = api.render.get_template(f"{template_prefix}/{tail}")
-            content = tmpl.render(**self.project_config)
+            content = tmpl.render(**self.project_config.dict())
             print(content)
 
     def raw(self) -> None:
@@ -168,7 +173,7 @@ class Core(models.Planner):
                     f"subplan for '{plugin_obj.__class__.__name__}' is empty!"
                 )
             else:
-                for g in subplan:
+                for g in subplan.goals:
                     self.logger.info(f"{plugin_obj} contributes {g}")
                     plan.append(g)
         return plan

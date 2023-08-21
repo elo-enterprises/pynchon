@@ -81,6 +81,7 @@
         "{{src.root}}/**/*.j2",
       ],
     "headers": {},
+    "sorted": true, 
     "goals": [
       // ...
     ],

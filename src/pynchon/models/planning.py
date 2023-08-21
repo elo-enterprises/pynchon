@@ -3,48 +3,64 @@
 import typing
 import collections
 
-from pynchon import abcs, app
-from pynchon.fleks import meta
+import shil
+from fleks import app, meta
+
+from pynchon import abcs
+from pynchon.base import BaseModel
 
 from pynchon.util import lme, typing  # noqa
 
 ResourceType = typing.Union[str, abcs.Path]
 
 
-class Goal(typing.BaseModel):
+class Goal(BaseModel):
     """ """
+
+    @property
+    def rel_resource(self) -> str:
+        return (
+            abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
+        )
+
+    class Config(BaseModel.Config):
+        exclude: typing.Set[str] = {"udiff"}
 
     resource: ResourceType = typing.Field(default="?r", required=False)
     command: str = typing.Field(default="?c")
-    type: str = typing.Field(default="?t", required=False)
-    owner: str = typing.Field(default="?o")
+    type: typing.StringMaybe = typing.Field(default=None, required=False)
+    owner: typing.StringMaybe = typing.Field(default=None)
     label: typing.StringMaybe = typing.Field(default=None)
+    udiff: typing.StringMaybe = typing.Field(default=None)
 
     def __rich__(self) -> str:
-        from pynchon import shfmt
-
-        fmt = shfmt.bash_fmt(self.command)
-        return app.Panel(
-            app.Syntax(
-                # f"# {self.command}\n\n{fmt}",
-                fmt,
-                "bash",
-                line_numbers=False,
-                word_wrap=True,
-            ),
-            # title=__name__,
-            # title=f'[dim italic yellow]{self.type}',
-            # title=f'[bold cyan on black]{self.type}',
-            title=app.Text(self.type, style="dim bold"),
-            title_align="left",
-            style=app.Style(
-                dim=True,
-                # color='green',
-                bgcolor="black",
-                frame=False,
-            ),
-            subtitle=app.Text(f"{self.label or self.owner}", style="dim italic"),
-        )
+        """ """
+        fmt = shil.fmt(self.command)
+        if self.udiff:
+            return app.Panel(app.Markdown(f"```diff\n{self.udiff}\n```"))
+        else:
+            return app.Panel(
+                app.Syntax(
+                    fmt,
+                    "bash",
+                    line_numbers=False,
+                    word_wrap=True,
+                ),
+                # title=__name__,
+                # title=f'[dim italic yellow]{self.type}',
+                # title=f'[bold cyan on black]{self.type}',
+                title=app.Text(self.type, style="dim bold"),
+                title_align="left",
+                style=app.Style(
+                    dim=True,
+                    # color='green',
+                    bgcolor="black",
+                    frame=False,
+                ),
+                subtitle=app.Text(f"{self.label or self.owner}", style="dim")
+                + app.Text(" rsrc=", style="bold italic")
+                + app.Text(f"{self.rel_resource}", style="dim italic"),
+            )
 
     # def __str__(self):
     #     """ """
@@ -81,12 +97,6 @@ class Plan(typing.BaseModel):
 
     goals: typing.List[Goal] = typing.Field(default=[])
 
-    def __contains__(self, g):
-        return g in self.goals
-
-    def __len__(self):
-        return len(self.goals)
-
     # def __init__(self, *args, **kwargs):
     #     for arg in args:
     #         if not isinstance(arg, (Goal,)):
@@ -95,7 +105,14 @@ class Plan(typing.BaseModel):
     #         typing.BaseModel.__init__(self, goals=args)
     #
     def __rich__(self) -> str:
-        syntaxes = [g.__rich__() for g in self.goals]
+        syntaxes = []
+        # import IPython; IPython.embed()
+        # raise Exception(self.goals)
+        for g in self.goals:
+            if hasattr(g, "__rich__"):
+                syntaxes.append(g.__rich__())
+            else:
+                syntaxes.append(str(g))
 
         table = app.Table.grid(
             # title=f'{__name__} ({len(self)} items)',
@@ -151,17 +168,23 @@ class Plan(typing.BaseModel):
         elif isinstance(other, (Goal,)):
             self.goals += [other]
         elif isinstance(other, (Plan,)):
-            self.goals += other.goals
+            self.goals += other.dict()["goals"]
         elif isinstance(
             other,
             (
                 list,
-                tuple,
+                # tuple,
             ),
         ):
             self.goals += other
         else:
             raise NotImplementedError(type(other))
+
+    def __contains__(self, g):
+        return g in self.goals
+
+    def __len__(self):
+        return len(self.goals)
 
     def __add__(self, other):
         """ """
@@ -176,7 +199,7 @@ class Plan(typing.BaseModel):
                 tuple,
             ),
         ):
-            return Plan(goals=self.goals + other)
+            return Plan(goals=self.goals + list(other))
         else:
             raise NotImplementedError(type(other))
 

@@ -1,9 +1,12 @@
+""" pynchon.util.makefile
+"""
+import os
 import re
 
 from pynchon import abcs, cli
 from pynchon.util.os import invoke
 
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 zzz = "#  recipe to execute (from '"
@@ -12,8 +15,10 @@ fff = "# files hash-table stats:"
 
 
 @cli.click.argument("makefile")
-def database(makefile: str = "", make="make"):
-    """ """
+def database(makefile: str = "", make="make") -> typing.List[str]:
+    """
+    Get database for Makefile (i.e. 'make --print-data-base')
+    """
     assert makefile
     tmp = abcs.Path(makefile)
     if not all(
@@ -28,9 +33,7 @@ def database(makefile: str = "", make="make"):
     cmd = f"{make} --print-data-base -pqRrs -f {makefile}"
     resp = invoke(cmd)
     out = resp.stdout.split("\n")
-    import collections
-
-    return collections.OrderedDict(enumerate(out))
+    return out
 
 
 def _test(x):
@@ -62,12 +65,12 @@ def _get_file(body=None, makefile=None):
 
 @cli.click.argument("makefile")
 def parse(makefile: str = None, bodies=False, **kwargs):
-    """ """
-    import os
-
+    """
+    Parse Makefile to JSON.  Includes targets/prereq detail
+    """
     assert os.path.exists(makefile)
     wd = abcs.Path(".")
-    db = list(database(makefile, **kwargs).values())
+    db = database(makefile, **kwargs)
     original = open(makefile).readlines()
     variables_start = db.index(vvv)
     variables_end = db.index("", variables_start + 2)
@@ -127,11 +130,6 @@ def parse(makefile: str = None, bodies=False, **kwargs):
         if type == "implicit":
             regex = target_name.replace("%", ".*")
             out[target_name].update(regex=regex)
-            # out[target_name].update(implementors=[
-            #     t for t in
-            # ])
-    #         out
-    # implicit_targets = dict([k,v] for k,v in out.items() )
     for target_name, tmeta in out.items():
         if "regex" in tmeta:
             implementors = []

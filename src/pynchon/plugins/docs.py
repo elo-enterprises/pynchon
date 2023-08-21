@@ -2,12 +2,15 @@
 """
 import webbrowser
 
+import fleks
+import shimport
+from fleks import cli, tagging
 from memoized_property import memoized_property
 
 from pynchon.util.os import invoke
 
-from pynchon import abcs, api, cli, events, models, shimport  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon import abcs, api, events, models  # noqa
+from pynchon.util import files, lme, typing  # noqa
 
 grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)
@@ -53,6 +56,7 @@ class OpenerMixin:
         return dict(url=grip_url, browser=webbrowser.open(grip_url))
 
     _open__md = _open_grip
+    _open__mmd = _open_grip
 
     def _open_raw(self, file: str = None, server=None):
         """
@@ -80,19 +84,22 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "docs"
         include_patterns: typing.List[str] = typing.Field(default=[])
-
-        @property
-        def root(self):
-            from pynchon.config import GIT, pynchon
-
-            tmp = GIT.root
-            return tmp or pynchon["working_dir"]
+        root: typing.Union[str, abcs.Path, None] = typing.Field()
+        exclude_patterns: typing.List[str] = typing.Field(default=[])
 
     name = "docs"
     cli_name = "docs"
     cli_label = "Manager"
     priority = 0
     serving = None
+
+    # @property
+    # def root(self):
+    #     if "root" not in self.__dict__:
+    #         from pynchon.config import GIT, pynchon
+    #         tmp = GIT.root
+    #         self.__dict__.update(root=tmp or pynchon["working_dir"])
+    #     return self.__dict__["root"]
 
     @property
     def server_pid(self):
@@ -115,24 +122,20 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     def gen(self):
         """Generator subcommands"""
 
-    @cli.options.output
+    # @cli.click.option('--output',default=None)
     @cli.options.should_print
     @gen.command("version-file")
     def version_file(
         self,
-        should_print,
-        output=None,
+        should_print: bool,
+        # output:str=None,
     ):
-        """Creates {docs.root}/VERSION.md file
-        :param output: param should_print:
-        :param should_print:
         """
-        from pynchon.api import render
-        from pynchon.util import files
-
-        output = output or abcs.Path(self[:"docs.root":]) / "VERSION.md"
-        tmpl = render.get_template("pynchon/plugins/core/VERSIONS.md.j2")
-        result = tmpl.render(**self.project_config)
+        Creates {docs.root}/VERSION.md file
+        """
+        output = abcs.Path(self[:"docs.root":]) / "VERSION.md"
+        tmpl = api.render.get_template("pynchon/plugins/core/VERSIONS.md.j2")
+        result = tmpl.render(**self.project_config.dict())
         files.dumps(
             content=result, file=output, quiet=False, logger=self.logger.warning
         )
@@ -161,7 +164,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         return dict(url=self.server_url, pid=self.server_pid)
 
     @tagging.tags(click_aliases=["op", "opn"])
-    @cli.arguments.file
+    @fleks.cli.arguments.file
     def open(self, file, server=None):
         """Open a docs-artifact (based on file type)
         :param file: param server:  (Default value = None)
@@ -208,9 +211,5 @@ class DocsMan(models.ResourceManager, OpenerMixin):
             )
         cmd_t = f"{self.cli_path} gen version-file"
         rsrc = abcs.Path(rsrc) / "VERSION.md"
-        plan.append(
-            self.goal(
-                resource=rsrc, type="gen", command=f"{cmd_t} --output {rsrc} --print"
-            )
-        )
+        plan.append(self.goal(resource=rsrc, type="gen", command=f"{cmd_t}"))
         return plan

@@ -1,7 +1,9 @@
 """ pynchon.plugins.scaffolding
 """
+from fleks import tagging
+
 from pynchon import models
-from pynchon.util import files, lme, tagging, typing
+from pynchon.util import files, lme, typing
 from pynchon.util.os import invoke
 
 from .config import ScaffoldingConfig, ScaffoldingItem

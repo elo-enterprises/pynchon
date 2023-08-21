@@ -1,9 +1,12 @@
 """ pynchon.plugins.makefile
 """
 
-from pynchon import abcs, api, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from fleks import cli
+
 from pynchon.util.makefile import parse as makefile_parse
+
+from pynchon import abcs, api, events, models  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -11,13 +14,9 @@ LOGGER = lme.get_logger(__name__)
 class Make(models.Planner):
     """Makefile parser"""
 
-    priority = 6  # before mermaid
-    name = "makefile"
-    cli_name = "makefile"
-    cli_label = "Meta"
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "makefile"
+        file: str = typing.Field(default=None)
 
         @property
         def file(self):
@@ -25,18 +24,22 @@ class Make(models.Planner):
             tmp = abcs.Path(".").absolute()
             return tmp / "Makefile"
 
+    priority = 6  # before mermaid
+    name = "makefile"
+    cli_name = "makefile"
+    cli_label = "Meta"
+
     def _get_template_file(self, relpath: str = ""):
         tfile = self.plugin_templates_root / relpath
         return api.render.get_template(str(tfile))
 
     @property
-    def plugin_templates_root(self):
-        """ """
-        return abcs.Path(self.plugin_templates_prefix)
+    def diagrams_root(self):
+        return abcs.Path(self[:"docs.root":]) / "diagrams"
 
     @property
     def output_file(self):
-        default = abcs.Path(self[:"docs.root":]) / "Makefile.mmd"
+        default = self.diagrams_root / "Makefile.mmd"
         return self["output_file"::default]
 
     def plan(self):
@@ -49,11 +52,12 @@ class Make(models.Planner):
             .relative_to(abcs.Path(".").absolute())
         )
         output_file = self.output_file
-        output_folder = output_file.parents[0]
-        if not output_folder.exists():
+        if not self.diagrams_root.exists():
             plan.append(
                 self.goal(
-                    resource=output_file, type="mkdir", command=f"mkdir {output_folder}"
+                    resource=self.diagrams_root,
+                    type="mkdir",
+                    command=f"mkdir {self.diagrams_root}",
                 )
             )
         plan.append(
@@ -64,11 +68,6 @@ class Make(models.Planner):
             )
         )
         return plan
-
-    @property
-    def parsed(self) -> typing.Dict:
-        """ """
-        return self.parse()
 
     @cli.click.group
     def render(self):

@@ -13,6 +13,7 @@ from jinja2 import FileSystemLoader, StrictUndefined
 
 import pynchon
 from pynchon import abcs, constants, events
+from pynchon.util.os import invoke
 
 import jinja2  # noqa
 
@@ -39,25 +40,16 @@ def dictionary(input, context):
 def get_jinja_globals():
     """ """
     events.lifecycle.send(__name__, msg="finalizing jinja globals")
-    # FIXME: use shimport.filter_module('..')
-    from pynchon.util.os import invoke
 
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
-        """A jinja filter/extension
-
-        :param *args:
-        :param **kwargs:
-        """
+        """A jinja filter/extension"""
         out = invoke(*args, **kwargs)
         assert out.succeeded
         return out.stdout
 
     def markdown_toc(fname: str, level=None):
-        """
-
-        :param fname: str:
-        :param level: Default value = None)
-        """
+        """ """
+        assert fname
         fname = abcs.Path(fname)
         assert fname.exists()
         script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"
@@ -77,9 +69,7 @@ def get_jinja_globals():
 
 
 def get_jinja_includes(*includes):
-    """
-    :param *includes:
-    """
+    """ """
     includes = list(includes)
     includes += list(constants.PYNCHON_CORE_INCLUDES_DIRS)
 
@@ -88,12 +78,7 @@ def get_jinja_includes(*includes):
 
 @functools.lru_cache(maxsize=None)
 def get_jinja_env(*includes, quiet: bool = False):
-    """
-
-    :param *includes:
-    :param quiet: bool:  (Default value = False)
-
-    """
+    """ """
     events.lifecycle.send(__name__, msg="finalizing jinja-Env")
     includes = get_jinja_includes(*includes)
     for template_dir in includes:
@@ -146,16 +131,14 @@ def get_template_from_file(
 
 
 def get_template(
-    template_name: str = None,
+    template_name: typing.Union[str, abcs.Path] = None,
     env=None,
     from_string: str = None,
 ):
-    """
-    :param template_name: str = None:
-    :param from_string: str = None:
-    :param env=None:
-    """
+    """ """
     env = env or get_jinja_env()
+    if isinstance(template_name, (abcs.Path,)):
+        template_name = str(template_name)
     try:
         if from_string:
             template = env.from_string(from_string)

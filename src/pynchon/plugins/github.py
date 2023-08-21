@@ -2,11 +2,14 @@
 """
 import webbrowser
 
-from pynchon import abcs, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+import shimport
+from fleks import cli, tagging
+
+from pynchon import abcs, events, models  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-
+config = shimport.lazy("pynchon.config")
 option_api_token = cli.click.option(
     "--api-token", "-t", "token", default="", help="defaults to $GITHUB_API_TOKEN"
 )
@@ -16,20 +19,45 @@ option_api_token = cli.click.option(
 class GitHub(models.ToolPlugin):
     """Tools for working with GitHub"""
 
-    name = "github"
-    cli_name = "github"
-    cli_aliases = []
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "github"
         enterprise: bool = typing.Field(default=False)
         org_name: str = typing.Field(default=None)
+        org_url: str = typing.Field(default=None)
+        repo_url: str = typing.Field(default=None)
+        actions: typing.List[abcs.Path] = typing.Field(default=[None])
+
+        @property
+        def actions(self) -> typing.List[typing.Dict]:
+            """ """
+            wflows = abcs.Path(config.git.root) / ".github" / "workflows"
+            if wflows.exists():
+                return [
+                    dict(
+                        name=fname,
+                        file=wflows / fname,
+                        url=f"{self.repo_url}/actions/workflows/{fname}",
+                    )
+                    for fname in wflows.list()
+                ]
+            else:
+                return []
+
+        @property
+        def repo_url(self):
+            return config.git.repo_url
+
+        @property
+        def org_url(self):
+            return f"https://github.com/{self.org_name}"
 
         @property
         def org_name(self):
-            from pynchon.config import git
+            return config.git.github_org
 
-            return git.github_org
+    name = "github"
+    cli_name = "github"
+    cli_aliases = []
 
     @cli.click.option("--org", "-o")
     def open(self, org=None):
@@ -39,7 +67,7 @@ class GitHub(models.ToolPlugin):
 
         """
         org_name = self["org_name"]
-        url = f"https://github.com/{org_name}"
+        url = self["org_url"]
         if not org:
             repo_name = self[:"git.repo_name":]
             url = f"{url}/{repo_name}"

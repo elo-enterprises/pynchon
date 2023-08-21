@@ -20,7 +20,9 @@ pynchon jinja plan
 pynchon jinja sh -c'self.logger.debug("hello world")'
 pynchon plugins list | jq .
 pynchon docs list | jq .
-pynchon git cfg|jq .
+pynchon docs plan | jq .
+pynchon git cfg | jq .
 pynchon pattern new --help
 pynchon py --help
-pynchon python src sorted --help
+pynchon src plan | jq .
+pynchon src sorted --help

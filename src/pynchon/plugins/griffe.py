@@ -1,7 +1,9 @@
 """ pynchon.plugins.griffe
 """
+from fleks import tagging
+
 from pynchon import abcs, cli, events, models  # noqa
-from pynchon.util import lme, os, tagging, typing  # noqa
+from pynchon.util import lme, os, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 

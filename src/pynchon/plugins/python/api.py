@@ -1,22 +1,25 @@
 """ pynchon.plugins.python.api
 """
-from pynchon import abcs, cli, models
+from fleks import cli, tagging
+
+from pynchon import abcs, models
 from pynchon.api import render
-from pynchon.util import complexity, lme, tagging, typing
+from pynchon.util import complexity, lme, typing
 
 LOGGER = lme.get_logger(__name__)
 
 
 @tagging.tags(click_aliases=["pa"])
-class PythonAPI(models.ShyPlanner):
+class PythonAPI(models.Planner):
     """Generators for Python API docs"""
-
-    name = "python-api"
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "python-api"
         skip_private_methods: bool = typing.Field(default=True)
         skip_patterns: typing.List[str] = typing.Field(default=[])
+        apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
+
+    name = "python-api"
 
     @cli.click.group("gen")
     def gen(self):
@@ -49,17 +52,7 @@ class PythonAPI(models.ShyPlanner):
         stdout=None,
         header=None,
     ):
-        """Generate table-of-contents
-
-        :param package: Default value = None)
-        :param should_print: Default value = None)
-        :param file: Default value = None)
-        :param exclude: Default value = None)
-        :param output: Default value = None)
-        :param stdout: Default value = None)
-        :param header: Default value = None)
-
-        """
+        """Generate table-of-contents"""
 
         T_TOC_API = render.get_template("pynchon/plugins/python/api/TOC.md.j2")
         module = complexity.get_module(package=package, file=file)
@@ -91,8 +84,10 @@ class PythonAPI(models.ShyPlanner):
         api_docs_root = f"{docs_root}/api"
         if not abcs.Path(api_docs_root).exists():
             plan.append(
-                models.Goal(
-                    command=f"mkdir -p {api_docs_root}", resource=None, type="gen"
+                self.goal(
+                    command=f"mkdir -p {api_docs_root}",
+                    resource=api_docs_root,
+                    type="mkdir",
                 )
             )
         pkg = self[:"python.package.name":None]
@@ -104,7 +99,7 @@ class PythonAPI(models.ShyPlanner):
         output = f"--output {outputf}"
         cmd_t = "pynchon python-api gen toc"
         plan.append(
-            models.Goal(
+            self.goal(
                 resource=outputf,
                 command=f"{cmd_t} {input} {output}",
                 type="gen",

@@ -23,10 +23,7 @@ bootstrap = Signal("bootstrap")
 
 # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
 def lifecycle_plugin(sender, plugin):
-    """
-    :param sender:
-    :param plugin:
-    """
+    """ """
     if plugin:
         tmp = getattr(sender, "__name__", getattr(sender, "name", str(sender)))
         tmp = f"{tmp}: PLUGIN: {plugin}"
@@ -34,12 +31,7 @@ def lifecycle_plugin(sender, plugin):
 
 
 def lifecycle_config(sender, config):
-    """
-
-    :param sender:
-    :param config:
-
-    """
+    """ """
     if config:
         tmp = getattr(sender, "__name__", getattr(sender, "name", str(sender)))
         tmp = f"{tmp}: CONFIG: {config}"
@@ -54,7 +46,7 @@ def lifecycle_applying(sender, applying=None, **kwargs):
         lifecycle.send(lifecycle_applying, stage=tmp)
 
 
-def lifecycle_stage(sender, stage=None, **unused):
+def lifecycle_stage(sender, stage=None, **unused):  # noqa
     """
     :param sender:
     :param stage:  (Default value = None)
@@ -66,7 +58,7 @@ def lifecycle_stage(sender, stage=None, **unused):
         app.status_bar.update(stage=stage)
 
 
-def lifecycle_msg(sender, msg=None, **unused):
+def lifecycle_msg(sender, msg=None, **unused):  # noqa
     """
     :param sender: param msg:  (Default value = None)
     :param msg:  (Default value = None)
@@ -85,8 +77,10 @@ def _lifecycle(sender, **signals):
         # if k in ATTACHED:
         #     continue
         # LOGGER.critical(f'attaching {k}')
-        dispatch = getattr(THIS, f"lifecycle_{k}", None)
-        assert dispatch
+        dispatch_name = f"lifecycle_{k}"
+        dispatch = getattr(THIS, dispatch_name, None)
+        loc = locals()
+        assert dispatch, f"could not find {dispatch_name} in {loc}"
         dispatch(sender, **signals)
         # ATTACHED.append(k)
 

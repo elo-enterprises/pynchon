@@ -1,11 +1,13 @@
 """ pynchon.plugins.git
 """
 
+from fleks import tagging
+
 from pynchon import abcs, models
-from pynchon.util import files, lme, os, tagging, typing
+from pynchon.util import files, lme, os, typing
 
 LOGGER = lme.get_logger(__name__)
-from memoized_property import memoized_property
+
 
 class GitConfig(abcs.Config):
     """ """
@@ -49,11 +51,12 @@ class GitConfig(abcs.Config):
     @property
     def repo(self) -> typing.StringMaybe:
         """ """
-        if 'repo' not in self.__dict__:
+        if "repo" not in self.__dict__:
             cmd = self._run("git config --get remote.origin.url")
             self.__dict__.update(
-                repo=cmd and (cmd.stdout.strip() if cmd.succeeded else None))
-        return self.__dict__['repo']
+                repo=cmd and (cmd.stdout.strip() if cmd.succeeded else None)
+            )
+        return self.__dict__["repo"]
 
     @property
     def is_github(self):
@@ -62,11 +65,14 @@ class GitConfig(abcs.Config):
         return self.repo and any([self.repo.startswith(x) for x in tmp])
 
     @property
-    def github_org(self):
+    def github_org(self) -> typing.StringMaybe:
         """ """
         if self.is_github:
             tmp = self.repo.split(":")[-1]
-            org, repo_name = tmp.split("/")
+            try:
+                org, _repo_name = tmp.split("/")
+            except (ValueError,):
+                return None
             return org
 
     @property
@@ -74,7 +80,10 @@ class GitConfig(abcs.Config):
         """ """
         if self.repo:
             tmp = self.repo.split(":")[-1]
-            _org, repo_name = tmp.split("/")
+            try:
+                _org, repo_name = tmp.split("/")
+            except (ValueError,):
+                return None
             repo_name = repo_name.split(".git")[0]
             return repo_name
 
@@ -87,20 +96,20 @@ class GitConfig(abcs.Config):
     @property
     def branch_name(self):
         """ """
-        if 'branch_name' not in self.__dict__:
+        if "branch_name" not in self.__dict__:
             cmd = self._run("git rev-parse --abbrev-ref HEAD")
             tmp = cmd and cmd.succeeded and cmd.stdout.strip()
             self.__dict__.update(branch_name=tmp or None)
-        return self.__dict__['branch_name']
+        return self.__dict__["branch_name"]
 
     @property
     def hash(self) -> str:
         """ """
-        if 'hash' not in self.__dict__:
+        if "hash" not in self.__dict__:
             cmd = self._run("git rev-parse HEAD")
             tmp = cmd and cmd.succeeded and cmd.stdout.strip()
             self.__dict__.update(hash=tmp or None)
-        return self.__dict__['hash']
+        return self.__dict__["hash"]
 
 
 @tagging.tags(click_aliases=["g"])
@@ -110,6 +119,16 @@ class Git(models.Provider):
     priority = -2
     name = "git"
     config_class = GitConfig
+
+    def list(self, changes=False) -> typing.List[abcs.Path]:
+        """lists files tracked by git"""
+        if changes:
+            return self.status()["modified"]
+        else:
+            cmd = self.config._run("git ls-files")
+            lines = [line.lstrip().strip() for line in cmd.stdout.split("\n")]
+            lines = [filter(None, line.split(" ")) for line in lines if line]
+            return [abcs.Path(p) for p in lines]
 
     @property
     def modified(self) -> typing.List[abcs.Path]:

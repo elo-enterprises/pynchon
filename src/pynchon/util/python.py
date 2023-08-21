@@ -1,17 +1,18 @@
 """ pynchon.api.python
 """
+import functools
+
 from pynchon.util import files, lme, text
 
 LOGGER = lme.get_logger(__name__)
 
 
+@functools.lru_cache(maxsize=None)
 def is_package(folder: str) -> bool:
     """slightly better than just looking for setup.py-
     we try to use it to get the current version-string
 
     :param folder: str:
-    :param folder: str:
-
     """
     from pynchon.util.os import invoke
 

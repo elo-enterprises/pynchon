@@ -1,8 +1,11 @@
 """ pynchon.plugins.python.libcst
 """
-from pynchon import abcs, cli, events, models  # noqa
-from pynchon.util import lme, python, tagging, typing  # noqa
+from fleks import cli, tagging
+
 from pynchon.util.os import invoke
+
+from pynchon import abcs, events, models  # noqa
+from pynchon.util import lme, python, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 F_CODEMOD_YAML = ".libcst.codemod.yaml"
@@ -62,7 +65,7 @@ class LibCST(models.Planner):
         libcst_config = self[F_CODEMOD_YAML::{}]
         if libcst_config:
             plan.append(self._goal_libcst_refresh(libcst_config))
-        plan.append(*list(self.docstrings(should_plan=True)))
+        [plan.append(g) for g in self.docstrings(should_plan=True).goals]
         return plan
 
     @gen.command
@@ -90,12 +93,11 @@ class LibCST(models.Planner):
         ignore_private: bool = True,
         modules: bool = True,
         functions: bool = True,
-        methods: bool = True,
+        methods: bool = True,  # noqa
         classes: bool = True,
     ):
         """Generates python docstrings"""
         src_root = src_root or self[:"src.root":]
-        # rsrc = "src/pynchon/shfmt/"
         cmd = "docstrings.simple.function"
         plan = self.Plan()
         plan.append(
@@ -110,4 +112,3 @@ class LibCST(models.Planner):
             return plan
         else:
             return self.apply(plan)
-        # self.logger.critical(locals())

@@ -1,12 +1,15 @@
 """ pynchon.util.text.render CLI
 """
-from pynchon.cli import click, common, options  # noqa
+from fleks.cli import click, options  # noqa
+from fleks.util.tagging import tags
+
+from pynchon.cli import common
+
 from pynchon.util import lme, typing  # noqa
-from pynchon.util.tagging import tags
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon import shimport
+import shimport
 
 entry = common.entry_for(__name__)
 

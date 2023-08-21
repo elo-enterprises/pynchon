@@ -4,8 +4,8 @@
 import json
 import functools
 
-from pynchon import shimport
-from pynchon.cli import click
+import shimport
+from fleks.cli import click
 
 from pynchon.util import lme, text, typing  # noqa
 
@@ -29,20 +29,20 @@ def load_groups_from_children(root=None, parent=None):
     )
 
 
-class handler:
-    """ """
-
-    priority = -1
-
-    def __init__(self, parent=None):
-        self.parent = parent
-        self.logger = lme.get_logger(self.__class__.__name__)
-
-    def match(self, call_kwargs):
-        return False
-
-    def __call__(self, result, **call_kwargs):
-        return self.handle(result, **call_kwargs)
+# class handler:
+#     """ """
+#
+#     priority = -1
+#
+#     def __init__(self, parent=None):
+#         self.parent = parent
+#         self.logger = lme.get_logger(self.__class__.__name__)
+#
+#     def match(self, call_kwargs):
+#         return False
+#
+#     def __call__(self, result, **call_kwargs):
+#         return self.handle(result, **call_kwargs)
 
 
 def entry_for(
@@ -65,6 +65,32 @@ def entry_for(
 
     entry = click.group(name.split(".")[-1], cls=Groop)(entry)
     return entry
+
+
+def create_command(_name: str, fxn: typing.Callable, entry=None):
+    """
+    FIXME: move to fleks?
+    WARNING: do not change signature.  this function is used
+    with `shimport.wrapper().map(...)` so it must accept
+    (key,value) style arguments.
+    """
+    from fleks.util.tagging import tags
+
+    out = []
+    aliases = tags[fxn].get("click_aliases", []) + [fxn.__name__]
+    for alias in aliases:
+        out.append(
+            kommand(
+                name=alias.replace("_", "-"),
+                parent=entry,
+                help=(
+                    fxn.__doc__
+                    if alias == fxn.__name__
+                    else f"alias for `{fxn.__name__}`"
+                ),
+            )(fxn)
+        )
+    return out
 
 
 class kommand:

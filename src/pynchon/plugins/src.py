@@ -1,7 +1,9 @@
 """ pynchon.plugins.src
 """
+import fnmatch
+
 from pynchon import abcs, api, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -39,10 +41,9 @@ class SourceMan(models.ResourceManager):
         config_key: typing.ClassVar[str] = "src"
         goals: typing.List[str] = typing.Field(default=[])
         include_patterns: typing.List[str] = typing.Field(default=[])
-
-        @property
-        def root(self):
-            return self.__dict__.get("root", "???")
+        exclude_patterns: typing.List[str] = typing.Field(default=[])
+        root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
+        sorted: bool = typing.Field(default=False, help="Whether to sort source code")
 
     name = "src"
     cli_name = "src"
@@ -78,8 +79,6 @@ class SourceMan(models.ResourceManager):
         raise NotImplementedError()
 
     def _get_meta(self, rsrc):
-        import fnmatch
-
         tmp = rsrc.full_extension()
         try:
             ext_meta = EXT_MAP[tmp]
@@ -174,17 +173,19 @@ class SourceMan(models.ResourceManager):
         """opens changed files"""
 
     def plan(self, config=None):
-        """
-        :param config: Default value = None)
-        """
+        """Describe plan for this plugin"""
         plan = super().plan(config=config)
         resources = [abcs.Path(fsrc) for fsrc in self.list()]
+        self.logger.warning("Adding user-provided goals")
         for g in self["goals"]:
             plan.append(self.goal(command=g, resource="?", type="user-config"))
 
+        self.logger.warning("Adding file-header related goals")
         cmd_t = "python -mpynchon.util.files prepend --clean "
         loop = self._get_missing_headers(resources)
         for rsrc in loop["files"]:
+            if rsrc.match_any_glob(self["exclude_patterns"::[]]):
+                continue
             ext = rsrc.full_extension()
             ext = ext[1:] if ext.startswith(".") else ext
             # fhdr = header_files[ext]
@@ -193,6 +194,7 @@ class SourceMan(models.ResourceManager):
                 self.goal(
                     resource=rsrc,
                     type="change",
+                    label=f"Adding file header for '{ext}'",
                     command=f"{cmd_t} {fhdr} {rsrc}",
                 )
             )

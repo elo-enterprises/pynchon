@@ -25,7 +25,7 @@ class base(ContextAwareTransformer):  # VisitorBasedCodemodCommand):
         # self.argument_count: int = argument_count or presets["argument_count"]
 
     @staticmethod
-    def add_args(arg_parser: argparse.ArgumentParser) -> None:
+    def add_args(arg_parser: argparse.ArgumentParser) -> None:  # noqa
         """ """
         # arg_parser.add_argument(
         #     "--formatter",

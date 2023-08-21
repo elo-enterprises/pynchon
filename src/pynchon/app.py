@@ -5,31 +5,25 @@ import sys
 import atexit
 
 import enlighten
+from fleks import app as fleks_app
+from fleks.app import AppBase, Console, Text, Theme
 from memoized_property import memoized_property
 
 from pynchon import events
 from pynchon.util import lme
 
-from rich.align import Align  # noqa
-from rich.console import Console  # noqa
-from rich.console import Theme  # noqa
-from rich.emoji import Emoji  # noqa
-from rich.markdown import Markdown  # noqa
-from rich.panel import Panel  # noqa
-from rich.style import Style  # noqa
-from rich.syntax import Syntax  # noqa
-from rich.table import Table  # noqa
-from rich.text import Text  # noqa
-
+# from fleks.app import (AppBase, AppEvents)
 
 LOGGER = lme.get_logger(__name__)
 
 
-class AppBase:
-    pass
+class AppEvents(AppBase):
+    def __init__(self, **kwargs):
+        """ """
+        self.events = events
 
 
-class AppConsole(AppBase):
+class AppConsole(fleks_app.AppBase):
     Text = Text
     Theme = Theme
     # docs = manager.term.link(
@@ -37,11 +31,7 @@ class AppConsole(AppBase):
     #     'Read the Docs')
 
     def __init__(self, **kwargs):
-        """
-
-        :param **kwargs:
-
-        """
+        """ """
         self.console = Console()
 
     # # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
@@ -65,11 +55,11 @@ class AppConsole(AppBase):
             min_delta=0.1,
         )
 
-        atexit.register(
-            lambda: self.events.lifecycle.send(
-                self, stage=r"\o/" if not self.exc else "❌", msg=""
-            )
-        )  # noqa: W605
+        # atexit.register(
+        #     lambda: self.events.lifecycle.send(
+        #         self, stage=r"\o/" if not self.exc else "❌", msg=""
+        #     )
+        # )  # noqa: W605
         return tmp
 
     #
@@ -97,7 +87,7 @@ class AppConsole(AppBase):
         return tmp
 
 
-class AppExitHooks(AppBase):
+class AppExitHooks(fleks_app.AppBase):
     """ """
 
     exc = None
@@ -170,23 +160,9 @@ class AppExitHooks(AppBase):
         return True
 
 
-class AppEvents(AppBase):
-    def __init__(self, **kwargs):
-        """
-
-        :param **kwargs:
-
-        """
-        self.events = events
-
-
 class App(AppConsole, AppEvents, AppExitHooks):
     def __init__(self, **kwargs):
-        """
-
-        :param **kwargs:
-
-        """
+        """ """
         AppConsole.__init__(self, **kwargs)
         AppEvents.__init__(self, **kwargs)
         self.exit_code = None

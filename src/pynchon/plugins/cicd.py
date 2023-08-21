@@ -4,7 +4,6 @@ import webbrowser
 
 from pynchon import abcs, models
 
-from pynchon.cli import click, common, options  # noqa
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
@@ -12,8 +11,6 @@ LOGGER = lme.get_logger(__name__)
 
 class CiCd(models.Provider):
     """Context for CI/CD"""
-
-    name = "cicd"
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "cicd"
@@ -37,6 +34,8 @@ class CiCd(models.Provider):
                 if list(src_root.glob(pat)):
                     return typ
             return default
+
+    name = "cicd"
 
     def open(self):
         """Opens CI/CD URL for this project"""

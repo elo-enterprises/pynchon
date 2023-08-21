@@ -11,20 +11,20 @@ LOG_LEVEL = os.environ.get("PYNCHON_LOG_LEVEL", "WARNING")
 
 CONF_FILE_SEARCH_ORDER = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
 DEFAULT_PLUGINS = [
-    # FIXME: docs
     "core",
+    "git",
+    "src",
+    "docs",
     "pattern",
     "plugins",
     "project",
     "globals",
-    "git",
+    "github",  # NB: used by `pynchon pattern sync . github`
     "python",
     "gen",
     "render",
     "json",
     "jinja",
-    "src",
-    "docs",
 ]
 PYNCHON_EMBEDDED_TEMPLATES_ROOT = PETR = Path(__file__).parents[0] / "templates"
 PYNCHON_CORE_INCLUDES_DIRS = (PYNCHON_EMBEDDED_TEMPLATES_ROOT / "includes",)

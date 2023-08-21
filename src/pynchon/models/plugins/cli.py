@@ -1,15 +1,20 @@
-""" pynchon.models.plugins.cli """
+""" pynchon.models.plugins.cli 
+"""
 import functools
 
-from pynchon import api, cli, events, fleks, shimport  # noqa
+import fleks
+import shimport
+from fleks import tagging
+
+from pynchon import api, cli, events  # noqa
 from pynchon.bin import entry  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 from .pynchon import PynchonPlugin  # noqa
 
 LOGGER = lme.get_logger(__name__)
 IPython = shimport.lazy("IPython")
-classproperty = typing.classproperty
+classproperty = fleks.util.typing.classproperty
 config_mod = shimport.lazy("pynchon.config")
 
 
@@ -18,15 +23,15 @@ class CliPlugin(PynchonPlugin):
     cli_label = "<<Default>>"
     _finalized_click_groups = dict()
 
-    @typing.classproperty
+    @classproperty
     def cli_path(kls):
         return f"{kls.click_entry.name} {kls.click_group.name}"
 
-    @typing.classproperty
+    @classproperty
     def click_entry(kls):
         return entry
 
-    @typing.classproperty
+    @classproperty
     def click_group(kls):
         cached = kls._finalized_click_groups.get(kls, None)
         grp_name = getattr(kls, "cli_name", kls.name)
@@ -99,7 +104,7 @@ class CliPlugin(PynchonPlugin):
         return cli.click.group_merge(group, parent)
 
     @PynchonPlugin.classmethod_dispatch(typing.FunctionType)
-    def click_acquire(
+    def click_acquire(  # noqa: F811
         kls,
         fxn: typing.FunctionType,
         copy: bool = False,
@@ -115,9 +120,9 @@ class CliPlugin(PynchonPlugin):
         kls.click_group.add_command(cli.click.command(cmd_name)(fxn))
 
     @PynchonPlugin.classmethod_dispatch(cli.click.Command)
-    def click_acquire(
+    def click_acquire(  # noqa: F811
         kls, cmd: cli.click.Command, copy: bool = False, **update_kwargs
-    ):  # noqa F811
+    ):
         """ """
         parent = kls.click_group
         LOGGER.info(f"{kls.__name__} acquires {cmd.name} to: group@{parent.name}")
@@ -127,12 +132,12 @@ class CliPlugin(PynchonPlugin):
         return parent
 
     @PynchonPlugin.classmethod_dispatch(typing.MethodType)
-    def click_acquire(
+    def click_acquire(  # noqa: F811
         kls,
         cmd: typing.MethodType,
         copy: bool = False,  # irrelevant here
         **update_kwargs,
-    ):  # noqa F811
+    ):
         """ """
         fxn = cmd
         tags = tagging.tags[fxn]
@@ -147,22 +152,21 @@ class CliPlugin(PynchonPlugin):
             kls = kls.siblings[click_parent_plugin]
 
         def wrapper(*args, fxn=fxn, **kwargs):
-            LOGGER.critical(f"calling {fxn} from wrapper")
+            LOGGER.warning(f"calling {fxn.__name__} from wrapper")
             result = fxn(*args, **kwargs)
             # FIXME: this wraps twice?
             # from rich import print_json
             # print_json(text.to_json(result))
             # if hasattr(result, 'display'):
             from pynchon.util.text import dumps
-            # rproto = getattr(result, "__rich__", None)
-            # if rproto:
-            #     LOGGER.warning(f"rproto {result}")
-            #     from pynchon.util.lme import CONSOLE
+
+            rproto = getattr(result, "__rich__", None)
+            if rproto:
+                LOGGER.warning(f"rproto {result}")
+                from pynchon.util.lme import CONSOLE
+
+                CONSOLE.print(rproto())
             print(dumps.json(result))
-            #     CONSOLE.print(result)
-            # return result
-            # if not isinstance(result, (dict,list)):
-            #     raise Exception([result, type(result)])
             # elif hasattr(result, "as_dict"):
             #     LOGGER.warning(f"as_dict {result}")
             #     rich.print(result.as_dict())
@@ -245,16 +249,14 @@ class CliPlugin(PynchonPlugin):
 
     @classmethod
     def init_cli_children(kls):
-        """
-        :param kls:
-        """
+        """ """
         cli_subsumes = getattr(kls, "cli_subsumes", [])
         cli_subsumes and LOGGER.info(
             f"{kls.__name__} honoring `cli_subsumes`:\n\t{cli_subsumes}"
         )
         for fxn in cli_subsumes:
-            raise Exception(fxn)
-            kls.click_acquire(fxn)
+            raise NotImplementedError(fxn)
+            # kls.click_acquire(fxn)
 
     @classmethod
     def click_create_cmd(
@@ -265,12 +267,7 @@ class CliPlugin(PynchonPlugin):
         alias: str = None,
         **click_kwargs,
     ) -> cli.click.Command:
-        """
-        :param kls: param fxn: typing.Callable:
-        :param alias: str:  (Default value = None)
-        :param fxn: typing.Callable:
-        :param **click_kwargs:
-        """
+        """ """
         assert fxn
         assert wrapper
         via = via.__name__ if via else ""
@@ -296,9 +293,7 @@ class CliPlugin(PynchonPlugin):
     )
     @cli.click.option("--command", "-c", default="")
     def shell(self, command: str = "") -> None:
-        """drop to debugging shell
-        :param command: str:  (Default value = '')
-        """
+        """Drop to debugging shell"""
         before = locals()
         if command:
             self.logger.warning(f"executing command: {command} ")

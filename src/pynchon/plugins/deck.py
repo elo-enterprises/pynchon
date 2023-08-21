@@ -1,18 +1,13 @@
 """ pynchon.plugins.deck
 """
 from pynchon import abcs, cli, events, models  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
 
 class Deck(models.ResourceManager):
     """Tool for working with markdown based slide-decks"""
-
-    name = "deck"
-    cli_name = "deck"
-    cli_label = "Tool"
-    contribute_plan_apply = True
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "deck"
@@ -22,6 +17,11 @@ class Deck(models.ResourceManager):
         pandoc_args: typing.List[str] = typing.Field(default=[])
         apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
         include_patterns: typing.List[str] = typing.Field(default=["*.md"])
+
+    name = "deck"
+    cli_name = "deck"
+    cli_label = "Tool"
+    contribute_plan_apply = True
 
     def plan(self, **kwargs):
         plan = super().plan()
@@ -37,7 +37,7 @@ class Deck(models.ResourceManager):
             output = output.relative_to(proot)
             relr = rsrc.relative_to(proot)
             fargs = {
-                **self.config,
+                **self.config.dict(),
                 **dict(
                     relr=relr, pandoc_args=" ".join(self["pandoc_args"]), output=output
                 ),

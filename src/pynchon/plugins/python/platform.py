@@ -2,8 +2,10 @@
 """
 import platform as stdlib_platform
 
+from fleks import tagging
+
 from pynchon import abcs, cli, models
-from pynchon.util import lme, python, tagging, typing
+from pynchon.util import lme, python, typing
 from pynchon.util.os import invoke
 
 LOGGER = lme.get_logger(__name__)
@@ -12,9 +14,6 @@ LOGGER = lme.get_logger(__name__)
 @tagging.tags(click_aliases=["py"])
 class PythonPlatform(models.Planner):
     """Context for python-platform"""
-
-    priority = 2
-    name = "python"
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "python"
@@ -35,6 +34,9 @@ class PythonPlatform(models.Planner):
                 return PackageConfig()
             else:
                 return {}
+
+    priority = 2
+    name = "python"
 
     @cli.click.group
     def bootstrap(self):
@@ -94,7 +96,7 @@ class PackageConfig(abcs.Config):
     @property
     def version(self) -> str:
         """ """
-        if 'version' not in self.__dict__:
+        if "version" not in self.__dict__:
             cmd = invoke("python setup.py --version 2>/dev/null", log_command=False)
-            self.__dict__['version']=cmd.succeeded and cmd.stdout.strip()
-        return self.__dict__['version']
+            self.__dict__.update(version=cmd.succeeded and cmd.stdout.strip())
+        return self.__dict__["version"]

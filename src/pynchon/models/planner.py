@@ -2,16 +2,17 @@
 import typing
 
 from memoized_property import memoized_property
+from fleks.util.tagging import tags
 
-from pynchon import cli, events
+from pynchon import abcs, cli
+from pynchon.app import app
 from pynchon.util.os import invoke
-from pynchon.util import lme 
-from pynchon.util.tagging import tags
 
 from . import planning
 from .plugins import BasePlugin
 
 from pynchon.util import lme, typing  # noqa
+
 
 LOGGER = lme.get_logger(__name__)
 
@@ -37,32 +38,33 @@ class AbstractPlanner(BasePlugin):
         """
         Creates a plan for this plugin
         """
-        # config = config or self.cfg()
-        events.lifecycle.send(
-            # writes status event (used by the app-console)
-            stage=f"Planning for `{self.__class__.name}`"
+        # app.manager.status_bar.update(app='PLAN')
+        app.status_bar.update(
+            app="Pynchon::PLAN", stage=f"plugin:{self.__class__.name}"
         )
         plan = self.Plan()
+        app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
-    def apply(
-        self, 
-        plan:planning.Plan=None) -> planning.ApplyResults:
+    def apply(self, plan: planning.Plan = None) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
         """
-        msg=f"Applying for plugin '{self.__class__.name}'"
-        events.lifecycle.send(
-            # write status event (used by the app-console)
-            stage=msg
+        cls_name = self.__class__.name
+        msg = f"Applying for plugin '{cls_name}'"
+        app.status_bar.update(
+            app="Pynchon::APPLY", stage=f"plugin:{self.__class__.name}"
         )
         plan = plan or self.plan()
-        goals = getattr(plan,'goals',plan)
+        goals = getattr(plan, "goals", plan)
         results = []
-        LOGGER.critical(f'{msg} ({len(goals)} goals)')
-        for i,action_item in enumerate(goals):
-            events.lifecycle.send(self, applying=action_item)
-            application = invoke(action_item.command)
+        total = len(goals)
+        LOGGER.critical(f"{msg} ({total} goals)")
+        for i, action_item in enumerate(goals):
+            app.status_bar.update(stage=f"{action_item}")
+            cmd = action_item.command
+            LOGGER.warning(f"  {i}/{total}: {cmd}")
+            application = invoke(cmd)
             tmp = planning.Action(
                 ok=application.succeeded,
                 command=action_item.command,
@@ -71,12 +73,23 @@ class AbstractPlanner(BasePlugin):
             )
             results.append(tmp)
         results = planning.ApplyResults(results)
+        app.status_bar.update(
+            # write status event (used by the app-console)
+            app="Pynchon::HOOKS",
+            stage=f"{cls_name}",
+        )
+        resources = list({r.resource for r in results})
+        LOGGER.critical(f"{msg} ({len(resources)} resources)")
         hooks = self.apply_hooks
         if hooks:
-            self.logger.debug(f"{self.__class__} is dispatching hooks: {hooks}")
+            self.logger.warning(
+                f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}"
+            )
             hook_results = []
             for hook in hooks:
                 hook_results.append(self.run_hook(hook, results))
+        else:
+            self.logger.warning("No applicable hooks were found")
         return results
 
     def _validate_hooks(self, hooks):
@@ -84,6 +97,7 @@ class AbstractPlanner(BasePlugin):
         for x in hooks:
             assert isinstance(x, (str,))
             assert " " not in x
+            assert "_" not in x
             assert x.strip()
 
     @memoized_property
@@ -104,11 +118,12 @@ class AbstractPlanner(BasePlugin):
         self._validate_hooks(hooks)
         return hooks
 
-    def _hook_open_after_apply(self, result: planning.ApplyResults):
-        changes = self.list(changes=True)
-        changes += [x.resource for x in result if x.ok]
-        changes = list(set(changes))
-        # self.logger.critical(f'would have opened- {changes}')
+    def _hook_open_after_apply(self, result: planning.ApplyResults) -> bool:
+        """ """
+        changes = list({r.resource for r in result})
+        changes = [abcs.Path(rsrc) for rsrc in changes]
+        changes = [rsrc for rsrc in changes if not rsrc.is_dir()]
+        self.logger.warning(f"Opening {len(changes)} changed resources.")
         for ch in changes:
             self.siblings["docs"].open(ch)
         return True
@@ -134,7 +149,7 @@ class AbstractPlanner(BasePlugin):
             self.logger.critical(err)
             raise HookNotFound(err)
         hook_result = hook_fxn(results)
-        self.logger.debug(hook_result)
+        self.logger.critical(hook_result)
         return hook_result
 
 
@@ -172,11 +187,7 @@ class ResourceManager(Manager):
         help="returns the git-modified subset",
     )
     def list(self, changes: bool = False):
-        """Lists resources associated with this plugin
-
-        :param changes: bool:  (Default value = False)
-
-        """
+        """Lists resources associated with this plugin"""
         if changes:
             return self.changes["modified"]
         from pynchon import abcs
@@ -204,8 +215,6 @@ class ResourceManager(Manager):
 class Planner(ShyPlanner):
     """Planner uses plan/apply workflows, and contributes it's plans
     to ProjectPlugin (or any other parent plugins).
-
-
     """
 
     contribute_plan_apply = True

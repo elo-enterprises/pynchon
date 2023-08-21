@@ -1,6 +1,8 @@
 """ pynchon.models.plugins.tool """
-from pynchon import api, cli, events, fleks, shimport  # noqa
-from pynchon.util import lme, tagging, typing  # noqa
+from fleks import tagging
+
+from pynchon import api, cli, events  # noqa
+from pynchon.util import lme, typing  # noqa
 
 from .cli import CliPlugin  # noqa
 
