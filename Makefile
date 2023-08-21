@@ -17,14 +17,19 @@ PYPI_PROJECT_NAME:=pynchon
 
 .PHONY: build docs
 
-init:
-	$(call _announce_target, $@)
+init: py-init
+build: py-build
+clean: py-clean
+
+py-init:
+	# $(call _announce_target, $@)
 	set -x \
+	; pip install build \
 	; pip install --quiet -e .[dev] \
 	; pip install --quiet -e .[testing] \
 	; pip install --quiet -e .[publish]
 
-build: clean
+py-build: py-clean
 	export version=`python setup.py --version` \
 	&& (git tag $$version \
 	|| printf 'WARNING: Failed to git-tag with release-tag (this is normal if tag already exists).\n' > /dev/stderr) \
@@ -32,10 +37,7 @@ build: clean
 	| tee src/${PYPI_PROJECT_NAME}/_version.py \
 	&& python -m build
 
-version:
-	@python setup.py --version
-
-clean:
+py-clean:
 	rm -rf tmp.pypi* dist/* build/* \
 	&& rm -rf src/*.egg-info/
 	find . -name '*.tmp.*' -delete
@@ -43,6 +45,9 @@ clean:
 	find . -name  __pycache__ -delete
 	find . -type d -name .tox | xargs -n1 -I% bash -x -c "rm -rf %"
 	rmdir build || true
+
+version:
+	@python setup.py --version
 
 pypi-release:
 	PYPI_RELEASE=1 make build \
