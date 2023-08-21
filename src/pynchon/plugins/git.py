@@ -65,11 +65,14 @@ class GitConfig(abcs.Config):
         return self.repo and any([self.repo.startswith(x) for x in tmp])
 
     @property
-    def github_org(self):
+    def github_org(self) -> typing.StringMaybe:
         """ """
         if self.is_github:
             tmp = self.repo.split(":")[-1]
-            org, repo_name = tmp.split("/")
+            try:
+                org, _repo_name = tmp.split("/")
+            except (ValueError,):
+                return None
             return org
 
     @property
@@ -77,7 +80,10 @@ class GitConfig(abcs.Config):
         """ """
         if self.repo:
             tmp = self.repo.split(":")[-1]
-            _org, repo_name = tmp.split("/")
+            try:
+                _org, repo_name = tmp.split("/")
+            except (ValueError,):
+                return None
             repo_name = repo_name.split(".git")[0]
             return repo_name
 
