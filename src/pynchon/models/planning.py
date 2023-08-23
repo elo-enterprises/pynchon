@@ -6,22 +6,23 @@ import collections
 import shil
 from fleks import app, meta
 
-from pynchon import abcs
-from pynchon.base import BaseModel
+from pynchon import abcs, base
 
 from pynchon.util import lme, typing  # noqa
 
 ResourceType = typing.Union[str, abcs.Path]
 
 
-class Goal(BaseModel):
-    """ """
-
+class BaseModel(base.BaseModel):
     @property
     def rel_resource(self) -> str:
         return (
             abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
         )
+
+
+class Goal(BaseModel):
+    """ """
 
     class Config(BaseModel.Config):
         exclude: typing.Set[str] = {"udiff"}
@@ -68,14 +69,89 @@ class Goal(BaseModel):
     #     return f"<{self.__class__.__name__}[{tmp}]>"
 
 
-class Action(typing.BaseModel):
+RED_X = "❌"
+RED_BALL = "🔴"
+YELLOW_BALL = "🟡"
+
+
+class Action(BaseModel):
     """ """
 
     type: str = typing.Field(default="unknown_action_type")
     ok: bool = typing.Field(default=None)
+    error: str = typing.Field(default="")
     changed: bool = typing.Field(default=None)
     resource: ResourceType = typing.Field(default="??")
     command: str = typing.Field(default="echo")
+    owner: typing.StringMaybe = typing.Field(default=None)
+
+    def __rich__(self) -> str:
+        """ """
+        # indicator = RED_BALL if self.changed else YELLOW_BALL
+
+        from rich.console import Group
+
+        indicator = (
+            app.Text(
+                "[red]modified",
+                # justify='right',
+                style="red",
+            )
+            if self.changed
+            else None
+        )
+        ind = (
+            app.Text(
+                "process: failed",
+                # justify='right',
+                style="red",
+            )
+            if not self.ok
+            else None
+        )
+        err = (
+            (
+                app.Text(
+                    "error: ",
+                    # justify='right',
+                    style="red",
+                )
+                + app.Text(self.error, justify="center")
+            )
+            if not self.ok
+            else None
+        )
+        sibs = [
+            app.Text(
+                f"target: {self.rel_resource}",
+            ),
+            app.Text(
+                f"command: {self.command}",
+            ),
+            indicator,
+            ind,
+            err,
+        ]
+        sibs = Group(*filter(None, sibs))
+        return app.Panel(
+            # functools.reduce(
+            #     lambda x,y: x+y, sibs),
+            sibs,
+            # title=__name__,
+            # title=f'[dim italic yellow]{self.type}',
+            # title=f'[bold cyan on black]{self.type}',
+            title=app.Text(
+                self.type, style=f"dim bold {'red' if self.changed else 'green'}"
+            ),
+            title_align="left",
+            # style=app.Style(
+            #     dim=True,
+            #     # color='green',
+            #     bgcolor="black",
+            #     frame=False,
+            # ,
+            subtitle=app.Text(f"{self.owner}", style="dim"),
+        )
 
     @property
     def status_string(self):
@@ -88,7 +164,7 @@ class Action(typing.BaseModel):
         return tmp
 
     def __str__(self):
-        return f"<{self.__class__.__name__}[{self.status_string}]>"
+        return f"<[{self.type}]@{self.resource}: {self.status_string}>"
 
 
 # class Plan(typing.List[Goal], metaclass=meta.namespace):
@@ -125,7 +201,7 @@ class Plan(typing.BaseModel):
         [
             [
                 table.add_row(x),
-                # table.add_row(app.Align(app.Emoji("gear"), align='center')),
+                # table.add_row(app.Align(app.Emoji("gear"), align='right')),
             ]
             for i, x in enumerate(syntaxes)
         ]
@@ -145,7 +221,7 @@ class Plan(typing.BaseModel):
             ),
             subtitle=f"(Planned {len(self)} items)"  # subtitle=Text("✔", style='green')
             # if True
-            # else Text('❌', style='red'),
+            # else Text(RED_X, style='red'),
         )
         return panel
 

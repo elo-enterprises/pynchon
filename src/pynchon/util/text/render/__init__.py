@@ -3,6 +3,7 @@
     Helpers for rendering content
 """
 import os
+import sys
 
 from fleks.cli import click, options
 from fleks.util.tagging import tags
@@ -115,32 +116,12 @@ def jinja_file(
     file: str,
     output: typing.StringMaybe = "",
     should_print: typing.Bool = False,
-    in_place: typing.Bool = False,
     context: typing.Dict = {},
     context_file: typing.Dict = {},
     includes: typing.List[str] = [],
     strict: bool = True,
 ) -> str:
-    """Renders jinja2 file (supports includes, custom filters)
-
-    :param file: str:
-    :param output: typing.StringMaybe:  (Default value = "")
-    :param should_print: typing.Bool:  (Default value = False)
-    :param in_place: typing.Bool:  (Default value = False)
-    :param context: typing.Dict:  (Default value = {})
-    :param context_file: typing.Dict:  (Default value = {})
-    :param includes: typing.List[str]:  (Default value = [])
-    :param strict: bool:  (Default value = True)
-    :param file: str:
-    :param output: typing.StringMaybe:  (Default value = "")
-    :param should_print: typing.Bool:  (Default value = False)
-    :param in_place: typing.Bool:  (Default value = False)
-    :param context: typing.Dict:  (Default value = {})
-    :param context_file: typing.Dict:  (Default value = {})
-    :param includes: typing.List[str]:  (Default value = [])
-    :param strict: bool:  (Default value = True)
-
-    """
+    """Renders jinja2 file (supports includes, custom filters)"""
     if isinstance(context, (str,)):
         LOGGER.warning("provided `context` is a string, loading it as JSON")
         context = loads.json(context)
@@ -149,8 +130,6 @@ def jinja_file(
         assert not context
         context = loadf.json(context_file)
 
-    import sys
-
     content = jinja_loadf(
         file=file,
         context=context,
@@ -158,13 +137,12 @@ def jinja_file(
         strict=strict,
     )
 
-    if in_place:
-        # assert not output, "cannot use --in-place and --output at the same time"
-        output = os.path.splitext(file)
-        if output[-1] == ".j2":
-            output = output[0]
-        else:
-            output = "".join(output)
+    assert output
+    output = os.path.splitext(output)
+    if output[-1] == ".j2":
+        output = output[0]
+    else:
+        output = "".join(output)
     LOGGER.warning(f"writing output to {output or sys.stdout.name}")
     from pynchon import abcs
 

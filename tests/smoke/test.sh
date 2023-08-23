@@ -26,3 +26,7 @@ pynchon pattern new --help
 pynchon py --help
 pynchon src plan | jq .
 pynchon src sorted --help
+pynchon makefile parse --help
+pynchon makefile parse Makefile |jq .
+pynchon parse markdown --help
+pynchon parse markdown README.md --codeblocks | jq .

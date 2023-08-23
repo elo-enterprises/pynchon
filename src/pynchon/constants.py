@@ -15,6 +15,7 @@ DEFAULT_PLUGINS = [
     "git",
     "src",
     "docs",
+    "parse",
     "pattern",
     "plugins",
     "project",

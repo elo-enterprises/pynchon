@@ -382,7 +382,7 @@ class Pattern(models.ResourceManager):
         should_plan: bool = False,
     ):
         """Instantiates PATTERN to NAME"""
-        name = (self[:"project.name":name],)
+        name = self[:"project.name":name]
         pfolder = self.pattern_folder / kind
         if not pfolder.exists():
             choices = set(self.list().keys())

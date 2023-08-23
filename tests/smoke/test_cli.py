@@ -20,6 +20,7 @@ TEST_CMDS = [
     # "pynchon gen cli main --file src/pynchon/__main__.py --output-dir docs/cli"
 ]
 
+
 def test_cmds():
     for cmd in TEST_CMDS:
         out = invoke(cmd)

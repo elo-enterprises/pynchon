@@ -34,8 +34,8 @@ class Jinja(models.Planner):
     priority = 7
     COMMAND_TEMPLATE = (
         "python -mpynchon.util.text render jinja "
-        "{resource} --context-file {context_file} "
-        "--in-place {template_args}"
+        "{src} --context-file {context_file} "
+        "--output {output} {template_args}"
     )
 
     # cli_subsumes: typing.List[typing.Callable] = [
@@ -82,9 +82,7 @@ class Jinja(models.Planner):
         self,
         local: bool = False,
     ):
-        """Lists all usable {% include ... %} values
-        :param local: bool:  (Default value = False)
-        """
+        """Lists all usable {% include ... %} values"""
         includes = self.list_includes(local=local)
         out = []
         for fname in includes:
@@ -102,11 +100,7 @@ class Jinja(models.Planner):
         return out
 
     def list(self, changes=False):
-        """Lists affected resources in this project
-
-        :param changes: Default value = False)
-
-        """
+        """Lists affected resources in this project"""
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
         project_root = proj_conf.get("root", None) or self[:"git.root":"."]
@@ -143,13 +137,17 @@ class Jinja(models.Planner):
         plan = super(self.__class__, self).plan()
         jctx = self._get_jinja_context()
         templates = _get_template_args()
-        for rsrc in self.list():
+        for src in self.list():
+            output = str(src).replace(".j2", "")
             plan.append(
                 self.goal(
                     type="render",
-                    resource=rsrc,
+                    resource=output,
                     command=self.COMMAND_TEMPLATE.format(
-                        resource=rsrc, context_file=jctx, template_args=templates
+                        src=src,
+                        context_file=jctx,
+                        template_args=templates,
+                        output=output,
                     ),
                 )
             )

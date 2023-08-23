@@ -1,40 +1,41 @@
-""" pynchon.plugins.parse """
-# @groop("gen", parent=entry)
-# def gen():
-#     """
-#     Generate docs
-#     """
-# from pynchon import constants
-# from pynchon.bin import groups
-# from pynchon.util import lme
-#
-# from .entry import entry
-# from .common import kommand, groop
-#
-# LOGGER = lme.get_logger(__name__)
-#
-#
-# @groop("parse", parent=entry)
-# def parse():
-#     """
-#     Helpers for parsing output from other tools
-#     """
-#
-#
-# @kommand(
-#     name="pyright",
-#     parent=parse,
-#     formatters=dict(markdown=constants.T_TOC_CLI),
-#     options=[
-#         # options.file_setupcfg,
-#         # options.format,
-#         # options.stdout,
-#         # options.output,
-#         # options.header,
-#     ],
-# )
-# def parse_pyright():
-#     """
-#     Parses pyright output into a markdown-based report card
-#     """
-#     LOGGER.debug("hello pyright")
+""" pynchon.plugins.parse
+"""
+
+import shimport
+from fleks import cli
+
+from pynchon import abcs, events, models  # noqa
+from pynchon.util import lme, typing  # noqa
+
+LOGGER = lme.get_logger(__name__)
+config = shimport.lazy("pynchon.config")
+
+
+class Parse(models.ToolPlugin):
+    """
+    Misc tools for parsing
+    """
+
+    class config_class(abcs.Config):
+        config_key: typing.ClassVar[str] = "parse"
+
+    name = "parse"
+    cli_name = "parse"
+    cli_aliases = ["parser"]
+
+    @cli.click.flag("-c", "--codeblocks", help="only codeblocks")
+    @cli.click.argument("file")
+    def markdown(self, file: str = None, codeblocks: bool = True):
+        """ """
+
+        assert file
+        with open(file) as fhandle:
+            content = fhandle.read()
+        from marko import Markdown
+        from marko.ast_renderer import ASTRenderer
+
+        result = Markdown(renderer=ASTRenderer)(content)
+        result = result["children"]
+        if codeblocks:
+            result = [x for x in result if x["element"] == "fenced_code"]
+        return result

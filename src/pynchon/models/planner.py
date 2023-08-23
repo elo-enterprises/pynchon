@@ -64,13 +64,17 @@ class AbstractPlanner(BasePlugin):
             app.status_bar.update(stage=f"{action_item}")
             cmd = action_item.command
             LOGGER.warning(f"  {i}/{total}: {cmd}")
-            application = invoke(cmd)
+            invocation = invoke(cmd)
             tmp = planning.Action(
-                ok=application.succeeded,
+                ok=invocation.succeeded,
+                error=invocation.stderr,
+                owner=action_item.owner,
                 command=action_item.command,
                 resource=action_item.resource,
                 type=action_item.type,
             )
+            # LOGGER.critical(f"{tmp}")
+            lme.CONSOLE.print(tmp)
             results.append(tmp)
         results = planning.ApplyResults(results)
         app.status_bar.update(
@@ -79,7 +83,7 @@ class AbstractPlanner(BasePlugin):
             stage=f"{cls_name}",
         )
         resources = list({r.resource for r in results})
-        LOGGER.critical(f"{msg} ({len(resources)} resources)")
+        LOGGER.critical(f"Finished apply ({len(resources)} resources)")
         hooks = self.apply_hooks
         if hooks:
             self.logger.warning(

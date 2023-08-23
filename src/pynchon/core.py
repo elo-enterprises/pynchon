@@ -6,6 +6,7 @@ from pynchon import abcs, constants
 from pynchon.util import lme, typing
 
 LOGGER = lme.get_logger(__name__)
+DEFAULT_PLUGINS = constants.DEFAULT_PLUGINS
 
 count = 0
 
@@ -52,9 +53,6 @@ def validate(kls=None, self=None, vdata=None):
 
     for k, v in dict(self).items():
         validate_config(k, v)
-
-
-DEFAULT_PLUGINS = list(set(constants.DEFAULT_PLUGINS))
 
 
 class Config(abcs.Config):
