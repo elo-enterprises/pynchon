@@ -120,6 +120,7 @@ class Git(models.Provider):
     name = "git"
     config_class = GitConfig
 
+    @tagging.tags(click_aliases=['ls'])
     def list(self, changes=False) -> typing.List[abcs.Path]:
         """lists files tracked by git"""
         if changes:

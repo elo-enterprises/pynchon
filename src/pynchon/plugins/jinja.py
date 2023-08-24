@@ -99,6 +99,7 @@ class Jinja(models.Planner):
                 pass
         return out
 
+    @tagging.tags(click_aliases=['ls'])
     def list(self, changes=False):
         """Lists affected resources in this project"""
         default = self[:"project"]

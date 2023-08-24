@@ -50,7 +50,7 @@ class Goal(BaseModel):
                 # title=__name__,
                 # title=f'[dim italic yellow]{self.type}',
                 # title=f'[bold cyan on black]{self.type}',
-                title=app.Text(self.type, style="dim bold"),
+                title=app.Text(self.type or '?', style="dim bold"),
                 title_align="left",
                 style=app.Style(
                     dim=True,

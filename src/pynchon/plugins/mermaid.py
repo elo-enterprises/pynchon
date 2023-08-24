@@ -2,7 +2,7 @@
 """
 import os
 
-from fleks import cli
+from fleks import cli, tagging
 
 from pynchon.util.os import invoke
 
@@ -28,6 +28,7 @@ class Mermaid(models.Planner):
         """ """
         return abcs.Path(".").absolute()
 
+    @tagging.tags(click_aliases=['ls'])
     def list(self):
         """
         Find mermaid diagrams under `{{project_root}}/**/*.mmd`

@@ -1,7 +1,5 @@
-""" pynchon.plugins.docs
+""" pynchon.plugins.docs.main
 """
-import webbrowser
-
 import fleks
 import shimport
 from fleks import cli, tagging
@@ -11,82 +9,23 @@ from pynchon.util.os import invoke
 
 from pynchon import abcs, api, events, models  # noqa
 from pynchon.util import files, lme, typing  # noqa
+from pynchon.plugins.docs.opener import OpenerMixin
 
 grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)
-
-
-class OpenerMixin:
-    """
-    Helper for opening project documentation-files
-    inside a webbrowser.  We use a modified version
-    of `grip`[1] for this which is called `gripe`[2].
-
-    How this actually works depends on the file-types
-    involved, because whereas `grip` works natively to
-    render markdown as github-flavored markdown, it
-    ignores other types by default.  The `gripe` tool
-    adds a special /__raw__ endpoint for other kinds of
-    static content.
-
-    (In the future other file-types like `.dot` for raw
-    graphviz might be supported, but for now you'll still
-    have to render those to png to see a picture.)
-    """
-
-    def _open_grip(self, file: str = None):
-        """
-
-        :param file: str:  (Default value = None)
-        :param file: str:  (Default value = None)
-
-        """
-        pfile = abcs.Path(file).absolute()
-        relf = pfile.relative_to(abcs.Path(self.git_root))
-        port = self.server.port
-        if port is None:
-            LOGGER.critical("no server yet..")
-            self.serve()
-            import time
-
-            time.sleep(3)
-            return self._open_grip(file=file)
-        grip_url = f"http://localhost:{port}/{relf}"
-        LOGGER.warning(f"opening {grip_url}")
-        return dict(url=grip_url, browser=webbrowser.open(grip_url))
-
-    _open__md = _open_grip
-    _open__mmd = _open_grip
-
-    def _open_raw(self, file: str = None, server=None):
-        """
-        :param file: str:  (Default value = None)
-        :param server: Default value = None)
-        """
-        relf = file.absolute().relative_to(abcs.Path(self.git_root))
-        return self._open_grip(abcs.Path("__raw__") / relf)
-
-    _open__html = _open_raw
-    _open__png = _open_raw
-    _open__jpg = _open_raw
-    _open__jpeg = _open_raw
-    _open__gif = _open_raw
-    _open__svg = _open_raw
-    _open__htm = _open__html
-
 
 @tagging.tags(click_aliases=["d"])
 class DocsMan(models.ResourceManager, OpenerMixin):
     """
     Management tool for project docs
     """
-
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "docs"
         include_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str, abcs.Path, None] = typing.Field()
         exclude_patterns: typing.List[str] = typing.Field(default=[])
-
+        tests: typing.Dict = typing.Field(default={})
+    
     name = "docs"
     cli_name = "docs"
     cli_label = "Manager"
@@ -142,7 +81,62 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         if should_print and output != "/dev/stdout":
             print(result)
         return True
+    
+    def _test_md(self, fname):
+        """ """
+        return fname
 
+    @cli.click.flag("--markdown",)
+    @cli.click.flag("--html",)
+    @cli.click.option("--suffix",)
+    @cli.options.plan
+    def test(self,
+        markdown:bool=False,
+        html:bool=False,
+        suffix:str=None,
+        should_plan: bool = False,
+        ):
+        """
+        Run doc-tests for this project
+        """
+        plan = self.Plan()
+        files = self.list()
+        dct = {}
+        for file in files:
+            sfx = abcs.Path(file).suffix
+            if sfx not in dct: dct[sfx]=[]
+            dct[sfx] += [ file ] 
+        if markdown:
+            assert not any([suffix, html]) 
+            suffix='.md'        
+            files = dct['.md']
+        elif html:
+            suffix='.html'
+        if suffix:
+            dct={suffix:dct[suffix]}
+        
+        tmp={}
+        for suffix in dct.keys():
+            hname = f"_test_{suffix[1:].replace('.', '_')}"
+            suffix_handler = getattr(self, hname, None)
+            if suffix_handler is None:
+                LOGGER.critical(f"missing doctest handler for {suffix}, {self.__class__.__name__}.{hname} is not present")
+            else:
+                tmp[suffix_handler]=dct[suffix]
+        dct = tmp
+                
+        for hdlr, flist in dct.items():
+            for fname in flist:
+                plan.append(self.goal(
+                    type='doctest', 
+                    resource=fname,
+                    command='...'
+                ))
+        return plan
+        # else:
+        #     raise Exception()
+        return dct
+    
     @cli.click.option("--background", is_flag=True, default=True)
     @cli.click.option("--force", is_flag=True, default=False)
     def serve(
@@ -152,8 +146,6 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     ) -> typing.Dict[str, str]:
         """
         Runs a `grip` server for this project
-        :param background: bool:  (Default value = True)
-        :param force: bool:  (Default value = False)
         """
         LOGGER.critical("running serve")
         args = "--force" if force else ""
@@ -167,8 +159,6 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @fleks.cli.arguments.file
     def open(self, file, server=None):
         """Open a docs-artifact (based on file type)
-        :param file: param server:  (Default value = None)
-        :param server:  (Default value = None)
         """
         self.serve()
         file = abcs.Path(file)
