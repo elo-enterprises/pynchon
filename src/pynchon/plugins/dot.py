@@ -1,6 +1,5 @@
 """ pynchon.plugins.dot
 """
-import os
 
 from fleks import cli
 
@@ -66,7 +65,9 @@ class Dot(models.Planner):
             plan.append(
                 self.goal(
                     resource=rsrc,
-                    command=cmd_t.format(rsrc=rsrc),
+                    command=cmd_t.format(
+                        rsrc=rsrc, 
+                        output=str(rsrc)[:str(rsrc).rfind('.')] + ".png"),
                     type="render",
                 )
             )

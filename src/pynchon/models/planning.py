@@ -5,8 +5,9 @@ import collections
 
 import shil
 from fleks import app, meta
+from fleks.models import BaseModel
 
-from pynchon import abcs, base
+from pynchon import abcs
 
 from pynchon.util import lme, typing  # noqa
 
@@ -14,8 +15,7 @@ RED_X = "❌"
 RED_BALL = "🔴"
 YELLOW_BALL = "🟡"
 
-
-class BaseModel(base.BaseModel):
+class BaseModel(BaseModel):
     @property
     def _action_summary(self):
         """ """

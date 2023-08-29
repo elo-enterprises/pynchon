@@ -12,14 +12,14 @@ class PyPiConfig(abcs.Config):
     docs_url: str = typing.Field(default="https://pypi.org/")
     base_url: str = typing.Field(default="https://pypi.org/project")
     project_url: str = typing.Field(default=None)
-    
-    @property 
+
+    @property
     def project_url(self):
-        from pynchon import config 
-        pname = config.project['name']
+        from pynchon import config
+
+        pname = config.project["name"]
         return f"{self.base_url}/{pname}"
-        
-        
+
 
 class PyPI(models.Provider):
     """Context for PyPI"""

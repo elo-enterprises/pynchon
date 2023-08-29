@@ -67,9 +67,11 @@ static-analysis: tox-static-analysis
 test-units: utest
 test-integrations: itest
 smoke-test: stest
+stest: tox-stest
 itest: tox-itest
 utest: tox-utest
-stest: tox-stest
+dtest: tox-dtest
+docs-test: dtest
 test: test-units test-integrations smoke-test
 # coverage:
 # 	echo NotImplementedYet

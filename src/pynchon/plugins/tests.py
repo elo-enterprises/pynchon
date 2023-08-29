@@ -1,7 +1,7 @@
 """ pynchon.plugins.tests
 """
 
-from fleks.util import typing
+from fleks import typing
 
 from pynchon import abcs, events, models  # noqa
 from pynchon.util import lme  # noqa
