@@ -6,26 +6,27 @@ from fleks import cli, tagging
 from memoized_property import memoized_property
 
 from pynchon.util.os import invoke
+from pynchon.plugins.docs.opener import OpenerMixin
 
 from pynchon import abcs, api, events, models  # noqa
 from pynchon.util import files, lme, typing  # noqa
-from pynchon.plugins.docs.opener import OpenerMixin
 
 grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)
+
 
 @tagging.tags(click_aliases=["d"])
 class DocsMan(models.ResourceManager, OpenerMixin):
     """
     Management tool for project docs
     """
+
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "docs"
         include_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str, abcs.Path, None] = typing.Field()
         exclude_patterns: typing.List[str] = typing.Field(default=[])
-        tests: typing.Dict = typing.Field(default={})
-    
+
     name = "docs"
     cli_name = "docs"
     cli_label = "Manager"
@@ -81,62 +82,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         if should_print and output != "/dev/stdout":
             print(result)
         return True
-    
-    def _test_md(self, fname):
-        """ """
-        return fname
 
-    @cli.click.flag("--markdown",)
-    @cli.click.flag("--html",)
-    @cli.click.option("--suffix",)
-    @cli.options.plan
-    def test(self,
-        markdown:bool=False,
-        html:bool=False,
-        suffix:str=None,
-        should_plan: bool = False,
-        ):
-        """
-        Run doc-tests for this project
-        """
-        plan = self.Plan()
-        files = self.list()
-        dct = {}
-        for file in files:
-            sfx = abcs.Path(file).suffix
-            if sfx not in dct: dct[sfx]=[]
-            dct[sfx] += [ file ] 
-        if markdown:
-            assert not any([suffix, html]) 
-            suffix='.md'        
-            files = dct['.md']
-        elif html:
-            suffix='.html'
-        if suffix:
-            dct={suffix:dct[suffix]}
-        
-        tmp={}
-        for suffix in dct.keys():
-            hname = f"_test_{suffix[1:].replace('.', '_')}"
-            suffix_handler = getattr(self, hname, None)
-            if suffix_handler is None:
-                LOGGER.critical(f"missing doctest handler for {suffix}, {self.__class__.__name__}.{hname} is not present")
-            else:
-                tmp[suffix_handler]=dct[suffix]
-        dct = tmp
-                
-        for hdlr, flist in dct.items():
-            for fname in flist:
-                plan.append(self.goal(
-                    type='doctest', 
-                    resource=fname,
-                    command='...'
-                ))
-        return plan
-        # else:
-        #     raise Exception()
-        return dct
-    
     @cli.click.option("--background", is_flag=True, default=True)
     @cli.click.option("--force", is_flag=True, default=False)
     def serve(
@@ -158,8 +104,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @tagging.tags(click_aliases=["op", "opn"])
     @fleks.cli.arguments.file
     def open(self, file, server=None):
-        """Open a docs-artifact (based on file type)
-        """
+        """Open a docs-artifact (based on file type)"""
         self.serve()
         file = abcs.Path(file)
         if not file.exists():

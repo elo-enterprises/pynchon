@@ -1,9 +1,10 @@
 """ pynchon.models.planner """
 import typing
 
+from fleks import tagging
 from memoized_property import memoized_property
 from fleks.util.tagging import tags
-from fleks import tagging
+
 from pynchon import abcs, cli
 from pynchon.app import app
 from pynchon.util.os import invoke
@@ -182,7 +183,7 @@ class ResourceManager(Manager):
         these_changes = set(changes).intersection(set(self.list(changes=False)))
         return dict(modified=list(these_changes))
 
-    @tagging.tags(click_aliases=['ls'])
+    @tagging.tags(click_aliases=["ls"])
     @cli.click.option(
         "--changes",
         "-m",

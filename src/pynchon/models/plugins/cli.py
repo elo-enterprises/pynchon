@@ -2,9 +2,8 @@
 """
 import functools
 
-import fleks
 import shimport
-from fleks import tagging
+from fleks import classproperty, tagging
 
 from pynchon import api, cli, events  # noqa
 from pynchon.bin import entry  # noqa
@@ -14,7 +13,6 @@ from .pynchon import PynchonPlugin  # noqa
 
 LOGGER = lme.get_logger(__name__)
 IPython = shimport.lazy("IPython")
-classproperty = fleks.util.typing.classproperty
 config_mod = shimport.lazy("pynchon.config")
 
 
@@ -139,17 +137,16 @@ class CliPlugin(PynchonPlugin):
         **update_kwargs,
     ):
         """ """
+        okls = kls
         fxn = cmd
         tags = tagging.tags[fxn]
         hidden = tags.get("click_hidden", False)
         click_aliases = tags.get("click_aliases", [])
-        click_parent_plugin = tags.get("click_parent_plugin", None)
+        # click_parent_plugin = tags.get("click_parent_plugin", None)
         publish_to_cli = tags.get("publish_to_cli", True)
+
         if not publish_to_cli:
             return
-        if click_parent_plugin:
-            update_kwargs.update(via=kls)
-            kls = kls.siblings[click_parent_plugin]
 
         def wrapper(*args, fxn=fxn, **kwargs):
             LOGGER.warning(f"calling {fxn.__name__} from wrapper")
@@ -183,7 +180,25 @@ class CliPlugin(PynchonPlugin):
                 },
             )
         ]
+
+        assert isinstance(
+            click_aliases, (list, tuple)
+        ), f"expected list or tuple for `click_aliases`, got {type(click_aliases)} in context {locals()}"
         for alias in click_aliases:
+            if "." in alias:
+                click_parent_plugin, name = alias.split(".")
+                assert (
+                    click_parent_plugin and name
+                ), f"failed unpacking {alias} {locals()}"
+                # raise Exception(click_parent_plugin)
+                update_kwargs.update(
+                    name=name,
+                )
+                update_kwargs.update(via=kls)
+                kls = kls.siblings[click_parent_plugin]
+                update_kwargs.update(
+                    help=f"(alias for `{okls.click_entry.name} {okls.cli_name} {fxn.__name__}`)"
+                )
             tmp = kls.click_create_cmd(
                 fxn,
                 wrapper=wrapper,
@@ -270,7 +285,7 @@ class CliPlugin(PynchonPlugin):
         """ """
         assert fxn
         assert wrapper
-        via = via.__name__ if via else ""
+        via = f"the {via.__name__} plugin" if via else ""
         name = click_kwargs.pop("name", alias or fxn.__name__)
         name = name.replace("_", "-")
         alt = f"(alias for `{alias}`)" if alias else ""

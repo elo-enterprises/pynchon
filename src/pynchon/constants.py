@@ -13,6 +13,7 @@ CONF_FILE_SEARCH_ORDER = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
 DEFAULT_PLUGINS = [
     "core",
     "git",
+    "markdown",
     "src",
     "docs",
     "parse",

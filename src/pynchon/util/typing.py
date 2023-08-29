@@ -42,7 +42,6 @@ PathType = type(BasePath())
 
 Bool = bool
 NoneType = type(None)
-
 BoolMaybe = typing.Optional[bool]
 StringMaybe = typing.Optional[str]
 CallableMaybe = typing.Optional[typing.Callable]

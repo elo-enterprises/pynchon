@@ -29,4 +29,5 @@ pynchon src sorted --help
 pynchon makefile parse --help
 pynchon makefile parse Makefile |jq .
 pynchon parse markdown --help
+pynchon markdown parse --help
 pynchon parse markdown README.md --codeblocks | jq .

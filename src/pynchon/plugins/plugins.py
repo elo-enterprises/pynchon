@@ -34,7 +34,7 @@ class PluginsMan(models.Manager):
             raise NotImplementedError()
         return result.succeeded
 
-    @tagging.tags(click_aliases=['ls'])
+    @tagging.tags(click_aliases=["ls"])
     def list(self, **kwargs):
         """List all plugins"""
         return list(self.status()["plugins"].keys())

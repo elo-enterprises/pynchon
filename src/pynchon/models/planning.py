@@ -10,10 +10,20 @@ from pynchon import abcs, base
 
 from pynchon.util import lme, typing  # noqa
 
-ResourceType = typing.Union[str, abcs.Path]
+RED_X = "❌"
+RED_BALL = "🔴"
+YELLOW_BALL = "🟡"
 
 
 class BaseModel(base.BaseModel):
+    @property
+    def _action_summary(self):
+        """ """
+        if self.command:
+            return shil.fmt(self.command)
+        else:
+            return f"{self.owner}.{self.callable.__name__}(..)"
+
     @property
     def rel_resource(self) -> str:
         return (
@@ -24,11 +34,16 @@ class BaseModel(base.BaseModel):
 class Goal(BaseModel):
     """ """
 
-    class Config(BaseModel.Config):
-        exclude: typing.Set[str] = {"udiff"}
+    # FIXME: validation-- command OR callable must be set
 
-    resource: ResourceType = typing.Field(default="?r", required=False)
-    command: str = typing.Field(default="?c")
+    class Config(BaseModel.Config):
+        exclude: typing.Set[str] = {"udiff", "callable"}
+        # arbitrary_types_allowed = True
+        # json_encoders = {typing.MethodType: lambda c: str(c)}
+
+    resource: abcs.ResourceType = typing.Field(default="?r", required=False)
+    command: typing.StringMaybe = typing.Field(default=None)
+    callable: typing.MethodType = typing.Field(default=None)
     type: typing.StringMaybe = typing.Field(default=None, required=False)
     owner: typing.StringMaybe = typing.Field(default=None)
     label: typing.StringMaybe = typing.Field(default=None)
@@ -36,21 +51,17 @@ class Goal(BaseModel):
 
     def __rich__(self) -> str:
         """ """
-        fmt = shil.fmt(self.command)
         if self.udiff:
             return app.Panel(app.Markdown(f"```diff\n{self.udiff}\n```"))
         else:
             return app.Panel(
                 app.Syntax(
-                    fmt,
+                    f"  {self._action_summary}",
                     "bash",
                     line_numbers=False,
                     word_wrap=True,
                 ),
-                # title=__name__,
-                # title=f'[dim italic yellow]{self.type}',
-                # title=f'[bold cyan on black]{self.type}',
-                title=app.Text(self.type or '?', style="dim bold"),
+                title=app.Text(self.type or "?", style="dim bold"),
                 title_align="left",
                 style=app.Style(
                     dim=True,
@@ -63,16 +74,6 @@ class Goal(BaseModel):
                 + app.Text(f"{self.rel_resource}", style="dim italic"),
             )
 
-    # def __str__(self):
-    #     """ """
-    #     tmp = abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
-    #     return f"<{self.__class__.__name__}[{tmp}]>"
-
-
-RED_X = "❌"
-RED_BALL = "🔴"
-YELLOW_BALL = "🟡"
-
 
 class Action(BaseModel):
     """ """
@@ -81,15 +82,14 @@ class Action(BaseModel):
     ok: bool = typing.Field(default=None)
     error: str = typing.Field(default="")
     changed: bool = typing.Field(default=None)
-    resource: ResourceType = typing.Field(default="??")
+    resource: abcs.ResourceType = typing.Field(default="??")
     command: str = typing.Field(default="echo")
+    callable: typing.CallableMaybe = typing.Field(default=None)
     owner: typing.StringMaybe = typing.Field(default=None)
 
     def __rich__(self) -> str:
         """ """
         # indicator = RED_BALL if self.changed else YELLOW_BALL
-
-        from rich.console import Group
 
         indicator = (
             app.Text(
@@ -125,14 +125,12 @@ class Action(BaseModel):
             app.Text(
                 f"target: {self.rel_resource}",
             ),
-            app.Text(
-                f"command: {self.command}",
-            ),
+            app.Text(f"action: {self._action_summary}"),
             indicator,
             ind,
             err,
         ]
-        sibs = Group(*filter(None, sibs))
+        sibs = app.Group(*filter(None, sibs))
         return app.Panel(
             # functools.reduce(
             #     lambda x,y: x+y, sibs),
@@ -173,13 +171,6 @@ class Plan(typing.BaseModel):
 
     goals: typing.List[Goal] = typing.Field(default=[])
 
-    # def __init__(self, *args, **kwargs):
-    #     for arg in args:
-    #         if not isinstance(arg, (Goal,)):
-    #             err = f"plan can only include goals, got {arg} with type={type(arg)}"
-    #             raise TypeError(err)
-    #         typing.BaseModel.__init__(self, goals=args)
-    #
     def __rich__(self) -> str:
         syntaxes = []
         # import IPython; IPython.embed()
@@ -225,18 +216,6 @@ class Plan(typing.BaseModel):
         )
         return panel
 
-    #
-    # @property
-    # def _dict(self):
-    #     """ """
-    #     result = collections.OrderedDict()
-    #     result["resources"] = list({g.resource for g in self})
-    #     actions_by_type = collections.defaultdict(list)
-    #     for g in self:
-    #         actions_by_type[g.type].append(g.command)
-    #     result.update(**actions_by_type)
-    #     return result
-    #
     def append(self, other: Goal):
         """ """
         if other in self:
@@ -301,7 +280,9 @@ class ApplyResults(typing.List[Action], metaclass=meta.namespace):
         result = collections.OrderedDict()
         result["ok"] = self.ok
         result["resources"] = list({a.resource for a in self})
-        result["actions"] = [g.command for g in self]
+        result["actions"] = [
+            g.command if g.command else self.callable.__name__ for g in self
+        ]
         result["action_types"] = self.action_types
         result["changed"] = list({a.resource for a in self if a.changed})
         for g in self:
@@ -310,7 +291,3 @@ class ApplyResults(typing.List[Action], metaclass=meta.namespace):
 
     def __str__(self):
         return f"<{self.__class__.__name__}[{len(self)} actions]>"
-
-
-# from pynchon.util.text import dumps
-# dumps.JSONEncoder.register_encoder(type=Plan,)

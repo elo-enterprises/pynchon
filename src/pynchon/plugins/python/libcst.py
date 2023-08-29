@@ -27,7 +27,7 @@ class LibCST(models.Planner):
     def gen(self):
         """Generates code for python modules, packages, etc"""
 
-    @tagging.tags(click_parent_plugin="src")
+    @tagging.tags(click_aliases=["src.transform"])
     @cli.click.argument("transform_name", nargs=1)
     @cli.click.argument("src_root", default="", nargs=1)
     def run_transform(self, transform_name="docstrings.simple.module", src_root=""):
@@ -37,8 +37,7 @@ class LibCST(models.Planner):
             f"python -m libcst.tool codemod {transform_name} {src_root}", system=True
         )
 
-    @tagging.tags(click_parent_plugin="src")
-    # @cli.click.command("list-codegen")
+    @tagging.tags(click_aliases=["src.list-transforms"])
     def list_transforms(self):
         """Lists known libcst transforms"""
         out = invoke("python -mlibcst.tool list", strict=True)

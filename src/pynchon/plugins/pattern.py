@@ -251,7 +251,7 @@ class Pattern(models.ResourceManager):
         tmp = map(str, tmp)
         return list(tmp)
 
-    @tagging.tags(click_aliases=['ls'])
+    @tagging.tags(click_aliases=["ls"])
     def list(self) -> typing.List:
         """
         Describe templates we can cut patterns from

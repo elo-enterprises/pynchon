@@ -28,7 +28,7 @@ class Mermaid(models.Planner):
         """ """
         return abcs.Path(".").absolute()
 
-    @tagging.tags(click_aliases=['ls'])
+    @tagging.tags(click_aliases=["ls"])
     def list(self):
         """
         Find mermaid diagrams under `{{project_root}}/**/*.mmd`

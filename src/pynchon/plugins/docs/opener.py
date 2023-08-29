@@ -1,10 +1,12 @@
 """
 """
 import webbrowser
-from pynchon import abcs, api, events, models  
-from pynchon.util import files, lme, typing 
+
+from pynchon import abcs
+from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
+
 
 class OpenerMixin:
     """
