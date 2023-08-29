@@ -100,7 +100,6 @@ def jinja_loadf(
     return content
 
 
-@options.inplace
 @options.output
 @options.should_print
 @options.includes

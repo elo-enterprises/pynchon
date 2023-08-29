@@ -21,7 +21,6 @@ class RootGroup(fleks.cli.RootGroup):
     @fleks.classproperty
     def default(kls):  # noqa
         from pynchon import bin
-
         return bin.default
 
 
