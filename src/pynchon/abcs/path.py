@@ -1,7 +1,10 @@
 """ pynchon.abcs.path
 """
+
 import os
 from fnmatch import fnmatch
+
+from fleks.models import JSONEncoder
 
 from pynchon.util import lme, typing
 
@@ -20,6 +23,7 @@ class Path(typing.PathType):
         """ """
         if not self.exists():
             raise ValueError(f"Cannot read nonexistant file @ {str(self)}")
+        # LOGGER.critical(f'opening "{self}" for read..')
         with open(str(self)) as fhandle:
             content = fhandle.read()
         return content
@@ -71,7 +75,5 @@ class Path(typing.PathType):
     def list(self) -> typing.List[str]:
         return [x for x in os.listdir(str(self))]
 
-
-from pynchon.util.text.dumps import JSONEncoder
 
 JSONEncoder.register_encoder(type=Path, fxn=str)

@@ -1,4 +1,5 @@
 """ pynchon.models.planner """
+
 import typing
 
 from fleks import tagging
@@ -68,7 +69,8 @@ class AbstractPlanner(BasePlugin):
             invocation = invoke(cmd)
             tmp = planning.Action(
                 ok=invocation.succeeded,
-                error=invocation.stderr,
+                error="" if invocation.succeeded else invocation.stderr,
+                # log=invocation.succeeded and invocation.stderr else None,
                 owner=action_item.owner,
                 command=action_item.command,
                 resource=action_item.resource,

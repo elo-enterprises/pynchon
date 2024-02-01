@@ -1,5 +1,6 @@
 """ pynchon.plugins.github
 """
+
 import webbrowser
 
 import shimport

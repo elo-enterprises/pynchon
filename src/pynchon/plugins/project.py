@@ -1,5 +1,6 @@
 """ pynchon.plugins.project
 """
+
 from pynchon import abcs, config, constants, models
 
 from pynchon.cli import common, options  # noqa
@@ -41,7 +42,7 @@ class ProjectConfig(abcs.Config):
         r1 = self._workdir
         r2 = git_root and git_root.absolute()
         if r2 and (r1 != r2):
-            self.logger.warning("subproject detected ({tmp}!=git[root])")
+            LOGGER.warning(f"subproject detected:\n\t({r1} != git[root] @ {r2})")
             return dict(name=self._workdir.name, root=self._workdir)
         return {}
 

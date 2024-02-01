@@ -66,8 +66,8 @@ class Dot(models.Planner):
                 self.goal(
                     resource=rsrc,
                     command=cmd_t.format(
-                        rsrc=rsrc, 
-                        output=str(rsrc)[:str(rsrc).rfind('.')] + ".png"),
+                        rsrc=rsrc, output=str(rsrc)[: str(rsrc).rfind(".")] + ".png"
+                    ),
                     type="render",
                 )
             )

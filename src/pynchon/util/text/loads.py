@@ -2,9 +2,11 @@
 
     Helpers for loading data structures from strings
 """
+
 import json as json_mod
 
-import pyjson5 as json5_mod
+import yaml as modyaml
+import pyjson5 as modjson5
 
 from pynchon.util import lme, typing
 
@@ -12,11 +14,9 @@ LOGGER = lme.get_logger(__name__)
 
 
 def ini(content: str) -> typing.StringMaybe:
-    """Parses `content` as ini-file.
-
+    """
+    Parses `content` as ini-file.
     :param content: str:
-    :param content: str:
-
     """
     raise NotImplementedError()
 
@@ -25,16 +25,16 @@ def yaml(content: str) -> typing.StringMaybe:
     """Parses `content` as yaml.
 
     :param content: str:
-    :param content: str:
-
     """
-    raise NotImplementedError()
+    # try:
+    return modyaml.safe_load(content)
+    # except yaml.YAMLError as exc:
+    #     print(exc)
 
 
 def toml(content: str) -> typing.StringMaybe:
     """Parses `content` as toml.
 
-    :param content: str:
     :param content: str:
 
     """
@@ -47,25 +47,21 @@ def json(content: str = "") -> typing.StringMaybe:
     since that's just a JSON superset with a more relaxed parser.
 
     :param content: str:  (Default value = '')
-    :param content: str:  (Default value = '')
-
     """
     return json_mod.loads(content)
 
 
-def json5(content: str = "", quiet=True) -> typing.StringMaybe:
+def json5(content: str = "", quiet=True) -> typing.Dict:
     """Parses `content` as JSON5.
     This tries to give a better error message than defaults.
 
     :param content: str:  (Default value = '')
     :param quiet: Default value = True)
-    :param content: str:  (Default value = '')
-
     """
     try:
-        return json5_mod.loads(content)
+        return modjson5.loads(content)
     except (ValueError,) as exc:
-        LOGGER.critical("Cannot parse json5!")
+        LOGGER.critical("Cannot parse json5 from literal!")
         quiet or LOGGER.critical(content)
         content_lines = content.split("\n")
         if "at column" in exc.args[0]:

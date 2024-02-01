@@ -1,5 +1,6 @@
 """ pynchon.plugins.mermaid
 """
+
 import os
 
 from fleks import cli, tagging
@@ -22,11 +23,6 @@ class Mermaid(models.Planner):
 
     name = "mermaid"
     cli_name = "mermaid"
-
-    @property
-    def working_dir(self):
-        """ """
-        return abcs.Path(".").absolute()
 
     @tagging.tags(click_aliases=["ls"])
     def list(self):

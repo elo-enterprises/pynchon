@@ -1,5 +1,6 @@
 """ pynchon.plugins.python.platform
 """
+
 import platform as stdlib_platform
 
 from fleks import tagging

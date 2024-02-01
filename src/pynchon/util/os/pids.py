@@ -1,5 +1,6 @@
 """ pynchon.util.os.pids
 """
+
 import shimport
 
 from pynchon.util import lme, typing  # noqa

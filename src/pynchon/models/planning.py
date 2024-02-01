@@ -1,5 +1,6 @@
 """ pynchon.models.planning
 """
+
 import typing
 import collections
 
@@ -14,6 +15,7 @@ from pynchon.util import lme, typing  # noqa
 RED_X = "❌"
 RED_BALL = "🔴"
 YELLOW_BALL = "🟡"
+
 
 class BaseModel(BaseModel):
     @property
@@ -51,28 +53,44 @@ class Goal(BaseModel):
 
     def __rich__(self) -> str:
         """ """
+
         if self.udiff:
-            return app.Panel(app.Markdown(f"```diff\n{self.udiff}\n```"))
+            # sibs = [
+            #     app.Text(
+            #         f"target: {self.rel_resource}",
+            #     ),
+            #     app.Text(f"action: {self._action_summary}"),
+            #     indicator,
+            #     ind,
+            #     err,
+            # ]
+            # sibs = app.Group(*filter(None, sibs))
+
+            sibs = [app.Markdown(f"```diff\n{self.udiff}\n```")]
         else:
-            return app.Panel(
+            sibs = [
                 app.Syntax(
                     f"  {self._action_summary}",
                     "bash",
                     line_numbers=False,
                     word_wrap=True,
-                ),
-                title=app.Text(self.type or "?", style="dim bold"),
-                title_align="left",
-                style=app.Style(
-                    dim=True,
-                    # color='green',
-                    bgcolor="black",
-                    frame=False,
-                ),
-                subtitle=app.Text(f"{self.label or self.owner}", style="dim")
-                + app.Text(" rsrc=", style="bold italic")
-                + app.Text(f"{self.rel_resource}", style="dim italic"),
-            )
+                )
+            ]
+
+        return app.Panel(
+            app.Group(*sibs),
+            title=app.Text(self.type or "?", style="dim bold"),
+            title_align="left",
+            style=app.Style(
+                dim=True,
+                # color='green',
+                bgcolor="black",
+                frame=False,
+            ),
+            subtitle=app.Text(f"{self.label or self.owner}", style="dim")
+            + app.Text(" rsrc=", style="bold italic")
+            + app.Text(f"{self.rel_resource}", style="dim italic"),
+        )
 
 
 class Action(BaseModel):
@@ -210,7 +228,7 @@ class Plan(typing.BaseModel):
                 bgcolor="black",
                 frame=False,
             ),
-            subtitle=f"(Planned {len(self)} items)"  # subtitle=Text("✔", style='green')
+            subtitle=f"(Planned {len(self)} items)",  # subtitle=Text("✔", style='green')
             # if True
             # else Text(RED_X, style='red'),
         )

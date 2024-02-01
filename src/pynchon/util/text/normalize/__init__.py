@@ -1,4 +1,5 @@
 """ pynchon.util.text.normalize """
+
 import re
 
 from pynchon.util import typing

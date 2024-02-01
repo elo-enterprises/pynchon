@@ -1,5 +1,6 @@
 """ pynchon.plugins.jinja
 """
+
 from fleks import tagging
 
 from pynchon import abcs, api, cli, models
@@ -66,8 +67,6 @@ class Jinja(models.Planner):
         """Lists full path of each include-file
 
         :param local: bool:  (Default value = False)
-        :param local: bool:  (Default value = False)
-
         """
         includes = self._include_folders
         if local:
@@ -82,7 +81,9 @@ class Jinja(models.Planner):
         self,
         local: bool = False,
     ):
-        """Lists all usable {% include ... %} values"""
+        """
+        Lists all usable {% include ... %} values
+        """
         includes = self.list_includes(local=local)
         out = []
         for fname in includes:
@@ -105,10 +106,11 @@ class Jinja(models.Planner):
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
         project_root = proj_conf.get("root", None) or self[:"git.root":"."]
+        # project_root = proj_conf.get("root", None) or '.'
         globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]
-        self.logger.debug(f"search patterns are {globs}")
+        self.logger.warning(f"search patterns are {globs}")
         result = files.find_globs(globs)
         self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
         excludes = self["exclude_patterns"]

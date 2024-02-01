@@ -2,6 +2,7 @@
 
     Helpers for loading data structures from files
 """
+
 import sys
 
 from pynchon import cli

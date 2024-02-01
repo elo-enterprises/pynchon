@@ -1,6 +1,7 @@
 """ pynchon.cli.common:
     Common options/arguments and base classes for CLI
 """
+
 import json
 import functools
 

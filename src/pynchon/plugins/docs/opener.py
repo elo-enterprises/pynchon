@@ -1,5 +1,6 @@
 """
 """
+
 import webbrowser
 
 from pynchon import abcs

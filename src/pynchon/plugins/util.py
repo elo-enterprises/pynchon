@@ -1,5 +1,6 @@
 """ pynchon.plugins.util
 """
+
 from pynchon.util import lme, typing  # noqa
 
 # , importing
@@ -21,29 +22,31 @@ class PluginNotConfigured(RuntimeError):
     pass
 
 
-def get_plugin_meta(plugin_name: str) -> typing.Dict:
+def get_plugin_meta(plugin_name: str, strict: bool = True) -> typing.Dict:
     """ """
     from pynchon.plugins import registry
 
     try:
         return registry[plugin_name]
     except KeyError:
-        # LOGGER.critical(f"available plugins: {registry.keys()}")
-        raise PluginNotRegistered(plugin_name)
+        if strict:
+            raise PluginNotRegistered(plugin_name)
+        else:
+            return None
 
 
-def get_plugin_class(plugin_name: str) -> typing.Type:
-    """
-
-    :param plugin_name: str:
-    :param plugin_name: str:
-
-    """
-    meta = get_plugin_meta(plugin_name)
+def get_plugin_class(plugin_name: str, strict: bool = True) -> typing.Type:
+    """ """
+    meta = get_plugin_meta(plugin_name, strict=strict)
+    if meta is None:
+        return meta
     try:
         return meta["kls"]
     except KeyError:
-        raise PluginNotRegistered(plugin_name)
+        if strict:
+            raise PluginNotRegistered(plugin_name)
+        else:
+            return None
 
 
 get_plugin = get_plugin_class

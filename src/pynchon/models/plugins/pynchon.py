@@ -1,4 +1,5 @@
 """ pynchon.models.plugins.pynchon """
+
 import collections
 
 import fleks
@@ -130,17 +131,18 @@ class PynchonPlugin(fleks.Plugin):
         return result
 
     def __getitem__(self, key: str):
-        """shortcut for accessing local plugin-config
-
-        :param key: str:
+        """
+        shortcut for accessing local plugin-config
         """
         if isinstance(key, (slice,)):
+
             start, stop, step = key.start, key.stop, key.step
             try:
                 if start:
                     result = self[start]
                 if stop:
                     result = self % stop
+                result = result if result is not None else step
             except (KeyError,) as exc:
                 if step is not None:
                     return step

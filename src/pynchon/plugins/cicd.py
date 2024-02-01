@@ -1,5 +1,6 @@
 """ pynchon.plugins.cicd
 """
+
 import webbrowser
 
 from pynchon import abcs, models

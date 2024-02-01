@@ -1,4 +1,5 @@
 """ pynchon.annotate """
+
 import os
 import inspect
 import importlib
@@ -164,14 +165,16 @@ def function(name, fxn) -> None:
         annotation=str(fxn_sig and fxn_sig.return_annotation or "")
         .replace("<class '", "")
         .replace("'>", ""),
-        fixme=[
-            dict(
-                glyph=" 🚩has FIXMEs ",
-                link=f"/{fxn_fname}#L{fixme_lines[0]}",
-                hover=f"on lines {fixme_lines}",
-            )
-        ]
-        if fixme_lines
-        else [],
+        fixme=(
+            [
+                dict(
+                    glyph=" 🚩has FIXMEs ",
+                    link=f"/{fxn_fname}#L{fixme_lines[0]}",
+                    hover=f"on lines {fixme_lines}",
+                )
+            ]
+            if fixme_lines
+            else []
+        ),
     )
     fxn_code and fxn._metadata.update(mccabe=complexity.complexity(fxn_code, fxn_fname))

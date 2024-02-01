@@ -4,60 +4,57 @@
 from fleks import typing
 
 from pynchon import abcs, events, models  # noqa
-from pynchon.util import lme  # noqa
+from pynchon.util import lme
 
 LOGGER = lme.get_logger(__name__)
-
-
-class TestSuite(typing.BaseModel):
-    name: str = typing.Field(default=None)
-    root: abcs.ResourceType = typing.Field(default=None, help="")
-
-
-class DocTestSuite(TestSuite):
-    pass
-
-
-markdown_suite = DocTestSuite(
-    name="markdown",
-)
-
-
+#
+# class TestSuite(typing.BaseModel):
+#     suite_name: str = typing.Field(default=None)
+#     root: abcs.ResourceType = typing.Field(default=None, help="")
+#     container: typing.Dict=typing.Field(default={}, help="")
+#
+# class DocTestSuite(TestSuite):
+#     pass
+#
+#
 class TestConfig(abcs.Config):
     # class Config:
     # arbitrary_types_allowed = True
     # include = 'suites'.split()
     config_key: typing.ClassVar[str] = "tests"
-    markdown: bool = typing.Field(
-        default=True,
-        # help='Configuration for testing markdown under {{docs/root}}',
-    )
-    html: bool = typing.Field(
-        default=False,
-        # help='Configuration for testing HTML under {{docs/root}}',
-    )
-    suites: typing.List[TestSuite] = typing.Field(default=[])
 
-    @property
-    def suites(self):
-        tmp = self.__dict__.get("suites", [])
-        suite_names = [x.name for x in tmp]
-        if self.markdown and "markdown" not in suite_names:
-            LOGGER.critical("`markdown` is set but suite not found.  adding it..")
-            from pynchon.config import git
 
-            tmp += [TestSuite(name="markdown", root=git.root)]
-        return tmp
-        #     coverage={},
-        #     suite_patterns=[],
-        #     # suites={
-        #     #     "{{tests.root}}/units/": {
-        #     #           name:...
-        #     #           descr:...
-        #     #           runner:...
-        #     #      }
-        #     # }
-        #     root=None,
+#     markdown: bool = typing.Field(
+#         default=True,
+#         # help='Configuration for testing markdown under {{docs/root}}',
+#     )
+#     html: bool = typing.Field(
+#         default=False,
+#         help='Configuration for testing HTML under {{docs/root}}',
+#     )
+#     suites: typing.List[TestSuite] = typing.Field(default=[])
+#
+#     @property
+#     def suites(self):
+#         tmp = self.__dict__.get("suites", [])
+#         suite_names = [x.name for x in tmp]
+#         if self.markdown and "markdown" not in suite_names:
+#             LOGGER.critical("`markdown` is set but suite not found.  adding it..")
+#             from pynchon.config import git
+#
+#             tmp += [TestSuite(name="markdown", root=git.root)]
+#         return tmp
+#         #     coverage={},
+#         #     suite_patterns=[],
+#         #     # suites={
+#         #     #     "{{tests.root}}/units/": {
+#         #     #           name:...
+#         #     #           descr:...
+#         #     #           runner:...
+#         #     #      }
+#         #     # }
+#         #     root=None,
+#
 
 
 class Tests(models.Planner):

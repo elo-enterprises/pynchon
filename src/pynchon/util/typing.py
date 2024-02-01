@@ -8,7 +8,7 @@ one convenient namespace.
 import typing
 from pathlib import Path as BasePath
 
-from fleks.util.typing import * # noqa
+from fleks.util.typing import *  # noqa
 
 validate = validate_arguments
 

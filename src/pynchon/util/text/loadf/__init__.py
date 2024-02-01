@@ -2,6 +2,7 @@
 
     Helpers for loading data structures from files
 """
+
 import os
 
 import tomli as tomllib  # NB: tomllib only available in py3.11
@@ -41,14 +42,16 @@ def ini(file):
     return ini_conf
 
 
-def yaml(*args, **kwargs):
+def yaml(fname: str) -> typing.Dict:
     """parses yaml file and returns JSON
-
     :param *args:
     :param **kwargs:
-
     """
-    raise NotImplementedError()
+    from pynchon.util.text import loads
+
+    with open(fname) as fhandle:
+        contents = fhandle.read()
+    return loads.yaml(contents)
 
 
 @click.argument("file", nargs=1)

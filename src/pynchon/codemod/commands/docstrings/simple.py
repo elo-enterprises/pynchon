@@ -1,4 +1,5 @@
 """ pynchon.codemod.docstrings.simple """
+
 import inspect
 from textwrap import dedent
 
@@ -266,7 +267,7 @@ class function(base):
                 mod=mod,
                 dotpath=dotpath,
                 obj=obj,
-                docstring=docstring
+                docstring=docstring,
                 # indent=self.context.module.default_indent
             )
             if txt is None:

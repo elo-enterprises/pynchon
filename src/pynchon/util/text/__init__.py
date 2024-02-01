@@ -2,7 +2,6 @@
     Utilities for parsing, generating or manipulating text
 """
 
-
 from . import dumps, loadf, loads  # noqa
 
 jsonify = to_json = dumps.json  # noqa

@@ -1,5 +1,6 @@
 """ setup.py for {{name}}
 """
+
 import os
 
 from setuptools import setup
