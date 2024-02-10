@@ -14,7 +14,13 @@ class MkdocsPluginConfig(abcs.Config):
     config_file: str = typing.Field(default=None)
 
     @property
+    def site_dir(self):
+        return self.config.get('site_dir','site')
+    @property
     def config(self) -> typing.Dict:
+        """
+        returns a dictionary with the current mkdocs configuration
+        """
         fname = self.config_file
         if fname is None:
             return {}
@@ -23,7 +29,7 @@ class MkdocsPluginConfig(abcs.Config):
 
     @property
     def config_file(self) -> typing.StringMaybe:
-
+        """ returns the path to the mkdocs config-file, if applicable """
         docs = plugin_util.get_plugin("docs", strict=False)
         docs = docs and docs.get_current_config()
         subproject = plugin_util.get_plugin("subproject", strict=False)
@@ -52,18 +58,39 @@ class Mkdocs(models.Planner):
     cli_label = "Docs"
     config_class = MkdocsPluginConfig
 
-
-    def plan(self):
-        """Runs a plan for this plugin"""
-        plan = super(self.__class__, self).plan()
-        config_file = self["config_file"]
+    def open(self):
+        """ 
+        Opens `site_dir` in a webbrowser 
+        """
+        import webbrowser
+        index_f = Path(self.site_dir)/'index.html'
+        url=f'file://{index_f}'
+        return webbrowser.open(url)
+    
+    @property 
+    def site_dir(self) -> str:
+        """ 
+        Returns mkdocs `site_dir` if present in config, or guesses what it should be 
+        """
         plugin_cfg = self.config
         mkdocs_config = plugin_cfg.config
-        mkdocs_site_dir = mkdocs_config.get("site_dir", self.working_dir / "site")
+        result= str(mkdocs_config.get("site_dir", self.working_dir / "site"))
+        self.logger.warning(f'returning {result}')
+        return result
+    
+    # def _hook_open_after_apply(self, result) -> bool:
+    #     raise Exception(result)
+
+    def plan(self):
+        """
+        Runs a plan for this plugin
+        """
+        plan = super(self.__class__, self).plan()
+        config_file = self["config_file"]
         plan.append(
             self.goal(
                 type="render",
-                resource=mkdocs_site_dir,
+                resource=self.site_dir,
                 command=f"mkdocs build --config-file {config_file}",
             )
         )

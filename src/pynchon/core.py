@@ -14,9 +14,6 @@ count = 0
 
 def validate(kls=None, self=None, vdata=None):
     """
-    :param vdata=None:
-    :param self=None:
-    :param kls=None:
     """
     global count
     count += 1
@@ -25,10 +22,6 @@ def validate(kls=None, self=None, vdata=None):
 
     def validate_plugins(plugin_list: typing.List = []):
         """
-
-        :param plugin_list: typing.List:  (Default value = [])
-        :param plugin_list: typing.List:  (Default value = [])
-
         """
         defaults = set(constants.DEFAULT_PLUGINS)
         user_provided = set(plugin_list)

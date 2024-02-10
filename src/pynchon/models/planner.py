@@ -65,7 +65,7 @@ class AbstractPlanner(BasePlugin):
         for i, action_item in enumerate(goals):
             app.status_bar.update(stage=f"{action_item}")
             cmd = action_item.command
-            LOGGER.warning(f"  {i}/{total}: {cmd}")
+            LOGGER.warning(f"  {i+1}/{total}:\n    {cmd}")
             invocation = invoke(cmd)
             tmp = planning.Action(
                 ok=invocation.succeeded,
@@ -80,8 +80,8 @@ class AbstractPlanner(BasePlugin):
             lme.CONSOLE.print(tmp)
             results.append(tmp)
         results = planning.ApplyResults(results)
+        # write status event (used by the app-console)
         app.status_bar.update(
-            # write status event (used by the app-console)
             app="Pynchon::HOOKS",
             stage=f"{cls_name}",
         )
@@ -109,6 +109,7 @@ class AbstractPlanner(BasePlugin):
 
     @memoized_property
     def apply_hooks(self):
+        """ """
         hooks = [x for x in self.hooks if x.split("-")[-1] == "apply"]
         apply_hooks = self["apply_hooks"::[]]
         hooks += [
