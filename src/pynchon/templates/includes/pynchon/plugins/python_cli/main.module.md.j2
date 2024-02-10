@@ -1,9 +1,11 @@
-
+{#Builds MD file describing a module's (__main__.py) entrypoint #}
 {% for subcommand in entrypoints %}
 ## {{subcommand.dotpath}} CLI
-{#% include 'pynchon/plugins/python_cli/subcommand.md.j2' %#}
-{% for subcommand in subcommand.get('entrypoints', []) %}
-{% include 'pynchon/plugins/python_cli/subcommand.md.j2' %}
-{%-endfor%}
+
+*[module source]({{subcommand.src_url}})*
+
+```
+{{subcommand.help}}
+```
 {%-endfor%}
 
