@@ -104,7 +104,10 @@ class Action(BaseModel):
     command: str = typing.Field(default="echo")
     callable: typing.CallableMaybe = typing.Field(default=None)
     owner: typing.StringMaybe = typing.Field(default=None)
-
+    ordering: typing.StringMaybe = typing.Field(
+        default=None, 
+        help='human-friendly string describing the sort order for this action inside plan')
+    
     def __rich__(self) -> str:
         """ """
         # indicator = RED_BALL if self.changed else YELLOW_BALL
@@ -133,8 +136,7 @@ class Action(BaseModel):
                     "error: ",
                     # justify='right',
                     style="red",
-                )
-                + app.Text(self.error, justify="center")
+                ) + app.Text(self.error, justify="center")
             )
             if not self.ok
             else None
@@ -149,6 +151,7 @@ class Action(BaseModel):
             err,
         ]
         sibs = app.Group(*filter(None, sibs))
+        ordering=f' ({self.ordering.strip()})'
         return app.Panel(
             # functools.reduce(
             #     lambda x,y: x+y, sibs),
@@ -157,7 +160,11 @@ class Action(BaseModel):
             # title=f'[dim italic yellow]{self.type}',
             # title=f'[bold cyan on black]{self.type}',
             title=app.Text(
-                self.type, style=f"dim bold {'red' if self.changed else 'green'}"
+                f'{ordering} ', 
+                style=f"dim underline"
+            )+app.Text(
+                f"{self.type}", 
+                style=f"dim bold {'red' if self.changed else 'green'}"
             ),
             title_align="left",
             # style=app.Style(
