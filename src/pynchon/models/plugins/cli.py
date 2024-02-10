@@ -40,7 +40,7 @@ class CliPlugin(PynchonPlugin):
         def plugin_main():
             pass
 
-        plugin_main.__doc__ = (kls.__doc__ or "").lstrip().split("\n")[0]
+        plugin_main.__doc__ = (kls.__doc__ or "").lstrip() #.split("\n")[0]
         groop = cli.common.groop(
             grp_name,
             parent=kls.click_entry,
@@ -291,9 +291,13 @@ class CliPlugin(PynchonPlugin):
         name = name.replace("_", "-")
         alt = f"(alias for `{alias}`)" if alias else ""
         alt = alt or (f"(via {via})" if via else "")
+        default=fxn.__doc__ or ""
+        alt2 = default.lstrip().split("\n")
+        alt2 = alt2[:2]+[' .. '] if len(alt2)>2 else alt2[:2]
+        alt2 = 'ppppp\n'.join(alt2)
         help = click_kwargs.pop(
             "help",
-            (alt if alt else (fxn.__doc__ or "").lstrip().split("\n")[0]),
+            (alt if alt else alt2),
         )
         help = help.lstrip()
         cmd = cli.common.kommand(
