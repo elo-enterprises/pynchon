@@ -1,10 +1,13 @@
-{#Builds MD file describing a module's (__main__.py) entrypoint #}
+{# Builds a markdown file describing a module's (__main__.py) entrypoint #}
+
 {% for subcommand in entrypoints %}
-## {{subcommand.dotpath}} CLI
+## [**ℳ**] {{subcommand.dotpath}}
 
-*[module source]({{subcommand.src_url}})*
+[**Module**] `{{subcommand.dotpath}}` publishes a command line interface (*[source]({{subcommand.src_url}})*).  
 
-```
+Example usage:
+
+```bash
 {{subcommand.help}}
 ```
 {%-endfor%}

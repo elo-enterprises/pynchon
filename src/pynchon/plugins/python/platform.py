@@ -1,4 +1,4 @@
-""" pynchon.plugins.python.platform
+""" pynchon.plugins.python.platform:
 """
 
 import platform as stdlib_platform
@@ -14,7 +14,11 @@ LOGGER = lme.get_logger(__name__)
 
 @tagging.tags(click_aliases=["py"])
 class PythonPlatform(models.Planner):
-    """Context for python-platform"""
+    """
+    Subcommand for the PythonPlatform plugin.
+    
+    Code transformation and docs-generation utilities for python projects.
+    """
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "python"

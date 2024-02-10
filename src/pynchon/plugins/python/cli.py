@@ -143,7 +143,10 @@ class PythonCLI(models.Planner):
         entrypoints = self.config.entrypoints
         tmp = []
         for meta in entrypoints:
-            tmp.append({**meta, **dict(src_url=meta["path"])})
+            tmp.append({**meta, **dict(
+                # src_url=meta["path"])}
+                src_url=self.get_src_url(meta['path'])
+                )})
         entrypoints = tmp
         cfg = {**self.config.dict(), **dict(entrypoints=entrypoints)}
         cfg = {**api.project.get_config().dict(), **{self.config_class.config_key: cfg}}
@@ -157,7 +160,10 @@ class PythonCLI(models.Planner):
         )
         with open(str(output), "w") as fhandle:
             fhandle.write(result)
-
+    def get_src_url(self, path):
+        return '/'+str(abcs.Path(path).relative_to(self.src_root.parent))
+        
+        return abcs.Path(path).absolute().relative_to(abcs.Path(git_root).absolute())
     def _click_recursive_help(
         self, resource=None, path=None, module=None, dotpath=None, name=None, **kwargs
     ):
@@ -196,9 +202,7 @@ class PythonCLI(models.Planner):
                     help=shil.invoke(
                         f"python -m{v['command_invocation']} --help", strict=True
                     ).stdout,
-                    src_url=abcs.Path(path)
-                    .absolute()
-                    .relative_to(abcs.Path(git_root).absolute()),
+                    src_url=self.get_src_url(path),
                 ),
             }
             for v in result
@@ -230,14 +234,21 @@ class PythonCLI(models.Planner):
     def get_entrypoint_metadata(self, file):
         """ """
         LOGGER.critical(f"looking up metadata for '{file}'")
-        # entrypoints = dict([
-        #     [abcs.Path(k),v] for k,v in self['entrypoints'].items()
-        #     ])
-        # self["entrypoints"].copy()
         found = False
         file = abcs.Path(file)
+        def get_cmd_output(command_invocation):
+            foxl={}
+            cmd = invoke(command_invocation)
+            if cmd.succeeded:
+                help = cmd.stdout.lstrip().strip()
+                help = f"$ {command_invocation}\n\n{help}"
+            else:
+                LOGGER.critical(f"ERROR: failure executing command (cannot extract help!)\n\ncommand='{command_invocation}'\n\nerror follows:\n\n{cmd.stderr}")
+                foxl.update(help=f'Failed to capture help from command `{command_invocation}`')
+            foxl.update(click=False, help=help, command_invocation=command_invocation,)
+            return foxl
+
         for metadata in self.config["entrypoints"]:
-            # LOGGER.critical(f"processing: {metadata}")
             if str(metadata["path"]) == str(file):
                 dotpath = metadata["dotpath"]
                 module = (
@@ -245,20 +256,8 @@ class PythonCLI(models.Planner):
                     if str(file).endswith("__main__.py")
                     else dotpath
                 )
-                cmd_t = f"python -m{dotpath} --help"
-                metadata.update(command_invocation=cmd_t)
-                def get_cmd_output():
-                    foxl={}
-                    cmd = invoke(cmd_t)
-                    if cmd.succeeded:
-                        help = cmd.stdout.lstrip().strip()
-                        help = f"$ {cmd_t}\n\n{help}"
-                    else:
-                        LOGGER.critical(f"ERROR: failure executing command (cannot extract help!)\n\ncommand='{cmd_t}'\n\nerror follows:\n\n{cmd.stderr}")
-                        foxl.update(help=f'Failed to capture help from command `{cmd_t}`')
-                    foxl.update(click=False, help=help, command_invocation=cmd_t,)
-                    return foxl
-
+                command_invocation = f"python -m{dotpath} --help"
+                metadata.update(command_invocation=command_invocation)
                 try:
                     sub_entrypoints = self._click_recursive_help(
                         module=module,
@@ -273,21 +272,22 @@ class PythonCLI(models.Planner):
                     )
                     LOGGER.critical(f"error retrieving help via system CLI {cmd}")
                     metadata.update(entrypoints=[])
-                    metadata.update(**get_cmd_output())
+                    metadata.update(**get_cmd_output(command_invocation))
                 else:
                     rsrc = self.root / f"{dotpath}.md"
-                    src_url = file.relative_to(self.src_root.parent)
+                    src_url = self.get_src_url(file)
                     # raise Exception(file)
                     docs_url = rsrc.relative_to(self.docs_root.parent)
                     metadata.update(
                         click=True,
-                        command_invocation=cmd_t,
+                        command_invocation=command_invocation,
                         docs_url=docs_url,
-                        src_url='/'+str(src_url),
+                        # src_url='/'+str(src_url),
+                        src_url=src_url,
                         resource=rsrc,
                         entrypoints=sub_entrypoints,
                     )
-                    metadata.update(**get_cmd_output())
+                    metadata.update(**get_cmd_output(command_invocation))
                     # import IPython; IPython.embed()
                     # raise Exception(sub_entrypoints)
                 found = True

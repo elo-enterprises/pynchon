@@ -19,7 +19,7 @@ LOGGER = lme.get_logger(__name__)
 @tagging.tags(click_aliases=["d"])
 class DocsMan(models.ResourceManager, OpenerMixin):
     """
-    Management tool for project docs
+    Management tool for project docs, including helpers for enumerating, serving, & opening them.
     """
 
     class config_class(abcs.Config):
@@ -105,7 +105,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @tagging.tags(click_aliases=["op", "opn"])
     @fleks.cli.arguments.file
     def open(self, file, server=None):
-        """Open a docs-artifact (based on file type)"""
+        """Opens a docs-artifact (based on file type)"""
         self.serve()
         file = abcs.Path(file)
         if not file.exists():
@@ -115,14 +115,19 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         try:
             fxn = getattr(self, opener)
         except (AttributeError,) as exc:
-            raise NotImplementedError(
-                f"dont know how to open `{file}`, " f"method `{opener}` is missing"
-            )
-        else:
-            return fxn(file)
+            err=f"dont know how to open `{file}`, " f"method `{opener}` is missing"
+            LOGGER.warning(err)
+            ext = file.full_extension().split('.')[-1]
+            opener = f"_open__{ext}"
+            try:
+                fxn = getattr(self, opener)
+            except (AttributeError,) as exc:
+                err=f"dont know how to open `{file}`, " f"method `{opener}` is missing"
+                raise NotImplementedError(err)
+        return fxn(file)
 
     def open_changes(self) -> typing.List[str]:
-        """Open changed files"""
+        """Opens changed files"""
         result = []
         changes = self.list(changes=True)
         if not changes:
