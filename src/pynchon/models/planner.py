@@ -65,10 +65,12 @@ class AbstractPlanner(BasePlugin):
         for i, action_item in enumerate(goals):
             app.status_bar.update(stage=f"{action_item}")
             cmd = action_item.command
-            LOGGER.warning(f"  {i+1}/{total}:\n    {cmd}")
+            ordering = f"  {i+1}/{total}"
+            # LOGGER.warning(f"{ordering}:\n    {cmd}")
             invocation = invoke(cmd)
             tmp = planning.Action(
                 ok=invocation.succeeded,
+                ordering=ordering,
                 error="" if invocation.succeeded else invocation.stderr,
                 # log=invocation.succeeded and invocation.stderr else None,
                 owner=action_item.owner,

@@ -294,7 +294,7 @@ class CliPlugin(PynchonPlugin):
         default=fxn.__doc__ or ""
         alt2 = default.lstrip().split("\n")
         alt2 = alt2[:2]+[' .. '] if len(alt2)>2 else alt2[:2]
-        alt2 = 'ppppp\n'.join(alt2)
+        alt2 = '\n'.join(alt2)
         help = click_kwargs.pop(
             "help",
             (alt if alt else alt2),
