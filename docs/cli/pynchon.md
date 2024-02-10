@@ -1,9 +1,10 @@
 
+[id1]: ## "Module Entrypoints"
 
 
-## [**ℳ**] pynchon
+## [**ℳ**][id1] pynchon
 
-[**Module**] `pynchon` publishes a command line interface (*[source](/src/pynchon/__main__.py)*).  
+[**[Module]**](README.md#module-entrypoints) `pynchon` publishes a command line interface (*[source](/src/pynchon/__main__.py)*).
 
 Example usage:
 
@@ -26,7 +27,8 @@ Core COMMANDs:
   cfg:            Show current project config (with templating/interpolation)
   cicd:           Context for CI/CD
   deck:           Tool for working with markdown based slide-decks
-  docs:           Management tool for project docs
+  docs:           Management tool for project docs, including helpers for
+                  enumerating, serving, & opening them.
   dot:            Finds / Renders (graphviz) dot files for this project
   fixme:          Generates {docs_root}/FIXME.md from source
   gen:            Collects `gen` commands from other plugins
@@ -45,8 +47,7 @@ Core COMMANDs:
   plugins:        Meta-plugin for managing plugins
   project:        Meta-plugin for managing this project
   pypi:           Context for PyPI
-  python:         Subcommand for the PythonPlatform plugin.  Code
-                  transformation and docs-generation utilities for python
+  python:         Code transformation and docs-generation utilities for python
                   projects.
   python-api:     Generators for Python API docs
   python-cli:     Generators for Python CLI docs

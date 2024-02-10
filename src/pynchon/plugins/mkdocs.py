@@ -1,13 +1,16 @@
 """ pynchon.plugins.mkdocs
 """
+
 from pathlib import Path
+
+from pynchon.plugins import util as plugin_util
+from pynchon.util.text import loadf
 
 from pynchon import abcs, api, events, models  # noqa
 from pynchon.util import lme, typing  # noqa
-from pynchon.util.text import loadf
-from pynchon.plugins import util as plugin_util
 
 LOGGER = lme.get_logger(__name__)
+
 
 class MkdocsPluginConfig(abcs.Config):
     config_key: typing.ClassVar[str] = "mkdocs"
@@ -15,7 +18,8 @@ class MkdocsPluginConfig(abcs.Config):
 
     @property
     def site_dir(self):
-        return self.config.get('site_dir','site')
+        return self.config.get("site_dir", "site")
+
     @property
     def config(self) -> typing.Dict:
         """
@@ -29,7 +33,7 @@ class MkdocsPluginConfig(abcs.Config):
 
     @property
     def config_file(self) -> typing.StringMaybe:
-        """ returns the path to the mkdocs config-file, if applicable """
+        """returns the path to the mkdocs config-file, if applicable"""
         docs = plugin_util.get_plugin("docs", strict=False)
         docs = docs and docs.get_current_config()
         subproject = plugin_util.get_plugin("subproject", strict=False)
@@ -49,6 +53,7 @@ class MkdocsPluginConfig(abcs.Config):
             if cand.exists():
                 return str(cand.absolute())
 
+
 class Mkdocs(models.Planner):
     """Mkdocs helper"""
 
@@ -59,25 +64,26 @@ class Mkdocs(models.Planner):
     config_class = MkdocsPluginConfig
 
     def open(self):
-        """ 
-        Opens `site_dir` in a webbrowser 
+        """
+        Opens `site_dir` in a webbrowser
         """
         import webbrowser
-        index_f = Path(self.site_dir)/'index.html'
-        url=f'file://{index_f}'
+
+        index_f = Path(self.site_dir) / "index.html"
+        url = f"file://{index_f}"
         return webbrowser.open(url)
-    
-    @property 
+
+    @property
     def site_dir(self) -> str:
-        """ 
-        Returns mkdocs `site_dir` if present in config, or guesses what it should be 
+        """
+        Returns mkdocs `site_dir` if present in config, or guesses what it should be
         """
         plugin_cfg = self.config
         mkdocs_config = plugin_cfg.config
-        result= str(mkdocs_config.get("site_dir", self.working_dir / "site"))
-        self.logger.warning(f'returning {result}')
+        result = str(mkdocs_config.get("site_dir", self.working_dir / "site"))
+        self.logger.warning(f"returning {result}")
         return result
-    
+
     # def _hook_open_after_apply(self, result) -> bool:
     #     raise Exception(result)
 

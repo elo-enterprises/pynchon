@@ -1,13 +1,31 @@
+{# TOC for python-cli docs-gen #}
+[id1]: ## "Package Entrypoints"
 
 
-## **[ℙ]** `{{project.name}}`
+## **[ℙ][id1]** `{{project.name}}`
 
-**Package** entrypoint overview for `{{python.package.name}}`
+Package-entrypoint overview for `{{python.package.name}}`
 
 -------------------------------------------------------------------------------
 
 
-### Main Entrypoints 
+### Package Entrypoints
+
+Scripts provided by `{{python.package.name}}`:
+
+{% if package_entrypoints %}
+{% for metadata in package_entrypoints %}
+* [`python -m{{metadata.dotpath}}`](/docs/cli/{{metadata.dotpath}}.md) @ [`{{metadata.path}}`](/{{metadata.path}})
+{%-endfor%}
+{%else%}
+No scripts found
+{%endif%}
+
+-------------------------------------------------------------------------------
+
+### Module Entrypoints
+
+Modules inside `{{python.package.name}}` providing __main__.py:
 
 {% if main_entrypoints %}
 {% for metadata in main_entrypoints %}
@@ -15,14 +33,4 @@
 {%-endfor%}
 {% else %}
 No module entrypoints (**__main__.py**) were found
-{%endif%}
-
-### Package Entrypoints 
-
-{% if package_entrypoints %}
-{% for metadata in package_entrypoints %}
-* [`python -m{{metadata.dotpath}}`](/docs/cli/{{metadata.dotpath}}.md) @ [`{{metadata.path}}`](/{{metadata.path}})
-{%-endfor%}
-{%else%}
-No package entrypoints found
 {%endif%}

@@ -115,14 +115,16 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         try:
             fxn = getattr(self, opener)
         except (AttributeError,) as exc:
-            err=f"dont know how to open `{file}`, " f"method `{opener}` is missing"
+            err = f"dont know how to open `{file}`, " f"method `{opener}` is missing"
             LOGGER.warning(err)
-            ext = file.full_extension().split('.')[-1]
+            ext = file.full_extension().split(".")[-1]
             opener = f"_open__{ext}"
             try:
                 fxn = getattr(self, opener)
             except (AttributeError,) as exc:
-                err=f"dont know how to open `{file}`, " f"method `{opener}` is missing"
+                err = (
+                    f"dont know how to open `{file}`, " f"method `{opener}` is missing"
+                )
                 raise NotImplementedError(err)
         return fxn(file)
 

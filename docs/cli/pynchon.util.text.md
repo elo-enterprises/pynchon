@@ -1,9 +1,10 @@
 
+[id1]: ## "Module Entrypoints"
 
 
-## [**ℳ**] pynchon.util.text
+## [**ℳ**][id1] pynchon.util.text
 
-[**Module**] `pynchon.util.text` publishes a command line interface (*[source](/src/pynchon/util/text/__main__.py)*).  
+[**[Module]**](README.md#module-entrypoints) `pynchon.util.text` publishes a command line interface (*[source](/src/pynchon/util/text/__main__.py)*).
 
 Example usage:
 

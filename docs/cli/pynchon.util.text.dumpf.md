@@ -1,9 +1,10 @@
 
+[id1]: ## "Module Entrypoints"
 
 
-## [**ℳ**] pynchon.util.text.dumpf
+## [**ℳ**][id1] pynchon.util.text.dumpf
 
-[**Module**] `pynchon.util.text.dumpf` publishes a command line interface (*[source](/src/pynchon/util/text/dumpf/__main__.py)*).  
+[**[Module]**](README.md#module-entrypoints) `pynchon.util.text.dumpf` publishes a command line interface (*[source](/src/pynchon/util/text/dumpf/__main__.py)*).
 
 Example usage:
 

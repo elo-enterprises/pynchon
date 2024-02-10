@@ -1,9 +1,10 @@
 
+[id1]: ## "Module Entrypoints"
 
 
-## [**ℳ**] pynchon.util.text.loadf
+## [**ℳ**][id1] pynchon.util.text.loadf
 
-[**Module**] `pynchon.util.text.loadf` publishes a command line interface (*[source](/src/pynchon/util/text/loadf/__main__.py)*).  
+[**[Module]**](README.md#module-entrypoints) `pynchon.util.text.loadf` publishes a command line interface (*[source](/src/pynchon/util/text/loadf/__main__.py)*).
 
 Example usage:
 

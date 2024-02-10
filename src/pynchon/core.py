@@ -13,16 +13,14 @@ count = 0
 
 
 def validate(kls=None, self=None, vdata=None):
-    """
-    """
+    """ """
     global count
     count += 1
     if count > 1:
         raise Exception()
 
     def validate_plugins(plugin_list: typing.List = []):
-        """
-        """
+        """ """
         defaults = set(constants.DEFAULT_PLUGINS)
         user_provided = set(plugin_list)
         intersection = defaults.intersection(user_provided)

@@ -1,14 +1,14 @@
 {# Builds a markdown file describing a module's (__main__.py) entrypoint #}
+[id1]: ## "Module Entrypoints"
 
 {% for subcommand in entrypoints %}
-## [**ℳ**] {{subcommand.dotpath}}
+## [**ℳ**][id1] {{subcommand.dotpath}}
 
-[**Module**] `{{subcommand.dotpath}}` publishes a command line interface (*[source]({{subcommand.src_url}})*).  
+[**[Module]**](README.md#module-entrypoints) `{{subcommand.dotpath}}` publishes a command line interface (*[source]({{subcommand.src_url|default('#undefined')}})*).
 
 Example usage:
 
 ```bash
-{{subcommand.help}}
+{{subcommand.help_output}}
 ```
 {%-endfor%}
-

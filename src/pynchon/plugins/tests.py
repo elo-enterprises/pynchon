@@ -3,10 +3,13 @@
 
 from fleks import typing
 
-from pynchon import abcs, events, models  # noqa
 from pynchon.util import lme
 
+from pynchon import abcs, events, models  # noqa
+
 LOGGER = lme.get_logger(__name__)
+
+
 #
 # class TestSuite(typing.BaseModel):
 #     suite_name: str = typing.Field(default=None)

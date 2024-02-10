@@ -24,6 +24,63 @@ LOGGER = lme.get_logger(__name__)
 #     package:str = typing.Field(default=None)
 #     subcommands:typing.List = typing.Field(default=[])
 
+from fleks.models import BaseModel
+
+
+class EntryMetadata(BaseModel):
+    is_click: bool = typing.Field(help="", required=False, default=False)
+    is_package: bool = typing.Field(help="", required=False, default=False)
+    is_module: bool = typing.Field(help="", required=False, default=True)
+    dotpath: str = typing.Field(
+        help="",
+        required=True,
+    )
+    file: str = typing.Field(
+        help="",
+        required=True,
+    )
+    resource: abcs.Path = typing.Field(help="", required=True)
+    path: abcs.Path = typing.Field(help="", required=True)
+    entrypoints: typing.List = typing.Field(help="", required=False, default=[])
+    src_root: abcs.Path = typing.Field(required=True)
+
+    @property
+    def src_url(self) -> str:
+        return "/" + str(self.path.relative_to(self.src_root.parent))
+        # return abcs.Path(path).absolute().relative_to(abcs.Path(git_root).absolute())
+
+    @property
+    def help_invocation(self):
+        if self.is_module:
+            return f"python -m{self.dotpath} --help"
+
+    @property
+    def help_output(self):
+        if self.help_invocation:
+            cmd = invoke(self.help_invocation)
+            if cmd.succeeded:
+                help = cmd.stdout.lstrip().strip()
+                help = f"$ {self.help_invocation}\n\n{help}"
+            else:
+                LOGGER.critical(
+                    f"ERROR: failure executing command (cannot extract help!)\n\ncommand='{help_invocation}'\n\nerror follows:\n\n{cmd.stderr}"
+                )
+                help = f"Failed to capture help from command `{help_invocation}`"
+            return help
+        else:
+            import IPython
+
+            IPython.embed()
+            raise Exception(self)
+
+    @property
+    def module(self):
+        return (
+            f"{self.dotpath}.__main__"
+            if str(self.file).endswith("__main__.py")
+            else self.dotpath
+        )
+
 
 class PythonCliConfig(abcs.Config):
     """ """
@@ -88,13 +145,17 @@ class PythonCliConfig(abcs.Config):
                 **dict(
                     click=self.is_click(path=f),
                     dotpath=dotpath,
-                    path=f,
+                    file=f,
+                    path=abcs.Path(f),
                     main_entrypoint=f.endswith("__main__.py"),
-                    package_entrypoint=False,
+                    # package_entrypoint=False,
                     resource=self.root / f"{dotpath}.md",
                 ),
             }
-        return list(matches.values())
+        result = list(matches.values())
+        result = [EntryMetadata(src_root=self.src_root, **x) for x in result]
+        # raise Exception(result[0])
+        return result
 
 
 @tagging.tags(click_aliases=["pc"])
@@ -141,29 +202,27 @@ class PythonCLI(models.Planner):
         output = output or self.root / "README.md"
         LOGGER.warning(f"writing toc to file: {output}")
         entrypoints = self.config.entrypoints
-        tmp = []
-        for meta in entrypoints:
-            tmp.append({**meta, **dict(
-                # src_url=meta["path"])}
-                src_url=self.get_src_url(meta['path'])
-                )})
-        entrypoints = tmp
+        # tmp = []
+        # for meta in entrypoints:
+        #     tmp.append({**meta.dict(), **dict(
+        #         # src_url=meta["path"])}
+        #         src_url='????',
+        #         #self.get_src_url(meta['path'])
+        #         )})
+        # entrypoints = tmp
         cfg = {**self.config.dict(), **dict(entrypoints=entrypoints)}
         cfg = {**api.project.get_config().dict(), **{self.config_class.config_key: cfg}}
         templatef = self.plugin_templates_root / "TOC.md.j2"
         tmpl = api.render.get_template(templatef)
         result = tmpl.render(
             # package_entrypoints=python_cli.entrypoints,
-            package_entrypoints=[e for e in entrypoints if e["package_entrypoint"]],
-            main_entrypoints=[e for e in entrypoints if e["main_entrypoint"]],
+            package_entrypoints=[e for e in entrypoints if e.is_package],
+            main_entrypoints=[e for e in entrypoints if e.is_module],
             **cfg,
         )
         with open(str(output), "w") as fhandle:
             fhandle.write(result)
-    def get_src_url(self, path):
-        return '/'+str(abcs.Path(path).relative_to(self.src_root.parent))
-        
-        return abcs.Path(path).absolute().relative_to(abcs.Path(git_root).absolute())
+
     def _click_recursive_help(
         self, resource=None, path=None, module=None, dotpath=None, name=None, **kwargs
     ):
@@ -200,9 +259,9 @@ class PythonCLI(models.Planner):
                     entrypoint=name,
                     dotpath=dotpath,
                     help=shil.invoke(
-                        f"python -m{v['command_invocation']} --help", strict=True
+                        f"python -m{v['help_invocation']} --help", strict=True
                     ).stdout,
-                    src_url=self.get_src_url(path),
+                    # src_url=self.get_src_url(path),
                 ),
             }
             for v in result
@@ -231,63 +290,54 @@ class PythonCLI(models.Planner):
     #             fhandle.write(constants.T_DETAIL_CLI.render(docs[fname]))
     #         LOGGER.debug(f"wrote: {fname}")
     #     return list(docs.keys())
+
     def get_entrypoint_metadata(self, file):
         """ """
         LOGGER.critical(f"looking up metadata for '{file}'")
         found = False
         file = abcs.Path(file)
-        def get_cmd_output(command_invocation):
-            foxl={}
-            cmd = invoke(command_invocation)
-            if cmd.succeeded:
-                help = cmd.stdout.lstrip().strip()
-                help = f"$ {command_invocation}\n\n{help}"
-            else:
-                LOGGER.critical(f"ERROR: failure executing command (cannot extract help!)\n\ncommand='{command_invocation}'\n\nerror follows:\n\n{cmd.stderr}")
-                foxl.update(help=f'Failed to capture help from command `{command_invocation}`')
-            foxl.update(click=False, help=help, command_invocation=command_invocation,)
-            return foxl
 
         for metadata in self.config["entrypoints"]:
-            if str(metadata["path"]) == str(file):
-                dotpath = metadata["dotpath"]
-                module = (
-                    f"{dotpath}.__main__"
-                    if str(file).endswith("__main__.py")
-                    else dotpath
-                )
-                command_invocation = f"python -m{dotpath} --help"
-                metadata.update(command_invocation=command_invocation)
+            # path=metadata.pop('path')
+            # raise Exception(type(path))
+            # emd = EntryMetadata(**metadata)
+            if str(metadata.path) == str(file):
+                dotpath = metadata.dotpath  # metadata["dotpath"]
+                module = metadata.module
+                help_invocation = metadata.help_invocation
+                # metadata.update(help_invocation=help_invocation)
                 try:
-                    sub_entrypoints = self._click_recursive_help(
-                        module=module,
-                        name="entry",
-                        resource=self.root / f"{dotpath}.md",
-                        dotpath=dotpath,
-                        path=file.absolute(),
+                    metadata.update(
+                        entrypoints=self._click_recursive_help(
+                            module=module,
+                            name="entry",
+                            resource=self.root / f"{metadata.dotpath}.md",
+                            dotpath=metadata.dotpath,
+                            path=file.absolute(),
+                        )
                     )
                 except (AttributeError,) as exc:
                     LOGGER.critical(
                         f"exception retrieving help programmatically: {exc}"
                     )
-                    LOGGER.critical(f"error retrieving help via system CLI {cmd}")
-                    metadata.update(entrypoints=[])
-                    metadata.update(**get_cmd_output(command_invocation))
+                    LOGGER.critical(
+                        f"error retrieving help via system CLI: {metadata.help_invocation}"
+                    )
                 else:
                     rsrc = self.root / f"{dotpath}.md"
-                    src_url = self.get_src_url(file)
+                    # src_url = metadata.src_url #self.get_src_url(file)
                     # raise Exception(file)
                     docs_url = rsrc.relative_to(self.docs_root.parent)
                     metadata.update(
                         click=True,
-                        command_invocation=command_invocation,
+                        help_invocation=help_invocation,
                         docs_url=docs_url,
                         # src_url='/'+str(src_url),
-                        src_url=src_url,
+                        # src_url=src_url,
                         resource=rsrc,
                         entrypoints=sub_entrypoints,
                     )
-                    metadata.update(**get_cmd_output(command_invocation))
+                    # metadata.update(**get_cmd_output(help_invocation))
                     # import IPython; IPython.embed()
                     # raise Exception(sub_entrypoints)
                 found = True
@@ -296,13 +346,15 @@ class PythonCLI(models.Planner):
             LOGGER.critical(f"missing {file}")
             return {}
         return metadata
+
     @property
     def docs_root(self):
         return abcs.Path(self[:"docs.root":])
+
     @property
     def src_root(self):
         return abcs.Path(self[:"src.root":])
-    
+
     @property
     def root(self):
         return self.config.root
@@ -362,11 +414,9 @@ class PythonCLI(models.Planner):
         #         type="gen", resource=cli_root,))
 
         for entrypoint_metadata in self.config.entrypoints:
-            entrypoint_metadata = self.get_entrypoint_metadata(
-                entrypoint_metadata["path"]
-            )
-            inp = entrypoint_metadata["path"]
-            rsrc = entrypoint_metadata["resource"]
+            entrypoint_metadata = self.get_entrypoint_metadata(entrypoint_metadata.path)
+            inp = entrypoint_metadata.path
+            rsrc = entrypoint_metadata.resource
             if not rsrc:
                 raise Exception(entrypoint_metadata)
             plan.append(

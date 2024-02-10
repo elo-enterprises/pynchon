@@ -15,8 +15,6 @@ LOGGER = lme.get_logger(__name__)
 @tagging.tags(click_aliases=["py"])
 class PythonPlatform(models.Planner):
     """
-    Subcommand for the PythonPlatform plugin.
-    
     Code transformation and docs-generation utilities for python projects.
     """
 
