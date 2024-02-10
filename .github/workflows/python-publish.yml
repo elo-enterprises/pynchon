@@ -11,6 +11,7 @@ permissions:
   contents: read
 jobs:
   tests:
+    name: Tests
     uses: ./.github/workflows/python-test.yml
   publish:
     name: Publish
@@ -25,5 +26,5 @@ jobs:
       - name: Release Package
         run: make init release 
         env:
-          PYPI_USER: elo-e
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}        
+          PYPI_USER: ${{ secrets.PYPI_USER }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
