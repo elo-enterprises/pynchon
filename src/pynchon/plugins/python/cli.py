@@ -210,7 +210,6 @@ class PythonCLI(models.Planner):
         else:
             err = "No entrypoint found"
             LOGGER.warning(err)
-            # return dict(error=err)
             raise Exception(err)
         LOGGER.debug(f"Recursive help for `{module}:{name}`")
         result = click_recursive_help(

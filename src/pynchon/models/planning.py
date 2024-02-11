@@ -99,11 +99,15 @@ class Action(BaseModel):
     type: str = typing.Field(default="unknown_action_type")
     ok: bool = typing.Field(default=None)
     error: str = typing.Field(default="")
-    changed: bool = typing.Field(default=None)
+    changed: bool = typing.Field(default=False)
     resource: abcs.ResourceType = typing.Field(default="??")
     command: str = typing.Field(default="echo")
-    callable: typing.CallableMaybe = typing.Field(default=None)
-    owner: typing.StringMaybe = typing.Field(default=None)
+    callable: typing.CallableMaybe = typing.Field(
+        help='',
+        default=None)
+    owner: typing.StringMaybe = typing.Field(
+        help="Name of the plugin that owns this Action",
+        default=None)
     ordering: typing.StringMaybe = typing.Field(
         default=None,
         help="human-friendly string describing the sort order for this action inside plan",
@@ -115,8 +119,8 @@ class Action(BaseModel):
 
         indicator = (
             app.Text(
-                "[red]modified",
-                # justify='right',
+                "modified",
+                justify='right',
                 style="red",
             )
             if self.changed
@@ -155,12 +159,7 @@ class Action(BaseModel):
         sibs = app.Group(*filter(None, sibs))
         ordering = f" ({self.ordering.strip()})"
         return app.Panel(
-            # functools.reduce(
-            #     lambda x,y: x+y, sibs),
             sibs,
-            # title=__name__,
-            # title=f'[dim italic yellow]{self.type}',
-            # title=f'[bold cyan on black]{self.type}',
             title=app.Text(f"{ordering} ", style="dim underline")
             + app.Text(
                 f"{self.type}", style=f"dim bold {'red' if self.changed else 'green'}"
@@ -189,7 +188,6 @@ class Action(BaseModel):
         return f"<[{self.type}]@{self.resource}: {self.status_string}>"
 
 
-# class Plan(typing.List[Goal], metaclass=meta.namespace):
 class Plan(typing.BaseModel):
     """ """
 
@@ -289,6 +287,7 @@ class Plan(typing.BaseModel):
 
 
 class ApplyResults(typing.List[Action], metaclass=meta.namespace):
+    """ """
     @property
     def ok(self):
         return all([a.ok for a in self])

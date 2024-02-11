@@ -1,5 +1,5 @@
 
-[tooltip-package-entrypoints]: ## "Console Script Entrypoint"
+[tooltip-package-entrypoints]: ## "Console Script Entrypoints"
 [tooltip-module-entrypoints]: ## "Module Entrypoints"
 
 [Docs](../) *↔* [CLI](README.md) *↔* Console Scripts *↔* [Module Entrypoints](README.md#module-entrypoints)

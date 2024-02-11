@@ -62,12 +62,17 @@ class AbstractPlanner(BasePlugin):
         results = []
         total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
+        git = self.siblings["git"]
         for i, action_item in enumerate(goals):
             app.status_bar.update(stage=f"{action_item}")
             cmd = action_item.command
             ordering = f"  {i+1}/{total}"
-            # LOGGER.warning(f"{ordering}:\n    {cmd}")
+            prev_changes = git.modified
             invocation = invoke(cmd)
+            next_changes = git.modified
+            changed = all([
+                action_item.resource in next_changes,
+                action_item.resource not in prev_changes])
             tmp = planning.Action(
                 ok=invocation.succeeded,
                 ordering=ordering,
@@ -77,8 +82,8 @@ class AbstractPlanner(BasePlugin):
                 command=action_item.command,
                 resource=action_item.resource,
                 type=action_item.type,
+                changed=changed,
             )
-            # LOGGER.critical(f"{tmp}")
             lme.CONSOLE.print(tmp)
             results.append(tmp)
         results = planning.ApplyResults(results)
