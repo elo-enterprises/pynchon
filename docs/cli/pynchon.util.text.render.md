@@ -1,8 +1,13 @@
 
-[id1]: ## "Module Entrypoints"
+[tooltip-module-entrypoints]: ## "Module Entrypoints"
+[tooltip-package-entrypoints]: ## "Console Script Entrypoint"
+
+[Docs](../) *↔* [CLI](README.md) *↔* [Console Scripts](README.md#console-scripts) *↔* **Module Entrypoints**
+
+---------------------------------------------------
 
 
-## [**ℳ**][id1] pynchon.util.text.render
+## [**ℳ**][tooltip-module-entrypoints] pynchon.util.text.render
 
 [**[Module]**](README.md#module-entrypoints) `pynchon.util.text.render` publishes a command line interface (*[source](/src/pynchon/util/text/render/__main__.py)*).
 

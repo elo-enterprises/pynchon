@@ -29,23 +29,6 @@ def load_groups_from_children(root=None, parent=None):
         ]
     )
 
-
-# class handler:
-#     """ """
-#
-#     priority = -1
-#
-#     def __init__(self, parent=None):
-#         self.parent = parent
-#         self.logger = lme.get_logger(self.__class__.__name__)
-#
-#     def match(self, call_kwargs):
-#         return False
-#
-#     def __call__(self, result, **call_kwargs):
-#         return self.handle(result, **call_kwargs)
-
-
 def entry_for(
     name,
 ):
@@ -117,9 +100,6 @@ class kommand:
 
     def format_json(self, result):
         """
-
-        :param result:
-
         """
         self.logger.debug("Formatter for: `json`")
         return json.dumps(result, indent=2)
@@ -129,7 +109,7 @@ class kommand:
 
         @functools.wraps(self.fxn)
         def newf(*args, **call_kwargs):
-            self.logger.critical(f"Wrapping invocation: {self.parent.name}.{self.name}")
+            self.logger.info(f"Wrapping invocation: {self.parent.name}.{self.name}")
             call_kwargs and self.logger.debug(f" with: {call_kwargs}")
             result = self.fxn(*args, **call_kwargs)
             if result is not None:

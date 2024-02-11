@@ -38,11 +38,12 @@ def load_setupcfg(file: str = "", folder: str = ""):
     return text.loadf.ini(file)
 
 
-def load_entrypoints(config=None) -> dict:
+from pynchon.util import typing
+
+
+def load_entrypoints(config: dict = None) -> typing.List[typing.Dict]:
     """
-
-    :param config: Default value = None)
-
+    loads entrypoints from setup.cfg style configuration
     """
     if not config:
         LOGGER.critical("no config provided!")
@@ -50,7 +51,7 @@ def load_entrypoints(config=None) -> dict:
     try:
         console_scripts = config["options.entry_points"]["console_scripts"]
     except (KeyError,) as exc:
-        LOGGER.critical(
+        LOGGER.warning(
             f'could not load config["options.entry_points"]["console_scripts"] from {config}'
         )
         return {}
@@ -67,7 +68,5 @@ def load_entrypoints(config=None) -> dict:
         abs_entrypoint = tmp["module"] + ":" + tmp["entrypoint"]
         tmp["setuptools_entrypoint"] = abs_entrypoint
         entrypoints.append(tmp)
-    return dict(
-        package=package,
-        entrypoints=entrypoints,
-    )
+    return entrypoints
+    # return dict(package=package,entrypoints=entrypoints,)

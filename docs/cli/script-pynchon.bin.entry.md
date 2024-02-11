@@ -1,23 +1,23 @@
 
-[tooltip-module-entrypoints]: ## "Module Entrypoints"
 [tooltip-package-entrypoints]: ## "Console Script Entrypoint"
+[tooltip-module-entrypoints]: ## "Module Entrypoint"
 
-[Docs](../) *↔* [CLI](README.md) *↔* [Console Scripts](README.md#console-scripts) *↔* **Module Entrypoints**
+[Docs](../) *↔* [CLI](README.md) *↔* Console Scripts *↔* [Module Entrypoints](README.md#module-entrypoints)
 
 ---------------------------------------------------
 
 
-## [**ℳ**][tooltip-module-entrypoints] pynchon
+## [**℮**][tooltip-package-entrypoints] pynchon
 
-[**[Module]**](README.md#module-entrypoints) `pynchon` publishes a command line interface (*[source](/src/pynchon/__main__.py)*).
+Module [*pynchon.bin.entry*](/src/pynchon/bin.py) publishes a CLI named `pynchon` via a [console script](https://python-packaging.readthedocs.io/en/latest/command-line-scripts.html#the-console-scripts-entry-point). (*[source](/src/pynchon/bin.py)*)
 
-Example usage:
+**Example usage:**
 
 ```bash
-$ python -mpynchon --help
+$ pynchon --help
 
 ------------------------------
-Usage: python -m pynchon [OPTIONS] COMMAND [ARGS]...
+Usage: pynchon [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --get TEXT      config retrieval

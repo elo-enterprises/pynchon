@@ -99,6 +99,13 @@ class PackageConfig(abcs.Config):
         return result
 
     @property
+    def console_scripts(self) -> str:
+        """ """
+        from pynchon.util import python
+
+        return python.load_entrypoints(python.load_setupcfg())
+
+    @property
     def version(self) -> str:
         """ """
         if "version" not in self.__dict__:

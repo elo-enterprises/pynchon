@@ -1,8 +1,13 @@
 {# Builds a markdown file describing a module's (__main__.py) entrypoint #}
-[id1]: ## "Module Entrypoints"
+[tooltip-module-entrypoints]: ## "Module Entrypoints"
+[tooltip-package-entrypoints]: ## "Console Script Entrypoint"
+
+[Docs](../) *↔* [CLI](README.md) *↔* [Console Scripts](README.md#console-scripts) *↔* **Module Entrypoints**
+
+---------------------------------------------------
 
 {% for subcommand in entrypoints %}
-## [**ℳ**][id1] {{subcommand.dotpath}}
+## [**ℳ**][tooltip-module-entrypoints] {{subcommand.dotpath}}
 
 [**[Module]**](README.md#module-entrypoints) `{{subcommand.dotpath}}` publishes a command line interface (*[source]({{subcommand.src_url|default('#undefined')}})*).
 

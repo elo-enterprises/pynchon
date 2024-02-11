@@ -161,7 +161,7 @@ class Action(BaseModel):
             # title=__name__,
             # title=f'[dim italic yellow]{self.type}',
             # title=f'[bold cyan on black]{self.type}',
-            title=app.Text(f"{ordering} ", style=f"dim underline")
+            title=app.Text(f"{ordering} ", style="dim underline")
             + app.Text(
                 f"{self.type}", style=f"dim bold {'red' if self.changed else 'green'}"
             ),
