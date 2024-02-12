@@ -75,9 +75,7 @@ class PythonAPI(models.Planner):
 
     def plan(self, config=None) -> typing.List:
         """
-
-        :param config: Default value = None)
-
+        Runs a plan for this plugin
         """
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
@@ -104,6 +102,7 @@ class PythonAPI(models.Planner):
                 resource=outputf,
                 command=f"{cmd_t} {input} {output}",
                 type="gen",
+                # ordering=f'{len(plan)+1}/?',
             )
         )
-        return plan
+        return plan.finalize()

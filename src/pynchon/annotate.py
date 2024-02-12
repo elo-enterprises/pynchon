@@ -111,24 +111,22 @@ def module(name, module, working_dir=None) -> None:
 
 def should_skip(name: str):
     """
-
     :param name: str:
-    :param name: str:
-
     """
     # from pynchon.config import pynchon as pynchon_config
     from pynchon.plugins.util import get_plugin_obj
 
     should_skip = get_plugin_obj("python-api")["skip_private_methods"]
     should_skip = should_skip and name.startswith("_")
-    LOGGER.warning(
+    LOGGER.debug(
         f"annotation for `{name}` exits early; `pynchon.api.skip_private_methods` is set and this looks private"
     )
     return should_skip
 
 
 def function(name, fxn) -> None:
-    """annotates a function
+    """
+    annotates a function
 
     :param name: param fxn:
     :param fxn:

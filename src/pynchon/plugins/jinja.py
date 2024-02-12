@@ -102,7 +102,9 @@ class Jinja(models.Planner):
 
     @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False):
-        """Lists affected resources in this project"""
+        """
+        Lists affected resources for this project
+        """
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
         project_root = proj_conf.get("root", None) or self[:"git.root":"."]
@@ -154,4 +156,4 @@ class Jinja(models.Planner):
                     ),
                 )
             )
-        return plan
+        return plan.finalize()

@@ -43,6 +43,7 @@ class MkdocsPluginConfig(abcs.Config):
         candidates = filter(
             None,
             [
+                abcs.Path(".").absolute(),
                 docs and docs.root,
                 subproject and subproject.root,
                 project and project.root,
@@ -69,7 +70,7 @@ class Mkdocs(models.Planner):
         """
         import webbrowser
 
-        index_f = Path(self.site_dir) / "index.html"
+        index_f = Path(self.site_dir).absolute() / "index.html"
         url = f"file://{index_f}"
         return webbrowser.open(url)
 

@@ -50,22 +50,16 @@ class Goal(BaseModel):
     owner: typing.StringMaybe = typing.Field(default=None)
     label: typing.StringMaybe = typing.Field(default=None)
     udiff: typing.StringMaybe = typing.Field(default=None)
+    ordering: typing.StringMaybe = typing.Field(
+        default=None,
+        help="human-friendly string describing the sort order for this action inside plan",
+    )
 
     def __rich__(self) -> str:
         """ """
+        ordering = f" ({self.ordering.strip()})" if self.ordering else ""
 
         if self.udiff:
-            # sibs = [
-            #     app.Text(
-            #         f"target: {self.rel_resource}",
-            #     ),
-            #     app.Text(f"action: {self._action_summary}"),
-            #     indicator,
-            #     ind,
-            #     err,
-            # ]
-            # sibs = app.Group(*filter(None, sibs))
-
             sibs = [app.Markdown(f"```diff\n{self.udiff}\n```")]
         else:
             sibs = [
@@ -79,17 +73,17 @@ class Goal(BaseModel):
 
         return app.Panel(
             app.Group(*sibs),
-            title=app.Text(self.type or "?", style="dim bold"),
+            title=app.Text(f"{ordering} ", style="dim underline")
+            + app.Text(f"{self.type}", style="dim bold yellow"),
             title_align="left",
             style=app.Style(
                 dim=True,
-                # color='green',
                 bgcolor="black",
                 frame=False,
             ),
-            subtitle=app.Text(f"{self.label or self.owner}", style="dim")
-            + app.Text(" rsrc=", style="bold italic")
-            + app.Text(f"{self.rel_resource}", style="dim italic"),
+            subtitle=app.Text(f"{self.label or self.owner}", style="dim"),
+            # + app.Text(" rsrc=", style="bold italic")
+            # + app.Text(f"{self.rel_resource}", style="dim italic"),
         )
 
 
@@ -102,12 +96,10 @@ class Action(BaseModel):
     changed: bool = typing.Field(default=False)
     resource: abcs.ResourceType = typing.Field(default="??")
     command: str = typing.Field(default="echo")
-    callable: typing.CallableMaybe = typing.Field(
-        help='',
-        default=None)
+    callable: typing.CallableMaybe = typing.Field(help="", default=None)
     owner: typing.StringMaybe = typing.Field(
-        help="Name of the plugin that owns this Action",
-        default=None)
+        help="Name of the plugin that owns this Action", default=None
+    )
     ordering: typing.StringMaybe = typing.Field(
         default=None,
         help="human-friendly string describing the sort order for this action inside plan",
@@ -120,7 +112,7 @@ class Action(BaseModel):
         indicator = (
             app.Text(
                 "modified",
-                justify='right',
+                justify="right",
                 style="red",
             )
             if self.changed
@@ -193,10 +185,22 @@ class Plan(typing.BaseModel):
 
     goals: typing.List[Goal] = typing.Field(default=[])
 
+    def finalize(self):
+        """
+        When a plan is finished being appended to,
+        it can be "finalized" to set the `ordering` value
+        for individual goals.
+        """
+        plan_length = len(self.goals)
+        self.goals = [
+            g.copy(update=dict(ordering=f"{i+1}/{plan_length}"))
+            for i, g in enumerate(self.goals)
+        ]
+        return self
+
     def __rich__(self) -> str:
+        """ """
         syntaxes = []
-        # import IPython; IPython.embed()
-        # raise Exception(self.goals)
         for g in self.goals:
             if hasattr(g, "__rich__"):
                 syntaxes.append(g.__rich__())
@@ -233,8 +237,6 @@ class Plan(typing.BaseModel):
                 frame=False,
             ),
             subtitle=f"(Planned {len(self)} items)",  # subtitle=Text("✔", style='green')
-            # if True
-            # else Text(RED_X, style='red'),
         )
         return panel
 
@@ -282,12 +284,10 @@ class Plan(typing.BaseModel):
 
     __iadd__ = __add__
 
-    # def __str__(self):
-    #     return f"<{self.__class__.__name__}[{len(self)} goals]>"
-
 
 class ApplyResults(typing.List[Action], metaclass=meta.namespace):
     """ """
+
     @property
     def ok(self):
         return all([a.ok for a in self])

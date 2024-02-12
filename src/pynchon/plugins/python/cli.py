@@ -18,18 +18,20 @@ config_mod = shimport.lazy(
     "pynchon.config",
 )
 LOGGER = lme.get_logger(__name__)
+import click
 
 
-def _check_click(fxn=None, path=None):
-    import click
-
+def _check_click(fxn=None, path=None) -> bool:
+    """ """
     from pynchon.util.oop import is_subclass
 
     if path is not None:
         with open(str(path)) as fhandle:
             return "click" in fhandle.read()
     else:
-        return any([is_subclass(fxn, x) for x in [click.Group, click.Command]])
+        return any(
+            [isinstance(fxn, (x,)) for x in [click.Group, click.Command]]
+        ) or any([is_subclass(fxn, x) for x in [click.Group, click.Command]])
 
 
 class PythonCliConfig(abcs.Config):
@@ -101,7 +103,6 @@ class PythonCliConfig(abcs.Config):
             }
         result = list(matches.values())
         result = [EntrypointMetadata(src_root=self.src_root, **x) for x in result]
-        # raise Exception(result[0])
         return result
 
 
@@ -195,7 +196,6 @@ class PythonCLI(models.Planner):
         self, resource=None, path=None, module=None, dotpath=None, name=None, **kwargs
     ):
         """ """
-        import shil
 
         result = []
         if name and not module:
@@ -212,8 +212,13 @@ class PythonCLI(models.Planner):
             LOGGER.warning(err)
             raise Exception(err)
         LOGGER.debug(f"Recursive help for `{module}:{name}`")
+        # raise Exception(dir())
         result = click_recursive_help(
-            entrypoint, parent=None, path=path, dotpath=dotpath, **kwargs
+            entrypoint,
+            parent=None,
+            path=path,
+            dotpath=dotpath,
+            module=module,
         ).values()
         git_root = self.siblings["git"]["root"]
         result = [
@@ -225,9 +230,10 @@ class PythonCLI(models.Planner):
                     package=module.split(".")[0],
                     entrypoint=name,
                     dotpath=dotpath,
-                    help=shil.invoke(
-                        f"python -m{v['help_invocation']} --help", strict=True
-                    ).stdout,
+                    help="???",
+                    # help=shil.invoke(
+                    #     f"python -m{v['help_invocation']} --help", strict=True
+                    # ).stdout,
                     # src_url=self.get_src_url(path),
                 ),
             }
@@ -262,56 +268,64 @@ class PythonCLI(models.Planner):
         self, file: str = None, console_script: bool = False
     ) -> EntrypointMetadata:
         """ """
-        LOGGER.info(f"looking up entrypoint metadata for '{file}'")
         if console_script:
+            LOGGER.warning(f"looking up console-script metadata for '{file}'")
             filtered = self.console_script_entrypoints
         else:
+            LOGGER.warning(f"looking up module-entrypoint metadata for '{file}'")
             filtered = self.config["module_entrypoints"]
         found = False
         file = abcs.Path(file)
         for emd in filtered:
-            # raise Exception(metadata)
-            # path=metadata.pop('path')
-            # raise Exception(type(path))
-            # emd = EntrypointMetadata(**metadata)
             if str(emd.path) == str(file):
-                # help_invocation = emd.help_invocation
-                # metadata.update(help_invocation=help_invocation)
-                try:
-                    emd.update(
-                        entrypoints=self._click_recursive_help(
+                if console_script:
+                    raise Exception(emd.dict())
+                else:
+                    module = shimport.import_module(emd.module)
+                    wrapped = shimport.wrapper(module)
+                    click_entries = wrapped.filter(
+                        only_functions=True, filter_vals=[_check_click]
+                    )
+                    click_entry = (
+                        list(click_entries.items())[0] if click_entries else None
+                    )
+                    if click_entry is None:
+                        LOGGER.critical(
+                            f"exception retrieving help programmatically: {file}"
+                        )
+                        # LOGGER.critical(
+                        #     f"error retrieving help via system CLI: {emd.help_invocation}"
+                        # )
+                        recursive_help = {}
+                    else:
+                        name, fxn = click_entry
+                        recursive_help = self._click_recursive_help(
                             module=emd.module,
                             name="entry",
-                            resource=self.root / f"{emd.dotpath}.md",
+                            # resource=self.root / f"{emd.dotpath}.md",
+                            resource=emd.resource,
                             dotpath=emd.dotpath,
                             path=emd.path,
-                            file=file,
+                            file=emd.file,
                         )
-                    )
-                except (AttributeError,) as exc:
-                    LOGGER.critical(
-                        f"exception retrieving help programmatically: {exc}"
-                    )
-                    LOGGER.critical(
-                        f"error retrieving help via system CLI: {emd.help_invocation}"
-                    )
-                else:
-                    rsrc = self.root / f"{emd.dotpath}.md"
-                    # src_url = metadata.src_url #self.get_src_url(file)
-                    # raise Exception(file)
-                    docs_url = rsrc.relative_to(self.docs_root.parent)
-                    emd.update(
-                        is_click=True,
-                        # help_invocation=help_invocation,
-                        docs_url=docs_url,
-                        # src_url='/'+str(src_url),
-                        # src_url=src_url,
-                        resource=rsrc,
-                        # entrypoints=sub_entrypoints,
-                    )
-                    # metadata.update(**get_cmd_output(help_invocation))
-                    # import IPython; IPython.embed()
-                    # raise Exception(sub_entrypoints)
+                # try:
+                # emd.update(entrypoints=tmp)
+                # except (AttributeError,) as exc:
+                # else:
+                # rsrc = self.root / f"{emd.dotpath}.md"
+                # docs_url = rsrc.relative_to(self.docs_root.parent)
+                # emd.update(
+                #     is_click=True,
+                #     # help_invocation=help_invocation,
+                #     docs_url=docs_url,
+                #     # src_url='/'+str(src_url),
+                #     # src_url=src_url,
+                #     resource=rsrc,
+                #     # entrypoints=sub_entrypoints,
+                # )
+                # metadata.update(**get_cmd_output(help_invocation))
+                # import IPython; IPython.embed()
+                # raise Exception(sub_entrypoints)
                 found = True
                 break
         if not found:
@@ -439,5 +453,4 @@ class PythonCLI(models.Planner):
                     resource=rsrc,
                 )
             )
-
-        return plan
+        return plan.finalize()

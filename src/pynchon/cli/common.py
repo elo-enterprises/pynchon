@@ -29,6 +29,7 @@ def load_groups_from_children(root=None, parent=None):
         ]
     )
 
+
 def entry_for(
     name,
 ):
@@ -99,8 +100,7 @@ class kommand:
         self.logger = lme.get_logger(f"cmd[{name}]")
 
     def format_json(self, result):
-        """
-        """
+        """ """
         self.logger.debug("Formatter for: `json`")
         return json.dumps(result, indent=2)
 

@@ -69,10 +69,15 @@ class AbstractPlanner(BasePlugin):
             ordering = f"  {i+1}/{total}"
             prev_changes = git.modified
             invocation = invoke(cmd)
-            next_changes = git.modified
-            changed = all([
-                action_item.resource in next_changes,
-                action_item.resource not in prev_changes])
+            rsrc_path = abcs.Path(action_item.resource).absolute()
+            next_changes = [path.absolute() for path in git.modified]
+            changed = all(
+                [
+                    rsrc_path in next_changes,
+                    # rsrc_path not in prev_changes,
+                ]
+            )
+            # raise Exception([changed,action_item.resource, next_changes])
             tmp = planning.Action(
                 ok=invocation.succeeded,
                 ordering=ordering,

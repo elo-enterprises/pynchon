@@ -177,4 +177,4 @@ class Core(models.Planner):
                 for g in subplan.goals:
                     self.logger.info(f"{plugin_obj} contributes {g}")
                     plan.append(g)
-        return plan
+        return plan.finalize()

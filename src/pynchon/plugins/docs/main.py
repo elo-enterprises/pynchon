@@ -2,7 +2,7 @@
 """
 
 import fleks
-import shimport
+import gripe
 from fleks import cli, tagging
 from memoized_property import memoized_property
 
@@ -12,7 +12,6 @@ from pynchon.plugins.docs.opener import OpenerMixin
 from pynchon import abcs, api, events, models  # noqa
 from pynchon.util import files, lme, typing  # noqa
 
-grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)
 
 
@@ -57,7 +56,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
     @memoized_property
     def server(self):
-        return grip.server
+        return gripe.server
 
     @cli.click.group("gen")
     def gen(self):
@@ -88,16 +87,16 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @cli.click.option("--force", is_flag=True, default=False)
     def serve(
         self,
-        background: bool = True,
+        # background: bool = True,
         force: bool = False,
     ) -> typing.Dict[str, str]:
         """
-        Runs a `grip` server for this project
+        Runs a `gripe` server for this project
         """
         LOGGER.critical("running serve")
         args = "--force" if force else ""
         if not self.server.live or force:
-            cmd = f"python -m pynchon.gripe start {args}"
+            cmd = f"python -m gripe start {args}"
             LOGGER.critical(cmd)
             assert invoke(cmd).succeeded
         return dict(url=self.server_url, pid=self.server_pid)

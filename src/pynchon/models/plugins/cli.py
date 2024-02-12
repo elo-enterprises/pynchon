@@ -146,30 +146,22 @@ class CliPlugin(PynchonPlugin):
         # click_parent_plugin = tags.get("click_parent_plugin", None)
         publish_to_cli = tags.get("publish_to_cli", True)
 
+        from pynchon.util.text import dumps  # noqa
+
         if not publish_to_cli:
             return
 
         def wrapper(*args, fxn=fxn, **kwargs):
             LOGGER.warning(f"calling {fxn.__name__} from wrapper")
             result = fxn(*args, **kwargs)
-            # FIXME: this wraps twice?
-            # from rich import print_json
-            # print_json(text.to_json(result))
-            # if hasattr(result, 'display'):
-            from pynchon.util.text import dumps
 
             rproto = getattr(result, "__rich__", None)
             if rproto:
-                LOGGER.warning(f"rproto {result}")
+                # LOGGER.warning(f"rproto {result}")
                 from pynchon.util.lme import CONSOLE
 
                 CONSOLE.print(rproto())
             print(dumps.json(result))
-            # elif hasattr(result, "as_dict"):
-            #     LOGGER.warning(f"as_dict {result}")
-            #     rich.print(result.as_dict())
-            # else:
-            # return result
 
         commands = [
             kls.click_create_cmd(
