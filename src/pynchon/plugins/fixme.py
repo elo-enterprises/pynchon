@@ -15,6 +15,16 @@ LOGGER = lme.get_logger(__name__)
 
 class FixMeConfig(abcs.Config):
     config_key: typing.ClassVar[str] = "fixme"
+    exclude_patterns: typing.List[str] = typing.Field()
+
+    # @tagging.tagged_property(conflict_strategy="override")
+    @property
+    def exclude_patterns(self):
+        from pynchon.config import globals
+
+        global_ex = globals.exclude_patterns
+        my_ex = self.__dict__.get("exclude_patterns", [])
+        return list(set(global_ex + my_ex))
 
 
 class FixMe(models.Planner):
@@ -62,7 +72,7 @@ class FixMe(models.Planner):
 
         config = self.__class__.project_config
         src_root = config.src["root"]
-        exclude_patterns = config.fixme.get("exclude_patterns", [])
+        exclude_patterns = self["exclude_patterns"]
         cmd = invoke(f"grep --line-number -R FIXME {src_root}")
         assert cmd.succeeded
         items = []

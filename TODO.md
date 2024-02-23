@@ -1,11 +1,6 @@
 release:
   grif-grep: tool for grepping [griffe](#) signatures
   grif-grap: tool for grappling [griffe](#) signatures (mapping scoped rewrites onto the source code)
-  pynchon.gripe- better interaction with grip
-  shimport- built on importlib, imphook, and deals.module_contract
-    * shimport.registry
-    * shimport.wrapper
-    * shimport.filter_module
 
 research:
   https://github.com/mermaid-js/mermaid-cli

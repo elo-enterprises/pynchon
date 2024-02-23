@@ -144,7 +144,7 @@ class AbstractPlanner(BasePlugin):
         changes = [abcs.Path(rsrc) for rsrc in changes]
         changes = [rsrc for rsrc in changes if not rsrc.is_dir()]
         self.logger.warning(f"Opening {len(changes)} changed resources.")
-        docs_plugin = self if self.name=='docs' else self.siblings["docs"]
+        docs_plugin = self if self.name == "docs" else self.siblings["docs"]
         for ch in changes:
             docs_plugin.open(ch)
         return True
