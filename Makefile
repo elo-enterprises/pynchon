@@ -83,9 +83,13 @@ docs-plan:
 	@# Run from tox, not vice versa 
 	pynchon src plan 
 	pynchon docs plan
+	pynchon python-api plan
+	pynchon python-cli plan
 docs: docs-apply
 docs-apply:
 	@# Run from tox, not vice versa 
 	pynchon src apply
 	pynchon docs apply
+	pynchon python-api apply
+	pynchon python-cli apply
 apply: docs-apply
