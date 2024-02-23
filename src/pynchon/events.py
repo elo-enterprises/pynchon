@@ -1,5 +1,6 @@
 """ pynchon.events
 """
+
 import blinker  # noqa
 from blinker import signal  # noqa
 

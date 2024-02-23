@@ -1,4 +1,5 @@
 """ pynchon.annotate """
+
 import os
 import inspect
 import importlib
@@ -110,24 +111,22 @@ def module(name, module, working_dir=None) -> None:
 
 def should_skip(name: str):
     """
-
     :param name: str:
-    :param name: str:
-
     """
     # from pynchon.config import pynchon as pynchon_config
     from pynchon.plugins.util import get_plugin_obj
 
     should_skip = get_plugin_obj("python-api")["skip_private_methods"]
     should_skip = should_skip and name.startswith("_")
-    LOGGER.warning(
+    LOGGER.debug(
         f"annotation for `{name}` exits early; `pynchon.api.skip_private_methods` is set and this looks private"
     )
     return should_skip
 
 
 def function(name, fxn) -> None:
-    """annotates a function
+    """
+    annotates a function
 
     :param name: param fxn:
     :param fxn:
@@ -164,14 +163,16 @@ def function(name, fxn) -> None:
         annotation=str(fxn_sig and fxn_sig.return_annotation or "")
         .replace("<class '", "")
         .replace("'>", ""),
-        fixme=[
-            dict(
-                glyph=" 🚩has FIXMEs ",
-                link=f"/{fxn_fname}#L{fixme_lines[0]}",
-                hover=f"on lines {fixme_lines}",
-            )
-        ]
-        if fixme_lines
-        else [],
+        fixme=(
+            [
+                dict(
+                    glyph=" 🚩has FIXMEs ",
+                    link=f"/{fxn_fname}#L{fixme_lines[0]}",
+                    hover=f"on lines {fixme_lines}",
+                )
+            ]
+            if fixme_lines
+            else []
+        ),
     )
     fxn_code and fxn._metadata.update(mccabe=complexity.complexity(fxn_code, fxn_fname))

@@ -1,5 +1,6 @@
 """ pynchon.plugins.plugins
 """
+
 from fleks import tagging
 
 from pynchon import abcs, cli, models
@@ -34,6 +35,7 @@ class PluginsMan(models.Manager):
             raise NotImplementedError()
         return result.succeeded
 
+    @tagging.tags(click_aliases=["ls"])
     def list(self, **kwargs):
         """List all plugins"""
         return list(self.status()["plugins"].keys())

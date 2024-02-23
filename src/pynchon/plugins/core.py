@@ -1,5 +1,6 @@
 """ pynchon.plugins.Core
 """
+
 from fleks import tagging
 
 from pynchon import abcs, api, cli, models
@@ -176,4 +177,4 @@ class Core(models.Planner):
                 for g in subplan.goals:
                     self.logger.info(f"{plugin_obj} contributes {g}")
                     plan.append(g)
-        return plan
+        return plan.finalize()

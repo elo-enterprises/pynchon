@@ -24,7 +24,7 @@ LOGGER = lme.get_logger(__name__)
 
 def is_templated(txt: str = "") -> bool:
     """ """
-    return "{{" in txt and "}}" in txt
+    return txt is not None and ("{{" in txt and "}}" in txt)
 
 
 def dictionary(input, context):
@@ -53,7 +53,9 @@ def get_jinja_globals():
         fname = abcs.Path(fname)
         assert fname.exists()
         script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"
-        result = invoke(f"cat {fname} | bash {script} -")
+        result = invoke(
+            f"cat {fname} | bash {script} -", command_logger=LOGGER.critical
+        )
         assert result.succeeded
         return result.stdout
 
@@ -143,6 +145,7 @@ def get_template(
         if from_string:
             template = env.from_string(from_string)
         else:
+            LOGGER.info(f"Looking up {template_name}")
             template = env.get_template(template_name)
     except (jinja2.exceptions.TemplateNotFound,) as exc:
         LOGGER.critical(f"Template exception: {exc}")

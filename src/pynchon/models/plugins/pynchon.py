@@ -1,4 +1,5 @@
 """ pynchon.models.plugins.pynchon """
+
 import collections
 
 import fleks
@@ -32,8 +33,10 @@ class PynchonPlugin(fleks.Plugin):
     ]
 
     @classproperty
-    def siblings(kls):
-        """ """
+    def siblings(kls) -> collections.OrderedDict:
+        """
+        Returns a dictionary of other plugins for this runtime
+        """
         result = []
         from pynchon.plugins import registry
 
@@ -62,7 +65,7 @@ class PynchonPlugin(fleks.Plugin):
 
     @classproperty
     def instance(kls):
-        """class-property: the instance for this plugin"""
+        """Returns the (singleton) instance for this plugin"""
         return plugins_util.get_plugin_obj(kls.name)
 
     @classproperty
@@ -76,18 +79,25 @@ class PynchonPlugin(fleks.Plugin):
 
     @classproperty
     def project_config(self):
-        """class-property: finalized project-config"""
+        """
+        Returns finalized config for the whole project
+        """
         return api.project.get_config()
 
     @classmethod
     def get_config_key(kls):
+        """
+        Returns config key or (normalized) class-name
+        """
         default = kls.name.replace("-", "_")
         config_kls = getattr(kls, "config_class", None)
         return getattr(config_kls, "config_key", default) or default
 
     @classmethod
     def get_current_config(kls):
-        """get the current config for this plugin"""
+        """
+        Get the current config for this plugin
+        """
         conf_class = getattr(kls, "config_class", None)
         if conf_class is None:
             return {}
@@ -121,17 +131,18 @@ class PynchonPlugin(fleks.Plugin):
         return result
 
     def __getitem__(self, key: str):
-        """shortcut for accessing local plugin-config
-
-        :param key: str:
+        """
+        shortcut for accessing local plugin-config
         """
         if isinstance(key, (slice,)):
+
             start, stop, step = key.start, key.stop, key.step
             try:
                 if start:
                     result = self[start]
                 if stop:
                     result = self % stop
+                result = result if result is not None else step
             except (KeyError,) as exc:
                 if step is not None:
                     return step

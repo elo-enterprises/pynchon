@@ -1,7 +1,7 @@
 """ pynchon.plugins.makefile
 """
 
-from fleks import cli
+from fleks import cli, tagging
 
 from pynchon.util.makefile import parse as makefile_parse
 
@@ -106,6 +106,7 @@ class Make(models.Planner):
             file=fhandle,
         )
 
+    @tagging.tags(click_aliases=["parse.makefile"])
     @cli.click.flag(
         "--graph", "only_graph", help="Returns only the prerequisites-graph"
     )

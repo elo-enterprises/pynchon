@@ -58,9 +58,11 @@ class Generators(models.NameSpace):
                 name=decide_subcommand_name(get_name(cmd)),
                 help=" ".join(
                     [
-                        "Aliases from"
-                        if isinstance(cmd, (cli.click.Group,))
-                        else "Alias to",
+                        (
+                            "Aliases from"
+                            if isinstance(cmd, (cli.click.Group,))
+                            else "Alias to"
+                        ),
                         get_cli_path(sibling, group, get_name(cmd)),
                     ]
                 ),

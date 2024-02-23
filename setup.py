@@ -1,5 +1,6 @@
 """ setup.py for pynchon
 """
+
 import os
 
 from setuptools import setup

@@ -1,10 +1,10 @@
 """ pynchon.models.plugins.cli 
 """
+
 import functools
 
-import fleks
 import shimport
-from fleks import tagging
+from fleks import classproperty, tagging
 
 from pynchon import api, cli, events  # noqa
 from pynchon.bin import entry  # noqa
@@ -14,7 +14,6 @@ from .pynchon import PynchonPlugin  # noqa
 
 LOGGER = lme.get_logger(__name__)
 IPython = shimport.lazy("IPython")
-classproperty = fleks.util.typing.classproperty
 config_mod = shimport.lazy("pynchon.config")
 
 
@@ -41,7 +40,7 @@ class CliPlugin(PynchonPlugin):
         def plugin_main():
             pass
 
-        plugin_main.__doc__ = (kls.__doc__ or "").lstrip().split("\n")[0]
+        plugin_main.__doc__ = (kls.__doc__ or "").lstrip()  # .split("\n")[0]
         groop = cli.common.groop(
             grp_name,
             parent=kls.click_entry,
@@ -139,39 +138,30 @@ class CliPlugin(PynchonPlugin):
         **update_kwargs,
     ):
         """ """
+        okls = kls
         fxn = cmd
         tags = tagging.tags[fxn]
         hidden = tags.get("click_hidden", False)
         click_aliases = tags.get("click_aliases", [])
-        click_parent_plugin = tags.get("click_parent_plugin", None)
+        # click_parent_plugin = tags.get("click_parent_plugin", None)
         publish_to_cli = tags.get("publish_to_cli", True)
+
+        from pynchon.util.text import dumps  # noqa
+
         if not publish_to_cli:
             return
-        if click_parent_plugin:
-            update_kwargs.update(via=kls)
-            kls = kls.siblings[click_parent_plugin]
 
         def wrapper(*args, fxn=fxn, **kwargs):
             LOGGER.warning(f"calling {fxn.__name__} from wrapper")
             result = fxn(*args, **kwargs)
-            # FIXME: this wraps twice?
-            # from rich import print_json
-            # print_json(text.to_json(result))
-            # if hasattr(result, 'display'):
-            from pynchon.util.text import dumps
 
             rproto = getattr(result, "__rich__", None)
             if rproto:
-                LOGGER.warning(f"rproto {result}")
+                # LOGGER.warning(f"rproto {result}")
                 from pynchon.util.lme import CONSOLE
 
                 CONSOLE.print(rproto())
             print(dumps.json(result))
-            # elif hasattr(result, "as_dict"):
-            #     LOGGER.warning(f"as_dict {result}")
-            #     rich.print(result.as_dict())
-            # else:
-            # return result
 
         commands = [
             kls.click_create_cmd(
@@ -183,7 +173,25 @@ class CliPlugin(PynchonPlugin):
                 },
             )
         ]
+
+        assert isinstance(
+            click_aliases, (list, tuple)
+        ), f"expected list or tuple for `click_aliases`, got {type(click_aliases)} in context {locals()}"
         for alias in click_aliases:
+            if "." in alias:
+                click_parent_plugin, name = alias.split(".")
+                assert (
+                    click_parent_plugin and name
+                ), f"failed unpacking {alias} {locals()}"
+                # raise Exception(click_parent_plugin)
+                update_kwargs.update(
+                    name=name,
+                )
+                update_kwargs.update(via=kls)
+                kls = kls.siblings[click_parent_plugin]
+                update_kwargs.update(
+                    help=f"(alias for `{okls.click_entry.name} {okls.cli_name} {fxn.__name__}`)"
+                )
             tmp = kls.click_create_cmd(
                 fxn,
                 wrapper=wrapper,
@@ -270,14 +278,18 @@ class CliPlugin(PynchonPlugin):
         """ """
         assert fxn
         assert wrapper
-        via = via.__name__ if via else ""
+        via = f"the {via.__name__} plugin" if via else ""
         name = click_kwargs.pop("name", alias or fxn.__name__)
         name = name.replace("_", "-")
         alt = f"(alias for `{alias}`)" if alias else ""
         alt = alt or (f"(via {via})" if via else "")
+        default = fxn.__doc__ or ""
+        alt2 = default.lstrip().split("\n")
+        alt2 = alt2[:2] + [" .. "] if len(alt2) > 2 else alt2[:2]
+        alt2 = "\n".join(alt2)
         help = click_kwargs.pop(
             "help",
-            (alt if alt else (fxn.__doc__ or "").lstrip().split("\n")[0]),
+            (alt if alt else alt2),
         )
         help = help.lstrip()
         cmd = cli.common.kommand(

@@ -120,6 +120,7 @@ class Git(models.Provider):
     name = "git"
     config_class = GitConfig
 
+    @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False) -> typing.List[abcs.Path]:
         """lists files tracked by git"""
         if changes:
@@ -140,10 +141,10 @@ class Git(models.Provider):
         """JSON version of `git status` for this project"""
         cmd = self.config._run("git status --short")
         lines = [line.lstrip().strip() for line in cmd.stdout.split("\n")]
-        lines = [filter(None, line.split(" ")) for line in lines if line]
-        abspaths = [
-            (code, abcs.Path(self.config.root) / abcs.Path(fname))
-            for code, fname in lines
-        ]
+        lines = [list(filter(None, line.split(" "))) for line in lines if line]
+        lines = [line for line in lines if len(line) == 2]
+        abspaths = []
+        for code, fname in lines:
+            abspaths.append((code, abcs.Path(self.config.root) / abcs.Path(fname)))
         modified = [p for (code, p) in abspaths if code.strip() == "M"]
         return dict(modified=modified)

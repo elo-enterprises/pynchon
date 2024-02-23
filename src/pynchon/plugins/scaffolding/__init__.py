@@ -1,5 +1,6 @@
 """ pynchon.plugins.scaffolding
 """
+
 from fleks import tagging
 
 from pynchon import models

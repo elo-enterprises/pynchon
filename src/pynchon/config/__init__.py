@@ -1,5 +1,6 @@
 """ pynchon.config
 """
+
 # from pynchon import abcs
 from fleks.plugin import Meta
 

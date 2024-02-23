@@ -1,5 +1,6 @@
 """ tests for `pynchon` CLI
 """
+
 from pynchon.util import testing
 
 from pynchon.util.os import invoke  # noqa
@@ -19,6 +20,7 @@ TEST_CMDS = [
     # "pynchon gen cli all --output-dir docs/cli",
     # "pynchon gen cli main --file src/pynchon/__main__.py --output-dir docs/cli"
 ]
+
 
 def test_cmds():
     for cmd in TEST_CMDS:

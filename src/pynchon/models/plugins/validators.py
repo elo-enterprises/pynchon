@@ -2,6 +2,7 @@
 
     FIXME: ntuple struct for vdata
 """
+
 import fleks
 
 from pynchon.util import lme, typing  # noqa

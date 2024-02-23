@@ -7,7 +7,7 @@
     'jinja', 'json', 'git', 'core', 'python', 'gripe',
 
     // Recommended for projects with source-code
-    "docs", "src", "tests", "cicd", "fixme", "github",
+    "docs", "src", "test", "cicd", "fixme", "github",
     "makefile",  // makefile parsing
 
     // Standard if there's a python-project
@@ -87,14 +87,6 @@
     ],
   },
 
-  // Config for `tests` plugin:
-  //   ...
-  "tests": {
-    "root": "{{pynchon.root}}/tests",
-    "include_patterns": ["**/*.py",],
-    "suite_patterns": ["*/",],
-  },
-
   // Config for `docs` plugin:
   //   Runs a webserver to open docs-files
   "docs": {
@@ -109,6 +101,15 @@
 // Config for `project` plugin:
   "project":{
     "subproject_patterns": [],
+  },
+
+  // Config for `tests` plugin:
+  //   ...
+  "test": {
+    "markdown": true,
+    "root": "{{pynchon.root}}/tests",
+    "include_patterns": ["**/*.py",],
+    "suite_patterns": ["*/",],
   },
 
   // END: core plugins-config

@@ -1,8 +1,9 @@
 """ pynchon.plugins.mermaid
 """
+
 import os
 
-from fleks import cli
+from fleks import cli, tagging
 
 from pynchon.util.os import invoke
 
@@ -23,11 +24,7 @@ class Mermaid(models.Planner):
     name = "mermaid"
     cli_name = "mermaid"
 
-    @property
-    def working_dir(self):
-        """ """
-        return abcs.Path(".").absolute()
-
+    @tagging.tags(click_aliases=["ls"])
     def list(self):
         """
         Find mermaid diagrams under `{{project_root}}/**/*.mmd`
@@ -40,7 +37,6 @@ class Mermaid(models.Planner):
         result = files.find_globs(search)
         return result
 
-    # @cli.options.in_place
     @cli.options.output
     @cli.click.option("--img", default="nshine/dot")
     # @cli.click.option("--output-mode")
@@ -49,7 +45,6 @@ class Mermaid(models.Planner):
         self,
         img: str = "??",
         file: str = "",
-        # in_place: bool = True,
         # output_mode: str = "",
         output: str = "",
     ):

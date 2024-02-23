@@ -5,6 +5,7 @@ Relevant subcommands:
  * `pynchon gen dot files ..`
  * `pynchon dot render ..`
 """
+
 import os
 
 from pynchon.util.os import invoke

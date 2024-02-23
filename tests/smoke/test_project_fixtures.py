@@ -1,7 +1,8 @@
 """ tests for `pynchon` CLI
 """
+
 # from pynchon.util import testing
-# 
+#
 # TEST_INFO = testing.get_test_info(__file__)
 # PROJECT_FIXTURES = TEST_INFO.fixtures.path / "projects"
 

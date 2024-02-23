@@ -1,6 +1,8 @@
 """ pynchon.models.planner """
+
 import typing
 
+from fleks import tagging
 from memoized_property import memoized_property
 from fleks.util.tagging import tags
 
@@ -60,26 +62,43 @@ class AbstractPlanner(BasePlugin):
         results = []
         total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
+        git = self.siblings["git"]
         for i, action_item in enumerate(goals):
             app.status_bar.update(stage=f"{action_item}")
             cmd = action_item.command
-            LOGGER.warning(f"  {i}/{total}: {cmd}")
-            application = invoke(cmd)
+            ordering = f"  {i+1}/{total}"
+            prev_changes = git.modified
+            invocation = invoke(cmd)
+            rsrc_path = abcs.Path(action_item.resource).absolute()
+            next_changes = [path.absolute() for path in git.modified]
+            changed = all(
+                [
+                    rsrc_path in next_changes,
+                    # rsrc_path not in prev_changes,
+                ]
+            )
+            # raise Exception([changed,action_item.resource, next_changes])
             tmp = planning.Action(
-                ok=application.succeeded,
+                ok=invocation.succeeded,
+                ordering=ordering,
+                error="" if invocation.succeeded else invocation.stderr,
+                # log=invocation.succeeded and invocation.stderr else None,
+                owner=action_item.owner,
                 command=action_item.command,
                 resource=action_item.resource,
                 type=action_item.type,
+                changed=changed,
             )
+            lme.CONSOLE.print(tmp)
             results.append(tmp)
         results = planning.ApplyResults(results)
+        # write status event (used by the app-console)
         app.status_bar.update(
-            # write status event (used by the app-console)
             app="Pynchon::HOOKS",
             stage=f"{cls_name}",
         )
         resources = list({r.resource for r in results})
-        LOGGER.critical(f"{msg} ({len(resources)} resources)")
+        LOGGER.critical(f"Finished apply ({len(resources)} resources)")
         hooks = self.apply_hooks
         if hooks:
             self.logger.warning(
@@ -102,6 +121,7 @@ class AbstractPlanner(BasePlugin):
 
     @memoized_property
     def apply_hooks(self):
+        """ """
         hooks = [x for x in self.hooks if x.split("-")[-1] == "apply"]
         apply_hooks = self["apply_hooks"::[]]
         hooks += [
@@ -124,8 +144,9 @@ class AbstractPlanner(BasePlugin):
         changes = [abcs.Path(rsrc) for rsrc in changes]
         changes = [rsrc for rsrc in changes if not rsrc.is_dir()]
         self.logger.warning(f"Opening {len(changes)} changed resources.")
+        docs_plugin = self if self.name == "docs" else self.siblings["docs"]
         for ch in changes:
-            self.siblings["docs"].open(ch)
+            docs_plugin.open(ch)
         return True
 
     @typing.validate_arguments
@@ -178,6 +199,7 @@ class ResourceManager(Manager):
         these_changes = set(changes).intersection(set(self.list(changes=False)))
         return dict(modified=list(these_changes))
 
+    @tagging.tags(click_aliases=["ls"])
     @cli.click.option(
         "--changes",
         "-m",

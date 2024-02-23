@@ -1,5 +1,6 @@
 """ pynchon.abcs.visitor
 """
+
 import copy
 from types import MappingProxyType
 

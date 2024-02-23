@@ -1,5 +1,6 @@
 """ pynchon.plugins.github
 """
+
 import webbrowser
 
 import shimport
@@ -26,6 +27,11 @@ class GitHub(models.ToolPlugin):
         org_url: str = typing.Field(default=None)
         repo_url: str = typing.Field(default=None)
         actions: typing.List[abcs.Path] = typing.Field(default=[None])
+        raw_url: str = typing.Field(default=None)
+
+        @property
+        def raw_url(self):
+            return f"https://raw.githubusercontent.com/{self.org_name}/{config.git.repo_name}"
 
         @property
         def actions(self) -> typing.List[typing.Dict]:

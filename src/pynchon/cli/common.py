@@ -1,6 +1,7 @@
 """ pynchon.cli.common:
     Common options/arguments and base classes for CLI
 """
+
 import json
 import functools
 
@@ -29,22 +30,6 @@ def load_groups_from_children(root=None, parent=None):
     )
 
 
-# class handler:
-#     """ """
-#
-#     priority = -1
-#
-#     def __init__(self, parent=None):
-#         self.parent = parent
-#         self.logger = lme.get_logger(self.__class__.__name__)
-#
-#     def match(self, call_kwargs):
-#         return False
-#
-#     def __call__(self, result, **call_kwargs):
-#         return self.handle(result, **call_kwargs)
-
-
 def entry_for(
     name,
 ):
@@ -65,32 +50,6 @@ def entry_for(
 
     entry = click.group(name.split(".")[-1], cls=Groop)(entry)
     return entry
-
-
-def create_command(_name: str, fxn: typing.Callable, entry=None):
-    """
-    FIXME: move to fleks?
-    WARNING: do not change signature.  this function is used
-    with `shimport.wrapper().map(...)` so it must accept
-    (key,value) style arguments.
-    """
-    from fleks.util.tagging import tags
-
-    out = []
-    aliases = tags[fxn].get("click_aliases", []) + [fxn.__name__]
-    for alias in aliases:
-        out.append(
-            kommand(
-                name=alias.replace("_", "-"),
-                parent=entry,
-                help=(
-                    fxn.__doc__
-                    if alias == fxn.__name__
-                    else f"alias for `{fxn.__name__}`"
-                ),
-            )(fxn)
-        )
-    return out
 
 
 class kommand:
@@ -141,11 +100,7 @@ class kommand:
         self.logger = lme.get_logger(f"cmd[{name}]")
 
     def format_json(self, result):
-        """
-
-        :param result:
-
-        """
+        """ """
         self.logger.debug("Formatter for: `json`")
         return json.dumps(result, indent=2)
 
@@ -154,7 +109,7 @@ class kommand:
 
         @functools.wraps(self.fxn)
         def newf(*args, **call_kwargs):
-            self.logger.critical(f"Wrapping invocation: {self.parent.name}.{self.name}")
+            self.logger.info(f"Wrapping invocation: {self.parent.name}.{self.name}")
             call_kwargs and self.logger.debug(f" with: {call_kwargs}")
             result = self.fxn(*args, **call_kwargs)
             if result is not None:
@@ -181,6 +136,32 @@ class kommand:
         for arg in self.arguments:
             f = arg(f)
         return f
+
+
+def create_command(_name: str, fxn: typing.Callable, entry=None):
+    """
+    FIXME: move to fleks?
+    WARNING: do not change signature.  this function is used
+    with `shimport.wrapper().map(...)` so it must accept
+    (key,value) style arguments.
+    """
+    from fleks.util.tagging import tags
+
+    out = []
+    aliases = tags[fxn].get("click_aliases", []) + [fxn.__name__]
+    for alias in aliases:
+        out.append(
+            kommand(
+                name=alias.replace("_", "-"),
+                parent=entry,
+                help=(
+                    fxn.__doc__
+                    if alias == fxn.__name__
+                    else f"alias for `{fxn.__name__}`"
+                ),
+            )(fxn)
+        )
+    return out
 
 
 class groop(kommand):

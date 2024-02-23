@@ -1,5 +1,6 @@
 """ pynchon.plugins.src
 """
+
 import fnmatch
 
 from pynchon import abcs, api, cli, events, models  # noqa
@@ -50,14 +51,14 @@ class SourceMan(models.ResourceManager):
     priority = 0
 
     # @tagging.tagged_property(conflict_strategy="override")
-    @property
-    def exclude_patterns(self):
-        from pynchon.plugins import util as plugin_util
-
-        globals = plugin_util.get_plugin("globals").get_current_config()
-        global_ex = globals["exclude_patterns"]
-        my_ex = self.get("exclude_patterns", [])
-        return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
+    # @property
+    # def exclude_patterns(self):
+    #     from pynchon.plugins import util as plugin_util
+    #
+    #     globals = plugin_util.get_plugin("globals").get_current_config()
+    #     global_ex = globals["exclude_patterns"]
+    #     my_ex = self.get("exclude_patterns", [])
+    #     return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
     # @tagging.tagged_property(conflict_strategy='override')
     # def exclude_patterns(self):

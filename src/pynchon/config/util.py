@@ -1,5 +1,6 @@
 """ pynchon.config.util
 """
+
 import functools
 import collections
 
@@ -18,8 +19,6 @@ from pydantic import create_model
 @functools.lru_cache(maxsize=100, typed=False)
 def finalize():
     """ """
-    # margs=dict(__base__=abcs.Config)
-    # margs =
     from pynchon import abcs
     from pynchon.plugins import registry as plugins_registry
 
@@ -29,13 +28,6 @@ def finalize():
         pynchon=config_module.RAW,
         git=config_module.GIT,
     )
-
-    # result = dict(
-    #     pynchon=MappingProxyType(
-    #         {k: v for k, v in config_module.RAW.items() if not isinstance(v, (dict,))}
-    #     ),
-    #     git=config_module.GIT,
-    # )
 
     # NB: already sorted by priority
     for pname in plugins_registry.keys():
@@ -105,9 +97,22 @@ def finalize():
 
 
 def config_folders():
+    import os
+
     from pynchon import config
 
-    folders = list(set(filter(None, [constants.PYNCHON_ROOT, config.GIT["root"]])))
+    folders = list(
+        set(
+            filter(
+                None,
+                [
+                    os.getcwd(),
+                    constants.PYNCHON_ROOT,
+                    config.GIT["root"],
+                ],
+            )
+        )
+    )
     return [abcs.Path(f) for f in folders]
 
 
@@ -116,26 +121,19 @@ def get_config_files():
     if constants.PYNCHON_CONFIG:
         return [abcs.Path(constants.PYNCHON_CONFIG)]
     result = []
-    for folder in config_folders():
+    folders = config_folders()
+    for folder in folders:
         for file in constants.CONF_FILE_SEARCH_ORDER:
-            result.append(folder / file)
-    # FIXME: handle overrides from subproject
-    # subproject = project['subproject']
-    # subproject_root = subproject and subproject['root']
-    # if subproject_root:
-    #     config_candidates += [
-    #         subproject_root / "pynchon.json5",
-    #         subproject_root / ".pynchon.json5",
-    #         subproject_root / "pyproject.toml",
-    #     ]
-    # config_candidates = [p for p in config_candidates if p.exists()]
+            candidate = folder / file
+            result.append(candidate)
     return result
 
 
 def load_config_from_files() -> typing.Dict[str, str]:
     """ """
     contents = collections.OrderedDict()
-    for config_file in get_config_files():
+    candidates = get_config_files()
+    for config_file in candidates:
         if not config_file.exists():
             LOGGER.info(f"config_file@`{config_file}` doesn't exist, skipping it")
             continue
@@ -148,7 +146,13 @@ def load_config_from_files() -> typing.Dict[str, str]:
         elif config_file.name.endswith(".json5"):
             LOGGER.info(f"Loading from json5: {config_file}")
             with open(config_file.absolute()) as fhandle:
-                contents[config_file] = loads.json5(fhandle.read())
+                raw_contents = fhandle.read()
+            try:
+                contents[config_file] = loads.json5(raw_contents)
+            except (Exception,) as exc:
+                LOGGER.critical(exc)
+                contents[config_file] = {}
+
         else:
             err = f"don't know how to load config from {config_file}"
             raise NotImplementedError(err)

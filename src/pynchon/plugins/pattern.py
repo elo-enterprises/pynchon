@@ -3,6 +3,7 @@
     See also:
         https://github.com/cookiecutter/cookiecutter/issues/784
 """
+
 import os
 
 from fleks import cli, tagging
@@ -28,7 +29,7 @@ class RenderResult(abcs.Config):
 
     @property
     def diff(self):
-        return str_diff(self.before, self.after)
+        return str_diff(self.after, self.before)
 
     def __str__(self):
         return f"<RenderResult {self.src}>"
@@ -251,6 +252,7 @@ class Pattern(models.ResourceManager):
         tmp = map(str, tmp)
         return list(tmp)
 
+    @tagging.tags(click_aliases=["ls"])
     def list(self) -> typing.List:
         """
         Describe templates we can cut patterns from
@@ -285,7 +287,11 @@ class Pattern(models.ResourceManager):
         context.update(__template__=dest)
         pattern = Scaffold(kind=kind, root=self.pattern_folder / kind)
         dest = abcs.Path(dest)
-        src_content = abcs.Path(src).read()
+        try:
+            src_content = abcs.Path(src).read()
+        except (Exception,) as exc:
+            LOGGER.critical(f"error reading '{src}':\n\n{exc}")
+            src_content = None
         src_templated = render.is_templated(src_content)
         if dest.exists():
             if src_templated:
@@ -382,7 +388,8 @@ class Pattern(models.ResourceManager):
         should_plan: bool = False,
     ):
         """Instantiates PATTERN to NAME"""
-        name = (self[:"project.name":name],)
+        oname = name
+        name = self[:"project.name":name]
         pfolder = self.pattern_folder / kind
         if not pfolder.exists():
             choices = set(self.list().keys())
@@ -405,11 +412,13 @@ class Pattern(models.ResourceManager):
             inherits += [pfolder / "*"] if pfolder not in inherits else []
             LOGGER.warning(f"{kind} inherits {len(inherits)} patterns")
             dest = dest.relative_to(abcs.Path(".").absolute())
+            dest2 = oname if oname == "." else dest
+            # raise Exception(dest)
             for parent in inherits:
                 # parent = parent.relative_to(abcs.Path(".").absolute())
                 plan.append(
                     self.goal(
-                        command=f"cp -rfv {parent} {dest}",
+                        command=f"cp -rfv {parent} {dest2}",
                         resource=dest,
                         type="copy",
                     )

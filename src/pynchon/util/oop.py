@@ -1,5 +1,6 @@
 """ {{pkg}}.util.classproperty
 """
+
 from . import typing
 
 

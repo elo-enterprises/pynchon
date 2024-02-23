@@ -1,5 +1,6 @@
-""" pynchon.plugins.python.platform
+""" pynchon.plugins.python.platform:
 """
+
 import platform as stdlib_platform
 
 from fleks import tagging
@@ -13,7 +14,9 @@ LOGGER = lme.get_logger(__name__)
 
 @tagging.tags(click_aliases=["py"])
 class PythonPlatform(models.Planner):
-    """Context for python-platform"""
+    """
+    Code transformation and docs-generation utilities for python projects.
+    """
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "python"
@@ -34,6 +37,8 @@ class PythonPlatform(models.Planner):
                 return PackageConfig()
             else:
                 return {}
+
+    cli_name = "python"
 
     priority = 2
     name = "python"
@@ -64,7 +69,7 @@ class PythonPlatform(models.Planner):
     #     """Generates code for python modules, packages, etc"""
 
     # @src.command
-    @tagging.tags(click_parent_plugin="src")
+    @tagging.tags(click_aliases=["src.sorted"])
     def sorted(self):
         """Sorts code-ordering with `ssort`"""
         plan = super(self.__class__, self).plan()
@@ -92,6 +97,13 @@ class PackageConfig(abcs.Config):
 
         result = python.load_setupcfg().get("metadata", {}).get("name")
         return result
+
+    @property
+    def console_scripts(self) -> str:
+        """ """
+        from pynchon.util import python
+
+        return python.load_entrypoints(python.load_setupcfg())
 
     @property
     def version(self) -> str:

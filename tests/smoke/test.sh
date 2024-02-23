@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
-python -m pynchon.gripe ls
+python -m gripe ls
 pynchon python-libcst gen docstrings --help
 pynchon --help
 python -mpynchon --help
@@ -26,3 +26,8 @@ pynchon pattern new --help
 pynchon py --help
 pynchon src plan | jq .
 pynchon src sorted --help
+pynchon makefile parse --help
+pynchon makefile parse Makefile |jq .
+pynchon parse markdown --help
+pynchon markdown parse --help
+pynchon parse markdown README.md --codeblocks | jq .

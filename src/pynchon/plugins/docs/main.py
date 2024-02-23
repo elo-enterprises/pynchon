@@ -1,84 +1,24 @@
-""" pynchon.plugins.docs
+""" pynchon.plugins.docs.main
 """
-import webbrowser
 
 import fleks
-import shimport
+import gripe
 from fleks import cli, tagging
 from memoized_property import memoized_property
 
 from pynchon.util.os import invoke
+from pynchon.plugins.docs.opener import OpenerMixin
 
 from pynchon import abcs, api, events, models  # noqa
 from pynchon.util import files, lme, typing  # noqa
 
-grip = shimport.lazy("pynchon.gripe")
 LOGGER = lme.get_logger(__name__)
-
-
-class OpenerMixin:
-    """
-    Helper for opening project documentation-files
-    inside a webbrowser.  We use a modified version
-    of `grip`[1] for this which is called `gripe`[2].
-
-    How this actually works depends on the file-types
-    involved, because whereas `grip` works natively to
-    render markdown as github-flavored markdown, it
-    ignores other types by default.  The `gripe` tool
-    adds a special /__raw__ endpoint for other kinds of
-    static content.
-
-    (In the future other file-types like `.dot` for raw
-    graphviz might be supported, but for now you'll still
-    have to render those to png to see a picture.)
-    """
-
-    def _open_grip(self, file: str = None):
-        """
-
-        :param file: str:  (Default value = None)
-        :param file: str:  (Default value = None)
-
-        """
-        pfile = abcs.Path(file).absolute()
-        relf = pfile.relative_to(abcs.Path(self.git_root))
-        port = self.server.port
-        if port is None:
-            LOGGER.critical("no server yet..")
-            self.serve()
-            import time
-
-            time.sleep(3)
-            return self._open_grip(file=file)
-        grip_url = f"http://localhost:{port}/{relf}"
-        LOGGER.warning(f"opening {grip_url}")
-        return dict(url=grip_url, browser=webbrowser.open(grip_url))
-
-    _open__md = _open_grip
-    _open__mmd = _open_grip
-
-    def _open_raw(self, file: str = None, server=None):
-        """
-        :param file: str:  (Default value = None)
-        :param server: Default value = None)
-        """
-        relf = file.absolute().relative_to(abcs.Path(self.git_root))
-        return self._open_grip(abcs.Path("__raw__") / relf)
-
-    _open__html = _open_raw
-    _open__png = _open_raw
-    _open__jpg = _open_raw
-    _open__jpeg = _open_raw
-    _open__gif = _open_raw
-    _open__svg = _open_raw
-    _open__htm = _open__html
 
 
 @tagging.tags(click_aliases=["d"])
 class DocsMan(models.ResourceManager, OpenerMixin):
     """
-    Management tool for project docs
+    Management tool for project docs, including helpers for enumerating, serving, & opening them.
     """
 
     class config_class(abcs.Config):
@@ -116,7 +56,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
     @memoized_property
     def server(self):
-        return grip.server
+        return gripe.server
 
     @cli.click.group("gen")
     def gen(self):
@@ -147,18 +87,16 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @cli.click.option("--force", is_flag=True, default=False)
     def serve(
         self,
-        background: bool = True,
+        # background: bool = True,
         force: bool = False,
     ) -> typing.Dict[str, str]:
         """
-        Runs a `grip` server for this project
-        :param background: bool:  (Default value = True)
-        :param force: bool:  (Default value = False)
+        Runs a `gripe` server for this project
         """
         LOGGER.critical("running serve")
         args = "--force" if force else ""
         if not self.server.live or force:
-            cmd = f"python -m pynchon.gripe start {args}"
+            cmd = f"python -m gripe start {args}"
             LOGGER.critical(cmd)
             assert invoke(cmd).succeeded
         return dict(url=self.server_url, pid=self.server_pid)
@@ -166,10 +104,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
     @tagging.tags(click_aliases=["op", "opn"])
     @fleks.cli.arguments.file
     def open(self, file, server=None):
-        """Open a docs-artifact (based on file type)
-        :param file: param server:  (Default value = None)
-        :param server:  (Default value = None)
-        """
+        """Opens a docs-artifact (based on file type)"""
         self.serve()
         file = abcs.Path(file)
         if not file.exists():
@@ -179,14 +114,21 @@ class DocsMan(models.ResourceManager, OpenerMixin):
         try:
             fxn = getattr(self, opener)
         except (AttributeError,) as exc:
-            raise NotImplementedError(
-                f"dont know how to open `{file}`, " f"method `{opener}` is missing"
-            )
-        else:
-            return fxn(file)
+            err = f"dont know how to open `{file}`, " f"method `{opener}` is missing"
+            LOGGER.warning(err)
+            ext = file.full_extension().split(".")[-1]
+            opener = f"_open__{ext}"
+            try:
+                fxn = getattr(self, opener)
+            except (AttributeError,) as exc:
+                err = (
+                    f"dont know how to open `{file}`, " f"method `{opener}` is missing"
+                )
+                raise NotImplementedError(err)
+        return fxn(file)
 
     def open_changes(self) -> typing.List[str]:
-        """Open changed files"""
+        """Opens changed files"""
         result = []
         changes = self.list(changes=True)
         if not changes:

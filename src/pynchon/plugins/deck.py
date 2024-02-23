@@ -1,5 +1,6 @@
 """ pynchon.plugins.deck
 """
+
 from pynchon import abcs, cli, events, models  # noqa
 from pynchon.util import lme, typing  # noqa
 
