@@ -1,6 +1,6 @@
 import libcst as cst
 from libcst import parse_module
-from libcst.codemod import VisitorBasedCodemodCommand, CodemodContext
+from libcst.codemod import CodemodContext, VisitorBasedCodemodCommand
 
 
 class AddDocstringsVisitor(cst.CSTVisitor):
@@ -26,20 +26,24 @@ class AddDocstringsVisitor(cst.CSTVisitor):
 
 
 class AddDocstringsCommand(VisitorBasedCodemodCommand):
-    def __init__(self, context: CodemodContext, ) -> None:
+    def __init__(
+        self,
+        context: CodemodContext,
+    ) -> None:
         # Initialize the base class with context, and save our args. Remember, the
         # "dest" for each argument we added above must match a parameter name in
         # this init.
         super().__init__(context)
 
-    def visit_ClassDef(self, node: cst.ClassDef) :
+    def visit_ClassDef(self, node: cst.ClassDef):
         # self.stack.append(node.name.value)
         pass
 
     def leave_ClassDef(self, node: cst.ClassDef) -> None:
         # self.stack.pop()
         pass
-    def visit_FunctionDef(self, node: cst.FunctionDef) :
+
+    def visit_FunctionDef(self, node: cst.FunctionDef):
         # self.stack.append(node.name.value)
         # self.annotations[tuple(self.stack)] = (node.params, node.returns)
         # return (
@@ -50,6 +54,7 @@ class AddDocstringsCommand(VisitorBasedCodemodCommand):
     def leave_FunctionDef(self, node: cst.FunctionDef) -> None:
         # self.stack.pop()
         print(node.name.value)
+
 
 if __name__ == "__main__":
     # Parse the input Python file
