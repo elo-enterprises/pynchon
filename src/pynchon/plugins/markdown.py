@@ -29,6 +29,7 @@ class Markdown(models.CliPlugin):
         # tests: DocTestSuite = typing.Field(default=markdown_suite)
 
     name = "markdown"
+    # @cli.click.flag("-p", "--python", help="only python codeblocks")
     cli_name = "markdown"
     priority = 0
 

@@ -14,6 +14,7 @@ CONF_FILE_SEARCH_ORDER = ["pynchon.json5", ".pynchon.json5", "pyproject.toml"]
 DEFAULT_PLUGINS = [
     "core",
     "git",
+    "pandoc",  # required by markdown
     "markdown",
     "src",
     "docs",
