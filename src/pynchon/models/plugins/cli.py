@@ -1,4 +1,4 @@
-""" pynchon.models.plugins.cli 
+""" pynchon.models.plugins.cli
 """
 
 import functools
@@ -189,8 +189,9 @@ class CliPlugin(PynchonPlugin):
                 )
                 update_kwargs.update(via=kls)
                 kls = kls.siblings[click_parent_plugin]
+                normalized_subcommand_name = fxn.__name__.replace("_", "-")
                 update_kwargs.update(
-                    help=f"(alias for `{okls.click_entry.name} {okls.cli_name} {fxn.__name__}`)"
+                    help=f"(alias for `{okls.click_entry.name} {okls.cli_name} {normalized_subcommand_name}`)"
                 )
             tmp = kls.click_create_cmd(
                 fxn,

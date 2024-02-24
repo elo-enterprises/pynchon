@@ -18,8 +18,12 @@
     "jinja", // projects with templated docs
     "mermaid",   // mermaid cli
 
+    // Docs-Generation
+    "pandoc",  // used by `markdown` plugin
+    "mkdocs",
+    "deck",
+
     // Experimental
-    "deck",      // slide-deck tool
     "griffe",    // ast tool
     "pattern",  // replacement for scaffold, probably
   ],
@@ -81,7 +85,7 @@
         "{{src.root}}/**/*.j2",
       ],
     "headers": {},
-    "sorted": true, 
+    "sorted": true,
     "goals": [
       // ...
     ],

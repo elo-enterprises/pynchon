@@ -11,6 +11,7 @@ python -mpynchon.util.text loadf --help
 python -mpynchon.util.text.render --help
 python -mpynchon.util.text render --help
 pynchon raw | jq .config_files
+pynchon plugins list | jq .
 pynchon cfg
 pynchon src cfg
 pynchon src plan
@@ -18,10 +19,10 @@ pynchon j list
 pynchon jinja list
 pynchon jinja plan
 pynchon jinja sh -c'self.logger.debug("hello world")'
-pynchon plugins list | jq .
 pynchon docs list | jq .
 pynchon docs plan | jq .
 pynchon git cfg | jq .
+pynchon pandoc cfg  | jq .
 pynchon pattern new --help
 pynchon py --help
 pynchon src plan | jq .
@@ -30,4 +31,5 @@ pynchon makefile parse --help
 pynchon makefile parse Makefile |jq .
 pynchon parse markdown --help
 pynchon markdown parse --help
+pynchon markdown to-pdf --help
 pynchon parse markdown README.md --codeblocks | jq .
