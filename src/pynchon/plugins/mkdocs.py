@@ -17,8 +17,10 @@ class MkdocsPluginConfig(abcs.Config):
     config_file: str = typing.Field(default=None)
 
     @property
-    def site_dir(self):
-        return self.config.get("site_dir", "site")
+    def site_relative_url(self):
+        import urllib
+        return urllib.parse.urlparse(self.config['site_url']).path
+        # return self.config.get("site_dir", "site")
 
     @property
     def config(self) -> typing.Dict:
@@ -58,7 +60,7 @@ class MkdocsPluginConfig(abcs.Config):
 class Mkdocs(models.Planner):
     """Mkdocs helper"""
 
-    priority = 6  # before mermaid
+    priority = 8 # before mermaid
     name = "mkdocs"
     cli_name = "mkdocs"
     cli_label = "Docs"
