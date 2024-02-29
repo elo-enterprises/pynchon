@@ -65,8 +65,6 @@ class Jinja(models.Planner):
         local: bool = False,
     ):
         """Lists full path of each include-file
-
-        :param local: bool:  (Default value = False)
         """
         includes = self._include_folders
         if local:

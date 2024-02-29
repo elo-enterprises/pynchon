@@ -153,9 +153,6 @@ class Core(models.Planner):
         config=None,
     ) -> models.Plan:
         """Runs plan for all plugins
-
-        :param config: Default value = None)
-
         """
 
         config = config or self.project_config
@@ -166,6 +163,7 @@ class Core(models.Planner):
             for p in plugins
             if isinstance(p, models.AbstractPlanner) and p.contribute_plan_apply
         ]
+        plugins = sorted(plugins,key=lambda p: p.priority)
         self.logger.critical(f"Planning on behalf of: {[p.name for p in plugins]}")
         for plugin_obj in plugins:
             subplan = plugin_obj.plan()
