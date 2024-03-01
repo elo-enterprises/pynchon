@@ -17,10 +17,26 @@ class MkdocsPluginConfig(abcs.Config):
     config_file: str = typing.Field(default=None)
 
     @property
+    def posts(self):
+        mconf=conf = self.config 
+        if mconf:
+            pconf = mconf['plugins'] if 'plugins' in mconf else {}
+            ddir = abcs.Path(mconf.get('docs_dir','docs'))
+            bconf = [conf for conf in pconf if 'blogging' in list(conf.keys())]
+            bconf = bconf[0]['blogging'] if bconf else {}
+            blog_dirs = [ddir/bdir for bdir in bconf.get('dirs',[])]
+            result = []
+            for bdir in blog_dirs:
+                result+=bdir.glob('**/*.md')
+            result = map(str,result)
+            return result
+    
+    @property
     def site_relative_url(self):
         import urllib
-        return urllib.parse.urlparse(self.config['site_url']).path
-        # return self.config.get("site_dir", "site")
+        site_url=self.config['site_url'] if 'site_url' in self.config else None
+        if site_url:
+            return urllib.parse.urlparse(site_url).path
 
     @property
     def config(self) -> typing.Dict:
