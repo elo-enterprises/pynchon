@@ -48,7 +48,11 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
-    def apply(self, plan: planning.Plan = None) -> planning.ApplyResults:
+    def apply(self, 
+        plan: planning.Plan = None,
+        parallel:bool=False,
+        fail_fast:bool=False,
+        ) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
         """
@@ -77,7 +81,9 @@ class AbstractPlanner(BasePlugin):
                     # rsrc_path not in prev_changes,
                 ]
             )
-            # raise Exception([changed,action_item.resource, next_changes])
+            if not parallel and fail_fast and not invocation.succeeded:
+                raise Exception(
+                    f'fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}')
             tmp = planning.Action(
                 ok=invocation.succeeded,
                 ordering=ordering,
