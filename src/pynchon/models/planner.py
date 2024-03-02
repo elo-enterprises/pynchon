@@ -58,6 +58,7 @@ class AbstractPlanner(BasePlugin):
         """
         Executes the plan for this plugin
         """
+        from multiprocessing import Pool
         cls_name = self.__class__.name
         msg = f"Applying for plugin '{cls_name}'"
         app.status_bar.update(
@@ -69,13 +70,14 @@ class AbstractPlanner(BasePlugin):
         total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
         git = self.siblings["git"]
-        for i, action_item in enumerate(goals):
-            app.status_bar.update(stage=f"{action_item}")
-            cmd = action_item.command
-            ordering = f"  {i+1}/{total}"
-            prev_changes = git.modified
-            invocation = invoke(cmd)
-            rsrc_path = abcs.Path(action_item.resource).absolute()
+        # pool = Pool() if parallel else None
+        from joblib import Parallel, delayed
+        pool = Parallel(
+            n_jobs=1 if not parallel else 3, return_as="generator")
+        def ffff(goal):
+            app.status_bar.update(stage=f"{goal}")
+            action = goal.grab()
+            rsrc_path = abcs.Path(goal.resource).absolute()
             next_changes = [path.absolute() for path in git.modified]
             changed = all(
                 [
@@ -83,24 +85,22 @@ class AbstractPlanner(BasePlugin):
                     # rsrc_path not in prev_changes,
                 ]
             )
-            success = invocation.succeeded
-            tmp = planning.Action(
-                ok=success,
-                ordering=ordering,
-                error="" if success else invocation.stderr,
-                # log=invocation.succeeded and invocation.stderr else None,
-                owner=action_item.owner,
-                command=action_item.command,
-                resource=action_item.resource,
-                type=action_item.type,
-                changed=changed,
-            )
-            lme.CONSOLE.print(tmp)
-            results.append(tmp)
+            action = planning.Action(
+                **{
+                    **action.dict(),
+                    **dict(changed=changed)})
+            lme.CONSOLE.print(action)
+            return action
+
+        for i, goal in enumerate(goals):
+            # cmd = goal.command
+            ordering = f"  {i+1}/{total}"
+            prev_changes = git.modified
+            action = ffff(goal)
+            results.append(action)
             if not parallel and fail_fast and not success:
-                self.logger.critical(
-                    f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
-                )
+                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
+                self.logger.critical(msg)
                 break
         results = planning.ApplyResults(results)
         # write status event (used by the app-console)

@@ -32,61 +32,6 @@ class BaseModel(BaseModel):
             abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
         )
 
-
-class Goal(BaseModel):
-    """ """
-
-    # FIXME: validation-- command OR callable must be set
-
-    class Config(BaseModel.Config):
-        exclude: typing.Set[str] = {"udiff", "callable"}
-        # arbitrary_types_allowed = True
-        # json_encoders = {typing.MethodType: lambda c: str(c)}
-
-    resource: abcs.ResourceType = typing.Field(default="?r", required=False)
-    command: typing.StringMaybe = typing.Field(default=None)
-    callable: typing.MethodType = typing.Field(default=None)
-    type: typing.StringMaybe = typing.Field(default=None, required=False)
-    owner: typing.StringMaybe = typing.Field(default=None)
-    label: typing.StringMaybe = typing.Field(default=None)
-    udiff: typing.StringMaybe = typing.Field(default=None)
-    ordering: typing.StringMaybe = typing.Field(
-        default=None,
-        help="human-friendly string describing the sort order for this action inside plan",
-    )
-
-    def __rich__(self) -> str:
-        """ """
-        ordering = f" ({self.ordering.strip()})" if self.ordering else ""
-
-        if self.udiff:
-            sibs = [app.Markdown(f"```diff\n{self.udiff}\n```")]
-        else:
-            sibs = [
-                app.Syntax(
-                    f"  {self._action_summary}",
-                    "bash",
-                    line_numbers=False,
-                    word_wrap=True,
-                )
-            ]
-
-        return app.Panel(
-            app.Group(*sibs),
-            title=app.Text(f"{ordering} ", style="dim underline")
-            + app.Text(f"{self.type}", style="dim bold yellow"),
-            title_align="left",
-            style=app.Style(
-                dim=True,
-                bgcolor="black",
-                frame=False,
-            ),
-            subtitle=app.Text(f"{self.label or self.owner}", style="dim"),
-            # + app.Text(" rsrc=", style="bold italic")
-            # + app.Text(f"{self.rel_resource}", style="dim italic"),
-        )
-
-
 class Action(BaseModel):
     """ """
 
@@ -179,6 +124,74 @@ class Action(BaseModel):
     def __str__(self):
         return f"<[{self.type}]@{self.resource}: {self.status_string}>"
 
+
+class Goal(BaseModel):
+    """ """
+
+    # FIXME: validation-- command OR callable must be set
+
+    class Config(BaseModel.Config):
+        exclude: typing.Set[str] = {"udiff", "callable"}
+        # arbitrary_types_allowed = True
+        # json_encoders = {typing.MethodType: lambda c: str(c)}
+
+    resource: abcs.ResourceType = typing.Field(default="?r", required=False)
+    command: typing.StringMaybe = typing.Field(default=None)
+    callable: typing.MethodType = typing.Field(default=None)
+    type: typing.StringMaybe = typing.Field(default=None, required=False)
+    owner: typing.StringMaybe = typing.Field(default=None)
+    label: typing.StringMaybe = typing.Field(default=None)
+    udiff: typing.StringMaybe = typing.Field(default=None)
+    ordering: typing.StringMaybe = typing.Field(
+        default=None,
+        help="human-friendly string describing the sort order for this action inside plan",
+    )
+    def grab(self): # -> Action:
+        from pynchon.util.os import invoke
+        invocation = invoke(self.command)
+        success = invocation.succeeded
+        return Action(
+            ok=success,
+            ordering=self.ordering,
+            error="" if success else invocation.stderr,
+            # log=invocation.succeeded and invocation.stderr else None,
+            owner=self.owner,
+            command=self.command,
+            resource=self.resource,
+            type=self.type,
+            # changed=changed,
+        )
+
+    def __rich__(self) -> str:
+        """ """
+        ordering = f" ({self.ordering.strip()})" if self.ordering else ""
+
+        if self.udiff:
+            sibs = [app.Markdown(f"```diff\n{self.udiff}\n```")]
+        else:
+            sibs = [
+                app.Syntax(
+                    f"  {self._action_summary}",
+                    "bash",
+                    line_numbers=False,
+                    word_wrap=True,
+                )
+            ]
+
+        return app.Panel(
+            app.Group(*sibs),
+            title=app.Text(f"{ordering} ", style="dim underline")
+            + app.Text(f"{self.type}", style="dim bold yellow"),
+            title_align="left",
+            style=app.Style(
+                dim=True,
+                bgcolor="black",
+                frame=False,
+            ),
+            subtitle=app.Text(f"{self.label or self.owner}", style="dim"),
+            # + app.Text(" rsrc=", style="bold italic")
+            # + app.Text(f"{self.rel_resource}", style="dim italic"),
+        )
 
 class Plan(typing.BaseModel):
     """ """
