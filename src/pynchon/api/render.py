@@ -37,6 +37,12 @@ def dictionary(input, context):
 
 
 @functools.lru_cache(maxsize=None)
+def get_jinja_filters():
+    return dict(
+        Path=abcs.Path,
+    )
+
+@functools.lru_cache(maxsize=None)
 def get_jinja_globals():
     """ """
     events.lifecycle.send(__name__, msg="finalizing jinja globals")
@@ -58,7 +64,7 @@ def get_jinja_globals():
         )
         assert result.succeeded
         return result.stdout
-
+    
     return dict(
         sh=invoke_helper,
         bash=invoke_helper,
@@ -92,6 +98,7 @@ def get_jinja_env(*includes, quiet: bool = False):
         loader=FileSystemLoader([str(t) for t in includes]),
         undefined=StrictUndefined,
     )
+    env.filters.update(**get_jinja_filters())
     env.pynchon_includes = includes
 
     env.globals.update(**get_jinja_globals())
