@@ -17,8 +17,13 @@ class MkdocsPluginConfig(abcs.Config):
     config_file: str = typing.Field(default=None)
 
     @property
-    def posts(self):
-        mconf=conf = self.config 
+    def blog_posts(self) -> list:
+        """ 
+        returns blog posts, iff blogging plugin is installed.
+        resulting files, if any, will not include index and 
+        will be sorted by modification time
+        """
+        mconf = self.config 
         if mconf:
             pconf = mconf['plugins'] if 'plugins' in mconf else {}
             ddir = abcs.Path(mconf.get('docs_dir','docs'))
@@ -27,8 +32,9 @@ class MkdocsPluginConfig(abcs.Config):
             blog_dirs = [ddir/bdir for bdir in bconf.get('dirs',[])]
             result = []
             for bdir in blog_dirs:
-                result+=bdir.glob('**/*.md')
-            result = map(str,result)
+                result += [g for g in bdir.glob('**/*.md') if g.name!='index.md']
+            result = reversed(sorted(result, key=lambda p: p.lstat().st_mtime))
+            result = [str(p) for p in result]
             return result
     
     @property
