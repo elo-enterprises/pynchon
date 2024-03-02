@@ -17,6 +17,48 @@ class MkdocsPluginConfig(abcs.Config):
     config_file: str = typing.Field(default=None)
 
     @property
+    def pages(self):
+        mconf = self.config 
+        if mconf:
+            ddir = abcs.Path(mconf.get('docs_dir','docs'))
+            from mkdocs.config.defaults import MkDocsConfig
+            from mkdocs.structure.files import File, Files
+            from mkdocs.structure.pages import Page
+            cfg = MkDocsConfig()
+            import yaml 
+            data=yaml.load(open(self.config_file, 'r').read(), yaml.FullLoader)
+            cfg.load_dict(data)
+            cfg.validate()
+            # fl = File(
+            #     'heredoc/ambient-calculus-1.md', 
+            #     cfg.docs_dir, cfg.site_dir, cfg.use_directory_urls)
+            # config_file
+            # pconf = mconf['plugins'] if 'plugins' in mconf else {}
+            # bconf = [conf for conf in pconf if 'blogging' in list(conf.keys())]
+            # bconf = bconf[0]['blogging'] if bconf else {}
+            pfiles = ddir.glob('**/*.md')
+            # pfiles = [p.relative_to(ddir) for p in pfiles]
+            pages = []
+            for pfile in pfiles:
+                rel_pfile=pfile.relative_to(ddir)
+                mfile = File(
+                    str(rel_pfile), 
+                    cfg.docs_dir, 
+                    cfg.site_dir, 
+                    cfg.use_directory_urls)
+                pg=Page(file=mfile, config=cfg, title=None, )
+                pg.read_source(cfg)
+                tags=pg.meta.get('tags', [])
+                pmeta=dict(
+                    title=pg.title,
+                    relative_url=pg.url,
+                    path=pfile.absolute(),
+                    tags=tags,
+                    )                    
+                pages.append(pmeta)
+            return pages
+        
+    @property
     def blog_posts(self) -> list:
         """ 
         returns blog posts, iff blogging plugin is installed.
