@@ -64,8 +64,7 @@ class Jinja(models.Planner):
         self,
         local: bool = False,
     ):
-        """Lists full path of each include-file
-        """
+        """Lists full path of each include-file"""
         includes = self._include_folders
         if local:
             includes.remove(api.render.PYNCHON_CORE_INCLUDES)

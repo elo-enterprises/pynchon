@@ -47,12 +47,14 @@ class AbstractPlanner(BasePlugin):
         plan = self.Plan()
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
-    @cli.click.flag('--fail-fast', default=False, help='fail fast')
-    def apply(self,
+
+    @cli.click.flag("--fail-fast", default=False, help="fail fast")
+    def apply(
+        self,
         plan: planning.Plan = None,
-        parallel:bool=False,
-        fail_fast:bool=False,
-        ) -> planning.ApplyResults:
+        parallel: bool = False,
+        fail_fast: bool = False,
+    ) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
         """
@@ -97,7 +99,8 @@ class AbstractPlanner(BasePlugin):
             results.append(tmp)
             if not parallel and fail_fast and not success:
                 self.logger.critical(
-                    f'fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}')
+                    f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
+                )
                 break
         results = planning.ApplyResults(results)
         # write status event (used by the app-console)
@@ -107,7 +110,7 @@ class AbstractPlanner(BasePlugin):
         )
         resources = list({r.resource for r in results})
         LOGGER.critical(f"Finished apply ({len(results)}/{len(goals)} goals)")
-        finished=len(results)==len(goals)
+        finished = len(results) == len(goals)
         if finished:
             hooks = self.apply_hooks
             if hooks:
@@ -120,7 +123,7 @@ class AbstractPlanner(BasePlugin):
             else:
                 self.logger.warning("No applicable hooks were found")
         else:
-            LOGGER.critical(f'{len(goals)-len(results)} goals incomplete')
+            LOGGER.critical(f"{len(goals)-len(results)} goals incomplete")
         return results
 
     def _validate_hooks(self, hooks):

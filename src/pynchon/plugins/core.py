@@ -152,8 +152,7 @@ class Core(models.Planner):
         self,
         config=None,
     ) -> models.Plan:
-        """Runs plan for all plugins
-        """
+        """Runs plan for all plugins"""
 
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
@@ -163,7 +162,7 @@ class Core(models.Planner):
             for p in plugins
             if isinstance(p, models.AbstractPlanner) and p.contribute_plan_apply
         ]
-        plugins = sorted(plugins,key=lambda p: p.priority)
+        plugins = sorted(plugins, key=lambda p: p.priority)
         self.logger.critical(f"Planning on behalf of: {[p.name for p in plugins]}")
         for plugin_obj in plugins:
             subplan = plugin_obj.plan()

@@ -1,11 +1,13 @@
 """ pynchon.plugins.project
 """
 
+from fleks.util import tagging  # noqa
+
 from pynchon import abcs, config, constants, models
 
 from pynchon.cli import common, options  # noqa
 from pynchon.util import files, lme, typing  # noqa
-from fleks.util import tagging # noqa
+
 LOGGER = lme.get_logger(__name__)
 
 
@@ -57,9 +59,7 @@ class ProjectConfig(abcs.Config):
             rel_name = r1.relative_to(r2)
             LOGGER.debug(f"subproject detected: {rel_name}")
             # LOGGER.warning(f"subproject detected:\n\t({r1} != git[root] @ {r2})")
-            return dict(
-                name=self._workdir.name,
-                root=self._workdir)
+            return dict(name=self._workdir.name, root=self._workdir)
         return {}
 
 

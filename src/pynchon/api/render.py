@@ -42,6 +42,7 @@ def get_jinja_filters():
         Path=abcs.Path,
     )
 
+
 @functools.lru_cache(maxsize=None)
 def get_jinja_globals():
     """ """
@@ -64,7 +65,7 @@ def get_jinja_globals():
         )
         assert result.succeeded
         return result.stdout
-    
+
     return dict(
         sh=invoke_helper,
         bash=invoke_helper,

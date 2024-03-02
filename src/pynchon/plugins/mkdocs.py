@@ -18,71 +18,76 @@ class MkdocsPluginConfig(abcs.Config):
 
     @property
     def pages(self):
-        mconf = self.config 
+        mconf = self.config
         if mconf:
-            ddir = abcs.Path(mconf.get('docs_dir','docs'))
+            ddir = abcs.Path(mconf.get("docs_dir", "docs"))
             from mkdocs.config.defaults import MkDocsConfig
-            from mkdocs.structure.files import File, Files
+            from mkdocs.structure.files import File
             from mkdocs.structure.pages import Page
+
             cfg = MkDocsConfig()
-            import yaml 
-            data=yaml.load(open(self.config_file, 'r').read(), yaml.FullLoader)
+            import yaml
+
+            data = yaml.load(open(self.config_file).read(), yaml.FullLoader)
             cfg.load_dict(data)
             cfg.validate()
             # fl = File(
-            #     'heredoc/ambient-calculus-1.md', 
+            #     'heredoc/ambient-calculus-1.md',
             #     cfg.docs_dir, cfg.site_dir, cfg.use_directory_urls)
             # config_file
             # pconf = mconf['plugins'] if 'plugins' in mconf else {}
             # bconf = [conf for conf in pconf if 'blogging' in list(conf.keys())]
             # bconf = bconf[0]['blogging'] if bconf else {}
-            pfiles = ddir.glob('**/*.md')
+            pfiles = ddir.glob("**/*.md")
             # pfiles = [p.relative_to(ddir) for p in pfiles]
             pages = []
             for pfile in pfiles:
-                rel_pfile=pfile.relative_to(ddir)
+                rel_pfile = pfile.relative_to(ddir)
                 mfile = File(
-                    str(rel_pfile), 
-                    cfg.docs_dir, 
-                    cfg.site_dir, 
-                    cfg.use_directory_urls)
-                pg=Page(file=mfile, config=cfg, title=None, )
+                    str(rel_pfile), cfg.docs_dir, cfg.site_dir, cfg.use_directory_urls
+                )
+                pg = Page(
+                    file=mfile,
+                    config=cfg,
+                    title=None,
+                )
                 pg.read_source(cfg)
-                tags=pg.meta.get('tags', [])
-                pmeta=dict(
+                tags = pg.meta.get("tags", [])
+                pmeta = dict(
                     title=pg.title,
                     relative_url=pg.url,
                     path=pfile.absolute(),
                     tags=tags,
-                    )                    
+                )
                 pages.append(pmeta)
             return pages
-        
+
     @property
     def blog_posts(self) -> list:
-        """ 
+        """
         returns blog posts, iff blogging plugin is installed.
-        resulting files, if any, will not include index and 
+        resulting files, if any, will not include index and
         will be sorted by modification time
         """
-        mconf = self.config 
+        mconf = self.config
         if mconf:
-            pconf = mconf['plugins'] if 'plugins' in mconf else {}
-            ddir = abcs.Path(mconf.get('docs_dir','docs'))
-            bconf = [conf for conf in pconf if 'blogging' in list(conf.keys())]
-            bconf = bconf[0]['blogging'] if bconf else {}
-            blog_dirs = [ddir/bdir for bdir in bconf.get('dirs',[])]
+            pconf = mconf["plugins"] if "plugins" in mconf else {}
+            ddir = abcs.Path(mconf.get("docs_dir", "docs"))
+            bconf = [conf for conf in pconf if "blogging" in list(conf.keys())]
+            bconf = bconf[0]["blogging"] if bconf else {}
+            blog_dirs = [ddir / bdir for bdir in bconf.get("dirs", [])]
             result = []
             for bdir in blog_dirs:
-                result += [g for g in bdir.glob('**/*.md') if g.name!='index.md']
+                result += [g for g in bdir.glob("**/*.md") if g.name != "index.md"]
             result = reversed(sorted(result, key=lambda p: p.lstat().st_mtime))
             result = [str(p) for p in result]
             return result
-    
+
     @property
     def site_relative_url(self):
         import urllib
-        site_url=self.config['site_url'] if 'site_url' in self.config else None
+
+        site_url = self.config["site_url"] if "site_url" in self.config else None
         if site_url:
             return urllib.parse.urlparse(site_url).path
 
@@ -124,7 +129,7 @@ class MkdocsPluginConfig(abcs.Config):
 class Mkdocs(models.Planner):
     """Mkdocs helper"""
 
-    priority = 8 # before mermaid
+    priority = 8  # before mermaid
     name = "mkdocs"
     cli_name = "mkdocs"
     cli_label = "Docs"
