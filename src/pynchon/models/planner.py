@@ -47,8 +47,8 @@ class AbstractPlanner(BasePlugin):
         plan = self.Plan()
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
-
-    def apply(self, 
+    @cli.click.flag('--fail-fast', default=False, help='fail fast')
+    def apply(self,
         plan: planning.Plan = None,
         parallel:bool=False,
         fail_fast:bool=False,
@@ -81,13 +81,11 @@ class AbstractPlanner(BasePlugin):
                     # rsrc_path not in prev_changes,
                 ]
             )
-            if not parallel and fail_fast and not invocation.succeeded:
-                raise Exception(
-                    f'fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}')
+            success = invocation.succeeded
             tmp = planning.Action(
-                ok=invocation.succeeded,
+                ok=success,
                 ordering=ordering,
-                error="" if invocation.succeeded else invocation.stderr,
+                error="" if success else invocation.stderr,
                 # log=invocation.succeeded and invocation.stderr else None,
                 owner=action_item.owner,
                 command=action_item.command,
@@ -97,6 +95,10 @@ class AbstractPlanner(BasePlugin):
             )
             lme.CONSOLE.print(tmp)
             results.append(tmp)
+            if not parallel and fail_fast and not success:
+                self.logger.critical(
+                    f'fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}')
+                break
         results = planning.ApplyResults(results)
         # write status event (used by the app-console)
         app.status_bar.update(
@@ -104,17 +106,21 @@ class AbstractPlanner(BasePlugin):
             stage=f"{cls_name}",
         )
         resources = list({r.resource for r in results})
-        LOGGER.critical(f"Finished apply ({len(resources)} resources)")
-        hooks = self.apply_hooks
-        if hooks:
-            self.logger.warning(
-                f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}"
-            )
-            hook_results = []
-            for hook in hooks:
-                hook_results.append(self.run_hook(hook, results))
+        LOGGER.critical(f"Finished apply ({len(results)}/{len(goals)} goals)")
+        finished=len(results)==len(goals)
+        if finished:
+            hooks = self.apply_hooks
+            if hooks:
+                self.logger.warning(
+                    f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}"
+                )
+                hook_results = []
+                for hook in hooks:
+                    hook_results.append(self.run_hook(hook, results))
+            else:
+                self.logger.warning("No applicable hooks were found")
         else:
-            self.logger.warning("No applicable hooks were found")
+            LOGGER.critical(f'{len(goals)-len(results)} goals incomplete')
         return results
 
     def _validate_hooks(self, hooks):
