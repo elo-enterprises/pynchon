@@ -58,7 +58,8 @@ class AbstractPlanner(BasePlugin):
         """
         Executes the plan for this plugin
         """
-        from multiprocessing import Pool
+        # from multiprocessing import Pool, Process, Manager
+        from threading import Thread
         cls_name = self.__class__.name
         msg = f"Applying for plugin '{cls_name}'"
         app.status_bar.update(
@@ -66,22 +67,22 @@ class AbstractPlanner(BasePlugin):
         )
         plan = plan or self.plan()
         goals = getattr(plan, "goals", plan)
-        results = []
+        results = {}
         total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
         git = self.siblings["git"]
         # pool = Pool() if parallel else None
-        from joblib import Parallel, delayed
-        pool = Parallel(
-            n_jobs=1 if not parallel else 3, return_as="generator")
+        # from joblib import Parallel, delayed
+        # pool = Parallel(
+        #     n_jobs=1 if not parallel else 3, return_as="generator")
         def ffff(goal):
             app.status_bar.update(stage=f"{goal}")
             action = goal.grab()
-            rsrc_path = abcs.Path(goal.resource).absolute()
-            next_changes = [path.absolute() for path in git.modified]
+            # rsrc_path = abcs.Path(goal.resource).absolute()
+            # next_changes = [path.absolute() for path in git.modified]
             changed = all(
                 [
-                    rsrc_path in next_changes,
+                    # rsrc_path in next_changes,
                     # rsrc_path not in prev_changes,
                 ]
             )
@@ -90,19 +91,25 @@ class AbstractPlanner(BasePlugin):
                     **action.dict(),
                     **dict(changed=changed)})
             lme.CONSOLE.print(action)
-            return action
-
+            results[goal]=action
+        jobs = []
         for i, goal in enumerate(goals):
             # cmd = goal.command
             ordering = f"  {i+1}/{total}"
-            prev_changes = git.modified
-            action = ffff(goal)
-            results.append(action)
-            if not parallel and fail_fast and not success:
-                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
-                self.logger.critical(msg)
-                break
-        results = planning.ApplyResults(results)
+            # prev_changes = git.modified
+            thrd=Thread(target=lambda: ffff(goal))
+            # action = ffff(goal)
+            # results.append(action)
+            jobs.append(thrd)
+            thrd.start()
+            # if not parallel and fail_fast and not success:
+            #     msg = f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
+            #     self.logger.critical(msg)
+            #     break
+        for i,job in enumerate(jobs):
+            LOGGER.critical(f' waiting for {i+1} / {total}')
+            job.join()
+        results = planning.ApplyResults(results.values())
         # write status event (used by the app-console)
         app.status_bar.update(
             app="Pynchon::HOOKS",
