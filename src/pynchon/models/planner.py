@@ -60,6 +60,8 @@ class AbstractPlanner(BasePlugin):
         """
         # from multiprocessing import Pool, Process, Manager
         from threading import Thread
+        import concurrent.futures
+            
         cls_name = self.__class__.name
         msg = f"Applying for plugin '{cls_name}'"
         app.status_bar.update(
@@ -93,22 +95,33 @@ class AbstractPlanner(BasePlugin):
             lme.CONSOLE.print(action)
             results[goal]=action
         jobs = []
-        for i, goal in enumerate(goals):
-            # cmd = goal.command
-            ordering = f"  {i+1}/{total}"
-            # prev_changes = git.modified
-            thrd=Thread(target=lambda: ffff(goal))
-            # action = ffff(goal)
-            # results.append(action)
-            jobs.append(thrd)
-            thrd.start()
-            # if not parallel and fail_fast and not success:
-            #     msg = f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
-            #     self.logger.critical(msg)
-            #     break
-        for i,job in enumerate(jobs):
-            LOGGER.critical(f' waiting for {i+1} / {total}')
-            job.join()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            # future = executor.submit(pow, 323, 1235)
+            # print(future.result())
+            # # Submit each download task to the thread pool
+            # futures = [executor.submit(download, url) for url in urls]
+            # 
+            # # Wait for all tasks to complete and retrieve the results
+            # results = [future.result() for future in concurrent.futures.as_completed(futures)]
+            for i, goal in enumerate(goals):
+                # cmd = goal.command
+                ordering = f"  {i+1}/{total}"
+                # prev_changes = git.modified
+                # thrd=Thread(target=lambda: ffff(goal))
+                thrd=executor.submit(ffff, goal)
+                # action = ffff(goal)
+                # results.append(action)
+                jobs.append(thrd)
+                # thrd.start()
+                # if not parallel and fail_fast and not success:
+                #     msg = f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
+                #     self.logger.critical(msg)
+                #     break
+        for future in concurrent.futures.as_completed(jobs):
+            LOGGER.critical(future.result())
+        # for i,job in enumerate(jobs):
+        #     LOGGER.critical(f' waiting for {i+1} / {total}')
+        #     job.join()
         results = planning.ApplyResults(results.values())
         # write status event (used by the app-console)
         app.status_bar.update(
