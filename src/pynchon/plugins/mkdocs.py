@@ -17,7 +17,16 @@ class MkdocsPluginConfig(abcs.Config):
     config_file: str = typing.Field(default=None)
 
     @property
-    def pages(self):
+    def tags(self) -> typing.List:
+        """ """
+        tags = set()
+        for p in self.pages:
+            tags = tags.union(set(p.get("tags", [])))
+        # NB: removes empty-string
+        return list(filter(None, tags))
+
+    @property
+    def pages(self) -> typing.List:
         mconf = self.config
         if mconf:
             ddir = abcs.Path(mconf.get("docs_dir", "docs"))
