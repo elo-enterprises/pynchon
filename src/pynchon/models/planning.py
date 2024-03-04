@@ -32,6 +32,7 @@ class BaseModel(BaseModel):
             abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
         )
 
+
 class Action(BaseModel):
     """ """
 
@@ -146,8 +147,10 @@ class Goal(BaseModel):
         default=None,
         help="human-friendly string describing the sort order for this action inside plan",
     )
-    def grab(self): # -> Action:
+
+    def grab(self):  # -> Action:
         from pynchon.util.os import invoke
+
         invocation = invoke(self.command)
         success = invocation.succeeded
         return Action(
@@ -192,6 +195,7 @@ class Goal(BaseModel):
             # + app.Text(" rsrc=", style="bold italic")
             # + app.Text(f"{self.rel_resource}", style="dim italic"),
         )
+
 
 class Plan(typing.BaseModel):
     """ """

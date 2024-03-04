@@ -8,7 +8,6 @@ from fleks.util.tagging import tags
 
 from pynchon import abcs, cli
 from pynchon.app import app
-from pynchon.util.os import invoke
 
 from . import planning
 from .plugins import BasePlugin
@@ -17,6 +16,8 @@ from pynchon.util import lme, typing  # noqa
 
 
 LOGGER = lme.get_logger(__name__)
+
+import concurrent.futures
 
 
 @tags(cli_label="Planner")
@@ -58,9 +59,7 @@ class AbstractPlanner(BasePlugin):
         """
         Executes the plan for this plugin
         """
-        from threading import Thread
-        import concurrent.futures
-            
+
         cls_name = self.__class__.name
         msg = f"Applying for plugin '{cls_name}'"
         app.status_bar.update(
@@ -72,49 +71,42 @@ class AbstractPlanner(BasePlugin):
         total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
         git = self.siblings["git"]
-        def ffff(goal):
+
+        def ffff(goal, git, ordering="?"):
             app.status_bar.update(stage=f"{goal}")
             action = goal.grab()
-            # rsrc_path = abcs.Path(goal.resource).absolute()
-            # next_changes = [path.absolute() for path in git.modified]
+            rsrc_path = abcs.Path(goal.resource).absolute()
+            current_changes = [path.absolute() for path in git.modified]
+            # prev_changes = git.modified
             changed = all(
                 [
-                    # rsrc_path in next_changes,
+                    rsrc_path in current_changes,
                     # rsrc_path not in prev_changes,
                 ]
             )
             action = planning.Action(
-                **{
-                    **action.dict(),
-                    **dict(changed=changed)})
-            results[goal]=action
+                **{**action.dict(), **dict(ordering=ordering, changed=changed)}
+            )
+            results[goal] = action
             return action
+
         jobs = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            # # Wait for all tasks to complete and retrieve the results
-            # results = [future.result() for future in concurrent.futures.as_completed(futures)]
             for i, goal in enumerate(goals):
-                # cmd = goal.command
                 ordering = f"  {i+1}/{total}"
-                # prev_changes = git.modified
-                # thrd=Thread(target=lambda: ffff(goal))
-                thrd=executor.submit(ffff, goal)
-                # action = ffff(goal)
-                # results.append(action)
-                jobs.append(thrd)
-                # thrd.start()
-                # if not parallel and fail_fast and not success:
-                #     msg = f"fail-fast is set, so exiting early.  exception follows\n\n{invocation.stderr}"
-                #     self.logger.critical(msg)
-                #     break
-        for future in concurrent.futures.as_completed(jobs):
-            # LOGGER.critical()
-            lme.CONSOLE.print(future.result())
-            
-        # for i,job in enumerate(jobs):
-        #     LOGGER.critical(f' waiting for {i+1} / {total}')
-        #     job.join()
+                jobs.append(executor.submit(ffff, goal, git, ordering=ordering))
+
+        for i, future in enumerate(concurrent.futures.as_completed(jobs)):
+            # LOGGER.critical(f' waiting for {i+1} / {total}')
+            action = future.result()
+            lme.CONSOLE.print(action)
+            if fail_fast and not action.ok:
+                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.stderr}"
+                self.logger.critical(msg)
+                break
+
         results = planning.ApplyResults(results.values())
+
         # write status event (used by the app-console)
         app.status_bar.update(
             app="Pynchon::HOOKS",
