@@ -17,8 +17,6 @@ from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-import concurrent.futures
-
 
 @tags(cli_label="Planner")
 class AbstractPlanner(BasePlugin):
@@ -49,63 +47,27 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
+    @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
     @cli.click.flag("--fail-fast", default=False, help="fail fast")
     def apply(
         self,
         plan: planning.Plan = None,
-        parallel: bool = False,
+        parallelism: str = "1",
         fail_fast: bool = False,
     ) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
         """
-
+        parallelism = int(parallelism)
         cls_name = self.__class__.name
-        msg = f"Applying for plugin '{cls_name}'"
-        app.status_bar.update(
-            app="Pynchon::APPLY", stage=f"plugin:{self.__class__.name}"
-        )
+        # app.status_bar.update(
+        #     app="Pynchon::APPLY",
+        #     stage=f"plugin:{self.__class__.name}"
+        # )
         plan = plan or self.plan()
-        goals = getattr(plan, "goals", plan)
-        results = {}
-        total = len(goals)
-        LOGGER.critical(f"{msg} ({total} goals)")
-        git = self.siblings["git"]
 
-        def ffff(goal, git, ordering="?"):
-            app.status_bar.update(stage=f"{goal}")
-            action = goal.grab()
-            rsrc_path = abcs.Path(goal.resource).absolute()
-            current_changes = [path.absolute() for path in git.modified]
-            # prev_changes = git.modified
-            changed = all(
-                [
-                    rsrc_path in current_changes,
-                    # rsrc_path not in prev_changes,
-                ]
-            )
-            action = planning.Action(
-                **{**action.dict(), **dict(ordering=ordering, changed=changed)}
-            )
-            results[goal] = action
-            return action
-
-        jobs = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            for i, goal in enumerate(goals):
-                ordering = f"  {i+1}/{total}"
-                jobs.append(executor.submit(ffff, goal, git, ordering=ordering))
-
-        for i, future in enumerate(concurrent.futures.as_completed(jobs)):
-            # LOGGER.critical(f' waiting for {i+1} / {total}')
-            action = future.result()
-            lme.CONSOLE.print(action)
-            if fail_fast and not action.ok:
-                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.stderr}"
-                self.logger.critical(msg)
-                break
-
-        results = planning.ApplyResults(results.values())
+        results = plan.apply(
+            parallelism=parallelism, git=self.siblings["git"])
 
         # write status event (used by the app-console)
         app.status_bar.update(
@@ -113,8 +75,8 @@ class AbstractPlanner(BasePlugin):
             stage=f"{cls_name}",
         )
         resources = list({r.resource for r in results})
-        LOGGER.critical(f"Finished apply ({len(results)}/{len(goals)} goals)")
-        finished = len(results) == len(goals)
+        LOGGER.critical(f"Finished apply ({len(results)}/{len(plan)} goals)")
+        finished = len(results) == len(plan.goals)
         if finished:
             hooks = self.apply_hooks
             if hooks:
@@ -127,7 +89,8 @@ class AbstractPlanner(BasePlugin):
             else:
                 self.logger.warning("No applicable hooks were found")
         else:
-            LOGGER.critical(f"{len(goals)-len(results)} goals incomplete")
+            self.logger.critical('skipping hooks: ')
+            self.logger.critical(f" {len(plan)-len(results)} goals incomplete")
         return results
 
     def _validate_hooks(self, hooks):

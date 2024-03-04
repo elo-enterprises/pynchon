@@ -3,6 +3,8 @@
 
 from pathlib import Path
 
+import yaml
+
 from pynchon.plugins import util as plugin_util
 from pynchon.util.text import loadf
 
@@ -27,6 +29,7 @@ class MkdocsPluginConfig(abcs.Config):
 
     @property
     def pages(self) -> typing.List:
+        """ """
         mconf = self.config
         if mconf:
             ddir = abcs.Path(mconf.get("docs_dir", "docs"))
@@ -35,7 +38,6 @@ class MkdocsPluginConfig(abcs.Config):
             from mkdocs.structure.pages import Page
 
             cfg = MkDocsConfig()
-            import yaml
 
             data = yaml.load(open(self.config_file).read(), yaml.FullLoader)
             cfg.load_dict(data)

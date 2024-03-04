@@ -3,6 +3,7 @@
 
 import typing
 import collections
+import concurrent.futures
 
 import shil
 from fleks import app, meta
@@ -11,6 +12,8 @@ from fleks.models import BaseModel
 from pynchon import abcs
 
 from pynchon.util import lme, typing  # noqa
+
+LOGGER = lme.get_logger(__name__)
 
 RED_X = "❌"
 RED_BALL = "🔴"
@@ -148,22 +151,36 @@ class Goal(BaseModel):
         help="human-friendly string describing the sort order for this action inside plan",
     )
 
-    def grab(self):  # -> Action:
-        from pynchon.util.os import invoke
-
-        invocation = invoke(self.command)
+    def act(goal, git=None, plugin_name="?", ordering="?"):
+        pynchon_app.status_bar.update(
+            app="Pynchon::APPLY",
+            stage=f"{plugin_name} plugin {ordering}",
+        )
+        invocation = invoke(goal.command)
         success = invocation.succeeded
-        return Action(
+        action = dict(
             ok=success,
-            ordering=self.ordering,
+            ordering=goal.ordering,
             error="" if success else invocation.stderr,
             # log=invocation.succeeded and invocation.stderr else None,
-            owner=self.owner,
-            command=self.command,
-            resource=self.resource,
-            type=self.type,
-            # changed=changed,
+            owner=goal.owner,
+            command=goal.command,
+            resource=goal.resource,
+            type=goal.type,
         )
+        rsrc_path = abcs.Path(goal.resource).absolute()
+        current_changes = (
+            [] if git is None else [path.absolute() for path in git.modified]
+        )
+        # prev_changes = git.modified
+        changed = all(
+            [
+                rsrc_path in current_changes,
+                # rsrc_path not in prev_changes,
+            ]
+        )
+        action.update(ordering=ordering, changed=changed)
+        return Action(**action)
 
     def __rich__(self) -> str:
         """ """
@@ -197,10 +214,46 @@ class Goal(BaseModel):
         )
 
 
+from pynchon.app import app as pynchon_app
+from pynchon.util.os import invoke
+
+
 class Plan(typing.BaseModel):
     """ """
 
     goals: typing.List[Goal] = typing.Field(default=[])
+
+    def apply(self, parallelism: int = 1, fail_fast: bool = True, git=None):
+        """ """
+        goals = self.goals
+        results = {}
+        total = len(goals)
+        LOGGER.critical(f"Applying {total} goals with {parallelism} workers")
+
+        jobs = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=parallelism) as executor:
+            for i, goal in enumerate(goals):
+                ordering = f"  {i+1}/{total}"
+                jobs.append(
+                    executor.submit(
+                        goal.act,
+                        git=git,
+                        plugin_name=self.__class__.__name__,
+                        ordering=ordering,
+                    )
+                )
+
+        for i, future in enumerate(concurrent.futures.as_completed(jobs)):
+            # LOGGER.debug(f' waiting for {i+1} / {total}')
+            action = future.result()
+            lme.CONSOLE.print(action)
+            if fail_fast and not action.ok:
+                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.stderr}"
+                self.logger.critical(msg)
+                break
+
+        results = ApplyResults(results.values())
+        return results
 
     def finalize(self):
         """
