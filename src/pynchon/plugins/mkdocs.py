@@ -136,6 +136,7 @@ class MkdocsPluginConfig(abcs.Config):
             if cand.exists():
                 return str(cand.absolute())
 
+DEFAULT_LOG_FILE = '.tmp.mkdocs.log'
 
 class Mkdocs(models.Planner):
     """Mkdocs helper"""
@@ -145,15 +146,32 @@ class Mkdocs(models.Planner):
     cli_name = "mkdocs"
     cli_label = "Docs"
     config_class = MkdocsPluginConfig
-
+    
+    @property 
+    def config_file(self) -> str:
+         return self["config_file"]
+    
+    def serve(self, background:bool=True):
+        """
+        Wrapper for `mkdocs serve`
+        """
+        from pynchon.util.os import invoke
+        bg = "&" if background else ""
+        cmd = f"mkdocs serve --config-file {self.config_file} >> {DEFAULT_LOG_FILE} 2>&1 {bg}"
+        result = invoke(cmd)
+        return result
+    
     def open(self):
         """
-        Opens `site_dir` in a webbrowser
+        Opens `dev_addr` in a webbrowser
         """
         import webbrowser
-
-        index_f = Path(self.site_dir).absolute() / "index.html"
-        url = f"file://{index_f}"
+        # index_f = Path(self.site_dir).absolute() / "index.html"
+        # url = f"file://{index_f}"
+        mconfig=self.config.config
+        url = mconfig['dev_addr']
+        assert url
+        self.logger.warning(f"opening {url}")
         return webbrowser.open(url)
 
     @property
@@ -175,12 +193,11 @@ class Mkdocs(models.Planner):
         Runs a plan for this plugin
         """
         plan = super(self.__class__, self).plan()
-        config_file = self["config_file"]
         plan.append(
             self.goal(
                 type="render",
                 resource=self.site_dir,
-                command=f"mkdocs build --config-file {config_file}",
+                command=f"mkdocs build --config-file {self.config_file}",
             )
         )
         return plan
