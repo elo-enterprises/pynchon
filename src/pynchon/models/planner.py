@@ -58,7 +58,6 @@ class AbstractPlanner(BasePlugin):
         """
         Executes the plan for this plugin
         """
-        # from multiprocessing import Pool, Process, Manager
         from threading import Thread
         import concurrent.futures
             
@@ -73,10 +72,6 @@ class AbstractPlanner(BasePlugin):
         total = len(goals)
         LOGGER.critical(f"{msg} ({total} goals)")
         git = self.siblings["git"]
-        # pool = Pool() if parallel else None
-        # from joblib import Parallel, delayed
-        # pool = Parallel(
-        #     n_jobs=1 if not parallel else 3, return_as="generator")
         def ffff(goal):
             app.status_bar.update(stage=f"{goal}")
             action = goal.grab()
@@ -92,15 +87,10 @@ class AbstractPlanner(BasePlugin):
                 **{
                     **action.dict(),
                     **dict(changed=changed)})
-            lme.CONSOLE.print(action)
             results[goal]=action
+            return action
         jobs = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            # future = executor.submit(pow, 323, 1235)
-            # print(future.result())
-            # # Submit each download task to the thread pool
-            # futures = [executor.submit(download, url) for url in urls]
-            # 
             # # Wait for all tasks to complete and retrieve the results
             # results = [future.result() for future in concurrent.futures.as_completed(futures)]
             for i, goal in enumerate(goals):
@@ -118,7 +108,9 @@ class AbstractPlanner(BasePlugin):
                 #     self.logger.critical(msg)
                 #     break
         for future in concurrent.futures.as_completed(jobs):
-            LOGGER.critical(future.result())
+            # LOGGER.critical()
+            lme.CONSOLE.print(future.result())
+            
         # for i,job in enumerate(jobs):
         #     LOGGER.critical(f' waiting for {i+1} / {total}')
         #     job.join()
