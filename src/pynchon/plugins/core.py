@@ -7,7 +7,7 @@ from pynchon import abcs, api, cli, models
 from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme
-
+from pynchon.models import planning
 LOGGER = lme.get_logger(__name__)
 
 import fleks
@@ -144,18 +144,10 @@ class Core(models.Planner):
         """
         Returns (almost) raw config, without interpolation
         """
-        from pynchon.config import RAW
-
+        from pynchon.config import RAW # noqa
         print(RAW.json())
-
-    def plan(
-        self,
-        config=None,
-    ) -> models.Plan:
-        """Runs plan for all plugins"""
-
-        config = config or self.project_config
-        plan = super(self.__class__, self).plan(config)
+    @property
+    def sorted_plugins(self):
         plugins = self.siblings.values()
         plugins = [
             p
@@ -163,6 +155,19 @@ class Core(models.Planner):
             if isinstance(p, models.AbstractPlanner) and p.contribute_plan_apply
         ]
         plugins = sorted(plugins, key=lambda p: p.priority)
+        return plugins
+
+    def plan(
+        self,
+        config=None,
+        flattened=True,
+    ) -> models.Plan:
+        """Runs plan for all plugins"""
+
+        config = config or self.project_config
+        plan = super(self.__class__, self).plan(config)
+        plans = [] if not flattened else None
+        plugins = self.sorted_plugins
         self.logger.critical(f"Planning on behalf of: {[p.name for p in plugins]}")
         for plugin_obj in plugins:
             subplan = plugin_obj.plan()
@@ -171,7 +176,30 @@ class Core(models.Planner):
                     f"subplan for '{plugin_obj.__class__.__name__}' is empty!"
                 )
             else:
-                for g in subplan.goals:
-                    self.logger.info(f"{plugin_obj} contributes {g}")
-                    plan.append(g)
-        return plan.finalize()
+                if flattened:
+                    for g in subplan.goals:
+                        self.logger.info(f"{plugin_obj} contributes {g}")
+                        plan.append(g)
+                else:
+                    plans.append(subplan)
+        return plan.finalize() if flattened else plans
+
+    @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
+    @cli.click.flag("--fail-fast", default=False, help="fail fast")
+    def apply(
+        self,
+        plan: planning.Plan = None,
+        parallelism: str = "1",
+        fail_fast: bool = False,
+    ) -> planning.ApplyResults:
+        """
+        Executes the plan for this plugin
+        """
+        parallelism = int(parallelism)
+        plans = plan or self.plan(flattened=False)
+        for plan in plans:
+            results = plan.apply(
+                parallelism=parallelism, git=self.siblings["git"])
+            LOGGER.critical(f"Finished apply for subplan ({len(results.actions)}/{len(results.goals)} goals)")
+        # self.dispatch_apply_hooks(results)
+        return results

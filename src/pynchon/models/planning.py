@@ -226,7 +226,6 @@ class Plan(typing.BaseModel):
     def apply(self, parallelism: int = 1, fail_fast: bool = True, git=None):
         """ """
         goals = self.goals
-        results = {}
         total = len(goals)
         LOGGER.critical(f"Applying {total} goals with {parallelism} workers")
 
@@ -242,17 +241,18 @@ class Plan(typing.BaseModel):
                         ordering=ordering,
                     )
                 )
-
+        results = []
         for i, future in enumerate(concurrent.futures.as_completed(jobs)):
             # LOGGER.debug(f' waiting for {i+1} / {total}')
             action = future.result()
+            results.append(action)
             lme.CONSOLE.print(action)
             if fail_fast and not action.ok:
                 msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.stderr}"
                 self.logger.critical(msg)
                 break
 
-        results = ApplyResults(results.values())
+        results = ApplyResults(actions=results, goals=goals)
         return results
 
     def finalize(self):
@@ -355,12 +355,26 @@ class Plan(typing.BaseModel):
     __iadd__ = __add__
 
 
-class ApplyResults(typing.List[Action], metaclass=meta.namespace):
+class ApplyResults(typing.BaseModel):
+    #typing.List[Action], metaclass=meta.namespace):
     """ """
+    goals: typing.List[Goal] = typing.Field(default=[])
+    actions: typing.List[Action] = typing.Field(default=[])
+
+    @property
+    def finished(self):
+        """
+        """
+        return len(self.goals)==len(self.actions)
+
+    def __len__(self):
+        return len(self.actions)
+    def __iter__(self):
+        return iter(self.actions)
 
     @property
     def ok(self):
-        return all([a.ok for a in self])
+        return self.finished and all([a.ok for a in self])
 
     @property
     def action_types(self):

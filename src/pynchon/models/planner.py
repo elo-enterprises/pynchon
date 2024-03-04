@@ -69,15 +69,17 @@ class AbstractPlanner(BasePlugin):
         results = plan.apply(
             parallelism=parallelism, git=self.siblings["git"])
 
+        LOGGER.critical(f"Finished apply ({len(results.actions)}/{len(results.goals)} goals)")
+        self.dispatch_apply_hooks(results)
+        return results
+
+    def dispatch_apply_hooks(self, results:planning.ApplyResults):
         # write status event (used by the app-console)
         app.status_bar.update(
             app="Pynchon::HOOKS",
             stage=f"{cls_name}",
         )
-        resources = list({r.resource for r in results})
-        LOGGER.critical(f"Finished apply ({len(results)}/{len(plan)} goals)")
-        finished = len(results) == len(plan.goals)
-        if finished:
+        if results.finished:
             hooks = self.apply_hooks
             if hooks:
                 self.logger.warning(
@@ -91,7 +93,6 @@ class AbstractPlanner(BasePlugin):
         else:
             self.logger.critical('skipping hooks: ')
             self.logger.critical(f" {len(plan)-len(results)} goals incomplete")
-        return results
 
     def _validate_hooks(self, hooks):
         # FIXME: validation elsewhere
@@ -160,8 +161,6 @@ class ShyPlanner(AbstractPlanner):
     """ShyPlanner uses plan/apply workflows, but they must be
     executed directly.  ProjectPlugin (or any other parent plugins)
     won't include this as a sub-plan.
-
-
     """
 
     contribute_plan_apply = False
