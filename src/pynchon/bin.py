@@ -1,10 +1,10 @@
 """
 pynchon: a utility for docs generation and template-rendering
 """
-from trogon import tui
 
 import fleks
 import shimport
+from trogon import tui
 
 from pynchon import cli
 
@@ -14,6 +14,7 @@ LOGGER = lme.get_logger(__name__)
 
 click = cli.click
 plugins = shimport.lazy("pynchon.plugins")
+
 
 class RootGroup(fleks.cli.RootGroup):
     @fleks.classproperty
@@ -83,8 +84,7 @@ def bootstrap():
 @click.argument("extra", nargs=-1)
 @click.pass_context
 def default(
-    ctx, plugins: str = "",
-    set_config: str = "", get_config: str = "", **kwargs  # noqa
+    ctx, plugins: str = "", set_config: str = "", get_config: str = "", **kwargs  # noqa
 ):
     """this is always executed, regardless of subcommands and before them"""
     # LOGGER.critical('top-level')

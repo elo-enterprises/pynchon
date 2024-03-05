@@ -30,6 +30,7 @@ class MkdocsPluginConfig(abcs.Config):
     @property
     def pages(self) -> typing.List:
         """ """
+        pages = []
         mconf = self.config
         if mconf:
             ddir = abcs.Path(mconf.get("docs_dir", "docs"))
@@ -51,7 +52,6 @@ class MkdocsPluginConfig(abcs.Config):
             # bconf = bconf[0]['blogging'] if bconf else {}
             pfiles = ddir.glob("**/*.md")
             # pfiles = [p.relative_to(ddir) for p in pfiles]
-            pages = []
             for pfile in pfiles:
                 rel_pfile = pfile.relative_to(ddir)
                 mfile = File(
@@ -71,7 +71,7 @@ class MkdocsPluginConfig(abcs.Config):
                     tags=tags,
                 )
                 pages.append(pmeta)
-            return pages
+        return pages
 
     @property
     def blog_posts(self) -> list:

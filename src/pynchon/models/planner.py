@@ -15,7 +15,7 @@ from .plugins import BasePlugin
 from pynchon.util import lme, typing  # noqa
 
 
-LOGGER = lme.get_logger(' ')
+LOGGER = lme.get_logger(" ")
 
 
 @tags(cli_label="Planner")

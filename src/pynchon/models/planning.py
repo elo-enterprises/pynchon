@@ -10,13 +10,12 @@ from fleks import app
 from fleks.models import BaseModel
 
 from pynchon import abcs
-
-from pynchon.util import lme, typing  # noqa
 from pynchon.app import app as pynchon_app
 from pynchon.util.os import invoke
 
+from pynchon.util import lme, typing  # noqa
 
-LOGGER = lme.get_logger(' ')
+LOGGER = lme.get_logger(" ")
 
 RED_X = "❌"
 RED_BALL = "🔴"
@@ -248,8 +247,8 @@ class Plan(typing.BaseModel):
             results.append(action)
             lme.CONSOLE.print(action)
             if fail_fast and not action.ok:
-                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.stderr}"
-                self.logger.critical(msg)
+                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.error}"
+                LOGGER.critical(msg)
                 break
 
         results = ApplyResults(actions=results, goals=goals)

@@ -1,5 +1,6 @@
 """ pynchon.plugins.Core
 """
+
 import fleks
 from fleks import tagging
 
@@ -9,7 +10,7 @@ from pynchon.core import Config as CoreConfig
 from pynchon.util import lme
 from pynchon.models import planning
 
-LOGGER = lme.get_logger(' ')
+LOGGER = lme.get_logger(" ")
 
 classproperty = fleks.util.typing.classproperty
 
@@ -192,7 +193,7 @@ class Core(models.Planner):
         self,
         plan: planning.Plan = None,
         parallelism: str = "1",
-        quiet:bool=False,
+        quiet: bool = False,
         fail_fast: bool = False,
     ) -> planning.ApplyResults:
         """

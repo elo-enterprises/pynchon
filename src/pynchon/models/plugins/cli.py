@@ -12,7 +12,7 @@ from pynchon.util import lme, typing  # noqa
 
 from .pynchon import PynchonPlugin  # noqa
 
-LOGGER = lme.get_logger(' ')
+LOGGER = lme.get_logger(" ")
 IPython = shimport.lazy("IPython")
 config_mod = shimport.lazy("pynchon.config")
 
