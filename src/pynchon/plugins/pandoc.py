@@ -20,7 +20,8 @@ class Pandoc(models.Planner):
         pdf_args: typing.List = typing.Field(
             default=["--toc", "--variable fontsize=10pt"]
         )
-        goals: typing.List[typing.Dict] = typing.Field(default=[],help='')
+        goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
+
     name = "pandoc"
     cli_name = "pandoc"
     cli_label = "Tool"
@@ -47,8 +48,6 @@ class Pandoc(models.Planner):
         pdf_args = " ".join(self["pdf_args"])
         cmd = f"docker run -v `pwd`:/workspace -w /workspace {docker_image} {file} {pdf_args} -o {output}"
         plan = super().plan(
-            goals = [
-                self.goal(
-                    resource=output.absolute(),
-                    type="render", command=cmd)])
+            goals=[self.goal(resource=output.absolute(), type="render", command=cmd)]
+        )
         return self.apply(plan=plan)

@@ -26,29 +26,30 @@ class Markdown(models.Planner):
         include_patterns: typing.List[str] = typing.Field(default=[])
         exclude_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
-        linter_docker_image:str = typing.Field(
-            default='peterdavehello/markdownlint',
-            help=''
+        linter_docker_image: str = typing.Field(
+            default="peterdavehello/markdownlint", help=""
         )
-        linter_args: str = typing.Field(
-            default='--fix',help='')
-        goals: typing.List[typing.Dict] = typing.Field(default=[],help='')
+        linter_args: str = typing.Field(default="--fix", help="")
+        goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
 
     name = "markdown"
     # @cli.click.flag("-p", "--python", help="only python codeblocks")
     cli_name = "markdown"
     priority = 0
+
     @cli.click.argument("paths", nargs=-1)
     def normalize(self, paths):
-        """ Use `markdownlint` to normalize input paths """
+        """Use `markdownlint` to normalize input paths"""
         docker_image = self["linter_docker_image"]
-        linter_args = self['linter_args']
-        goals=[]
+        linter_args = self["linter_args"]
+        goals = []
         for path in paths:
             goals.append(
                 self.goal(
-                    resource=path, type="normalize",
-                    command=f"docker run -v `pwd`:/workspace -w /workspace {docker_image} markdownlint {linter_args} {path}")
+                    resource=path,
+                    type="normalize",
+                    command=f"docker run -v `pwd`:/workspace -w /workspace {docker_image} markdownlint {linter_args} {path}",
+                )
             )
         return self.apply(plan=self.plan(goals=goals))
 
@@ -61,7 +62,7 @@ class Markdown(models.Planner):
         python: bool = False,
         bash: bool = False,
     ) -> ElementList:
-        """ Runs doctest for fenced code inside the given markdown files """
+        """Runs doctest for fenced code inside the given markdown files"""
         assert python or bash
         element_lst = self.parse(file=file, python=python, bash=bash)
         if not element_lst:
@@ -91,7 +92,7 @@ class Markdown(models.Planner):
         python: bool = False,
         bash: bool = False,
     ) -> ElementList:
-        """ Parses given markdown file into JSON """
+        """Parses given markdown file into JSON"""
         codeblocks = codeblocks or python or bash
         assert file
         with open(file) as fhandle:

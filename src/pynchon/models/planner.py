@@ -35,27 +35,29 @@ class AbstractPlanner(BasePlugin):
     def Plan(self):
         return planning.Plan
 
-    def plan(self, config=None, goals=[], ) -> planning.Plan:
+    def plan(
+        self,
+        config=None,
+        goals=[],
+    ) -> planning.Plan:
         """
         Creates a plan for this plugin
         """
         # app.manager.status_bar.update(app='PLAN')
-        app.status_bar.update(
-            app="Pynchon::PLAN", stage=f"plugin:{self.name}"
-        )
+        app.status_bar.update(app="Pynchon::PLAN", stage=f"plugin:{self.name}")
         plan = self.Plan(owner=self.name)
         if not goals:
-            goals = getattr(self.config, 'goals',[])
-            goals and LOGGER.critical(f'{self.name} goals from config: {goals}')
+            goals = getattr(self.config, "goals", [])
+            goals and LOGGER.critical(f"{self.name} goals from config: {goals}")
             for g in goals:
-                _type = g.pop('type','from-config')
-                cmd = g.pop('command',None)
+                _type = g.pop("type", "from-config")
+                cmd = g.pop("command", None)
                 cmd = cmd and cmd.format(**g)
-                g.update(command=cmd,type=_type)
+                g.update(command=cmd, type=_type)
                 plan.append(self.goal(**g))
         else:
             for g in goals:
-                LOGGER.critical(f'packaging {g}')
+                LOGGER.critical(f"packaging {g}")
                 plan.append(g)
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
@@ -79,7 +81,9 @@ class AbstractPlanner(BasePlugin):
         #     stage=f"plugin:{self.__class__.name}"
         # )
         plan = plan or self.plan()
-        LOGGER.critical(f"{self.name}.apply ( {len(plan)} goals with {parallelism} workers)")
+        LOGGER.critical(
+            f"{self.name}.apply ( {len(plan)} goals with {parallelism} workers)"
+        )
         results = plan.apply(parallelism=parallelism, git=self.siblings["git"])
 
         LOGGER.critical(
