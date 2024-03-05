@@ -1,6 +1,6 @@
 """ pynchon.plugins.Core
 """
-
+import fleks
 from fleks import tagging
 
 from pynchon import abcs, api, cli, models
@@ -8,9 +8,8 @@ from pynchon.bin import entry
 from pynchon.core import Config as CoreConfig
 from pynchon.util import lme
 from pynchon.models import planning
-LOGGER = lme.get_logger(__name__)
 
-import fleks
+LOGGER = lme.get_logger(' ')
 
 classproperty = fleks.util.typing.classproperty
 
@@ -144,8 +143,10 @@ class Core(models.Planner):
         """
         Returns (almost) raw config, without interpolation
         """
-        from pynchon.config import RAW # noqa
+        from pynchon.config import RAW  # noqa
+
         print(RAW.json())
+
     @property
     def sorted_plugins(self):
         plugins = self.siblings.values()
@@ -186,10 +187,12 @@ class Core(models.Planner):
 
     @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
     @cli.click.flag("--fail-fast", default=False, help="fail fast")
+    @cli.click.flag("--quiet", default=False, help="Disable JSON output")
     def apply(
         self,
         plan: planning.Plan = None,
         parallelism: str = "1",
+        quiet:bool=False,
         fail_fast: bool = False,
     ) -> planning.ApplyResults:
         """
@@ -198,8 +201,9 @@ class Core(models.Planner):
         parallelism = int(parallelism)
         plans = plan or self.plan(flattened=False)
         for plan in plans:
-            results = plan.apply(
-                parallelism=parallelism, git=self.siblings["git"])
-            LOGGER.critical(f"Finished apply for subplan ({len(results.actions)}/{len(results.goals)} goals)")
+            results = plan.apply(parallelism=parallelism, git=self.siblings["git"])
+            LOGGER.critical(
+                f"Finished apply for subplan ({len(results.actions)}/{len(results.goals)} goals)"
+            )
         # self.dispatch_apply_hooks(results)
-        return results
+        return results if not quiet else None

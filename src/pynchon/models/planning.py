@@ -6,14 +6,17 @@ import collections
 import concurrent.futures
 
 import shil
-from fleks import app, meta
+from fleks import app
 from fleks.models import BaseModel
 
 from pynchon import abcs
 
 from pynchon.util import lme, typing  # noqa
+from pynchon.app import app as pynchon_app
+from pynchon.util.os import invoke
 
-LOGGER = lme.get_logger(__name__)
+
+LOGGER = lme.get_logger(' ')
 
 RED_X = "❌"
 RED_BALL = "🔴"
@@ -152,6 +155,7 @@ class Goal(BaseModel):
     )
 
     def act(goal, git=None, plugin_name="?", ordering="?"):
+        """ """
         pynchon_app.status_bar.update(
             app="Pynchon::APPLY",
             stage=f"{plugin_name} plugin {ordering}",
@@ -212,10 +216,6 @@ class Goal(BaseModel):
             # + app.Text(" rsrc=", style="bold italic")
             # + app.Text(f"{self.rel_resource}", style="dim italic"),
         )
-
-
-from pynchon.app import app as pynchon_app
-from pynchon.util.os import invoke
 
 
 class Plan(typing.BaseModel):
@@ -356,19 +356,19 @@ class Plan(typing.BaseModel):
 
 
 class ApplyResults(typing.BaseModel):
-    #typing.List[Action], metaclass=meta.namespace):
+    # typing.List[Action], metaclass=meta.namespace):
     """ """
     goals: typing.List[Goal] = typing.Field(default=[])
     actions: typing.List[Action] = typing.Field(default=[])
 
     @property
     def finished(self):
-        """
-        """
-        return len(self.goals)==len(self.actions)
+        """ """
+        return len(self.goals) == len(self.actions)
 
     def __len__(self):
         return len(self.actions)
+
     def __iter__(self):
         return iter(self.actions)
 

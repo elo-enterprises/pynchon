@@ -15,7 +15,7 @@ from .plugins import BasePlugin
 from pynchon.util import lme, typing  # noqa
 
 
-LOGGER = lme.get_logger(__name__)
+LOGGER = lme.get_logger(' ')
 
 
 @tags(cli_label="Planner")
@@ -59,25 +59,25 @@ class AbstractPlanner(BasePlugin):
         Executes the plan for this plugin
         """
         parallelism = int(parallelism)
-        cls_name = self.__class__.name
         # app.status_bar.update(
         #     app="Pynchon::APPLY",
         #     stage=f"plugin:{self.__class__.name}"
         # )
         plan = plan or self.plan()
 
-        results = plan.apply(
-            parallelism=parallelism, git=self.siblings["git"])
+        results = plan.apply(parallelism=parallelism, git=self.siblings["git"])
 
-        LOGGER.critical(f"Finished apply ({len(results.actions)}/{len(results.goals)} goals)")
+        LOGGER.critical(
+            f"Finished apply ({len(results.actions)}/{len(results.goals)} goals)"
+        )
         self.dispatch_apply_hooks(results)
         return results
 
-    def dispatch_apply_hooks(self, results:planning.ApplyResults):
+    def dispatch_apply_hooks(self, results: planning.ApplyResults):
         # write status event (used by the app-console)
         app.status_bar.update(
             app="Pynchon::HOOKS",
-            stage=f"{cls_name}",
+            stage=f"{self.__class__.name}",
         )
         if results.finished:
             hooks = self.apply_hooks
@@ -91,8 +91,10 @@ class AbstractPlanner(BasePlugin):
             else:
                 self.logger.warning("No applicable hooks were found")
         else:
-            self.logger.critical('skipping hooks: ')
-            self.logger.critical(f" {len(plan)-len(results)} goals incomplete")
+            self.logger.critical("skipping hooks: ")
+            self.logger.critical(
+                f" {len(results.goals)-len(results.actions)} goals incomplete"
+            )
 
     def _validate_hooks(self, hooks):
         # FIXME: validation elsewhere
