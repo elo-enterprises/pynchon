@@ -32,4 +32,5 @@ pynchon makefile parse Makefile |jq .
 pynchon parse markdown --help
 pynchon markdown parse --help
 pynchon markdown to-pdf --help
+pynchon markdown normalize --help
 pynchon parse markdown README.md --codeblocks | jq .

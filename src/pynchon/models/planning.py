@@ -145,7 +145,9 @@ class Goal(BaseModel):
     command: typing.StringMaybe = typing.Field(default=None)
     callable: typing.MethodType = typing.Field(default=None)
     type: typing.StringMaybe = typing.Field(default=None, required=False)
-    owner: typing.StringMaybe = typing.Field(default=None)
+    owner: typing.StringMaybe = typing.Field(
+        help="Name of the plugin that owns this Goal", default=None
+    )
     label: typing.StringMaybe = typing.Field(default=None)
     udiff: typing.StringMaybe = typing.Field(default=None)
     ordering: typing.StringMaybe = typing.Field(
@@ -221,12 +223,14 @@ class Plan(typing.BaseModel):
     """ """
 
     goals: typing.List[Goal] = typing.Field(default=[])
+    owner: typing.StringMaybe = typing.Field(
+        help="Name of the plugin that owns this Plan", default=None
+    )
 
     def apply(self, parallelism: int = 1, fail_fast: bool = True, git=None):
         """ """
         goals = self.goals
         total = len(goals)
-        LOGGER.critical(f"Applying {total} goals with {parallelism} workers")
 
         jobs = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=parallelism) as executor:

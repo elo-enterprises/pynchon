@@ -17,7 +17,7 @@ ElementList = typing.List[typing.Dict]
 # )
 
 
-class Markdown(models.CliPlugin):
+class Markdown(models.Planner):
     """Markdown"""
 
     class config_class(abcs.Config):
@@ -26,12 +26,32 @@ class Markdown(models.CliPlugin):
         include_patterns: typing.List[str] = typing.Field(default=[])
         exclude_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
-        # tests: DocTestSuite = typing.Field(default=markdown_suite)
+        linter_docker_image: str = typing.Field(
+            default="peterdavehello/markdownlint", help=""
+        )
+        linter_args: str = typing.Field(default="--fix", help="")
+        goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
 
     name = "markdown"
     # @cli.click.flag("-p", "--python", help="only python codeblocks")
     cli_name = "markdown"
     priority = 0
+
+    @cli.click.argument("paths", nargs=-1)
+    def normalize(self, paths):
+        """Use `markdownlint` to normalize input paths"""
+        docker_image = self["linter_docker_image"]
+        linter_args = self["linter_args"]
+        goals = []
+        for path in paths:
+            goals.append(
+                self.goal(
+                    resource=path,
+                    type="normalize",
+                    command=f"docker run -v `pwd`:/workspace -w /workspace {docker_image} markdownlint {linter_args} {path}",
+                )
+            )
+        return self.apply(plan=self.plan(goals=goals))
 
     @cli.click.flag("-p", "--python", help="only python codeblocks")
     @cli.click.flag("-b", "--bash", help="only bash codeblocks")
@@ -42,6 +62,7 @@ class Markdown(models.CliPlugin):
         python: bool = False,
         bash: bool = False,
     ) -> ElementList:
+        """Runs doctest for fenced code inside the given markdown files"""
         assert python or bash
         element_lst = self.parse(file=file, python=python, bash=bash)
         if not element_lst:
@@ -71,7 +92,7 @@ class Markdown(models.CliPlugin):
         python: bool = False,
         bash: bool = False,
     ) -> ElementList:
-        """parses given markdown file into json"""
+        """Parses given markdown file into JSON"""
         codeblocks = codeblocks or python or bash
         assert file
         with open(file) as fhandle:

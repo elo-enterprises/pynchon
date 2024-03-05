@@ -109,7 +109,7 @@ class Jinja(models.Planner):
         globs = [
             abcs.Path(project_root).joinpath("**/*.j2"),
         ]
-        self.logger.warning(f"search patterns are {globs}")
+        self.logger.debug(f"search patterns are {globs}")
         result = files.find_globs(globs)
         self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
         excludes = self["exclude_patterns"]

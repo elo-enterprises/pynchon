@@ -5,6 +5,7 @@ import urllib
 from pathlib import Path
 
 import yaml
+from fleks import tagging
 
 from pynchon.plugins import util as plugin_util
 from pynchon.util.text import loadf
@@ -26,7 +27,7 @@ class MkdocsPluginConfig(abcs.Config):
         for p in self.pages:
             tags = tags.union(set(p.get("tags", [])))
         # NB: removes empty-string
-        return list(filter(None, tags))
+        return sorted(list(filter(None, tags)))
 
     @property
     def drafts(self):
@@ -184,6 +185,11 @@ class Mkdocs(models.Planner):
         cmd = f"mkdocs serve --config-file {self.config_file} >> {DEFAULT_LOG_FILE} 2>&1 {bg}"
         result = invoke(cmd)
         return result
+
+    @tagging.tags(click_aliases=["ls"])
+    def list(self):
+        """Lists site-pages based on mkdocs.yml"""
+        return self.config.pages
 
     def open(self):
         """
