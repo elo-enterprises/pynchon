@@ -2,8 +2,9 @@
 """
 
 import urllib
-import yaml
 from pathlib import Path
+
+import yaml
 
 from pynchon.plugins import util as plugin_util
 from pynchon.util.text import loadf
@@ -29,7 +30,12 @@ class MkdocsPluginConfig(abcs.Config):
 
     @property
     def drafts(self):
-        return [p for p in self.pages if p['draft']]
+        ignore_list = ["index.md", "tags.md", "nav.md"]
+        return [
+            p
+            for p in self.pages
+            if all([p["draft"], p["path"].name not in ignore_list])
+        ]
 
     @property
     def pages(self) -> typing.List:
@@ -46,7 +52,7 @@ class MkdocsPluginConfig(abcs.Config):
             cfg = MkDocsConfig()
             data = yaml.load(open(self.config_file).read(), yaml.FullLoader)
             cfg.load_dict(data)
-            cfg.validate()            # fl = File(
+            cfg.validate()  # fl = File(
             #     'heredoc/ambient-calculus-1.md',
             #     cfg.docs_dir, cfg.site_dir, cfg.use_directory_urls)
             # config_file
@@ -67,14 +73,17 @@ class MkdocsPluginConfig(abcs.Config):
                 )
                 pg.read_source(cfg)
                 tags = pg.meta.get("tags", [])
-                draft = any([
-                    pg.meta.get("draft", False),
-                    'draft' in str(rel_pfile)])
+                draft = any([pg.meta.get("draft", False), "draft" in str(rel_pfile)])
+                #   {%- for p in mkdocs.blog_posts|default([]) %}{% set p=p|Path %}{% set p=p.relative_to(mkdocs.config.docs_dir | default('docs/')) %}
+                # * [{{p.stem.replace('-',' ').title()}}]({{p}}){%- endfor -%}
                 pmeta = dict(
                     title=pg.title,
-                    relative_url=pg.url,
+                    # relative_url=pg.url,
+                    relative_url=f"{self.site_relative_url}/{pg.url}",
                     path=pfile.absolute(),
+                    rel_path=str(rel_pfile),
                     tags=tags,
+                    # thing=rel_pfile.stem.replace('- ',' ').title(),
                     draft=draft,
                 )
                 pages.append(pmeta)
@@ -87,20 +96,25 @@ class MkdocsPluginConfig(abcs.Config):
         resulting files, if any, will not include index and
         will be sorted by modification time
         """
-        ignore_list = ["index.md"]
-        mconf = self.config
-        if mconf:
-            pconf = mconf["plugins"] if "plugins" in mconf else {}
-            ddir = abcs.Path(mconf.get("docs_dir", "docs"))
-            bconf = [conf for conf in pconf if "blogging" in list(conf.keys())]
-            bconf = bconf[0]["blogging"] if bconf else {}
-            blog_dirs = [ddir / bdir for bdir in bconf.get("dirs", [])]
-            result = []
-            for bdir in blog_dirs:
-                result += [g for g in bdir.glob("**/*.md") if g.name not in ignore_list]
-            result = reversed(sorted(result, key=lambda p: p.lstat().st_mtime))
-            result = [str(p) for p in result]
-            return result
+        ignore_list = ["index.md", "tags.md", "nav.md"]
+        return [
+            p
+            for p in self.pages
+            if all([not p["draft"], p["path"].name not in ignore_list])
+        ]
+        # mconf = self.config
+        # if mconf:
+        #     pconf = mconf["plugins"] if "plugins" in mconf else {}
+        #     ddir = abcs.Path(mconf.get("docs_dir", "docs"))
+        #     bconf = [conf for conf in pconf if "blogging" in list(conf.keys())]
+        #     bconf = bconf[0]["blogging"] if bconf else {}
+        #     blog_dirs = [ddir / bdir for bdir in bconf.get("dirs", [])]
+        #     result = []
+        #     for bdir in blog_dirs:
+        #         result += [g for g in bdir.glob("**/*.md") if g.name not in ignore_list]
+        #     result = reversed(sorted(result, key=lambda p: p.lstat().st_mtime))
+        #     result = [str(p) for p in result]
+        #     return result
 
     @property
     def site_relative_url(self):

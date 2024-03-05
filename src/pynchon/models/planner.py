@@ -47,7 +47,7 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
-    @cli.click.flag("--quiet",'-q', default=False, help="Disable JSON output")
+    @cli.click.flag("--quiet", "-q", default=False, help="Disable JSON output")
     @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
     @cli.click.flag("--fail-fast", default=False, help="fail fast")
     def apply(
