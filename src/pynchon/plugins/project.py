@@ -72,7 +72,7 @@ class Project(models.Manager):
 
     @tagging.tags(click_aliases=["ls"])
     def list(self):
-        """ """
+        """ List subprojects associated with this project """
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
         project_root = proj_conf.get("root", None) or self[:"git.root":"."]
@@ -87,9 +87,6 @@ class Project(models.Manager):
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} subprojects (post-filter)")
-        # if not result:
-        #     err = f"{self.__class__.__name__} is active, but found no .j2 files!"
-        #     self.logger.critical(err)
         return result
 
     # @common.kommand(

@@ -226,7 +226,7 @@ class Plan(typing.BaseModel):
     owner: typing.StringMaybe = typing.Field(
         help="Name of the plugin that owns this Plan", default=None
     )
-
+    
     def apply(self, parallelism: int = 1, fail_fast: bool = True, git=None):
         """ """
         goals = self.goals

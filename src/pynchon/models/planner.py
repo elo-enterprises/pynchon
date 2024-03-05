@@ -62,9 +62,9 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
-    @cli.click.flag("--quiet", "-q", default=False, help="Disable JSON output")
-    @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
-    @cli.click.flag("--fail-fast", default=False, help="fail fast")
+    @cli.options.quiet
+    @cli.options.parallelism
+    @cli.options.fail_fast
     def apply(
         self,
         plan: planning.Plan = None,
@@ -89,11 +89,11 @@ class AbstractPlanner(BasePlugin):
         LOGGER.critical(
             f"{self.name}.apply finished ( {len(results.actions)}/{len(results.goals)} goals )"
         )
-        self.dispatch_apply_hooks(results)
+        self._dispatch_apply_hooks(results)
         if not quiet:
             return results
 
-    def dispatch_apply_hooks(self, results: planning.ApplyResults):
+    def _dispatch_apply_hooks(self, results: planning.ApplyResults):
         # write status event (used by the app-console)
         app.status_bar.update(
             app="Pynchon::HOOKS",

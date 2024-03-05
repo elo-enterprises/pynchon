@@ -159,10 +159,12 @@ class Core(models.Planner):
         plugins = sorted(plugins, key=lambda p: p.priority)
         return plugins
 
+    @cli.options.quiet
     def plan(
         self,
         config=None,
-        flattened=True,
+        quiet:bool=False,
+        flattened:bool=True,
     ) -> models.Plan:
         """Runs plan for all plugins"""
 
@@ -184,11 +186,12 @@ class Core(models.Planner):
                         plan.append(g)
                 else:
                     plans.append(subplan)
-        return plan.finalize() if flattened else plans
+        result = plan.finalize() if flattened else plans
+        return result if not quiet else None
 
     @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
     @cli.click.flag("--fail-fast", default=False, help="fail fast")
-    @cli.click.flag("--quiet", "-q", default=False, help="Disable JSON output")
+    @cli.options.quiet
     def apply(
         self,
         plan: planning.Plan = None,
