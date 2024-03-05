@@ -86,6 +86,11 @@ class Project(models.Manager):
         excludes = self["exclude_patterns"]
         self.logger.debug(f"filtering search with {len(excludes)} excludes")
         result = [p for p in result if not p.match_any_glob(excludes)]
+        result = [
+            dict(
+                name=str(p.relative_to(abcs.Path('.').absolute()).parent),
+                config_file=p) for p in result ]
+        result = [r for r in result if r['name']!='.']
         self.logger.debug(f"found {len(result)} subprojects (post-filter)")
         return result
 
