@@ -27,7 +27,7 @@ class MkdocsPluginConfig(abcs.Config):
         for p in self.pages:
             tags = tags.union(set(p.get("tags", [])))
         # NB: removes empty-string
-        return list(filter(None, tags))
+        return sorted(list(filter(None, tags)))
 
     @property
     def drafts(self):
