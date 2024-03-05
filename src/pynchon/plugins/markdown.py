@@ -84,59 +84,39 @@ class Markdown(models.Planner):
     @cli.click.flag("-c", "--codeblocks", help="only codeblocks")
     @cli.click.flag("-p", "--python", help="only python codeblocks")
     @cli.click.flag("-b", "--bash", help="only bash codeblocks")
+    @cli.click.flag("-l", "--links", help="only links")
     @cli.click.argument("file")
     def parse(
         self,
         file: str = None,
         codeblocks: bool = False,
         python: bool = False,
+        links: bool = False,
         bash: bool = False,
     ) -> ElementList:
         """Parses given markdown file into JSON"""
+        from bs4 import BeautifulSoup
         codeblocks = codeblocks or python or bash
         assert file
         with open(file) as fhandle:
             content = fhandle.read()
-
-        parsed = marko.Markdown(renderer=ASTRenderer)(content)
-        # def walk(thing):
-        #     LOGGER.critical(thing)
-        #     if isinstance(thing, (dict,)):
-        #         children = thing.pop('children', [])
-        #         if isinstance(children,(str,)):
-        #             return children
-        #         if not children:
-        #             return thing
-        #         else:
-        #             return [walk(ch) for ch in children]
-        #     if isinstance(thing, (list,)):
-        #         return [walk(x) for x in thing]
-        #     else:
-        #         return thing
-        #
-        children = parsed["children"]
-        out = []
-        for child in children:
-            if child.get("element") == "fenced_code":
-                lang = child.get("lang")
-                if lang is not None:
-                    out.append(child)
-        LOGGER.critical(child)
-        if python:
-            out = [ch for ch in out if child.get("lang") == "python"]
-        if bash:
-            out = [ch for ch in out if child.get("lang") == "bash"]
-        # out=[]
-        # for child in children:
-        #     if bash and lang=='bash':
-        #         child['code'] = ''.join([
-        #             x['children'] for x in tmp ])
-        #         out.append(child)
-        #     elif python and lang=='python':
-        #         child['code'] = ''.join([
-        #             x['children'] for x in tmp ])
-        #         out.append(child)
-
+        parsed = marko.Markdown()(content)
+        soup = BeautifulSoup(parsed,features="html.parser")
+        if links:
+            out = [a['href'] for a in soup.find_all('a', href=True) ]
+        else:
+            children = parsed["children"]
+            out = []
+            for child in children:
+                if child.get("element") == "fenced_code":
+                    lang = child.get("lang")
+                    if lang is not None:
+                        out.append(child)
+            LOGGER.critical(child)
+            if python:
+                out = [ch for ch in out if child.get("lang") == "python"]
+            if bash:
+                out = [ch for ch in out if child.get("lang") == "bash"]
         return out
         # for child in children:
         #     result import pydash
