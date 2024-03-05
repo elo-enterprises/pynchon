@@ -11,7 +11,7 @@ from pynchon.util.text import loadf
 
 from pynchon import abcs, api, events, models  # noqa
 from pynchon.util import lme, typing  # noqa
-
+from fleks import tagging
 LOGGER = lme.get_logger(__name__)
 
 
@@ -184,7 +184,10 @@ class Mkdocs(models.Planner):
         cmd = f"mkdocs serve --config-file {self.config_file} >> {DEFAULT_LOG_FILE} 2>&1 {bg}"
         result = invoke(cmd)
         return result
-
+    @tagging.tags(click_aliases=["ls"])
+    def list(self):
+        """ Lists site-pages based on mkdocs.yml """
+        return self.config.pages
     def open(self):
         """
         Opens `dev_addr` in a webbrowser
