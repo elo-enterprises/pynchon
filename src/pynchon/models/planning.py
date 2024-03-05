@@ -3,14 +3,19 @@
 
 import typing
 import collections
+import concurrent.futures
 
 import shil
-from fleks import app, meta
+from fleks import app
 from fleks.models import BaseModel
 
 from pynchon import abcs
+from pynchon.app import app as pynchon_app
+from pynchon.util.os import invoke
 
 from pynchon.util import lme, typing  # noqa
+
+LOGGER = lme.get_logger(" ")
 
 RED_X = "❌"
 RED_BALL = "🔴"
@@ -30,60 +35,6 @@ class BaseModel(BaseModel):
     def rel_resource(self) -> str:
         return (
             abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
-        )
-
-
-class Goal(BaseModel):
-    """ """
-
-    # FIXME: validation-- command OR callable must be set
-
-    class Config(BaseModel.Config):
-        exclude: typing.Set[str] = {"udiff", "callable"}
-        # arbitrary_types_allowed = True
-        # json_encoders = {typing.MethodType: lambda c: str(c)}
-
-    resource: abcs.ResourceType = typing.Field(default="?r", required=False)
-    command: typing.StringMaybe = typing.Field(default=None)
-    callable: typing.MethodType = typing.Field(default=None)
-    type: typing.StringMaybe = typing.Field(default=None, required=False)
-    owner: typing.StringMaybe = typing.Field(default=None)
-    label: typing.StringMaybe = typing.Field(default=None)
-    udiff: typing.StringMaybe = typing.Field(default=None)
-    ordering: typing.StringMaybe = typing.Field(
-        default=None,
-        help="human-friendly string describing the sort order for this action inside plan",
-    )
-
-    def __rich__(self) -> str:
-        """ """
-        ordering = f" ({self.ordering.strip()})" if self.ordering else ""
-
-        if self.udiff:
-            sibs = [app.Markdown(f"```diff\n{self.udiff}\n```")]
-        else:
-            sibs = [
-                app.Syntax(
-                    f"  {self._action_summary}",
-                    "bash",
-                    line_numbers=False,
-                    word_wrap=True,
-                )
-            ]
-
-        return app.Panel(
-            app.Group(*sibs),
-            title=app.Text(f"{ordering} ", style="dim underline")
-            + app.Text(f"{self.type}", style="dim bold yellow"),
-            title_align="left",
-            style=app.Style(
-                dim=True,
-                bgcolor="black",
-                frame=False,
-            ),
-            subtitle=app.Text(f"{self.label or self.owner}", style="dim"),
-            # + app.Text(" rsrc=", style="bold italic")
-            # + app.Text(f"{self.rel_resource}", style="dim italic"),
         )
 
 
@@ -180,10 +131,128 @@ class Action(BaseModel):
         return f"<[{self.type}]@{self.resource}: {self.status_string}>"
 
 
+class Goal(BaseModel):
+    """ """
+
+    # FIXME: validation-- command OR callable must be set
+
+    class Config(BaseModel.Config):
+        exclude: typing.Set[str] = {"udiff", "callable"}
+        # arbitrary_types_allowed = True
+        # json_encoders = {typing.MethodType: lambda c: str(c)}
+
+    resource: abcs.ResourceType = typing.Field(default="?r", required=False)
+    command: typing.StringMaybe = typing.Field(default=None)
+    callable: typing.MethodType = typing.Field(default=None)
+    type: typing.StringMaybe = typing.Field(default=None, required=False)
+    owner: typing.StringMaybe = typing.Field(default=None)
+    label: typing.StringMaybe = typing.Field(default=None)
+    udiff: typing.StringMaybe = typing.Field(default=None)
+    ordering: typing.StringMaybe = typing.Field(
+        default=None,
+        help="human-friendly string describing the sort order for this action inside plan",
+    )
+
+    def act(goal, git=None, plugin_name="?", ordering="?"):
+        """ """
+        pynchon_app.status_bar.update(
+            app="Pynchon::APPLY",
+            stage=f"{plugin_name} plugin {ordering}",
+        )
+        invocation = invoke(goal.command)
+        success = invocation.succeeded
+        action = dict(
+            ok=success,
+            ordering=goal.ordering,
+            error="" if success else invocation.stderr,
+            # log=invocation.succeeded and invocation.stderr else None,
+            owner=goal.owner,
+            command=goal.command,
+            resource=goal.resource,
+            type=goal.type,
+        )
+        rsrc_path = abcs.Path(goal.resource).absolute()
+        current_changes = (
+            [] if git is None else [path.absolute() for path in git.modified]
+        )
+        # prev_changes = git.modified
+        changed = all(
+            [
+                rsrc_path in current_changes,
+                # rsrc_path not in prev_changes,
+            ]
+        )
+        action.update(ordering=ordering, changed=changed)
+        return Action(**action)
+
+    def __rich__(self) -> str:
+        """ """
+        ordering = f" ({self.ordering.strip()})" if self.ordering else ""
+
+        if self.udiff:
+            sibs = [app.Markdown(f"```diff\n{self.udiff}\n```")]
+        else:
+            sibs = [
+                app.Syntax(
+                    f"  {self._action_summary}",
+                    "bash",
+                    line_numbers=False,
+                    word_wrap=True,
+                )
+            ]
+
+        return app.Panel(
+            app.Group(*sibs),
+            title=app.Text(f"{ordering} ", style="dim underline")
+            + app.Text(f"{self.type}", style="dim bold yellow"),
+            title_align="left",
+            style=app.Style(
+                dim=True,
+                bgcolor="black",
+                frame=False,
+            ),
+            subtitle=app.Text(f"{self.label or self.owner}", style="dim"),
+            # + app.Text(" rsrc=", style="bold italic")
+            # + app.Text(f"{self.rel_resource}", style="dim italic"),
+        )
+
+
 class Plan(typing.BaseModel):
     """ """
 
     goals: typing.List[Goal] = typing.Field(default=[])
+
+    def apply(self, parallelism: int = 1, fail_fast: bool = True, git=None):
+        """ """
+        goals = self.goals
+        total = len(goals)
+        LOGGER.critical(f"Applying {total} goals with {parallelism} workers")
+
+        jobs = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=parallelism) as executor:
+            for i, goal in enumerate(goals):
+                ordering = f"  {i+1}/{total}"
+                jobs.append(
+                    executor.submit(
+                        goal.act,
+                        git=git,
+                        plugin_name=self.__class__.__name__,
+                        ordering=ordering,
+                    )
+                )
+        results = []
+        for i, future in enumerate(concurrent.futures.as_completed(jobs)):
+            # LOGGER.debug(f' waiting for {i+1} / {total}')
+            action = future.result()
+            results.append(action)
+            lme.CONSOLE.print(action)
+            if fail_fast and not action.ok:
+                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.error}"
+                LOGGER.critical(msg)
+                break
+
+        results = ApplyResults(actions=results, goals=goals)
+        return results
 
     def finalize(self):
         """
@@ -285,12 +354,26 @@ class Plan(typing.BaseModel):
     __iadd__ = __add__
 
 
-class ApplyResults(typing.List[Action], metaclass=meta.namespace):
+class ApplyResults(typing.BaseModel):
+    # typing.List[Action], metaclass=meta.namespace):
     """ """
+    goals: typing.List[Goal] = typing.Field(default=[])
+    actions: typing.List[Action] = typing.Field(default=[])
+
+    @property
+    def finished(self):
+        """ """
+        return len(self.goals) == len(self.actions)
+
+    def __len__(self):
+        return len(self.actions)
+
+    def __iter__(self):
+        return iter(self.actions)
 
     @property
     def ok(self):
-        return all([a.ok for a in self])
+        return self.finished and all([a.ok for a in self])
 
     @property
     def action_types(self):

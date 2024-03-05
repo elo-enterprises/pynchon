@@ -1,7 +1,10 @@
 """ pynchon.plugins.mkdocs
 """
 
+import urllib
 from pathlib import Path
+
+import yaml
 
 from pynchon.plugins import util as plugin_util
 from pynchon.util.text import loadf
@@ -17,8 +20,108 @@ class MkdocsPluginConfig(abcs.Config):
     config_file: str = typing.Field(default=None)
 
     @property
-    def site_dir(self):
-        return self.config.get("site_dir", "site")
+    def tags(self) -> typing.List:
+        """ """
+        tags = set()
+        for p in self.pages:
+            tags = tags.union(set(p.get("tags", [])))
+        # NB: removes empty-string
+        return list(filter(None, tags))
+
+    @property
+    def drafts(self):
+        ignore_list = ["index.md", "tags.md", "nav.md"]
+        return [
+            p
+            for p in self.pages
+            if all([p["draft"], p["path"].name not in ignore_list])
+        ]
+
+    @property
+    def pages(self) -> typing.List:
+        """ """
+        from mkdocs.structure.files import File
+        from mkdocs.structure.pages import Page
+
+        pages = []
+        mconf = self.config
+        if mconf:
+            ddir = abcs.Path(mconf.get("docs_dir", "docs"))
+            from mkdocs.config.defaults import MkDocsConfig
+
+            cfg = MkDocsConfig()
+            data = yaml.load(open(self.config_file).read(), yaml.FullLoader)
+            cfg.load_dict(data)
+            cfg.validate()  # fl = File(
+            #     'heredoc/ambient-calculus-1.md',
+            #     cfg.docs_dir, cfg.site_dir, cfg.use_directory_urls)
+            # config_file
+            # pconf = mconf['plugins'] if 'plugins' in mconf else {}
+            # bconf = [conf for conf in pconf if 'blogging' in list(conf.keys())]
+            # bconf = bconf[0]['blogging'] if bconf else {}
+            pfiles = ddir.glob("**/*.md")
+            # pfiles = [p.relative_to(ddir) for p in pfiles]
+            for pfile in pfiles:
+                rel_pfile = pfile.relative_to(ddir)
+                mfile = File(
+                    str(rel_pfile), cfg.docs_dir, cfg.site_dir, cfg.use_directory_urls
+                )
+                pg = Page(
+                    file=mfile,
+                    config=cfg,
+                    title=None,
+                )
+                pg.read_source(cfg)
+                tags = pg.meta.get("tags", [])
+                draft = any([pg.meta.get("draft", False), "draft" in str(rel_pfile)])
+                #   {%- for p in mkdocs.blog_posts|default([]) %}{% set p=p|Path %}{% set p=p.relative_to(mkdocs.config.docs_dir | default('docs/')) %}
+                # * [{{p.stem.replace('-',' ').title()}}]({{p}}){%- endfor -%}
+                pmeta = dict(
+                    title=pg.title,
+                    # relative_url=pg.url,
+                    relative_url=f"{self.site_relative_url}/{pg.url}",
+                    path=pfile.absolute(),
+                    rel_path=str(rel_pfile),
+                    tags=tags,
+                    # thing=rel_pfile.stem.replace('- ',' ').title(),
+                    draft=draft,
+                )
+                pages.append(pmeta)
+        return pages
+
+    @property
+    def blog_posts(self) -> list:
+        """
+        returns blog posts, iff blogging plugin is installed.
+        resulting files, if any, will not include index and
+        will be sorted by modification time
+        """
+        ignore_list = ["index.md", "tags.md", "nav.md"]
+        return [
+            p
+            for p in self.pages
+            if all([not p["draft"], p["path"].name not in ignore_list])
+        ]
+        # mconf = self.config
+        # if mconf:
+        #     pconf = mconf["plugins"] if "plugins" in mconf else {}
+        #     ddir = abcs.Path(mconf.get("docs_dir", "docs"))
+        #     bconf = [conf for conf in pconf if "blogging" in list(conf.keys())]
+        #     bconf = bconf[0]["blogging"] if bconf else {}
+        #     blog_dirs = [ddir / bdir for bdir in bconf.get("dirs", [])]
+        #     result = []
+        #     for bdir in blog_dirs:
+        #         result += [g for g in bdir.glob("**/*.md") if g.name not in ignore_list]
+        #     result = reversed(sorted(result, key=lambda p: p.lstat().st_mtime))
+        #     result = [str(p) for p in result]
+        #     return result
+
+    @property
+    def site_relative_url(self):
+
+        site_url = self.config["site_url"] if "site_url" in self.config else None
+        if site_url:
+            return urllib.parse.urlparse(site_url).path
 
     @property
     def config(self) -> typing.Dict:
@@ -55,23 +158,45 @@ class MkdocsPluginConfig(abcs.Config):
                 return str(cand.absolute())
 
 
+DEFAULT_LOG_FILE = ".tmp.mkdocs.log"
+
+
 class Mkdocs(models.Planner):
     """Mkdocs helper"""
 
-    priority = 6  # before mermaid
+    priority = 8  # before mermaid
     name = "mkdocs"
     cli_name = "mkdocs"
     cli_label = "Docs"
     config_class = MkdocsPluginConfig
 
+    @property
+    def config_file(self) -> str:
+        return self["config_file"]
+
+    def serve(self, background: bool = True):
+        """
+        Wrapper for `mkdocs serve`
+        """
+        from pynchon.util.os import invoke
+
+        bg = "&" if background else ""
+        cmd = f"mkdocs serve --config-file {self.config_file} >> {DEFAULT_LOG_FILE} 2>&1 {bg}"
+        result = invoke(cmd)
+        return result
+
     def open(self):
         """
-        Opens `site_dir` in a webbrowser
+        Opens `dev_addr` in a webbrowser
         """
         import webbrowser
 
-        index_f = Path(self.site_dir).absolute() / "index.html"
-        url = f"file://{index_f}"
+        # index_f = Path(self.site_dir).absolute() / "index.html"
+        # url = f"file://{index_f}"
+        mconfig = self.config.config
+        url = mconfig["dev_addr"]
+        assert url
+        self.logger.warning(f"opening {url}")
         return webbrowser.open(url)
 
     @property
@@ -93,12 +218,11 @@ class Mkdocs(models.Planner):
         Runs a plan for this plugin
         """
         plan = super(self.__class__, self).plan()
-        config_file = self["config_file"]
         plan.append(
             self.goal(
                 type="render",
                 resource=self.site_dir,
-                command=f"mkdocs build --config-file {config_file}",
+                command=f"mkdocs build --config-file {self.config_file}",
             )
         )
         return plan

@@ -8,7 +8,6 @@ from fleks.util.tagging import tags
 
 from pynchon import abcs, cli
 from pynchon.app import app
-from pynchon.util.os import invoke
 
 from . import planning
 from .plugins import BasePlugin
@@ -16,7 +15,7 @@ from .plugins import BasePlugin
 from pynchon.util import lme, typing  # noqa
 
 
-LOGGER = lme.get_logger(__name__)
+LOGGER = lme.get_logger(" ")
 
 
 @tags(cli_label="Planner")
@@ -48,68 +47,57 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
-    def apply(self, plan: planning.Plan = None) -> planning.ApplyResults:
+    @cli.click.flag("--quiet", "-q", default=False, help="Disable JSON output")
+    @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
+    @cli.click.flag("--fail-fast", default=False, help="fail fast")
+    def apply(
+        self,
+        plan: planning.Plan = None,
+        parallelism: str = "1",
+        fail_fast: bool = False,
+        quiet: bool = False,
+    ) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
         """
-        cls_name = self.__class__.name
-        msg = f"Applying for plugin '{cls_name}'"
-        app.status_bar.update(
-            app="Pynchon::APPLY", stage=f"plugin:{self.__class__.name}"
-        )
+        parallelism = int(parallelism)
+        # app.status_bar.update(
+        #     app="Pynchon::APPLY",
+        #     stage=f"plugin:{self.__class__.name}"
+        # )
         plan = plan or self.plan()
-        goals = getattr(plan, "goals", plan)
-        results = []
-        total = len(goals)
-        LOGGER.critical(f"{msg} ({total} goals)")
-        git = self.siblings["git"]
-        for i, action_item in enumerate(goals):
-            app.status_bar.update(stage=f"{action_item}")
-            cmd = action_item.command
-            ordering = f"  {i+1}/{total}"
-            prev_changes = git.modified
-            invocation = invoke(cmd)
-            rsrc_path = abcs.Path(action_item.resource).absolute()
-            next_changes = [path.absolute() for path in git.modified]
-            changed = all(
-                [
-                    rsrc_path in next_changes,
-                    # rsrc_path not in prev_changes,
-                ]
-            )
-            # raise Exception([changed,action_item.resource, next_changes])
-            tmp = planning.Action(
-                ok=invocation.succeeded,
-                ordering=ordering,
-                error="" if invocation.succeeded else invocation.stderr,
-                # log=invocation.succeeded and invocation.stderr else None,
-                owner=action_item.owner,
-                command=action_item.command,
-                resource=action_item.resource,
-                type=action_item.type,
-                changed=changed,
-            )
-            lme.CONSOLE.print(tmp)
-            results.append(tmp)
-        results = planning.ApplyResults(results)
+
+        results = plan.apply(parallelism=parallelism, git=self.siblings["git"])
+
+        LOGGER.critical(
+            f"Finished apply ({len(results.actions)}/{len(results.goals)} goals)"
+        )
+        self.dispatch_apply_hooks(results)
+        if not quiet:
+            return results
+
+    def dispatch_apply_hooks(self, results: planning.ApplyResults):
         # write status event (used by the app-console)
         app.status_bar.update(
             app="Pynchon::HOOKS",
-            stage=f"{cls_name}",
+            stage=f"{self.__class__.name}",
         )
-        resources = list({r.resource for r in results})
-        LOGGER.critical(f"Finished apply ({len(resources)} resources)")
-        hooks = self.apply_hooks
-        if hooks:
-            self.logger.warning(
-                f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}"
-            )
-            hook_results = []
-            for hook in hooks:
-                hook_results.append(self.run_hook(hook, results))
+        if results.finished:
+            hooks = self.apply_hooks
+            if hooks:
+                self.logger.warning(
+                    f"{self.__class__} is dispatching {len(hooks)} hooks: {hooks}"
+                )
+                hook_results = []
+                for hook in hooks:
+                    hook_results.append(self.run_hook(hook, results))
+            else:
+                self.logger.warning("No applicable hooks were found")
         else:
-            self.logger.warning("No applicable hooks were found")
-        return results
+            self.logger.critical("skipping hooks: ")
+            self.logger.critical(
+                f" {len(results.goals)-len(results.actions)} goals incomplete"
+            )
 
     def _validate_hooks(self, hooks):
         # FIXME: validation elsewhere
@@ -178,8 +166,6 @@ class ShyPlanner(AbstractPlanner):
     """ShyPlanner uses plan/apply workflows, but they must be
     executed directly.  ProjectPlugin (or any other parent plugins)
     won't include this as a sub-plan.
-
-
     """
 
     contribute_plan_apply = False

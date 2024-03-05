@@ -4,6 +4,7 @@ pynchon: a utility for docs generation and template-rendering
 
 import fleks
 import shimport
+from trogon import tui
 
 from pynchon import cli
 
@@ -13,8 +14,6 @@ LOGGER = lme.get_logger(__name__)
 
 click = cli.click
 plugins = shimport.lazy("pynchon.plugins")
-
-from trogon import tui
 
 
 class RootGroup(fleks.cli.RootGroup):

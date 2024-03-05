@@ -12,7 +12,7 @@ from pynchon.util import lme, typing  # noqa
 
 from .pynchon import PynchonPlugin  # noqa
 
-LOGGER = lme.get_logger(__name__)
+LOGGER = lme.get_logger(" ")
 IPython = shimport.lazy("IPython")
 config_mod = shimport.lazy("pynchon.config")
 
@@ -161,7 +161,8 @@ class CliPlugin(PynchonPlugin):
                 from pynchon.util.lme import CONSOLE
 
                 CONSOLE.print(rproto())
-            print(dumps.json(result))
+            if result:
+                print(dumps.json(result))
 
         commands = [
             kls.click_create_cmd(
