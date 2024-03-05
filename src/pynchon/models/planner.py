@@ -47,6 +47,7 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
+    @cli.click.flag("--quiet",'-q', default=False, help="Disable JSON output")
     @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
     @cli.click.flag("--fail-fast", default=False, help="fail fast")
     def apply(
@@ -54,6 +55,7 @@ class AbstractPlanner(BasePlugin):
         plan: planning.Plan = None,
         parallelism: str = "1",
         fail_fast: bool = False,
+        quiet: bool = False,
     ) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
@@ -71,7 +73,8 @@ class AbstractPlanner(BasePlugin):
             f"Finished apply ({len(results.actions)}/{len(results.goals)} goals)"
         )
         self.dispatch_apply_hooks(results)
-        return results
+        if not quiet:
+            return results
 
     def dispatch_apply_hooks(self, results: planning.ApplyResults):
         # write status event (used by the app-console)

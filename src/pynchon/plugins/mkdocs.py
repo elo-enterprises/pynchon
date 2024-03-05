@@ -1,9 +1,9 @@
 """ pynchon.plugins.mkdocs
 """
 
-from pathlib import Path
-
+import urllib
 import yaml
+from pathlib import Path
 
 from pynchon.plugins import util as plugin_util
 from pynchon.util.text import loadf
@@ -28,22 +28,25 @@ class MkdocsPluginConfig(abcs.Config):
         return list(filter(None, tags))
 
     @property
+    def drafts(self):
+        return [p for p in self.pages if p['draft']]
+
+    @property
     def pages(self) -> typing.List:
         """ """
+        from mkdocs.structure.files import File
+        from mkdocs.structure.pages import Page
+
         pages = []
         mconf = self.config
         if mconf:
             ddir = abcs.Path(mconf.get("docs_dir", "docs"))
             from mkdocs.config.defaults import MkDocsConfig
-            from mkdocs.structure.files import File
-            from mkdocs.structure.pages import Page
 
             cfg = MkDocsConfig()
-
             data = yaml.load(open(self.config_file).read(), yaml.FullLoader)
             cfg.load_dict(data)
-            cfg.validate()
-            # fl = File(
+            cfg.validate()            # fl = File(
             #     'heredoc/ambient-calculus-1.md',
             #     cfg.docs_dir, cfg.site_dir, cfg.use_directory_urls)
             # config_file
@@ -64,11 +67,15 @@ class MkdocsPluginConfig(abcs.Config):
                 )
                 pg.read_source(cfg)
                 tags = pg.meta.get("tags", [])
+                draft = any([
+                    pg.meta.get("draft", False),
+                    'draft' in str(rel_pfile)])
                 pmeta = dict(
                     title=pg.title,
                     relative_url=pg.url,
                     path=pfile.absolute(),
                     tags=tags,
+                    draft=draft,
                 )
                 pages.append(pmeta)
         return pages
@@ -80,6 +87,7 @@ class MkdocsPluginConfig(abcs.Config):
         resulting files, if any, will not include index and
         will be sorted by modification time
         """
+        ignore_list = ["index.md"]
         mconf = self.config
         if mconf:
             pconf = mconf["plugins"] if "plugins" in mconf else {}
@@ -89,14 +97,13 @@ class MkdocsPluginConfig(abcs.Config):
             blog_dirs = [ddir / bdir for bdir in bconf.get("dirs", [])]
             result = []
             for bdir in blog_dirs:
-                result += [g for g in bdir.glob("**/*.md") if g.name != "index.md"]
+                result += [g for g in bdir.glob("**/*.md") if g.name not in ignore_list]
             result = reversed(sorted(result, key=lambda p: p.lstat().st_mtime))
             result = [str(p) for p in result]
             return result
 
     @property
     def site_relative_url(self):
-        import urllib
 
         site_url = self.config["site_url"] if "site_url" in self.config else None
         if site_url:
