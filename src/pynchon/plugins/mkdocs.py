@@ -5,6 +5,8 @@ import urllib
 from pathlib import Path
 
 import yaml
+
+import fleks 
 from fleks import tagging
 
 from pynchon.plugins import util as plugin_util
@@ -191,7 +193,8 @@ class Mkdocs(models.Planner):
         """Lists site-pages based on mkdocs.yml"""
         return self.config.pages
 
-    def open(self):
+    @fleks.cli.arguments.file
+    def open(self, file=None,):
         """
         Opens `dev_addr` in a webbrowser
         """
@@ -201,7 +204,8 @@ class Mkdocs(models.Planner):
         # url = f"file://{index_f}"
         mconfig = self.config.config
         url = mconfig["dev_addr"]
-        assert url
+        url = f"{url}/{file}" if file else url 
+        url = f"http://{url}" if not url.startswith('http') else url
         self.logger.warning(f"opening {url}")
         return webbrowser.open(url)
 

@@ -227,34 +227,51 @@ class Plan(typing.BaseModel):
         help="Name of the plugin that owns this Plan", default=None
     )
     
-    def apply(self, parallelism: int = 1, fail_fast: bool = True, git=None):
+    def apply(self, parallelism: int = 0, fail_fast: bool = True, git=None):
         """ """
         goals = self.goals
         total = len(goals)
 
         jobs = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=parallelism) as executor:
+        results = []
+        if parallelism:
+            LOGGER.warning(f"parallel execution enabled (workers={parallelism})")
+            with concurrent.futures.ThreadPoolExecutor(max_workers=parallelism) as executor:
+                for i, goal in enumerate(goals):
+                    ordering = f"  {i+1}/{total}"
+                    jobs.append(
+                        executor.submit(
+                            goal.act,
+                            git=git,
+                            plugin_name=self.__class__.__name__,
+                            ordering=ordering,
+                        )
+                    )
+            for i, future in enumerate(concurrent.futures.as_completed(jobs)):
+                # LOGGER.debug(f' waiting for {i+1} / {total}')
+                action = future.result()
+                results.append(action)
+                lme.CONSOLE.print(action)
+                if fail_fast and not action.ok:
+                    msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.error}"
+                    LOGGER.critical(msg)
+                    break
+        else:
+            LOGGER.warning(f"parallel execution disabled (workers={parallelism})")
             for i, goal in enumerate(goals):
                 ordering = f"  {i+1}/{total}"
-                jobs.append(
-                    executor.submit(
-                        goal.act,
-                        git=git,
-                        plugin_name=self.__class__.__name__,
-                        ordering=ordering,
-                    )
-                )
-        results = []
-        for i, future in enumerate(concurrent.futures.as_completed(jobs)):
-            # LOGGER.debug(f' waiting for {i+1} / {total}')
-            action = future.result()
-            results.append(action)
-            lme.CONSOLE.print(action)
-            if fail_fast and not action.ok:
-                msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.error}"
-                LOGGER.critical(msg)
-                break
-
+                lme.CONSOLE.print(goal)
+                action = goal.act(
+                    git=git,
+                    plugin_name=self.__class__.__name__,
+                    ordering=ordering,
+                )               
+                # lme.CONSOLE.print(action)
+                results.append(action)
+                if fail_fast and not action.ok:
+                    msg = f"fail-fast is set, so exiting early.  exception follows\n\n{action.error}"
+                    LOGGER.critical(msg)
+                    break
         results = ApplyResults(actions=results, goals=goals)
         return results
 

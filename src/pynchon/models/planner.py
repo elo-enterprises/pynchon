@@ -68,7 +68,7 @@ class AbstractPlanner(BasePlugin):
     def apply(
         self,
         plan: planning.Plan = None,
-        parallelism: str = "1",
+        parallelism: str = "0",
         fail_fast: bool = False,
         quiet: bool = False,
     ) -> planning.ApplyResults:
@@ -94,6 +94,7 @@ class AbstractPlanner(BasePlugin):
             return results
 
     def _dispatch_apply_hooks(self, results: planning.ApplyResults):
+        """ """
         # write status event (used by the app-console)
         app.status_bar.update(
             app="Pynchon::HOOKS",
