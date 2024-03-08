@@ -6,7 +6,8 @@ from fleks import tagging
 from marko.ast_renderer import ASTRenderer
 
 from pynchon import abcs, api, cli, events, models  # noqa
-from pynchon.util import lme, typing  # noqa
+# from pynchon.util import lme, typing  # noqa
+from pynchon.util import files, lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
@@ -36,6 +37,30 @@ class Markdown(models.Planner):
     # @cli.click.flag("-p", "--python", help="only python codeblocks")
     cli_name = "markdown"
     priority = 0
+
+    @tagging.tags(click_aliases=["ls"])
+    def list(self, changes=False):
+        """
+        Lists affected resources for this project
+        """
+        default = self[:"project"]
+        proj_conf = self[:"project.subproject":default]
+        project_root = proj_conf.get("root", None) or self[:"git.root":"."]
+        # project_root = proj_conf.get("root", None) or '.'
+        globs = [
+            abcs.Path(project_root).joinpath("**/*.md"),
+        ]
+        self.logger.debug(f"search patterns are {globs}")
+        result = files.find_globs(globs)
+        self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
+        excludes = self["exclude_patterns"]
+        self.logger.debug(f"filtering search with {len(excludes)} excludes")
+        result = [p for p in result if not p.match_any_glob(excludes)]
+        self.logger.debug(f"found {len(result)} j2 files (post-filter)")
+        if not result:
+            err = f"{self.__class__.__name__} is active, but found no .j2 files!"
+            self.logger.critical(err)
+        return result
 
     @cli.click.argument("paths", nargs=-1)
     def normalize(self, paths):
@@ -85,10 +110,12 @@ class Markdown(models.Planner):
     @cli.click.flag("-p", "--python", help="only python codeblocks")
     @cli.click.flag("-b", "--bash", help="only bash codeblocks")
     @cli.click.flag("-l", "--links", help="only links")
-    @cli.click.argument("file")
+    @cli.click.flag("--all", "-a", help="run for each file found by `list`")
+    @cli.click.argument("file",nargs=-1)
     def parse(
         self,
         file: str = None,
+        all: bool=False,
         codeblocks: bool = False,
         python: bool = False,
         links: bool = False,
@@ -97,27 +124,42 @@ class Markdown(models.Planner):
         """Parses given markdown file into JSON"""
         from bs4 import BeautifulSoup
         codeblocks = codeblocks or python or bash
-        assert file
-        with open(file) as fhandle:
-            content = fhandle.read()
-        parsed = marko.Markdown()(content)
-        soup = BeautifulSoup(parsed,features="html.parser")
-        if links:
-            out = [a['href'] for a in soup.find_all('a', href=True) ]
+        assert file or all and not (file and all)
+        if file:
+            files = [file]
         else:
-            children = parsed["children"]
-            out = []
-            for child in children:
-                if child.get("element") == "fenced_code":
-                    lang = child.get("lang")
-                    if lang is not None:
-                        out.append(child)
-            LOGGER.critical(child)
-            if python:
-                out = [ch for ch in out if child.get("lang") == "python"]
-            if bash:
-                out = [ch for ch in out if child.get("lang") == "bash"]
-        return out
+            LOGGER.warning(f"parsing all")
+            files = self.list()
+        out = {}
+        for file in files:
+            LOGGER.warning(f"parsing: {file}")
+            file = str(file)
+            with open(file) as fhandle:
+                content = fhandle.read()
+            parsed = marko.Markdown()(content)
+            soup = BeautifulSoup(parsed,features="html.parser")
+            if links:
+                out[file] = []
+                for a in soup.find_all('a', href=True):
+                    this_link = a['href']
+                    if this_link.strip()=='#':
+                        LOGGER.warning(f"{file}: has placeholder link '#' ")
+                    else:
+                        out[file]+=[this_link]
+            else:
+                children = parsed["children"]
+                out[file] = []
+                for child in children:
+                    if child.get("element") == "fenced_code":
+                        lang = child.get("lang")
+                        if lang is not None:
+                            out[file]+=[child]
+                LOGGER.critical(child)
+                if python:
+                    out[file] += [ch for ch in out if child.get("lang") == "python"]
+                if bash:
+                    out[file] += [ch for ch in out if child.get("lang") == "bash"]
+        return dict([[k,v] for k,v in out.items() if v])
         # for child in children:
         #     result import pydash
         # flat = pydash.flatten_deep(children)
