@@ -3,9 +3,9 @@
 
 import marko
 from fleks import tagging
-from marko.ast_renderer import ASTRenderer
 
 from pynchon import abcs, api, cli, events, models  # noqa
+
 # from pynchon.util import lme, typing  # noqa
 from pynchon.util import files, lme, text, typing  # noqa
 
@@ -111,11 +111,11 @@ class Markdown(models.Planner):
     @cli.click.flag("-b", "--bash", help="only bash codeblocks")
     @cli.click.flag("-l", "--links", help="only links")
     @cli.click.flag("--all", "-a", help="run for each file found by `list`")
-    @cli.click.argument("file",nargs=-1)
+    @cli.click.argument("file", nargs=-1)
     def parse(
         self,
         file: str = None,
-        all: bool=False,
+        all: bool = False,
         codeblocks: bool = False,
         python: bool = False,
         links: bool = False,
@@ -123,12 +123,13 @@ class Markdown(models.Planner):
     ) -> ElementList:
         """Parses given markdown file into JSON"""
         from bs4 import BeautifulSoup
+
         codeblocks = codeblocks or python or bash
         assert file or all and not (file and all)
         if file:
             files = [file]
         else:
-            LOGGER.warning(f"parsing all")
+            # LOGGER.warning(f"parsing all")
             files = self.list()
         out = {}
         for file in files:
@@ -137,15 +138,15 @@ class Markdown(models.Planner):
             with open(file) as fhandle:
                 content = fhandle.read()
             parsed = marko.Markdown()(content)
-            soup = BeautifulSoup(parsed,features="html.parser")
+            soup = BeautifulSoup(parsed, features="html.parser")
             if links:
                 out[file] = []
-                for a in soup.find_all('a', href=True):
-                    this_link = a['href']
-                    if this_link.strip()=='#':
+                for a in soup.find_all("a", href=True):
+                    this_link = a["href"]
+                    if this_link.strip() == "#":
                         LOGGER.warning(f"{file}: has placeholder link '#' ")
                     else:
-                        out[file]+=[this_link]
+                        out[file] += [this_link]
             else:
                 children = parsed["children"]
                 out[file] = []
@@ -153,13 +154,13 @@ class Markdown(models.Planner):
                     if child.get("element") == "fenced_code":
                         lang = child.get("lang")
                         if lang is not None:
-                            out[file]+=[child]
+                            out[file] += [child]
                 LOGGER.critical(child)
                 if python:
                     out[file] += [ch for ch in out if child.get("lang") == "python"]
                 if bash:
                     out[file] += [ch for ch in out if child.get("lang") == "bash"]
-        return dict([[k,v] for k,v in out.items() if v])
+        return {k: v for k, v in out.items() if v}
         # for child in children:
         #     result import pydash
         # flat = pydash.flatten_deep(children)

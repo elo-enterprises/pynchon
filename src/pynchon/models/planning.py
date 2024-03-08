@@ -226,7 +226,7 @@ class Plan(typing.BaseModel):
     owner: typing.StringMaybe = typing.Field(
         help="Name of the plugin that owns this Plan", default=None
     )
-    
+
     def apply(self, parallelism: int = 0, fail_fast: bool = True, git=None):
         """ """
         goals = self.goals
@@ -236,7 +236,9 @@ class Plan(typing.BaseModel):
         results = []
         if parallelism:
             LOGGER.warning(f"parallel execution enabled (workers={parallelism})")
-            with concurrent.futures.ThreadPoolExecutor(max_workers=parallelism) as executor:
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=parallelism
+            ) as executor:
                 for i, goal in enumerate(goals):
                     ordering = f"  {i+1}/{total}"
                     jobs.append(
@@ -265,7 +267,7 @@ class Plan(typing.BaseModel):
                     git=git,
                     plugin_name=self.__class__.__name__,
                     ordering=ordering,
-                )               
+                )
                 # lme.CONSOLE.print(action)
                 results.append(action)
                 if fail_fast and not action.ok:

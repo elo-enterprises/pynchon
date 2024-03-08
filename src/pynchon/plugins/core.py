@@ -163,8 +163,8 @@ class Core(models.Planner):
     def plan(
         self,
         config=None,
-        quiet:bool=False,
-        flattened:bool=True,
+        quiet: bool = False,
+        flattened: bool = True,
     ) -> models.Plan:
         """Runs plan for all plugins"""
 

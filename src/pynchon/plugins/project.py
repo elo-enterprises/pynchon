@@ -72,7 +72,7 @@ class Project(models.Manager):
 
     @tagging.tags(click_aliases=["ls"])
     def list(self):
-        """ List subprojects associated with this project """
+        """List subprojects associated with this project"""
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
         project_root = proj_conf.get("root", None) or self[:"git.root":"."]
@@ -88,9 +88,11 @@ class Project(models.Manager):
         result = [p for p in result if not p.match_any_glob(excludes)]
         result = [
             dict(
-                name=str(p.relative_to(abcs.Path('.').absolute()).parent),
-                config_file=p) for p in result ]
-        result = [r for r in result if r['name']!='.']
+                name=str(p.relative_to(abcs.Path(".").absolute()).parent), config_file=p
+            )
+            for p in result
+        ]
+        result = [r for r in result if r["name"] != "."]
         self.logger.debug(f"found {len(result)} subprojects (post-filter)")
         return result
 
