@@ -11,7 +11,6 @@ import functools
 from jinja2 import Environment  # Template,; UndefinedError,
 from jinja2 import FileSystemLoader, StrictUndefined
 
-import pynchon
 from pynchon import abcs, constants, events
 from pynchon.util.os import invoke
 
@@ -56,26 +55,26 @@ def get_jinja_globals():
 
     def markdown_toc(fname: str, level=None):
         """ """
-        import markdown 
-        from markdown.extensions.toc import TocExtension
-        with open(fname,'r') as fhandle:
-            contents=fhandle.read()
-        md = markdown.Markdown(extensions=['toc'])
+        import markdown
+
+        with open(fname) as fhandle:
+            contents = fhandle.read()
+        md = markdown.Markdown(extensions=["toc"])
         html = md.convert(contents)
         # import IPython; IPython.embed()
         return md.toc
-        
-# markdown-toc --type github  --no-write docs/blog/ambient-calculus-1.md
-        # assert fname
-        # fname = abcs.Path(fname)
-        # assert fname.exists()
-        # # script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"
-        # result = invoke(
-        #     f"markdown-toc --type github --no-write {fname}", 
-        #     command_logger=LOGGER.critical
-        # )
-        # assert result.succeeded
-        # return result.stdout
+
+    # markdown-toc --type github  --no-write docs/blog/ambient-calculus-1.md
+    # assert fname
+    # fname = abcs.Path(fname)
+    # assert fname.exists()
+    # # script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"
+    # result = invoke(
+    #     f"markdown-toc --type github --no-write {fname}",
+    #     command_logger=LOGGER.critical
+    # )
+    # assert result.succeeded
+    # return result.stdout
 
     return dict(
         sh=invoke_helper,

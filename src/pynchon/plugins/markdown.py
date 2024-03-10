@@ -66,7 +66,7 @@ class Markdown(models.Planner):
     def normalize(self, paths):
         """Use `markdownlint` to normalize input paths"""
         docker_image = self["linter_docker_image"]
-        linter_args = ' '.join(self["linter_args"])
+        linter_args = " ".join(self["linter_args"])
         goals = []
         for path in paths:
             goals.append(
@@ -76,7 +76,8 @@ class Markdown(models.Planner):
                     command=(
                         f"docker run -v `pwd`:/workspace "
                         f"-w /workspace {docker_image} "
-                        f"markdownlint {linter_args} {path}"),
+                        f"markdownlint {linter_args} {path}"
+                    ),
                 )
             )
         return self.apply(plan=self.plan(goals=goals))
@@ -114,10 +115,10 @@ class Markdown(models.Planner):
     @cli.click.flag("-b", "--bash", help="only bash codeblocks")
     @cli.click.flag("-l", "--links", help="only links")
     @cli.click.flag("--all", "-a", help="run for each file found by `list`")
-    @cli.click.argument("file", nargs=-1)
+    @cli.click.argument("files", nargs=-1)
     def parse(
         self,
-        file: str = None,
+        files: typing.List[str] = [],
         all: bool = False,
         codeblocks: bool = False,
         python: bool = False,
@@ -126,23 +127,21 @@ class Markdown(models.Planner):
     ) -> ElementList:
         """Parses given markdown file into JSON"""
         from bs4 import BeautifulSoup
-
+        from marko.ast_renderer import ASTRenderer
         codeblocks = codeblocks or python or bash
-        assert file or all and not (file and all)
-        if file:
-            files = [file]
-        else:
-            # LOGGER.warning(f"parsing all")
+        assert files or all and not (files and all)
+        if not files:
             files = self.list()
+            LOGGER.warning(f"parsing all markdown from: {files} ")
         out = {}
         for file in files:
             LOGGER.warning(f"parsing: {file}")
             file = str(file)
             with open(file) as fhandle:
                 content = fhandle.read()
-            parsed = marko.Markdown()(content)
-            soup = BeautifulSoup(parsed, features="html.parser")
             if links:
+                parsed = marko.Markdown()(content)
+                soup = BeautifulSoup(parsed, features="html.parser")
                 out[file] = []
                 for a in soup.find_all("a", href=True):
                     this_link = a["href"]
@@ -151,6 +150,7 @@ class Markdown(models.Planner):
                     else:
                         out[file] += [this_link]
             else:
+                parsed = marko.Markdown(renderer=ASTRenderer)(content)
                 children = parsed["children"]
                 out[file] = []
                 for child in children:

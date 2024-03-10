@@ -56,7 +56,7 @@ class AbstractPlanner(BasePlugin):
                 g.update(command=cmd, type=_type)
                 plan.append(self.goal(**g))
         else:
-            self.logger.critical(f"packing  {len(goals)} goals")            
+            self.logger.critical(f"packing  {len(goals)} goals")
             for g in goals:
                 plan.append(g)
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
