@@ -30,7 +30,7 @@ class Markdown(models.Planner):
         linter_docker_image: str = typing.Field(
             default="peterdavehello/markdownlint", help=""
         )
-        linter_args: str = typing.Field(default="--fix", help="")
+        linter_args: typing.List[str] = typing.Field(default=["--fix"], help="")
         goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
 
     name = "markdown"
@@ -66,14 +66,17 @@ class Markdown(models.Planner):
     def normalize(self, paths):
         """Use `markdownlint` to normalize input paths"""
         docker_image = self["linter_docker_image"]
-        linter_args = self["linter_args"]
+        linter_args = ' '.join(self["linter_args"])
         goals = []
         for path in paths:
             goals.append(
                 self.goal(
                     resource=path,
                     type="normalize",
-                    command=f"docker run -v `pwd`:/workspace -w /workspace {docker_image} markdownlint {linter_args} {path}",
+                    command=(
+                        f"docker run -v `pwd`:/workspace "
+                        f"-w /workspace {docker_image} "
+                        f"markdownlint {linter_args} {path}"),
                 )
             )
         return self.apply(plan=self.plan(goals=goals))

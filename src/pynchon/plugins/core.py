@@ -190,7 +190,7 @@ class Core(models.Planner):
         return result if not quiet else None
 
     @cli.click.option("--parallelism", "-p", default="1", help="Paralellism")
-    @cli.click.flag("--fail-fast", default=False, help="fail fast")
+    @cli.click.flag("--fail-fast", '-f', default=False, help="fail fast")
     @cli.options.quiet
     def apply(
         self,

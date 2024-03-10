@@ -26,13 +26,9 @@ class OpenerMixin:
     graphviz might be supported, but for now you'll still
     have to render those to png to see a picture.)
     """
-
     def _open_grip(self, file: str = None):
         """
-
         :param file: str:  (Default value = None)
-        :param file: str:  (Default value = None)
-
         """
         pfile = abcs.Path(file).absolute()
         relf = pfile.relative_to(abcs.Path(self.git_root))
@@ -56,8 +52,9 @@ class OpenerMixin:
         :param file: str:  (Default value = None)
         :param server: Default value = None)
         """
-        relf = file.absolute().relative_to(abcs.Path(self.git_root))
-        return self._open_grip(abcs.Path("__raw__") / relf)
+        # relf = file.absolute().relative_to(abcs.Path(self.git_root))
+        import webbrowser 
+        return webbrowser.open(f'file://{file.absolute()}')# return self._open_grip(abcs.Path("__raw__") / relf)
 
     _open__html = _open_raw
     _open__png = _open_raw
@@ -66,3 +63,4 @@ class OpenerMixin:
     _open__gif = _open_raw
     _open__svg = _open_raw
     _open__htm = _open__html
+    _open__pdf = _open_raw
