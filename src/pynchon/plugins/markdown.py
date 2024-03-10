@@ -128,6 +128,7 @@ class Markdown(models.Planner):
         """Parses given markdown file into JSON"""
         from bs4 import BeautifulSoup
         from marko.ast_renderer import ASTRenderer
+
         codeblocks = codeblocks or python or bash
         assert files or all and not (files and all)
         if not files:
