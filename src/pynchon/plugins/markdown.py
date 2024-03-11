@@ -118,7 +118,7 @@ class Markdown(models.Planner):
     @cli.click.argument("files", nargs=-1)
     def parse(
         self,
-        files: typing.List[str] = [],
+        files: typing.Tuple = tuple(),
         all: bool = False,
         codeblocks: bool = False,
         python: bool = False,
@@ -151,6 +151,8 @@ class Markdown(models.Planner):
                     else:
                         out[file] += [this_link]
             else:
+                from marko.ast_renderer import ASTRenderer
+
                 parsed = marko.Markdown(renderer=ASTRenderer)(content)
                 children = parsed["children"]
                 out[file] = []
