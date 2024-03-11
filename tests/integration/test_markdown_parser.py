@@ -1,6 +1,5 @@
-""" test_markdown_parser: 
+""" test_markdown_parser:
 """
-
 import shil
 import pytest
 

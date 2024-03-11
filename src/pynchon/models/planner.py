@@ -92,7 +92,6 @@ class AbstractPlanner(BasePlugin):
         self._dispatch_apply_hooks(results)
         if not quiet:
             return results
-
     def _dispatch_apply_hooks(self, results: planning.ApplyResults):
         """ """
         # write status event (used by the app-console)

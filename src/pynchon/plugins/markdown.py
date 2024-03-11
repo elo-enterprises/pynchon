@@ -128,7 +128,10 @@ class Markdown(models.Planner):
 
         codeblocks = codeblocks or python or bash
         assert files or all and not (files and all)
-        if not files:
+        if files:
+            files = list(files)
+        else:
+            # LOGGER.warning(f"parsing all")
             files = self.list()
             LOGGER.warning(f"parsing all markdown from: {files} ")
         out = {}
@@ -148,6 +151,7 @@ class Markdown(models.Planner):
                     else:
                         out[file] += [this_link]
             else:
+                from marko.ast_renderer import ASTRenderer
 
                 parsed = marko.Markdown(renderer=ASTRenderer)(content)
                 children = parsed["children"]
