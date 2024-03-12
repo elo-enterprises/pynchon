@@ -9,9 +9,9 @@
 
 ### {{module_name}}
 
-* Overview: {{entrypoint}} [source code](/{{base_url}}), [unit tests]({{utest_root}}/), [integration tests]({{itest_root}}/)
-{% if modules %}
-{% include "pynchon/plugins/python/api/classes.md.j2" %}
+* **Overview:** {{entrypoint}} [source code](/{{base_url}}), [unit tests]({{utest_root}}/), [integration tests]({{itest_root}}/)
+{% if not (classes or functions) %}
+{% include "pynchon/plugins/python/api/names.md.j2" %}
 {% endif %}
 
 {% if classes %}

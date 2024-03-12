@@ -11,7 +11,7 @@ LOGGER = lme.get_logger(__name__)
 
 class EntrypointMetadata(BaseModel):
     is_click: bool = typing.Field(help="", required=False, default=False)
-    is_package: bool = typing.Field(help="", required=False, default=False)
+    is_package_entrypoint: bool = typing.Field(help="", required=False, default=False)
     is_module: bool = typing.Field(help="", required=False, default=True)
     bin_name: typing.StringMaybe = typing.Field(
         help="Name for this console script. (Nil if module-entrypoint)",
@@ -35,10 +35,15 @@ class EntrypointMetadata(BaseModel):
     path: abcs.Path = typing.Field(help="", required=True)
     entrypoints: typing.List = typing.Field(help="", required=False, default=[])
     src_root: abcs.Path = typing.Field(required=True)
+    inside_src_root: bool = typing.Field(default=True)
 
     @property
     def src_url(self) -> str:
-        return "/" + str(self.path.relative_to(self.src_root.parent))
+        if not self.inside_src_root:
+            return ""
+        else:
+            tmp = self.path.relative_to(self.src_root.parent)
+            return "/" + str(tmp)
         # return abcs.Path(path).absolute().relative_to(abcs.Path(git_root).absolute())
 
     @property
@@ -47,7 +52,7 @@ class EntrypointMetadata(BaseModel):
             return self.help_command
         elif self.is_module:
             return f"python -m{self.dotpath} --help"
-        # if self.is_package:
+        # if self.is_package_entrypoint:
         #     return f""
         raise ValueError(f"Cannot determine help_invocation for {self}")
 

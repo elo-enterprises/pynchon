@@ -59,9 +59,11 @@ def get_jinja_globals():
 
         with open(fname) as fhandle:
             contents = fhandle.read()
-        md = markdown.Markdown(extensions=["toc"])
+        md = markdown.Markdown(
+            extensions=["toc", "fenced_code"],
+            extension_configs={"toc": {"toc_depth": level}},
+        )
         html = md.convert(contents)
-        # import IPython; IPython.embed()
         return md.toc
 
     # markdown-toc --type github  --no-write docs/blog/ambient-calculus-1.md
