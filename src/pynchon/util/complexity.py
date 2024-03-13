@@ -23,6 +23,7 @@ def clean_text(txt: str) -> str:
     """ """
     return "\n".join([line for line in txt.split("\n") if line.strip()])
 
+
 def get_module_name_from_package(pkg_name):
     """ """
     import pkg_resources as pkg  # included in setuptools package
@@ -32,6 +33,7 @@ def get_module_name_from_package(pkg_name):
     with open(str(metadata_dir / "top_level.txt")) as fhandle:
         names = fhandle.read().rstrip().split("\n")
     return names[0]
+
 
 def get_module(package: str = "", file: str = ""):
     """
@@ -113,9 +115,7 @@ def visit_module(
     :param exclude: list:  (Default value = [])
 
     """
-    if any([
-        module_name.split('.')[-1].startswith('_'),
-        module_name in exclude]):
+    if any([module_name.split(".")[-1].startswith("_"), module_name in exclude]):
         LOGGER.debug(f"skipping module: {module_name}")
         return output
     annotate.module(module_name, module, working_dir=working_dir)
@@ -130,8 +130,10 @@ def visit_module(
         module_name=module_name,
         module=module,
         names=[
-            x for x in module.members.keys()
-            if not any([x in exclude, x.startswith('_')])],
+            x
+            for x in module.members.keys()
+            if not any([x in exclude, x.startswith("_")])
+        ],
         **refs,
     )
     output.append(clean_text(rendered))

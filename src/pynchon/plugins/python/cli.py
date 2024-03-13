@@ -303,7 +303,7 @@ class PythonCLI(models.Planner):
         for emd in filtered:
             if str(emd.path) == str(file):
                 if console_script:
-                    pass #raise Exception(emd.dict())
+                    pass  # raise Exception(emd.dict())
                 else:
                     # raise Exception(emd.module)
                     module = shimport.import_module(emd.module)
