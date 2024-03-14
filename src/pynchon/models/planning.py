@@ -395,7 +395,7 @@ class ApplyResults(typing.BaseModel):
         return iter(self.actions)
 
     @property
-    def ok(self):
+    def ok(self) -> bool:
         return self.finished and all([a.ok for a in self])
 
     @property

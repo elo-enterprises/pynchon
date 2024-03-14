@@ -5,6 +5,7 @@
     // defaults; these are included anyway
     'globals', 'render', 'gen', 'project', 'plugins',
     'jinja', 'json', 'git', 'core', 'python', 'gripe',
+    'dockerhub',
 
     // Recommended for projects with source-code
     "docs", "src", "test", "cicd", "fixme", "github",
@@ -102,7 +103,12 @@
       ],
       "apply_hooks": ["open-after"],
   },
-// Config for `project` plugin:
+  // Config for `dockerhub` plugin:
+  "dockerhub":{
+    "org_name": "eloengineering",
+    "repo_name": "pynchon",
+  },
+  // Config for `project` plugin:
   "project":{
     "subproject_patterns": [],
   },

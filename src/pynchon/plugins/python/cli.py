@@ -67,6 +67,49 @@ class PythonCliConfig(abcs.Config):
         return abcs.Path(src_root)
 
     @property
+    def console_script_entrypoints(self) -> typing.List[EntrypointMetadata]:
+        """ """
+        from pynchon.config import python  # noqa
+
+        package_entrypoints = python.package.console_scripts
+        out = []
+        for dct in package_entrypoints:
+            bin_name = dct["bin_name"]
+            module_name, fxn_name = dct["setuptools_entrypoint"].split(":")
+            dotpath = ".".join([module_name, fxn_name])
+            module = shimport.import_module(module_name)
+            fxn = getattr(module, fxn_name, None)
+            file = module.__file__
+            try:
+                abcs.Path(file).relative_to(self.src_root)
+                inside_src_root = True
+            except (ValueError,) as exc:
+                # ValueError: ... is not in the subpath of .. OR one path is relative and the other is absolute.
+                LOGGER.critical(
+                    f"script-entrypoint file @ `{file}` is not relative to source root at `{self.src_root}`!"
+                )
+                LOGGER.critical(
+                    "make sure you've installed this package in development mode with `pip install -e ..`"
+                )
+                inside_src_root = False
+            emd = EntrypointMetadata(
+                is_click=_check_click(fxn=fxn),
+                is_package_entrypoint=True,
+                file=file,
+                bin_name=bin_name,
+                inside_src_root=inside_src_root,
+                help_command=f"{bin_name} --help",
+                path=abcs.Path(file),
+                resource=self.root / f"script-{bin_name}.md",
+                src_root=self.src_root,
+                is_module=False,
+                dotpath=dotpath,
+            )
+            assert bin_name
+            out.append(emd)
+        return out
+
+    @property
     def module_entrypoints(self) -> typing.List[typing.Dict]:
         """ """
         src_root = self.src_root
@@ -139,30 +182,7 @@ class PythonCLI(models.Planner):
     @memoized_property
     def console_script_entrypoints(self) -> typing.List[EntrypointMetadata]:
         """ """
-        python_platform_config = self.siblings["python"].config
-        package_entrypoints = python_platform_config["package"]["console_scripts"]
-        out = []
-        for dct in package_entrypoints:
-            bin_name = dct["bin_name"]
-            module_name, fxn_name = dct["setuptools_entrypoint"].split(":")
-            dotpath = ".".join([module_name, fxn_name])
-            module = shimport.import_module(module_name)
-            fxn = getattr(module, fxn_name, None)
-            file = module.__file__
-            emd = EntrypointMetadata(
-                is_click=_check_click(fxn=fxn),
-                is_package=True,
-                file=file,
-                bin_name=bin_name,
-                help_command=f"{bin_name} --help",
-                path=abcs.Path(file),
-                resource=self.root / f"script-{dotpath}.md",
-                src_root=self.src_root,
-                is_module=False,
-                dotpath=dotpath,
-            )
-            out.append(emd)
-        return out
+        return self.config.console_script_entrypoints
 
     @gen.command("toc")
     @cli.options.header
@@ -178,14 +198,19 @@ class PythonCLI(models.Planner):
         """
         output = output or self.root / "README.md"
         LOGGER.warning(f"writing toc to file: {output}")
-        entrypoints = self.console_script_entrypoints + self.config.module_entrypoints
+        cse = self.console_script_entrypoints
+        cme = self.config.module_entrypoints
+        LOGGER.warning(f"found {len(cse)} console-script-entrypoints")
+        LOGGER.warning(f"found {len(cme)} module-entrypoints")
+        entrypoints = cse + cme
+        # import IPython; IPython.embed()
         cfg = {**self.config.dict(), **dict(entrypoints=entrypoints)}
         cfg = {**api.project.get_config().dict(), **{self.config_class.config_key: cfg}}
         templatef = self.plugin_templates_root / "TOC.md.j2"
         tmpl = api.render.get_template(templatef)
         result = tmpl.render(
             # package_entrypoints=python_cli.entrypoints,
-            package_entrypoints=[e for e in entrypoints if e.is_package],
+            package_entrypoints=[e for e in entrypoints if e.is_package_entrypoint],
             main_entrypoints=[e for e in entrypoints if e.is_module],
             **cfg,
         )
@@ -279,8 +304,9 @@ class PythonCLI(models.Planner):
         for emd in filtered:
             if str(emd.path) == str(file):
                 if console_script:
-                    raise Exception(emd.dict())
+                    pass  # raise Exception(emd.dict())
                 else:
+                    # raise Exception(emd.module)
                     module = shimport.import_module(emd.module)
                     wrapped = shimport.wrapper(module)
                     click_entries = wrapped.filter(

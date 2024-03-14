@@ -144,6 +144,10 @@ class AbstractPlanner(BasePlugin):
         self._validate_hooks(hooks)
         return hooks
 
+    def _hook_diff_after_apply(self, result: planning.ApplyResults) -> bool:
+        """ """
+        self.logger.warning("diff-after-apply not implemented yet")
+
     def _hook_open_after_apply(self, result: planning.ApplyResults) -> bool:
         """ """
         changes = list({r.resource for r in result})

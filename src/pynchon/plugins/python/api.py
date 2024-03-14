@@ -18,7 +18,7 @@ class PythonAPI(models.Planner):
         config_key: typing.ClassVar[str] = "python-api"
         skip_private_methods: bool = typing.Field(default=True)
         skip_patterns: typing.List[str] = typing.Field(default=[])
-        apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
+        apply_hooks: typing.List[str] = typing.Field(default=["diff-after"])
 
     name = "python-api"
 
@@ -54,12 +54,11 @@ class PythonAPI(models.Planner):
         header=None,
     ):
         """Generate table-of-contents"""
-
         T_TOC_API = render.get_template("pynchon/plugins/python/api/TOC.md.j2")
         module = complexity.get_module(package=package, file=file)
         result = complexity.visit_module(
             module=module,
-            module_name=package,
+            module_name=module.name,
             template=T_TOC_API,
             exclude=exclude.split(","),
         )

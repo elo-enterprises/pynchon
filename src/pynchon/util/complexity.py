@@ -20,23 +20,25 @@ GLYPH_COMPLEXITY = constants.GLYPH_COMPLEXITY
 
 
 def clean_text(txt: str) -> str:
-    """
-
-    :param txt: str:
-    :param txt: str:
-
-    """
+    """ """
     return "\n".join([line for line in txt.split("\n") if line.strip()])
+
+
+def get_module_name_from_package(pkg_name):
+    """ """
+    import pkg_resources as pkg  # included in setuptools package
+
+    metadata_dir = pkg.get_distribution(pkg_name).egg_info
+    metadata_dir = Path(metadata_dir)
+    with open(str(metadata_dir / "top_level.txt")) as fhandle:
+        names = fhandle.read().rstrip().split("\n")
+    return names[0]
 
 
 def get_module(package: str = "", file: str = ""):
     """
-
     :param package: str:  (Default value = "")
     :param file: str:  (Default value = "")
-    :param package: str:  (Default value = "")
-    :param file: str:  (Default value = "")
-
     """
     if not bool(package) ^ bool(file):
         err = "Expected --file or --package, but not both"
@@ -52,7 +54,8 @@ def get_module(package: str = "", file: str = ""):
     else:
         working_dir = WORKING_DIR
     loader = griffe.loader.GriffeLoader()
-    module = loader.load_module(package)
+    mod_name = get_module_name_from_package(package)
+    module = loader.load_module(mod_name)
     annotate.module(package, module, working_dir=working_dir)
     return module
 
@@ -98,7 +101,8 @@ def visit_module(
     module_name=None,
     working_dir=WORKING_DIR,
 ):
-    """recursive visitor for this package, submodules, classes, functions, etc
+    """
+    Recursive visitor for this package, submodules, classes, functions, etc
 
     :param output: Default value = [])
     :param stats: Default value = {})
@@ -111,19 +115,25 @@ def visit_module(
     :param exclude: list:  (Default value = [])
 
     """
-    if module_name in exclude:
+    if any([module_name.split(".")[-1].startswith("_"), module_name in exclude]):
         LOGGER.debug(f"skipping module: {module_name}")
         return output
     annotate.module(module_name, module, working_dir=working_dir)
     refs = get_refs(working_dir=working_dir, module=module)
     # LOGGER.debug(f"exclude: {exclude}")
     LOGGER.debug(f"rendering module: {module_name}")
+    # import IPython; IPython.embed()
     rendered = template.render(
         griffe=griffe,
         stats=stats,
         working_dir=working_dir,
         module_name=module_name,
         module=module,
+        names=[
+            x
+            for x in module.members.keys()
+            if not any([x in exclude, x.startswith("_")])
+        ],
         **refs,
     )
     output.append(clean_text(rendered))
