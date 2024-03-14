@@ -2,11 +2,11 @@
 """
 
 import marko
+from bs4 import BeautifulSoup
 from fleks import tagging
+from marko.ast_renderer import ASTRenderer
 
 from pynchon import abcs, api, cli, events, models  # noqa
-
-# from pynchon.util import lme, typing  # noqa
 from pynchon.util import files, lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
@@ -34,7 +34,6 @@ class Markdown(models.Planner):
         goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
 
     name = "markdown"
-    # @cli.click.flag("-p", "--python", help="only python codeblocks")
     cli_name = "markdown"
     priority = 0
 
@@ -126,8 +125,6 @@ class Markdown(models.Planner):
         bash: bool = False,
     ) -> ElementList:
         """Parses given markdown file into JSON"""
-        from bs4 import BeautifulSoup
-        from marko.ast_renderer import ASTRenderer
 
         codeblocks = codeblocks or python or bash
         assert files or all and not (files and all)
@@ -151,7 +148,6 @@ class Markdown(models.Planner):
                     else:
                         out[file] += [this_link]
             else:
-                from marko.ast_renderer import ASTRenderer
 
                 parsed = marko.Markdown(renderer=ASTRenderer)(content)
                 children = parsed["children"]
@@ -167,46 +163,3 @@ class Markdown(models.Planner):
                 if bash:
                     out[file] += [ch for ch in out if child.get("lang") == "bash"]
         return {k: v for k, v in out.items() if v}
-        # for child in children:
-        #     result import pydash
-        # flat = pydash.flatten_deep(children)
-        # flat = [pydash.flatten_deep(x) for x in flat]
-        # if codeblocks:
-        #     result = [x for x in flat if x.get("element") == "fenced_code"]
-        # if python:
-        #     assert not bash
-        #     result = [x for x in result if x.get("lang") == "python"]
-        # if bash:
-        #     assert not python
-        #     result = [x for x in result if x.get("lang") == "bash"]
-        # import IPython; IPython.embed()
-        # return result
-
-    # plan=None
-    # def plan(self, config=None):
-    #     """Describe plan for this plugin"""
-    #     plan = super().plan(config=config)
-    #     return plan
-    # resources = [abcs.Path(fsrc) for fsrc in self.list()]
-    # self.logger.warning("Adding user-provided goals")
-    # for g in self["goals"]:
-    #     plan.append(self.goal(command=g, resource="?", type="user-config"))
-    #
-    # self.logger.warning("Adding file-header related goals")
-    # cmd_t = "python -mpynchon.util.files prepend --clean "
-    # loop = self._get_missing_headers(resources)
-    # for rsrc in loop["files"]:
-    #     if rsrc.match_any_glob(self["exclude_patterns"::[]]):
-    #         continue
-    #     ext = rsrc.full_extension()
-    #     ext = ext[1:] if ext.startswith(".") else ext
-    #     # fhdr = header_files[ext]
-    #     fhdr = self._render_header_file(rsrc)
-    #     plan.append(
-    #         self.goal(
-    #             resource=rsrc,
-    #             type="change",
-    #             label=f"Adding file header for '{ext}'",
-    #             command=f"{cmd_t} {fhdr} {rsrc}",
-    #         )
-    #     )
