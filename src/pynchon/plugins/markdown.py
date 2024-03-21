@@ -4,7 +4,6 @@
 import marko
 from bs4 import BeautifulSoup
 from fleks import tagging
-from marko.ast_renderer import ASTRenderer
 
 from pynchon import abcs, api, cli, events, models  # noqa
 from pynchon.util import files, lme, text, typing  # noqa

@@ -70,6 +70,7 @@ class PythonCliConfig(abcs.Config):
     def console_script_entrypoints(self) -> typing.List[EntrypointMetadata]:
         """ """
         from pynchon.config import python  # noqa
+
         package_entrypoints = python.package.console_scripts
         out = []
         for dct in package_entrypoints:
@@ -309,8 +310,7 @@ class PythonCLI(models.Planner):
                     module = shimport.import_module(emd.module)
                     wrapped = shimport.wrapper(module)
                     click_entries = wrapped.filter(
-                        only_functions=True,
-                        filter_vals=[_check_click]
+                        only_functions=True, filter_vals=[_check_click]
                     )
                     click_entry = (
                         list(click_entries.items())[0] if click_entries else None
