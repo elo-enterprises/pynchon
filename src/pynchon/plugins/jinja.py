@@ -14,7 +14,6 @@ LOGGER = lme.get_logger(__name__)
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 
-    file_glob = "*.j2"
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):
@@ -32,6 +31,8 @@ class Jinja(models.Planner):
             global_ex = globals.exclude_patterns
             my_ex = self.__dict__.get("exclude_patterns", [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
+
+    file_glob = "*.j2"
 
     name = "jinja"
     priority = 7

@@ -9,11 +9,11 @@ from .tool import ToolPlugin
 from pynchon.util import lme, typing  # noqa
 
 from . import validators  # noqa
+from fleks import tagging
 
 LOGGER = lme.get_logger("DOCKER")
 
 
-# @tagging.tags(cli_label="Docker-Wrapper")
 class DockerWrapper(ToolPlugin):
     """
     General wrapper for a dockerized tool.
@@ -23,7 +23,7 @@ class DockerWrapper(ToolPlugin):
         docker_image: str = typing.Field(default="docker/hello-world")
         docker_args: typing.List = typing.Field(default=[])
 
-    cli_label = "DockerWrapper"
+    cli_label = "Docker Wrapper"
     contribute_plan_apply = False
     priority = 2
     __class_validators__ = [

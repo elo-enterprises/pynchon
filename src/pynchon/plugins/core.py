@@ -45,19 +45,6 @@ class Core(models.Planner):
         tmp = self.project_config
         return tmp
 
-    def init(self, strict=True):
-        """Write .pynchon.json5 if it's not present"""
-        default_config = abcs.Path(".") / ".pynchon.json5"
-        if default_config.exists():
-            LOGGER.critical(f"{default_config} exists, nothing to do.")
-            err = f"Refusing to create {default_config} (file already exists)"
-            LOGGER.critical(err)
-            if strict:
-                raise SystemExit(1)
-        else:
-            self._init_config(default_config)
-            return True
-
     def _init_config(self, config_path):
         """ """
         cfg = self.cfg().dict()
@@ -77,22 +64,37 @@ class Core(models.Planner):
 
         dumpf.json(cfg, file=config_path)
 
-    @cli.click.flag("--bash", help="bootstrap bash")
+    def init(self, strict=True):
+        """Write .pynchon.json5 if it's not present"""
+        default_config = abcs.Path(".") / ".pynchon.json5"
+        if default_config.exists():
+            LOGGER.critical(f"{default_config} exists, nothing to do.")
+            err = f"Refusing to create {default_config} (file already exists)"
+            LOGGER.critical(err)
+            if strict:
+                raise SystemExit(1)
+        else:
+            self._init_config(default_config)
+            return True
+
+    # @cli.click.flag("--bash", help="bootstrap bash")
     @cli.click.flag("--bashrc", help="bootstrap bashrc")
-    @cli.click.flag("--bash-completions", help="bootstrap completions")
+    # @cli.click.flag("--bash-completions", help="bootstrap completions")
     @cli.click.flag("--pynchon", help="bootstrap .pynchon.json5")
-    @cli.click.flag("--makefile", help="bootstrap Makefile")
-    @cli.click.flag("--tox", help="bootstrap tox")
+    # @cli.click.flag("--makefile", help="bootstrap Makefile")
+    # @cli.click.flag("--tox", help="bootstrap tox")
     def bootstrap(
         self,
         pynchon: bool = False,
-        bash: bool = False,
-        bash_completions: bool = False,
         bashrc: bool = False,  # noqa
-        makefile: bool = False,
-        tox: bool = False,
+        # bash: bool = False,
+        # bash_completions: bool = False,
+        # makefile: bool = False,
+        # tox: bool = False,
     ) -> None:
-        """Bootstrap for shell integration, etc"""
+        """
+        Helpers for bootstraping various project boilerplate.
+        """
         template_prefix = f"{self.plugin_templates_prefix}/bootstrap"
         pynchon_completions_script = ".tmp.pynchon.completions.sh"
         bashrc_snippet = ".tmp.pynchon.bashrc"
@@ -192,7 +194,7 @@ class Core(models.Planner):
         quiet: bool = False,
         flattened: bool = True,
     ) -> models.Plan:
-        """Runs plan for all plugins"""
+        """Runs planning for all plugins"""
 
         config = config or self.project_config
         plan = super(self.__class__, self).plan(config)
@@ -226,7 +228,7 @@ class Core(models.Planner):
         fail_fast: bool = False,
     ) -> planning.ApplyResults:
         """
-        Executes the plan for this plugin
+        Executes the plan for all plugins
         """
         parallelism = int(parallelism)
         plans = plan or self.plan(flattened=False)

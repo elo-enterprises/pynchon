@@ -16,7 +16,9 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Mermaid(models.DockerWrapper):
-    """Mermaid Plugin"""
+    """
+    Finds & renders Mermaid diagram files
+    """
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "mermaid"

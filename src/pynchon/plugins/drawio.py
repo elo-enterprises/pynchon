@@ -1,7 +1,15 @@
 """ pynchon.plugins.drawio
 
-    https://hub.docker.com/r/jgraph/drawio
-    https://www.drawio.com/blog/diagrams-docker-app
+    A Wrapper for docker-containers that
+    provide the "drawio" diagramming utility
+
+    Live Cloud Version:
+        https://app.diagrams.net/
+    Local Server:
+        https://hub.docker.com/r/jgraph/drawio
+        https://www.drawio.com/blog/diagrams-docker-app
+    CLI Tools:
+        https://github.com/rlespinasse/docker-drawio-desktop-headless
 """
 
 import webbrowser
@@ -18,10 +26,12 @@ DEFAULT_HTTP_PORT = 8080
 DEFAULT_DOCKER_NAME = "drawio-server"
 
 
-@tagging.tags(click_aliases=["drawio", "draw"])
+@tagging.tags(click_aliases=["draw"])
 class DrawIO(models.DockerWrapper, models.Planner):
-    """Helpers for initializing pynchon"""
-
+    """
+    Wrapper for docker-containers that
+    provide the "drawio" diagramming utility
+    """
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "drawio"
         docker_image: str = typing.Field(
@@ -47,14 +57,14 @@ class DrawIO(models.DockerWrapper, models.Planner):
         )
 
     name = "drawio"
-    cli_name = "draw"
+    cli_name = "drawio"
     priority = 0
     file_glob = "*.drawio"
 
     @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False, **kwargs):
         """
-        Lists affected resources for this project
+        Lists affected resources (*.drawio files) for this project
         """
         return self._list(changes=changes, **kwargs)
 
@@ -62,7 +72,8 @@ class DrawIO(models.DockerWrapper, models.Planner):
     @cli.click.argument("input")
     def export(self, input, output=None, format="svg"):
         """
-        Export the given .drawio file (default format is SVG)
+        Exports a given .drawio file to some
+        output file/format (default format is SVG)
         """
         assert input.endswith(".drawio") or input.endswith(
             ".xml"
@@ -84,7 +95,9 @@ class DrawIO(models.DockerWrapper, models.Planner):
         raise SystemExit(0 if result.succeeded else 1)
 
     def serve(self):
-        """Runs drawio-UI in a docker-container"""
+        """
+        Runs the drawio-UI in a docker-container
+        """
         port = self.config.http_port
         dargs = self.config.docker_args
         dimg = self.config.docker_image
@@ -92,7 +105,9 @@ class DrawIO(models.DockerWrapper, models.Planner):
         return self._run_docker(cmd_t, strict=True, interactive=True)
 
     def open(self, *args, **kwargs):
-        """Opens browser for docker-container"""
+        """
+        Opens a browser for the container started by `serve`
+        """
         return webbrowser.open(
             f"http://localhost:{self.config.http_port}/?offline=1&https=0"
         )

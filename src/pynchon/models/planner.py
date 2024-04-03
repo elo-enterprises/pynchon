@@ -86,6 +86,30 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
+    def _dispatch_apply_hooks(self, results: planning.ApplyResults):
+        """ """
+        # write status event (used by the app-console)
+        app.status_bar.update(
+            app="Pynchon::HOOKS",
+            stage=f"{self.__class__.name}",
+        )
+        if results.finished:
+            hooks = self.apply_hooks
+            if hooks:
+                LOGGER.warning(
+                    f"{self.name}.apply: dispatching {len(hooks)} hooks: {hooks}"
+                )
+                hook_results = []
+                for hook in hooks:
+                    hook_results.append(self.run_hook(hook, results))
+            else:
+                LOGGER.warning(f"{self.name}.apply: no hooks to run.")
+        else:
+            LOGGER.critical(f"{self.name}: Skipping hooks: ")
+            LOGGER.critical(
+                f"  {len(results.goals)-len(results.actions)} goals incomplete"
+            )
+
     @cli.options.quiet
     @cli.options.parallelism
     @cli.options.fail_fast
@@ -116,30 +140,6 @@ class AbstractPlanner(BasePlugin):
         self._dispatch_apply_hooks(results)
         if not quiet:
             return results
-
-    def _dispatch_apply_hooks(self, results: planning.ApplyResults):
-        """ """
-        # write status event (used by the app-console)
-        app.status_bar.update(
-            app="Pynchon::HOOKS",
-            stage=f"{self.__class__.name}",
-        )
-        if results.finished:
-            hooks = self.apply_hooks
-            if hooks:
-                LOGGER.warning(
-                    f"{self.name}.apply: dispatching {len(hooks)} hooks: {hooks}"
-                )
-                hook_results = []
-                for hook in hooks:
-                    hook_results.append(self.run_hook(hook, results))
-            else:
-                LOGGER.warning(f"{self.name}.apply: no hooks to run.")
-        else:
-            LOGGER.critical(f"{self.name}: Skipping hooks: ")
-            LOGGER.critical(
-                f"  {len(results.goals)-len(results.actions)} goals incomplete"
-            )
 
     def _validate_hooks(self, hooks):
         # FIXME: validation elsewhere

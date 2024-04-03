@@ -150,24 +150,6 @@ def get_jinja_env(*includes, quiet: bool = False):
     return env
 
 
-def get_template_from_string(content, **kwargs):
-    """ """
-    return get_template(from_string=content, **kwargs)
-
-
-def get_template_from_file(
-    file: str = None,
-    **kwargs,
-):
-    """
-    :param file: str = None:
-    :param **kwargs:
-    """
-    with open(file) as fhandle:
-        content = fhandle.read()
-    return get_template_from_string(content, file=file, **kwargs)
-
-
 def get_template(
     template_name: typing.Union[str, abcs.Path] = None,
     env=None,
@@ -236,6 +218,24 @@ def get_template(
 
     template.render = functools.partial(template.render, **jinja_context)
     return template
+
+
+def get_template_from_string(content, **kwargs):
+    """ """
+    return get_template(from_string=content, **kwargs)
+
+
+def get_template_from_file(
+    file: str = None,
+    **kwargs,
+):
+    """
+    :param file: str = None:
+    :param **kwargs:
+    """
+    with open(file) as fhandle:
+        content = fhandle.read()
+    return get_template_from_string(content, file=file, **kwargs)
 
 
 def clean_whitespace(txt: str):

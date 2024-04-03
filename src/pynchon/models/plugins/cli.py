@@ -53,7 +53,8 @@ class CliPlugin(PynchonPlugin):
         for alias in gr_aliases:
             g2 = cli.click.group_copy(plugin_main, name=alias, hidden=True)
             kls.click_entry.add_command(g2)
-
+        # WARNING: bad coupling.  this important backlink is expected by fleks
+        plugin_main.plugin_class = kls
         return plugin_main
 
     @classproperty

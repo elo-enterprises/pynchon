@@ -12,7 +12,9 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Pandoc(models.DockerWrapper, models.Planner):
-    """Tool for working with Pandoc"""
+    """
+    Wrapper around `pandoc` docker image
+    """
 
     class config_class(models.DockerWrapper.BaseConfig):
         config_key: typing.ClassVar[str] = "pandoc"
