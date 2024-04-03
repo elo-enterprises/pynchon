@@ -12,7 +12,7 @@ from pynchon.app import app
 from . import planning
 from .plugins import BasePlugin
 
-from pynchon.util import lme, typing  # noqa
+from pynchon.util import files, lme, typing  # noqa
 
 
 LOGGER = lme.get_logger(" ")
@@ -22,7 +22,31 @@ LOGGER = lme.get_logger(" ")
 class AbstractPlanner(BasePlugin):
     """A plugin-type that provides plan/apply basics"""
 
-    cli_label = "Planner"
+    def _list(self, use_glob=None, changes=False):
+        """
+        Lists affected resources for this project
+        """
+        use_glob = use_glob or getattr(self.__class__, "file_glob", None)
+        assert use_glob
+        default = self[:"project"]
+        proj_conf = self[:"project.subproject":default]
+        project_root = proj_conf.get("root", None) or self[:"git.root":"."]
+        globs = [
+            abcs.Path(project_root).joinpath(f"**/{use_glob}"),
+        ]
+        self.logger.debug(f"search patterns are {globs}")
+        result = files.find_globs(globs)
+        self.logger.debug(f"found {len(result)} {use_glob} files (pre-filter)")
+        excludes = self["exclude_patterns"::[]]
+        # NB: always honor the global-excludes
+        excludes += self.siblings["globals"]["exclude_patterns"::[]]
+        self.logger.debug(f"filtering search with {len(excludes)} excludes")
+        result = [p for p in result if not p.match_any_glob(excludes)]
+        self.logger.debug(f"found {len(result)} {use_glob} files (post-filter)")
+        if not result:
+            err = f"active, but found no {use_glob} files!"
+            self.logger.critical(err)
+        return result
 
     @tags(publish_to_cli=False)
     def goal(self, **kwargs):

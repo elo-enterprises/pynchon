@@ -28,6 +28,7 @@ class GitHub(models.ToolPlugin):
         repo_url: str = typing.Field(default=None)
         actions: typing.List[abcs.Path] = typing.Field(default=[None])
         raw_url: str = typing.Field(default=None)
+        repo_ssh_url: str = typing.Field(default=None)
 
         @property
         def raw_url(self):
@@ -36,22 +37,30 @@ class GitHub(models.ToolPlugin):
         @property
         def actions(self) -> typing.List[typing.Dict]:
             """ """
-            wflows = abcs.Path(config.git.root) / ".github" / "workflows"
-            if wflows.exists():
-                return [
-                    dict(
-                        name=fname,
-                        file=wflows / fname,
-                        url=f"{self.repo_url}/actions/workflows/{fname}",
-                    )
-                    for fname in wflows.list()
-                ]
-            else:
-                return []
+            groot = config.git.root
+            if groot:
+                wflows = abcs.Path(groot) / ".github" / "workflows"
+                if wflows.exists():
+                    return [
+                        dict(
+                            name=fname,
+                            file=wflows / fname,
+                            url=f"{self.repo_url}/actions/workflows/{fname}",
+                        )
+                        for fname in wflows.list()
+                    ]
+            return []
 
         @property
         def repo_url(self):
             return config.git.repo_url
+
+        @property
+        def repo_ssh_url(self):
+            if self.repo_url:
+                return (
+                    f"git@github.com:{self.org_name}/{self.repo_url.split('/')[-1]}.git"
+                )
 
         @property
         def org_url(self):

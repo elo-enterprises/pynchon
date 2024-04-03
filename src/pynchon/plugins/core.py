@@ -35,7 +35,7 @@ class Core(models.Planner):
     @classmethod
     def get_current_config(kls):
         """ """
-        from pynchon import config as config_mod
+        from pynchon import config as config_mod  # noqa
 
         result = getattr(config_mod, kls.get_config_key())
         return result
@@ -44,6 +44,38 @@ class Core(models.Planner):
         """Show current project config (with templating/interpolation)"""
         tmp = self.project_config
         return tmp
+
+    def init(self, strict=True):
+        """Write .pynchon.json5 if it's not present"""
+        default_config = abcs.Path(".") / ".pynchon.json5"
+        if default_config.exists():
+            LOGGER.critical(f"{default_config} exists, nothing to do.")
+            err = f"Refusing to create {default_config} (file already exists)"
+            LOGGER.critical(err)
+            if strict:
+                raise SystemExit(1)
+        else:
+            self._init_config(default_config)
+            return True
+
+    def _init_config(self, config_path):
+        """ """
+        cfg = self.cfg().dict()
+        pop_list = ["apply_hooks"]
+        for plugin_name in cfg:
+            try:
+                sib = self.siblings[plugin_name]
+            except (KeyError,):
+                sib = None
+            else:
+                if isinstance(sib, (models.Provider,)):
+                    pop_list.append(plugin_name)
+        for p in pop_list:
+            cfg.pop(p)
+        LOGGER.critical(f"Writing {config_path.absolute()}")
+        from pynchon.util.text import dumpf
+
+        dumpf.json(cfg, file=config_path)
 
     @cli.click.flag("--bash", help="bootstrap bash")
     @cli.click.flag("--bashrc", help="bootstrap bashrc")
@@ -119,13 +151,7 @@ class Core(models.Planner):
         #         block_file=bashrc_snippet,
         #     )
         elif pynchon:
-            tmp = abcs.Path(".") / ".pynchon.json5"
-            if tmp.exists():
-                err = f"Cowardly refusing to recreate {tmp}"
-                LOGGER.critical(err)
-                raise SystemExit(1)
-            else:
-                print("pynchon pattern sync . docs --plan")
+            return self.init()
         elif bash:
             this_cmd = "pynchon bootstrap --bash"  # FIXME: get from click-ctx
             LOGGER.debug("collecting `shell_aliases` from all plugins")

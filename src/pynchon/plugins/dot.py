@@ -34,7 +34,7 @@ class Dot(models.Planner):
         result = [p for p in result if not p.match_any_glob(excludes)]
         self.logger.debug(f"found {len(result)} files (post-filter)")
         if not result:
-            err = "jinja-plugin is included in this config, but found no .j2 files!"
+            err = f"{self.name} plugin is included in this config, but found no .dot files!"
             self.logger.critical(err)
         return result
 

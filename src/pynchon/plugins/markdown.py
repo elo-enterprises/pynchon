@@ -11,14 +11,14 @@ from pynchon.util import files, lme, text, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 ElementList = typing.List[typing.Dict]
-# from pynchon.plugins.tests import DocTestSuite
-# markdown_suite = DocTestSuite(
-#     suite_name="markdown",
-# )
 
 
 class Markdown(models.Planner):
-    """Markdown"""
+    """
+    Example usage:
+        # normalize markdown syntax (in-place)
+        $ pynchon markdown normalize file1 file2
+    """
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "markdown"
@@ -29,7 +29,17 @@ class Markdown(models.Planner):
         linter_docker_image: str = typing.Field(
             default="peterdavehello/markdownlint", help=""
         )
-        linter_args: typing.List[str] = typing.Field(default=["--fix"], help="")
+        linter_args: typing.List[str] = typing.Field(
+            help="arguments to pass to `linter_docker_image`",
+            default=[
+                "--disable MD013",  # line-length
+                "--disable MD045",  # Images should have alternate text
+                "--disable MD033",  # Allow HTML
+                "--disable MD041",  # first-line-h1
+                "--disable MD042",  # No empty links
+                "--fix",
+            ],
+        )
         goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
 
     name = "markdown"
@@ -130,7 +140,6 @@ class Markdown(models.Planner):
         if files:
             files = list(files)
         else:
-            # LOGGER.warning(f"parsing all")
             files = self.list()
             LOGGER.warning(f"parsing all markdown from: {files} ")
         out = {}

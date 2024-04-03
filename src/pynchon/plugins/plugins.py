@@ -11,7 +11,7 @@ from pynchon.util import lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class PluginsMan(models.Manager):
+class PluginsMan(models.Provider):
     """Meta-plugin for managing plugins"""
 
     name = "plugins"

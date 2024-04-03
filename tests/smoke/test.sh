@@ -3,6 +3,7 @@ set -xeuo pipefail
 python -m gripe ls
 pynchon python-libcst gen docstrings --help
 pynchon --help
+pynchon init --help
 python -mpynchon --help
 python -mpynchon.util.files --help
 python -mpynchon.util.text --help
@@ -34,3 +35,7 @@ pynchon markdown parse --help
 pynchon markdown to-pdf --help
 pynchon markdown normalize --help
 pynchon parse markdown README.md --codeblocks | jq .
+pynchon drawio --help
+pynchon draw --help
+pynchon draw ls --help
+pynchon draw export --help

@@ -14,12 +14,14 @@ LOGGER = lme.get_logger(__name__)
 class Jinja(models.Planner):
     """Renders files with {jinja.template_includes}"""
 
+    file_glob = "*.j2"
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "jinja"
         template_includes: typing.List[str] = typing.Field(default=[])
         exclude_patterns: typing.List[str] = typing.Field()
+        vars: typing.Dict[str, str] = typing.Field(default={}, help="")
 
         # @tagging.tagged_property(conflict_strategy="override")
         @property
@@ -38,11 +40,6 @@ class Jinja(models.Planner):
         "{src} --context-file {context_file} "
         "--output {output} {template_args}"
     )
-
-    # cli_subsumes: typing.List[typing.Callable] = [
-    #     # render_main.j2cli,
-    #     # render_main.jinja_file,
-    # ]
 
     def _get_jinja_context(self):
         """ """
@@ -98,28 +95,11 @@ class Jinja(models.Planner):
         return out
 
     @tagging.tags(click_aliases=["ls"])
-    def list(self, changes=False):
+    def list(self, changes=False, **kwargs):
         """
         Lists affected resources for this project
         """
-        default = self[:"project"]
-        proj_conf = self[:"project.subproject":default]
-        project_root = proj_conf.get("root", None) or self[:"git.root":"."]
-        # project_root = proj_conf.get("root", None) or '.'
-        globs = [
-            abcs.Path(project_root).joinpath("**/*.j2"),
-        ]
-        self.logger.debug(f"search patterns are {globs}")
-        result = files.find_globs(globs)
-        self.logger.debug(f"found {len(result)} j2 files (pre-filter)")
-        excludes = self["exclude_patterns"]
-        self.logger.debug(f"filtering search with {len(excludes)} excludes")
-        result = [p for p in result if not p.match_any_glob(excludes)]
-        self.logger.debug(f"found {len(result)} j2 files (post-filter)")
-        if not result:
-            err = f"{self.__class__.__name__} is active, but found no .j2 files!"
-            self.logger.critical(err)
-        return result
+        return self._list(changes=changes, **kwargs)
 
     def plan(
         self,

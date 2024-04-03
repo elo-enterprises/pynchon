@@ -1,6 +1,7 @@
 """ pynchon.api.render
 
-    Basically this is core jinja stuff.
+    Basically this is core jinja-rendering stuff.
+
     Looking for CLI entrypoints?  See pynchon.util.text.render
     Looking for the JinjaPlugin?  See pynchon.plugins.jinja
 """
@@ -37,8 +38,14 @@ def dictionary(input, context):
 
 @functools.lru_cache(maxsize=None)
 def get_jinja_filters():
+    def strip_empty_lines(s):
+        lines = s.split("\n")
+        filtered_lines = [line for line in lines if line.strip() != ""]
+        return "\n".join(filtered_lines)
+
     return dict(
         Path=abcs.Path,
+        strip_empty_lines=strip_empty_lines,
     )
 
 
@@ -46,6 +53,9 @@ def get_jinja_filters():
 def get_jinja_globals():
     """ """
     events.lifecycle.send(__name__, msg="finalizing jinja globals")
+
+    def is_markdown_list_item(text: str):
+        return text.rstrip().startswith("* ")
 
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """A jinja filter/extension"""
@@ -77,15 +87,16 @@ def get_jinja_globals():
     # )
     # assert result.succeeded
     # return result.stdout
-
     return dict(
         sh=invoke_helper,
         bash=invoke_helper,
+        is_markdown_list_item=is_markdown_list_item,
         invoke=invoke_helper,
         map=map,
         markdown_toc=markdown_toc,
         eval=eval,
         env=os.getenv,
+        filter=filter,
     )
 
 
@@ -110,7 +121,19 @@ def get_jinja_env(*includes, quiet: bool = False):
     env = Environment(
         loader=FileSystemLoader([str(t) for t in includes]),
         undefined=StrictUndefined,
+        # trim_blocks=True,
+        # lstrip_blocks=True
     )
+
+    # from jinja2 import Environment, FileSystemLoader
+    # Function to include a template
+    def include_template(template_name):
+        # env = Environment(loader=FileSystemLoader('templates'))  # Assuming templates are in 'templates' directory
+        template = env.get_template(template_name)
+        return template.render()
+
+    env.filters["include"] = include_template
+
     env.filters.update(**get_jinja_filters())
     env.pynchon_includes = includes
 
@@ -127,16 +150,9 @@ def get_jinja_env(*includes, quiet: bool = False):
     return env
 
 
-def get_template_from_string(
-    content,
-    env=None,
-):
-    """
-    :param env=None:
-    :param content:
-    """
-    env = env or get_jinja_env()
-    return env.from_string(content)
+def get_template_from_string(content, **kwargs):
+    """ """
+    return get_template(from_string=content, **kwargs)
 
 
 def get_template_from_file(
@@ -149,23 +165,29 @@ def get_template_from_file(
     """
     with open(file) as fhandle:
         content = fhandle.read()
-    return get_template_from_string(content, **kwargs)
+    return get_template_from_string(content, file=file, **kwargs)
 
 
 def get_template(
     template_name: typing.Union[str, abcs.Path] = None,
     env=None,
     from_string: str = None,
+    **jinja_context,
 ):
     """ """
     env = env or get_jinja_env()
     if isinstance(template_name, (abcs.Path,)):
+        template_path = template_name
         template_name = str(template_name)
+    elif template_name:
+        template_path = abcs.Path(template_name)
+    else:
+        template_path = None
     try:
         if from_string:
             template = env.from_string(from_string)
         else:
-            LOGGER.info(f"Looking up {template_name}")
+            LOGGER.info(f"Looking up {template_path}")
             template = env.get_template(template_name)
     except (jinja2.exceptions.TemplateNotFound,) as exc:
         LOGGER.critical(f"Template exception: {exc}")
@@ -173,7 +195,46 @@ def get_template(
         err = getattr(exc, "templates", exc.message)
         LOGGER.critical(f"Problem template: {err}")
         raise
-    template.render = functools.partial(template.render, __template__=template_name)
+    jinja_context.update(__template__=template_path)
+    all_extensions = filter(
+        None, template_path.name[template_path.name.find(".") :].split(".")
+    )
+    if template_path and "md" in all_extensions:
+        LOGGER.warning("template is markdown, trying to parse metadata")
+        import markdown
+
+        from pynchon.util.text import loads
+
+        try:
+            # https://python-markdown.github.io/extensions/meta_data/#accessing-the-meta-data
+            md = markdown.Markdown(extensions=["meta"])
+            html = md.convert(open(template_name).read())
+            md_meta = md.Meta
+            md_meta and LOGGER.warning(f"extracted metadata: {md_meta}")
+            # the metadata extension doesn't really do much parsing,
+            # so we treat it here as potentially yaml
+            tmp = {}
+            for k, v in md_meta.items():
+                z = "\n".join(v)
+                tmp.update(**loads.yaml(f"{k}: {z}"))
+            md_meta = tmp
+            jinja_context.update(**md_meta)
+        except (Exception,) as exc:
+            LOGGER.warning(f"failed extracting markdown metadata: {exc}")
+
+    def panic():
+        raise Exception(jinja_context)
+
+    def jinja_debug():
+        LOGGER.critical(f"jinja_debug: {jinja_context}")
+        return str(jinja_context)
+
+    env.globals.update(
+        jinja_debug=jinja_debug,
+        panic=panic,
+    )
+
+    template.render = functools.partial(template.render, **jinja_context)
     return template
 
 

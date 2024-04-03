@@ -5,7 +5,7 @@
     // defaults; these are included anyway
     'globals', 'render', 'gen', 'project', 'plugins',
     'jinja', 'json', 'git', 'core', 'python', 'gripe',
-    'dockerhub',
+    'dockerhub',"drawio",
 
     // Recommended for projects with source-code
     "docs", "src", "test", "cicd", "fixme", "github",
@@ -18,11 +18,9 @@
     "dot",   // graphviz dot-files
     "jinja", // projects with templated docs
     "mermaid",   // mermaid cli
-
     // Docs-Generation
-    "pandoc",  // used by `markdown` plugin
-    "mkdocs",
-    "deck",
+
+    "pandoc", "mkdocs", "deck",
 
     // Experimental
     "griffe",    // ast tool

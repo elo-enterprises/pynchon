@@ -32,18 +32,17 @@ def jinja(
     :param text: str:  (Default value = "")
     :param file: str:  (Default value = "?")
     :param context: dict:  (Default value = {})
-    :param includes: typing.List[str]:  (Default value = [])
     :param strict: bool:  (Default value = True)
-    :param text: str:  (Default value = "")
-    :param file: str:  (Default value = "?")
-    :param context: dict:  (Default value = {})
     :param includes: typing.List[str]:  (Default value = [])
-    :param strict: bool:  (Default value = True)
 
     """
     import jinja2
 
-    template = api.get_template_from_string(text, env=api.get_jinja_env(*includes))
+    template = api.get_template_from_string(
+        text,
+        env=api.get_jinja_env(*includes),
+        template_name=file,
+    )
     context = {
         # FIXME: try to santize this
         **dict(os.environ.items()),
@@ -74,18 +73,11 @@ def jinja_loadf(
     quiet: bool = False,
 ) -> str:
     """
-
     :param file: str:
     :param context: typing.Dict:  (Default value = {})
     :param includes: typing.List[str]:  (Default value = [])
     :param strict: bool:  (Default value = True)
     :param quiet: bool:  (Default value = False)
-    :param file: str:
-    :param context: typing.Dict:  (Default value = {})
-    :param includes: typing.List[str]:  (Default value = [])
-    :param strict: bool:  (Default value = True)
-    :param quiet: bool:  (Default value = False)
-
     """
     context = {} if context is None else context
     LOGGER.debug(f"Running with one file: {file} (strict={strict})")
@@ -104,8 +96,6 @@ def jinja_loadf(
 @options.output
 @options.should_print
 @options.includes
-# @options.context
-# @options.context_file
 @click.option("--context", help="context literal.  must be JSON")
 @click.option("--context-file", help="context file.  must be JSON")
 @click.argument("file", nargs=1)
@@ -136,7 +126,6 @@ def jinja_file(
         includes=includes,
         strict=strict,
     )
-
     assert output
     output = os.path.splitext(output)
     if output[-1] == ".j2":
@@ -171,22 +160,17 @@ def jinja_file(
 def j2cli(
     output: str, should_print: bool, file: str, context: str, format: str = "json"
 ) -> None:
-    """A wrapper on the `j2` command (j2cli must be installed)
+    """
+    A wrapper on the `j2` command (j2cli must be installed)
     Renders the named file, using the given context-file.
 
     NB: No support for jinja-includes or custom filters.
 
-    :param output: str:
-    :param should_print: bool:
-    :param file: str:
-    :param context: str:
-    :param format: str:  (Default value = 'json')
-    :param output: str:
-    :param should_print: bool:
-    :param file: str:
-    :param context: str:
-    :param format: str:  (Default value = 'json')
-
+        :param output: str:
+        :param should_print: bool:
+        :param file: str:
+        :param context: str:
+        :param format: str:  (Default value = 'json')
     """
     cmd = f"j2 --format {format} {file} {context}"
     result = invoke(cmd)

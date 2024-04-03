@@ -1,28 +1,33 @@
 """ pynchon.plugins.mermaid
+
+    See also:
+        * https://github.com/mermaid-js/mermaid-cli
+        * https://mermaid.live/
 """
 
 import os
 
 from fleks import cli, tagging
 
-from pynchon.util.os import invoke
-
 from pynchon import abcs, events, models  # noqa
 from pynchon.util import files, lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-IMG = "ghcr.io/mermaid-js/mermaid-cli/mermaid-cli"
 
 
-class Mermaid(models.Planner):
+class Mermaid(models.DockerWrapper):
     """Mermaid Plugin"""
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "mermaid"
         apply_hooks: typing.List[str] = typing.Field(default=["open-after"])
+        docker_image: str = typing.Field(
+            default="ghcr.io/mermaid-js/mermaid-cli/mermaid-cli:10.8.1-beta.15"
+        )
 
     name = "mermaid"
     cli_name = "mermaid"
+    contribute_plan_apply = True
 
     @tagging.tags(click_aliases=["ls"])
     def list(self):
@@ -39,13 +44,11 @@ class Mermaid(models.Planner):
 
     @cli.options.output
     @cli.click.option("--img", default="nshine/dot")
-    # @cli.click.option("--output-mode")
     @cli.click.argument("file", nargs=1)
     def render(
         self,
         img: str = "??",
         file: str = "",
-        # output_mode: str = "",
         output: str = "",
     ):
         """
@@ -59,11 +62,10 @@ class Mermaid(models.Planner):
         uid = os.getuid()
         cmd = (
             f"docker run -v {wd}:/workspace "
-            f"-w /workspace -u {uid} {IMG} -i {file} "
+            f"-w /workspace -u {uid} {self.config.docker_image} -i {file} "
             f"-o {output} --backgroundColor efefef"
         )
-        LOGGER.critical(cmd)
-        result = invoke(cmd, strict=True)
+        result = self._run_docker(cmd, strict=True)
         return True
 
     @property
@@ -91,10 +93,3 @@ class Mermaid(models.Planner):
                 )
             )
         return plan
-
-    # cli_label = "Tool"
-    # def run(self):
-
-
-# mmdc -i input.mmd -o output.png -t dark -b transparent
-# https://github.com/mermaid-js/mermaid-cli

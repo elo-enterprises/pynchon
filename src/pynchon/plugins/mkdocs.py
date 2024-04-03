@@ -192,16 +192,17 @@ class Mkdocs(models.Planner):
         """Lists site-pages based on mkdocs.yml"""
         return self.config.pages
 
-    @fleks.cli.arguments.file
+    @fleks.cli.click.argument("files", nargs=-1)
     def open(
         self,
-        file=None,
+        files: tuple = tuple(),
     ):
         """
         Opens `dev_addr` in a webbrowser
         """
         import webbrowser
 
+        file = files[0] if files else "."
         # index_f = Path(self.site_dir).absolute() / "index.html"
         # url = f"file://{index_f}"
         mconfig = self.config.config

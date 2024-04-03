@@ -43,7 +43,7 @@ class Action(BaseModel):
 
     type: str = typing.Field(default="unknown_action_type")
     ok: bool = typing.Field(default=None)
-    error: str = typing.Field(default="")
+    error: typing.StringMaybe = typing.Field(default="")
     changed: bool = typing.Field(default=False)
     resource: abcs.ResourceType = typing.Field(default="??")
     command: str = typing.Field(default="echo")
@@ -161,7 +161,7 @@ class Goal(BaseModel):
             app="Pynchon::APPLY",
             stage=f"{plugin_name} plugin {ordering}",
         )
-        invocation = invoke(goal.command)
+        invocation = invoke(goal.command, interactive=goal.type == "interactive")
         success = invocation.succeeded
         action = dict(
             ok=success,

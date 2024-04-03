@@ -20,10 +20,14 @@
 
 ---------------------------------------------------------------------------------
 
-  * [Overview](#overview)
-  * [Overview](#overview-1)
-  * [Installation](#installation)
-  * [Usage](#usage)
+<div class="toc">
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#overview_1">Overview</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul>
+</div>
 
 
 ---------------------------------------------------------------------------------
@@ -32,10 +36,14 @@
 
 <a href="https://github.com/elo-enterprises/pynchon/actions/workflows/python-publish.yml"><img src="https://github.com/elo-enterprises/pynchon/actions/workflows/python-publish.yml/badge.svg"></a><a href="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml"><img src="https://github.com/elo-enterprises/pynchon/actions/workflows/python-test.yml/badge.svg"></a>
 
-  * [Overview](#overview)
-  * [Overview](#overview-1)
-  * [Installation](#installation)
-  * [Usage](#usage)
+<div class="toc">
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#overview_1">Overview</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul>
+</div>
 
 
 ---------------------------------------------------------------------------------
