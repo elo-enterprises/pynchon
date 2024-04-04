@@ -27,7 +27,8 @@ class Make(models.Planner):
     priority = 6  # before mermaid
     name = "makefile"
     cli_name = "makefile"
-    cli_label = 'Project Tools'
+    cli_label = "Project Tools"
+
     def _get_template_file(self, relpath: str = ""):
         tfile = self.plugin_templates_root / relpath
         return api.render.get_template(str(tfile))

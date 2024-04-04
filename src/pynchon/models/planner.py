@@ -21,7 +21,9 @@ LOGGER = lme.get_logger(" ")
 @tags(cli_label="Planner")
 class AbstractPlanner(BasePlugin):
     """A plugin-type that provides plan/apply basics"""
-    cli_label='Planner'
+
+    cli_label = "Planner"
+
     def _list(self, use_glob=None, changes=False):
         """
         Lists affected resources for this project
@@ -222,6 +224,7 @@ class Manager(ShyPlanner):
     cli_label = "Project Tools"
     cli_description = "Tools for project management"
 
+
 class ResourceManager(Manager):
     @property
     def changes(self):
@@ -272,8 +275,9 @@ class Planner(ShyPlanner):
     """
 
     contribute_plan_apply = True
-    cli_description = "Planner"
+    cli_description = ""
+
 
 class RenderingPlugin(Planner):
-    cli_label = 'Rendering Tools'
+    cli_label = "Rendering Tools"
     cli_description = ""

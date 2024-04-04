@@ -25,12 +25,14 @@ ElementList = typing.List[typing.Dict]
 DEFAULT_HTTP_PORT = 8080
 DEFAULT_DOCKER_NAME = "drawio-server"
 
+
 @tagging.tags(click_aliases=["draw"])
 class DrawIO(models.DiagramTool, models.Planner):
     """
     Wrapper for docker-containers that
     provide the "drawio" diagramming utility
     """
+
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "drawio"
         docker_image: str = typing.Field(

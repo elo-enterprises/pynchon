@@ -6,7 +6,8 @@ from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon.models.planner import RenderingPlugin # noqa
+from pynchon.models.planner import RenderingPlugin  # noqa
+
 
 class Json(RenderingPlugin):
     """Tools for working with JSON & JSON5"""

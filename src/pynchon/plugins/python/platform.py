@@ -5,10 +5,12 @@ import platform as stdlib_platform
 
 from fleks import tagging
 
-from pynchon import abcs, cli, models
+from pynchon import abcs, cli
 from pynchon.util import lme, python, typing
 from pynchon.util.os import invoke
+
 from .common import PythonPlanner
+
 LOGGER = lme.get_logger(__name__)
 
 

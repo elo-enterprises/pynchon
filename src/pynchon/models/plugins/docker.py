@@ -9,7 +9,6 @@ from .tool import ToolPlugin
 from pynchon.util import lme, typing  # noqa
 
 from . import validators  # noqa
-from fleks import tagging
 
 LOGGER = lme.get_logger("DOCKER")
 
@@ -91,6 +90,7 @@ class DockerWrapper(ToolPlugin):
         zip_kws = " ".join(["{k}={v}" for k, v in kwargs.items()])
         cmd_t += f" {docker_args} {zip_kws}"
         return cmd_t
+
 
 class DiagramTool(DockerWrapper):
     cli_label = "Diagramming Tools"

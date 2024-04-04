@@ -9,11 +9,13 @@ from fleks import cli, tagging
 from fleks.util.click import click_recursive_help
 from memoized_property import memoized_property
 
-from pynchon import abcs, api, models
+from pynchon import abcs, api
 from pynchon.models.python import EntrypointMetadata
 
-from pynchon.util import lme, typing  # noqa
 from .common import PythonPlanner
+
+from pynchon.util import lme, typing  # noqa
+
 
 config_mod = shimport.lazy(
     "pynchon.config",

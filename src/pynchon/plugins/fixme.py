@@ -3,7 +3,7 @@
 
 from fnmatch import fnmatch
 
-from pynchon import abcs, constants, models
+from pynchon import abcs, models
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
 
@@ -21,6 +21,7 @@ class FixMeConfig(abcs.Config):
     @property
     def exclude_patterns(self):
         from pynchon.config import globals
+
         global_ex = globals.exclude_patterns
         my_ex = self.__dict__.get("exclude_patterns", [])
         return list(set(global_ex + my_ex))
@@ -31,7 +32,8 @@ class FixMe(models.Planner):
 
     name = "fixme"
     config_class = FixMeConfig
-    cli_label = 'Docs Tools'
+    cli_label = "Docs Tools"
+
     def plan(self, config: dict = None) -> typing.List:
         """ """
         config = config or self.__class__.get_current_config()
@@ -57,7 +59,7 @@ class FixMe(models.Planner):
     def gen(
         self,
         output,
-        should_print:bool,
+        should_print: bool,
         header,
     ):
         """
@@ -104,6 +106,7 @@ class FixMe(models.Planner):
         print(msg, file=open(output, "w"))
         if should_print and output != "/dev/stdout":
             print(msg)
+
     #
     # @classmethod
     # def asdasdinit_cli(kls):

@@ -3,10 +3,12 @@
 
 from fleks import cli, tagging
 
-from pynchon import abcs, models
+from pynchon import abcs
 from pynchon.api import render
 from pynchon.util import complexity, lme, typing
+
 from .common import PythonPlanner
+
 LOGGER = lme.get_logger(__name__)
 
 

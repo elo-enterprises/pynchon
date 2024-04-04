@@ -87,10 +87,10 @@ class Core(models.Planner):
         self,
         pynchon: bool = False,
         bashrc: bool = False,  # noqa
-        # bash: bool = False,
-        # bash_completions: bool = False,
-        # makefile: bool = False,
-        # tox: bool = False,
+        bash: bool = False,
+        bash_completions: bool = False,
+        makefile: bool = False,
+        tox: bool = False,
     ) -> None:
         """
         Helpers for bootstraping various project boilerplate.

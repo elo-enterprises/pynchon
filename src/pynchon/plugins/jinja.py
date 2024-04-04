@@ -3,13 +3,14 @@
 
 from fleks import tagging
 
-from pynchon import abcs, api, cli, models
+from pynchon import abcs, api, cli
 
 from pynchon.util import files, lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-from pynchon.models.planner import RenderingPlugin # noqa
+from pynchon.models.planner import RenderingPlugin  # noqa
+
 
 @tagging.tags(click_aliases=["j"])
 class Jinja(RenderingPlugin):

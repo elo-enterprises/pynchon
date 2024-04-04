@@ -14,7 +14,7 @@ LOGGER = lme.get_logger(__name__)
 
 @tagging.tags(cli_label="Provider")
 class Provider(CliPlugin):
-    """ A wrapper for context that other plugins can use """
+    """A wrapper for context that other plugins can use"""
 
     cli_label = "Provider"
     cli_description = __doc__
