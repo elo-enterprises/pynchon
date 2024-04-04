@@ -9,8 +9,8 @@ from pynchon.util import files, lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Dockerhub(models.Planner):
-    """Dockerhub Plugin"""
+class Dockerhub(models.Provider):
+    """Context for Dockerhub"""
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "dockerhub"

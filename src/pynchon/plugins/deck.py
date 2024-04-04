@@ -7,7 +7,7 @@ from pynchon.util import lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Deck(models.ResourceManager):
+class Deck(models.DiagramTool):
     """Tool for working with markdown based slide-decks"""
 
     class config_class(abcs.Config):
@@ -21,7 +21,6 @@ class Deck(models.ResourceManager):
 
     name = "deck"
     cli_name = "deck"
-    cli_label = "Tool"
     contribute_plan_apply = True
 
     def plan(self, **kwargs):

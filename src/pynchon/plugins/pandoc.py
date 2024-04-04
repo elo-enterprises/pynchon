@@ -26,7 +26,7 @@ class Pandoc(models.DockerWrapper, models.Planner):
 
     name = "pandoc"
     cli_name = "pandoc"
-    cli_label = "Tool"
+    cli_label = "Docs Tools"
     # contribute_plan_apply = False
 
     @cli.click.command(

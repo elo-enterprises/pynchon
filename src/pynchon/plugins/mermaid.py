@@ -15,7 +15,7 @@ from pynchon.util import files, lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Mermaid(models.DockerWrapper):
+class Mermaid(models.DiagramTool):
     """
     Finds & renders Mermaid diagram files
     """

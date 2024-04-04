@@ -72,6 +72,7 @@ class GitHub(models.ToolPlugin):
 
     name = "github"
     cli_name = "github"
+    cli_label = "Provider"
     cli_aliases = []
 
     @cli.click.option("--org", "-o")

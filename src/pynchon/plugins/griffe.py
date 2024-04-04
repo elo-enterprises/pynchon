@@ -8,9 +8,9 @@ from pynchon.util import lme, os, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
-
+from pynchon.plugins.python.common import PythonPlanner
 @tagging.tags(click_aliases=["g", "gr"])
-class Griffe(models.ToolPlugin):
+class Griffe(PythonPlanner):
     """Tools for working with Python ASTs"""
 
     class config_class(abcs.Config):
@@ -18,7 +18,6 @@ class Griffe(models.ToolPlugin):
 
     name = "griffe"
     cli_name = "griffe"
-
     @tagging.tags(click_aliases=["dump"])
     @cli.click.option(
         "--package", "-p", "pkg", help="dotpath for a python package to use", default=""

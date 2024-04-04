@@ -13,6 +13,7 @@ from pynchon import abcs, api, models
 from pynchon.models.python import EntrypointMetadata
 
 from pynchon.util import lme, typing  # noqa
+from .common import PythonPlanner
 
 config_mod = shimport.lazy(
     "pynchon.config",
@@ -150,7 +151,7 @@ class PythonCliConfig(abcs.Config):
 
 
 @tagging.tags(click_aliases=["pc"])
-class PythonCLI(models.Planner):
+class PythonCLI(PythonPlanner):
     """Generators for Python CLI docs"""
 
     name = "python-cli"

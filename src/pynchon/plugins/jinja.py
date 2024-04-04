@@ -9,9 +9,10 @@ from pynchon.util import files, lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon.models.planner import RenderingPlugin # noqa
 
 @tagging.tags(click_aliases=["j"])
-class Jinja(models.Planner):
+class Jinja(RenderingPlugin):
     """Renders files with {jinja.template_includes}"""
 
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )

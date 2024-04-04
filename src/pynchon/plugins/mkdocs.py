@@ -169,7 +169,7 @@ class Mkdocs(models.Planner):
     priority = 8  # before mermaid
     name = "mkdocs"
     cli_name = "mkdocs"
-    cli_label = "Docs"
+    cli_label = "Docs Tools"
     config_class = MkdocsPluginConfig
 
     @property

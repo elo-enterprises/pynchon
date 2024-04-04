@@ -11,8 +11,9 @@ from pynchon.util import lme, python, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 F_CODEMOD_YAML = ".libcst.codemod.yaml"
 
+from .common import PythonPlanner
 
-class LibCST(models.Planner):
+class LibCST(PythonPlanner):
     """
     Code-transforms via libcst[1]
     """
@@ -22,7 +23,6 @@ class LibCST(models.Planner):
 
     name = "python-libcst"
     cli_name = "python-libcst"
-    cli_label = "Tool"
 
     @cli.click.group("gen")
     def gen(self):

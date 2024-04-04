@@ -66,6 +66,7 @@ class Tests(models.Planner):
     config_class = TestConfig
     name = "test"
     cli_name = "test"
+    cli_label = "Project Tools"
 
     def _test_md(self, fname):
         """ """

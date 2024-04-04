@@ -44,6 +44,7 @@ class Markdown(models.Planner):
 
     name = "markdown"
     cli_name = "markdown"
+    cli_label = "Docs Tools"
     priority = 0
 
     @tagging.tags(click_aliases=["ls"])

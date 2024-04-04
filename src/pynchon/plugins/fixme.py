@@ -21,7 +21,6 @@ class FixMeConfig(abcs.Config):
     @property
     def exclude_patterns(self):
         from pynchon.config import globals
-
         global_ex = globals.exclude_patterns
         my_ex = self.__dict__.get("exclude_patterns", [])
         return list(set(global_ex + my_ex))
@@ -32,7 +31,7 @@ class FixMe(models.Planner):
 
     name = "fixme"
     config_class = FixMeConfig
-
+    cli_label = 'Docs Tools'
     def plan(self, config: dict = None) -> typing.List:
         """ """
         config = config or self.__class__.get_current_config()
@@ -58,15 +57,11 @@ class FixMe(models.Planner):
     def gen(
         self,
         output,
-        should_print,
+        should_print:bool,
         header,
     ):
-        """Generate FIXME.md files, aggregating references to all FIXME's in code-base
-
-        :param output: param should_print:
-        :param header:
-        :param should_print:
-
+        """
+        Generate FIXME.md files, aggregating references to all FIXME's in code-base
         """
         from pynchon import api
 
@@ -109,15 +104,12 @@ class FixMe(models.Planner):
         print(msg, file=open(output, "w"))
         if should_print and output != "/dev/stdout":
             print(msg)
-
-    @classmethod
-    def asdasdinit_cli(kls):
-        """
-
-        :param kls:
-
-        """
-        parent = kls.click_group
-        T_FIXME = constants.ENV.get_template(
-            "pynchon/plugins/plugins/fixme/FIXME.md.j2"
-        )
+    #
+    # @classmethod
+    # def asdasdinit_cli(kls):
+    #     """
+    #     """
+    #     parent = kls.click_group
+    #     T_FIXME = constants.ENV.get_template(
+    #         "pynchon/plugins/plugins/fixme/FIXME.md.j2"
+    #     )

@@ -16,14 +16,15 @@ LOGGER = lme.get_logger("DOCKER")
 
 class DockerWrapper(ToolPlugin):
     """
-    General wrapper for a dockerized tool.
+    Wrappers for dockerized tools
     """
 
     class BaseConfig(abcs.Config):
         docker_image: str = typing.Field(default="docker/hello-world")
         docker_args: typing.List = typing.Field(default=[])
 
-    cli_label = "Docker Wrapper"
+    cli_label = "Docker Wrappers"
+    cli_description = "Plugins that wrap invocations on containers"
     contribute_plan_apply = False
     priority = 2
     __class_validators__ = [
@@ -90,3 +91,7 @@ class DockerWrapper(ToolPlugin):
         zip_kws = " ".join(["{k}={v}" for k, v in kwargs.items()])
         cmd_t += f" {docker_args} {zip_kws}"
         return cmd_t
+
+class DiagramTool(DockerWrapper):
+    cli_label = "Diagramming Tools"
+    cli_description = "View and render technical diagrams from source, in several formats.  (Usually these require docker, but no other system dependencies.)"
