@@ -36,8 +36,8 @@ class DrawIO(models.DiagramTool, models.Planner):
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "drawio"
         file_glob: str = typing.Field(
-            default="*.drawio",
-            description="Where to find jinja templates")
+            default="*.drawio", description="Where to find jinja templates"
+        )
 
         docker_image: str = typing.Field(
             default="jgraph/drawio", help="Docker image to use"

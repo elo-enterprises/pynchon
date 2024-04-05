@@ -11,6 +11,7 @@ LOGGER = lme.get_logger(__name__)
 
 class GitConfig(abcs.Config):
     """ """
+
     config_key: typing.ClassVar[str] = "git"
 
     def _run(self, cmd, log_command=False, **kwargs):
@@ -33,7 +34,7 @@ class GitConfig(abcs.Config):
 
     @property
     def root(self) -> typing.StringMaybe:
-        """ Root path for this git project """
+        """Root path for this git project"""
         tmp = self.__dict__.get("_root")
         if tmp:
             return tmp
@@ -42,7 +43,7 @@ class GitConfig(abcs.Config):
 
     @property
     def repo(self) -> typing.StringMaybe:
-        """ Repo name for this git project """
+        """Repo name for this git project"""
         if "repo" not in self.__dict__:
             cmd = self._run("git config --get remote.origin.url")
             self.__dict__.update(
@@ -52,13 +53,13 @@ class GitConfig(abcs.Config):
 
     @property
     def is_github(self) -> typing.Bool:
-        """ True if this is a github repository """
+        """True if this is a github repository"""
         tmp = "git@github https://github.com http://github.com".split()
         return self.repo and any([self.repo.startswith(x) for x in tmp])
 
     @property
     def github_org(self) -> typing.StringMaybe:
-        """ Name of this github organization """
+        """Name of this github organization"""
         if self.is_github:
             tmp = self.repo.split(":")[-1]
             try:
@@ -69,7 +70,7 @@ class GitConfig(abcs.Config):
 
     @property
     def repo_name(self) -> typing.StringMaybe:
-        """ Repository name """
+        """Repository name"""
         if self.repo:
             tmp = self.repo.split(":")[-1]
             try:
@@ -81,13 +82,13 @@ class GitConfig(abcs.Config):
 
     @property
     def repo_url(self) -> typing.StringMaybe:
-        """ Repository URL """
+        """Repository URL"""
         if all([self.github_org, self.repo_name]):
             return f"https://github.com/{self.github_org}/{self.repo_name}"
 
     @property
     def branch_name(self) -> typing.StringMaybe:
-        """ Name of current branch """
+        """Name of current branch"""
         if "branch_name" not in self.__dict__:
             cmd = self._run("git rev-parse --abbrev-ref HEAD")
             tmp = cmd and cmd.succeeded and cmd.stdout.strip()
@@ -95,8 +96,8 @@ class GitConfig(abcs.Config):
         return self.__dict__["branch_name"]
 
     @property
-    def hash(self)  -> typing.StringMaybe:
-        """ Current git hash """
+    def hash(self) -> typing.StringMaybe:
+        """Current git hash"""
         if "hash" not in self.__dict__:
             cmd = self._run("git rev-parse HEAD")
             tmp = cmd and cmd.succeeded and cmd.stdout.strip()

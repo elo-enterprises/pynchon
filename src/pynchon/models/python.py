@@ -11,7 +11,9 @@ LOGGER = lme.get_logger(__name__)
 
 class EntrypointMetadata(BaseModel):
     is_click: bool = typing.Field(description="", required=False, default=False)
-    is_package_entrypoint: bool = typing.Field(description="", required=False, default=False)
+    is_package_entrypoint: bool = typing.Field(
+        description="", required=False, default=False
+    )
     is_module: bool = typing.Field(description="", required=False, default=True)
     bin_name: typing.StringMaybe = typing.Field(
         description="Name for this console script. (Nil if module-entrypoint)",

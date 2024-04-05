@@ -13,19 +13,22 @@ ElementList = typing.List[typing.Dict]
 
 
 class Markdown(models.DockerWrapper, models.Planner):
-    """ Markdown Tools """
+    """Markdown Tools"""
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "markdown"
         goals: typing.List[str] = typing.Field(
-            default=[], description='Extra goals related to markdown')
+            default=[], description="Extra goals related to markdown"
+        )
         include_patterns: typing.List[str] = typing.Field(
-            default=[],
-            description='Patterns to include')
-        exclude_patterns: typing.List[str] = typing.Field(default=[], description='File globs to exclude from listing')
+            default=[], description="Patterns to include"
+        )
+        exclude_patterns: typing.List[str] = typing.Field(
+            default=[], description="File globs to exclude from listing"
+        )
         root: typing.Union[str, abcs.Path, None] = typing.Field(
-            default=None,
-            description='')
+            default=None, description=""
+        )
         linter_docker_image: str = typing.Field(
             default="peterdavehello/markdownlint",
             description="Container to use for markdown linter",
@@ -41,8 +44,7 @@ class Markdown(models.DockerWrapper, models.Planner):
                 "--fix",
             ],
         )
-        goals: typing.List[typing.Dict] = typing.Field(
-            default=[], description="")
+        goals: typing.List[typing.Dict] = typing.Field(default=[], description="")
 
     name = "markdown"
     cli_name = "markdown"

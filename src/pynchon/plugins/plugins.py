@@ -4,11 +4,11 @@
 from fleks import tagging
 
 from pynchon import abcs, cli, models
+from pynchon.api import render
 from pynchon.util.os import invoke
+from pynchon.util.text import dumps
 
 from pynchon.util import lme, typing  # noqa
-from pynchon.util.text import dumps
-from pynchon.api import render
 
 LOGGER = lme.get_logger(__name__)
 
@@ -47,11 +47,17 @@ class PluginsMan(models.Provider):
                 if dprop:
                     fields[dprop_name] = dict(
                         is_dynamic=True,
-                        annotation=str(dprop.fget.__annotations__.get('return','')),
-                        default=None, required=False,
-                        description=dprop.__doc__ or '(Missing docstring for property)')
+                        annotation=str(dprop.fget.__annotations__.get("return", "")),
+                        default=None,
+                        required=False,
+                        description=dprop.__doc__ or "(Missing docstring for property)",
+                    )
 
-            print(t.render(plugin_name=plugin_name, model=model, fields=fields, schema=schema))
+            print(
+                t.render(
+                    plugin_name=plugin_name, model=model, fields=fields, schema=schema
+                )
+            )
         else:
             raise SystemExit(1)
 

@@ -59,7 +59,7 @@ def get_jinja_globals():
 
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """A jinja filter/extension"""
-        strict = kwargs.pop('strict', True)
+        strict = kwargs.pop("strict", True)
         out = invoke(*args, **kwargs)
         if not out.succeeded:
             raise Exception(out)

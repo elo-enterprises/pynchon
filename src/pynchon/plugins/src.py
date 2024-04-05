@@ -44,7 +44,9 @@ class SourceMan(models.ResourceManager):
         include_patterns: typing.List[str] = typing.Field(default=[])
         exclude_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
-        sorted: bool = typing.Field(default=False, description="Whether to sort source code")
+        sorted: bool = typing.Field(
+            default=False, description="Whether to sort source code"
+        )
 
     name = "src"
     cli_name = "src"
@@ -163,11 +165,11 @@ class SourceMan(models.ResourceManager):
 
     @cli.click.group("open")
     def _open(self):
-        """ Helper for opening project source files """
+        """Helper for opening project source files"""
 
     @_open.command("recent")
     def open_recent(self):
-        """ Opens recently changed files """
+        """Opens recently changed files"""
 
     @_open.command("changed")
     def open_changed(self):
@@ -200,6 +202,7 @@ class SourceMan(models.ResourceManager):
                 )
             )
         return plan
+
     #
     # def find(self):
     #     """file finder"""

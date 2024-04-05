@@ -1,6 +1,8 @@
 """ pynchon.plugins.dockerhub
 """
 
+import webbrowser
+
 from fleks import cli, tagging  # noqa
 
 from pynchon import abcs, events, models  # noqa
@@ -31,6 +33,6 @@ class Dockerhub(models.Provider):
     cli_name = "dockerhub"
 
     def open(self):
-        """ Open this dockerhub project's webpage """
+        """Open this dockerhub project's webpage"""
         url = self.config.repo_url or self.config.org_url
         webbrowser.open(url)

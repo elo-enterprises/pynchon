@@ -105,7 +105,7 @@ Commands:
 $ python -mpynchon.util.text render jinja --help
 Usage: python -m pynchon.util.text render jinja [OPTIONS] FILE
 
-  alias for `jinja_file`
+  Alias for `jinja_file`
 
 Options:
   -o, --output TEXT    output file to write.  (optional)
@@ -128,17 +128,17 @@ $ pynchon plugins list
 [
   "git",
   "core",
-  "docs",
+  "src",
   "markdown",
   "github",
-  "src",
+  "docs",
+  "json",
   "parse",
   "gen",
   "render",
-  "json",
-  "python",
-  "globals",
   "project",
+  "globals",
+  "python",
   "jinja",
   "pattern"
 ]
@@ -289,7 +289,7 @@ Options:
 
 Commands:
   cfg   Shows current config for this plugin
-  open
+  open  Open this dockerhub project's webpage
 
 ```
 
@@ -481,7 +481,7 @@ Commands:
   preview    Previews markdown in the terminal
   run        Passes given command through to docker-image this plugin wraps
   show       (alias for `show`)
-  to-pdf     (alias for `pynchon pandoc md-to-pdf`)
+  to-pdf     (Alias for `pynchon pandoc md-to-pdf`)
 
 ```
 
@@ -801,8 +801,8 @@ Options:
 
 Commands:
   cfg       Shows current config for this plugin
-  makefile  (alias for `pynchon makefile parse`)
-  markdown  (alias for `pynchon markdown parse`)
+  makefile  (Alias for `pynchon makefile parse`)
+  markdown  (Alias for `pynchon markdown parse`)
 
 ```
 
@@ -830,18 +830,15 @@ Commands:
   apply            Executes the plan for this plugin
   cfg              Shows current config for this plugin
   changed          opens changed files
-  find             file finder
-  header           creates file headers for source in {src_root}
   list             Lists resources associated with this plugin
   list-modified    Lists modified files
-  list-transforms  (alias for `pynchon python-libcst list-transforms`)
+  list-transforms  (Alias for `pynchon python-libcst list-transforms`)
   ls               (alias for `ls`)
-  map              file mapper
-  open             helper for opening project source files
+  open             Helper for opening project source files
   plan             Describe plan for this plugin
-  recent           opens recently changed files
-  sorted           (alias for `pynchon python sorted`)
-  transform        (alias for `pynchon python-libcst run-transform`)
+  recent           Opens recently changed files
+  sorted           (Alias for `pynchon python sorted`)
+  transform        (Alias for `pynchon python-libcst run-transform`)
 
 ```
 
@@ -862,7 +859,7 @@ Commands:
     * (No description provided)
     * Value is **user-configurable**, with no default  
 * **src.sorted:** *(optional <class 'bool'>)*
-    * (No description provided)
+    * Whether to sort source code
     * Value is **user-configurable**, with no default 
 
 
