@@ -156,7 +156,7 @@
    "exclude_patterns": [
      // Describes files that shouldn't show up in plans
      // `globals.exclude_patterns` will be appended.
-     "**/pynchon/templates/**",
+     "src/**/*.j2",
    ],
 
    "template_includes": [

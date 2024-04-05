@@ -2,7 +2,6 @@
 """
 
 import marko
-from bs4 import BeautifulSoup
 from fleks import tagging
 
 from pynchon import abcs, api, cli, events, models  # noqa
@@ -13,7 +12,7 @@ LOGGER = lme.get_logger(__name__)
 ElementList = typing.List[typing.Dict]
 
 
-class Markdown(models.Planner):
+class Markdown(models.DockerWrapper, models.Planner):
     """
     Example usage:
         # normalize markdown syntax (in-place)
@@ -27,10 +26,11 @@ class Markdown(models.Planner):
         exclude_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
         linter_docker_image: str = typing.Field(
-            default="peterdavehello/markdownlint", help=""
+            default="peterdavehello/markdownlint",
+            help="Container to use for markdown linter"
         )
         linter_args: typing.List[str] = typing.Field(
-            help="arguments to pass to `linter_docker_image`",
+            help="Arguments to pass to `linter_docker_image`",
             default=[
                 "--disable MD013",  # line-length
                 "--disable MD045",  # Images should have alternate text
@@ -91,6 +91,31 @@ class Markdown(models.Planner):
             )
         return self.apply(plan=self.plan(goals=goals))
 
+    @cli.click.argument("paths", nargs=-1)
+    def show(self, paths):
+        """
+        Preview markdown in the terminal
+        """
+        # FIXME?: rich doesn't link hypertext.  patch upstream?
+        from rich.console import Console
+        from rich.markdown import Markdown
+        console = Console()
+        for p in paths:
+            with open(p,'r') as fhandle:
+                md = Markdown(fhandle.read())
+                console.print(md)
+        # FIXME: glow is awesome but using it from docker seems to strip color
+        # viewer_docker_image: str = typing.Field(
+        #     default='charmcli/glow',
+        #     help="Container to use for markdown console viewer")
+        # docker_image = self["viewer_docker_image"]
+        #         # viewer_args = " ".join(self["viewer_args"])
+        #         return self._run_docker(
+        #                         f"docker run -t -v `pwd`:/workspace "
+        #                         f"-w /workspace {docker_image} "
+        #                         f" {' '.join(paths)}"
+        #                     )
+
     @cli.click.flag("-p", "--python", help="only python codeblocks")
     @cli.click.flag("-b", "--bash", help="only bash codeblocks")
     @cli.click.argument("file")
@@ -135,7 +160,8 @@ class Markdown(models.Planner):
         bash: bool = False,
     ) -> ElementList:
         """Parses given markdown file into JSON"""
-
+        from bs4 import BeautifulSoup # noqa
+        from marko.ast_renderer import ASTRenderer # noqa
         codeblocks = codeblocks or python or bash
         assert files or all and not (files and all)
         if files:
@@ -160,8 +186,6 @@ class Markdown(models.Planner):
                     else:
                         out[file] += [this_link]
             else:
-                from marko.ast_renderer import ASTRenderer
-
                 parsed = marko.Markdown(renderer=ASTRenderer)(content)
                 children = parsed["children"]
                 out[file] = []
