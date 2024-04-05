@@ -1,5 +1,7 @@
-""" pynchon.plugins.mermaid
+""" pynchon.plugins.dockerhub
 """
+
+import webbrowser
 
 from fleks import cli, tagging  # noqa
 
@@ -9,8 +11,8 @@ from pynchon.util import files, lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Dockerhub(models.Planner):
-    """Dockerhub Plugin"""
+class Dockerhub(models.Provider):
+    """Context for Dockerhub"""
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "dockerhub"
@@ -31,8 +33,6 @@ class Dockerhub(models.Planner):
     cli_name = "dockerhub"
 
     def open(self):
-        import webbrowser
-
+        """Open this dockerhub project's webpage"""
         url = self.config.repo_url or self.config.org_url
-        # assert url,err
         webbrowser.open(url)

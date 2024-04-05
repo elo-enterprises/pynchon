@@ -2,7 +2,6 @@
 """
 
 import marko
-from bs4 import BeautifulSoup
 from fleks import tagging
 
 from pynchon import abcs, api, cli, events, models  # noqa
@@ -13,24 +12,29 @@ LOGGER = lme.get_logger(__name__)
 ElementList = typing.List[typing.Dict]
 
 
-class Markdown(models.Planner):
-    """
-    Example usage:
-        # normalize markdown syntax (in-place)
-        $ pynchon markdown normalize file1 file2
-    """
+class Markdown(models.DockerWrapper, models.Planner):
+    """Markdown Tools"""
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "markdown"
-        goals: typing.List[str] = typing.Field(default=[])
-        include_patterns: typing.List[str] = typing.Field(default=[])
-        exclude_patterns: typing.List[str] = typing.Field(default=[])
-        root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
+        goals: typing.List[str] = typing.Field(
+            default=[], description="Extra goals related to markdown"
+        )
+        include_patterns: typing.List[str] = typing.Field(
+            default=[], description="Patterns to include"
+        )
+        exclude_patterns: typing.List[str] = typing.Field(
+            default=[], description="File globs to exclude from listing"
+        )
+        root: typing.Union[str, abcs.Path, None] = typing.Field(
+            default=None, description=""
+        )
         linter_docker_image: str = typing.Field(
-            default="peterdavehello/markdownlint", help=""
+            default="peterdavehello/markdownlint",
+            description="Container to use for markdown linter",
         )
         linter_args: typing.List[str] = typing.Field(
-            help="arguments to pass to `linter_docker_image`",
+            description="Arguments to pass to `linter_docker_image`",
             default=[
                 "--disable MD013",  # line-length
                 "--disable MD045",  # Images should have alternate text
@@ -40,16 +44,17 @@ class Markdown(models.Planner):
                 "--fix",
             ],
         )
-        goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
+        goals: typing.List[typing.Dict] = typing.Field(default=[], description="")
 
     name = "markdown"
     cli_name = "markdown"
+    cli_label = "Docs Tools"
     priority = 0
 
     @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False):
         """
-        Lists affected resources for this project
+        Lists affected resources (**.md) for this project
         """
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
@@ -89,6 +94,33 @@ class Markdown(models.Planner):
                 )
             )
         return self.apply(plan=self.plan(goals=goals))
+
+    @cli.click.argument("paths", nargs=-1)
+    @tagging.tags(click_aliases=["show"])
+    def preview(self, paths):
+        """
+        Previews markdown in the terminal
+        """
+        # FIXME?: rich doesn't link hypertext.  patch upstream?
+        from rich.console import Console
+        from rich.markdown import Markdown
+
+        console = Console()
+        for p in paths:
+            with open(p) as fhandle:
+                md = Markdown(fhandle.read())
+                console.print(md)
+        # FIXME: glow is awesome but using it from docker seems to strip color
+        # viewer_docker_image: str = typing.Field(
+        #     default='charmcli/glow',
+        #     help="Container to use for markdown console viewer")
+        # docker_image = self["viewer_docker_image"]
+        #         # viewer_args = " ".join(self["viewer_args"])
+        #         return self._run_docker(
+        #                         f"docker run -t -v `pwd`:/workspace "
+        #                         f"-w /workspace {docker_image} "
+        #                         f" {' '.join(paths)}"
+        #                     )
 
     @cli.click.flag("-p", "--python", help="only python codeblocks")
     @cli.click.flag("-b", "--bash", help="only bash codeblocks")
@@ -134,6 +166,8 @@ class Markdown(models.Planner):
         bash: bool = False,
     ) -> ElementList:
         """Parses given markdown file into JSON"""
+        from bs4 import BeautifulSoup  # noqa
+        from marko.ast_renderer import ASTRenderer  # noqa
 
         codeblocks = codeblocks or python or bash
         assert files or all and not (files and all)
@@ -159,8 +193,6 @@ class Markdown(models.Planner):
                     else:
                         out[file] += [this_link]
             else:
-                from marko.ast_renderer import ASTRenderer
-
                 parsed = marko.Markdown(renderer=ASTRenderer)(content)
                 children = parsed["children"]
                 out[file] = []

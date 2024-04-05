@@ -11,7 +11,7 @@ from pynchon.util import files, lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Dot(models.Planner):
+class Dot(models.DiagramTool, models.Planner):
     """Finds / Renders (graphviz) dot files for this project"""
 
     class config_class(abcs.Config):

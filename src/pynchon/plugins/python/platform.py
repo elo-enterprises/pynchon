@@ -5,17 +5,19 @@ import platform as stdlib_platform
 
 from fleks import tagging
 
-from pynchon import abcs, cli, models
+from pynchon import abcs, cli
 from pynchon.util import lme, python, typing
 from pynchon.util.os import invoke
+
+from .common import PythonPlanner
 
 LOGGER = lme.get_logger(__name__)
 
 
 @tagging.tags(click_aliases=["py"])
-class PythonPlatform(models.Planner):
+class PythonPlatform(PythonPlanner):
     """
-    Code transformation and docs-generation utilities for python projects.
+    Tools and info for Python projects and platforms
     """
 
     class config_class(abcs.Config):

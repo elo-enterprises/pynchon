@@ -22,11 +22,13 @@ LOGGER = lme.get_logger(" ")
 class AbstractPlanner(BasePlugin):
     """A plugin-type that provides plan/apply basics"""
 
+    cli_label = "Planner"
+
     def _list(self, use_glob=None, changes=False):
         """
         Lists affected resources for this project
         """
-        use_glob = use_glob or getattr(self.__class__, "file_glob", None)
+        use_glob = use_glob or getattr(self.config, "file_glob", None)
         assert use_glob
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
@@ -86,6 +88,30 @@ class AbstractPlanner(BasePlugin):
         app.status_bar.update(app="Pynchon", stage=f"{len(plan)}")
         return plan
 
+    def _dispatch_apply_hooks(self, results: planning.ApplyResults):
+        """ """
+        # write status event (used by the app-console)
+        app.status_bar.update(
+            app="Pynchon::HOOKS",
+            stage=f"{self.__class__.name}",
+        )
+        if results.finished:
+            hooks = self.apply_hooks
+            if hooks:
+                LOGGER.warning(
+                    f"{self.name}.apply: dispatching {len(hooks)} hooks: {hooks}"
+                )
+                hook_results = []
+                for hook in hooks:
+                    hook_results.append(self.run_hook(hook, results))
+            else:
+                LOGGER.warning(f"{self.name}.apply: no hooks to run.")
+        else:
+            LOGGER.critical(f"{self.name}: Skipping hooks: ")
+            LOGGER.critical(
+                f"  {len(results.goals)-len(results.actions)} goals incomplete"
+            )
+
     @cli.options.quiet
     @cli.options.parallelism
     @cli.options.fail_fast
@@ -116,30 +142,6 @@ class AbstractPlanner(BasePlugin):
         self._dispatch_apply_hooks(results)
         if not quiet:
             return results
-
-    def _dispatch_apply_hooks(self, results: planning.ApplyResults):
-        """ """
-        # write status event (used by the app-console)
-        app.status_bar.update(
-            app="Pynchon::HOOKS",
-            stage=f"{self.__class__.name}",
-        )
-        if results.finished:
-            hooks = self.apply_hooks
-            if hooks:
-                LOGGER.warning(
-                    f"{self.name}.apply: dispatching {len(hooks)} hooks: {hooks}"
-                )
-                hook_results = []
-                for hook in hooks:
-                    hook_results.append(self.run_hook(hook, results))
-            else:
-                LOGGER.warning(f"{self.name}.apply: no hooks to run.")
-        else:
-            LOGGER.critical(f"{self.name}: Skipping hooks: ")
-            LOGGER.critical(
-                f"  {len(results.goals)-len(results.actions)} goals incomplete"
-            )
 
     def _validate_hooks(self, hooks):
         # FIXME: validation elsewhere
@@ -219,7 +221,8 @@ class ShyPlanner(AbstractPlanner):
 
 @tags(cli_label="Manager")
 class Manager(ShyPlanner):
-    cli_label = "Manager"
+    cli_label = "Project Tools"
+    cli_description = "Tools for project management"
 
 
 class ResourceManager(Manager):
@@ -272,3 +275,9 @@ class Planner(ShyPlanner):
     """
 
     contribute_plan_apply = True
+    cli_description = ""
+
+
+class RenderingPlugin(Planner):
+    cli_label = "Rendering Tools"
+    cli_description = ""

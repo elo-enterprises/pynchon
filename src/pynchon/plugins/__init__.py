@@ -6,7 +6,7 @@ import collections
 import fleks
 import shimport
 
-from pynchon import config, events  # noqa
+from pynchon import config, constants, events  # noqa
 from pynchon.util import lme, typing  # noqa
 
 from .util import get_plugin, get_plugin_obj  # noqa
@@ -18,7 +18,7 @@ registry = {
         exclude_names="git".split(),  # FIXME: hack
         types_in=[fleks.Plugin],
         filter_vals=[
-            lambda val: val.name in config.PLUGINS,
+            lambda val: val.name in config.PLUGINS + constants.PLUGINS,
         ],
     ).namespace
 }

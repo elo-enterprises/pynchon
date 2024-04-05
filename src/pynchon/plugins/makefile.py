@@ -12,7 +12,7 @@ LOGGER = lme.get_logger(__name__)
 
 
 class Make(models.Planner):
-    """Makefile parser"""
+    """Visualization and parsing tools for inspecting Makefiles"""
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "makefile"
@@ -27,7 +27,7 @@ class Make(models.Planner):
     priority = 6  # before mermaid
     name = "makefile"
     cli_name = "makefile"
-    cli_label = "Meta"
+    cli_label = "Project Tools"
 
     def _get_template_file(self, relpath: str = ""):
         tfile = self.plugin_templates_root / relpath

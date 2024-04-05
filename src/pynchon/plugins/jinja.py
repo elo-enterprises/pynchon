@@ -3,29 +3,41 @@
 
 from fleks import tagging
 
-from pynchon import abcs, api, cli, models
+from pynchon import abcs, api, cli
 
 from pynchon.util import files, lme, text, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon.models.planner import RenderingPlugin  # noqa
+
 
 @tagging.tags(click_aliases=["j"])
-class Jinja(models.Planner):
+class Jinja(RenderingPlugin):
     """Renders files with {jinja.template_includes}"""
 
-    file_glob = "*.j2"
     # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "jinja"
-        template_includes: typing.List[str] = typing.Field(default=[])
-        exclude_patterns: typing.List[str] = typing.Field()
-        vars: typing.Dict[str, str] = typing.Field(default={}, help="")
+        file_glob: str = typing.Field(
+            default="*.j2", description="Where to find jinja templates"
+        )
+        template_includes: typing.List[str] = typing.Field(
+            default=[],
+            description="Where to find files for use with Jinja's `include` blocks",
+        )
+        exclude_patterns: typing.List[str] = typing.Field(
+            description="File patterns to exclude from resource-listing"
+        )
+        vars: typing.Dict[str, str] = typing.Field(
+            default={}, description="Extra variables for template rendering"
+        )
 
         # @tagging.tagged_property(conflict_strategy="override")
         @property
         def exclude_patterns(self):
+            "File patterns to exclude from resource-listing"
             from pynchon.config import globals
 
             # globals = plugin_util.get_plugin("globals").get_current_config()
@@ -65,7 +77,7 @@ class Jinja(models.Planner):
         includes = self._include_folders
         if local:
             includes.remove(api.render.PYNCHON_CORE_INCLUDES)
-        includes = [abcs.Path(t) / "**/*.j2" for t in includes]
+        includes = [abcs.Path(t) / "**" / self.config.file_glob for t in includes]
         LOGGER.warning(includes)
         matches = files.find_globs(includes)
         return matches

@@ -41,11 +41,12 @@ def entry(
     """ """
 
 
-def bootstrap():
-    """
-    :param :
-    """
+def bootstrap(plugins: list = []):
+    """ """
+    from pynchon import constants
     from pynchon.app import app
+
+    constants.PLUGINS = plugins
     from pynchon.plugins import registry as plugin_registry
 
     from pynchon import config  # isort: skip
@@ -55,7 +56,7 @@ def bootstrap():
     registry = click_registry = {}
     loop = plugin_registry.items()
     for name, plugin_meta in loop:
-        if name not in config.PLUGINS:
+        if name not in config.PLUGINS + constants.PLUGINS:
             LOGGER.warning(f"skipping `{name}`")
             continue
         plugin_kls = plugin_meta["kls"]
@@ -90,6 +91,6 @@ def default(
     # LOGGER.critical('top-level')
     setters = ctx.params.get("set_config", []) or []
     plugins = ctx.params.get("plugins", "")
-    plugins and setters.append([f'pynchon.plugins={plugins.split(",")}'])
+    # plugins and setters.append(f'pynchon.plugins+={}')
     setters and LOGGER.critical(f"--set: {setters}")
-    bootstrap()
+    bootstrap(plugins=plugins.split(",") if plugins else [])

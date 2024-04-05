@@ -10,7 +10,7 @@ LOGGER = lme.get_logger(__name__)
 config = shimport.lazy("pynchon.config")
 
 
-class Parse(models.ToolPlugin):
+class Parse(models.NameSpace):
     """
     Misc tools for parsing
     """

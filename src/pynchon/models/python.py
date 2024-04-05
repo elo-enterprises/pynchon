@@ -10,30 +10,32 @@ LOGGER = lme.get_logger(__name__)
 
 
 class EntrypointMetadata(BaseModel):
-    is_click: bool = typing.Field(help="", required=False, default=False)
-    is_package_entrypoint: bool = typing.Field(help="", required=False, default=False)
-    is_module: bool = typing.Field(help="", required=False, default=True)
+    is_click: bool = typing.Field(description="", required=False, default=False)
+    is_package_entrypoint: bool = typing.Field(
+        description="", required=False, default=False
+    )
+    is_module: bool = typing.Field(description="", required=False, default=True)
     bin_name: typing.StringMaybe = typing.Field(
-        help="Name for this console script. (Nil if module-entrypoint)",
+        description="Name for this console script. (Nil if module-entrypoint)",
         required=False,
         default=None,
     )
     help_command: typing.StringMaybe = typing.Field(
-        help="Command that returns help for this entrypoint",
+        description="Command that returns help for this entrypoint",
         required=False,
         default=None,
     )
     dotpath: str = typing.Field(
-        help="",
+        description="",
         required=True,
     )
     file: str = typing.Field(
-        help="",
+        description="",
         required=True,
     )
-    resource: abcs.Path = typing.Field(help="", required=True)
-    path: abcs.Path = typing.Field(help="", required=True)
-    entrypoints: typing.List = typing.Field(help="", required=False, default=[])
+    resource: abcs.Path = typing.Field(description="", required=True)
+    path: abcs.Path = typing.Field(description="", required=True)
+    entrypoints: typing.List = typing.Field(description="", required=False, default=[])
     src_root: abcs.Path = typing.Field(required=True)
     inside_src_root: bool = typing.Field(default=True)
 

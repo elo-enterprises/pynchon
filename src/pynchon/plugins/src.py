@@ -44,7 +44,9 @@ class SourceMan(models.ResourceManager):
         include_patterns: typing.List[str] = typing.Field(default=[])
         exclude_patterns: typing.List[str] = typing.Field(default=[])
         root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
-        sorted: bool = typing.Field(default=False, help="Whether to sort source code")
+        sorted: bool = typing.Field(
+            default=False, description="Whether to sort source code"
+        )
 
     name = "src"
     cli_name = "src"
@@ -163,11 +165,11 @@ class SourceMan(models.ResourceManager):
 
     @cli.click.group("open")
     def _open(self):
-        """helper for opening project source files"""
+        """Helper for opening project source files"""
 
     @_open.command("recent")
     def open_recent(self):
-        """opens recently changed files"""
+        """Opens recently changed files"""
 
     @_open.command("changed")
     def open_changed(self):
@@ -199,21 +201,14 @@ class SourceMan(models.ResourceManager):
                     command=f"{cmd_t} {fhdr} {rsrc}",
                 )
             )
-        # for rsrc in self._plan_empties(resources):
-        #     plan.append(
-        #         self.goal(
-        #             resource=rsrc,
-        #             type='delete',
-        #             command=f'rm {rsrc}',
-        #         )
-        #     )
         return plan
 
-    def find(self):
-        """file finder"""
-
-    def header(self):
-        """creates file headers for source in {src_root}"""
-
-    def map(self):
-        """file mapper"""
+    #
+    # def find(self):
+    #     """file finder"""
+    #
+    # def header(self):
+    #     """creates file headers for source in {src_root}"""
+    #
+    # def map(self):
+    #     """file mapper"""

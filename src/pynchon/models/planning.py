@@ -219,6 +219,51 @@ class Goal(BaseModel):
         )
 
 
+class ApplyResults(typing.BaseModel):
+    # typing.List[Action], metaclass=meta.namespace):
+    """ """
+    goals: typing.List[Goal] = typing.Field(default=[])
+    actions: typing.List[Action] = typing.Field(default=[])
+
+    @property
+    def finished(self):
+        """ """
+        return len(self.goals) == len(self.actions)
+
+    @property
+    def ok(self) -> bool:
+        return self.finished and all([a.ok for a in self])
+
+    @property
+    def action_types(self):
+        tmp = list({g.type for g in self})
+        return {k: [] for k in tmp}
+
+    @property
+    def _dict(self):
+        """ """
+        result = collections.OrderedDict()
+        result["ok"] = self.ok
+        result["resources"] = list({a.resource for a in self})
+        result["actions"] = [
+            g.command if g.command else self.callable.__name__ for g in self
+        ]
+        result["action_types"] = self.action_types
+        result["changed"] = list({a.resource for a in self if a.changed})
+        for g in self:
+            result["action_types"][g.type].append(g.resource)
+        return result
+
+    def __iter__(self):
+        return iter(self.actions)
+
+    def __len__(self):
+        return len(self.actions)
+
+    def __str__(self):
+        return f"<{self.__class__.__name__}[{len(self)} actions]>"
+
+
 class Plan(typing.BaseModel):
     """ """
 
@@ -375,48 +420,3 @@ class Plan(typing.BaseModel):
             raise NotImplementedError(type(other))
 
     __iadd__ = __add__
-
-
-class ApplyResults(typing.BaseModel):
-    # typing.List[Action], metaclass=meta.namespace):
-    """ """
-    goals: typing.List[Goal] = typing.Field(default=[])
-    actions: typing.List[Action] = typing.Field(default=[])
-
-    @property
-    def finished(self):
-        """ """
-        return len(self.goals) == len(self.actions)
-
-    def __len__(self):
-        return len(self.actions)
-
-    def __iter__(self):
-        return iter(self.actions)
-
-    @property
-    def ok(self) -> bool:
-        return self.finished and all([a.ok for a in self])
-
-    @property
-    def action_types(self):
-        tmp = list({g.type for g in self})
-        return {k: [] for k in tmp}
-
-    @property
-    def _dict(self):
-        """ """
-        result = collections.OrderedDict()
-        result["ok"] = self.ok
-        result["resources"] = list({a.resource for a in self})
-        result["actions"] = [
-            g.command if g.command else self.callable.__name__ for g in self
-        ]
-        result["action_types"] = self.action_types
-        result["changed"] = list({a.resource for a in self if a.changed})
-        for g in self:
-            result["action_types"][g.type].append(g.resource)
-        return result
-
-    def __str__(self):
-        return f"<{self.__class__.__name__}[{len(self)} actions]>"

@@ -29,7 +29,7 @@ class DocsMan(models.ResourceManager, OpenerMixin):
 
     name = "docs"
     cli_name = "docs"
-    cli_label = "Manager"
+    cli_label = "Docs Tools"
     priority = 0
     serving = None
 

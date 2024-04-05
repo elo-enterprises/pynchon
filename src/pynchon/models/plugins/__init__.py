@@ -11,10 +11,10 @@ from pynchon.util import lme, typing  # noqa
 
 from . import validators  # noqa
 from .cli import CliPlugin  # noqa
-from .docker import DockerWrapper  # noqa
+from .docker import DiagramTool, DockerWrapper  # noqa
 from .provider import Provider  # noqa
 from .pynchon import PynchonPlugin  # noqa
-from .tool import ToolPlugin  # noqa
+from .tool import AutomationTool, ToolPlugin  # noqa
 
 LOGGER = lme.get_logger(__name__)
 classproperty = fleks.util.typing.classproperty
@@ -43,14 +43,11 @@ class BasePlugin(CliPlugin):
         return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
 
 
-@tagging.tags(cli_label="NameSpace")
+@tagging.tags(cli_label="NameSpaces")
 class NameSpace(CliPlugin):
-    """`CliNamespace` collects functionality
-    from elsewhere under a single namespace
-
-
-    """
+    """Collects functionality from other plugins under a single namespace"""
 
     cli_label = "NameSpace"
     contribute_plan_apply = False
+    cli_description = __doc__
     priority = 1

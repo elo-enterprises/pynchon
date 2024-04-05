@@ -3,15 +3,17 @@
 
 from fleks import cli, tagging
 
-from pynchon import abcs, models
+from pynchon import abcs
 from pynchon.api import render
 from pynchon.util import complexity, lme, typing
+
+from .common import PythonPlanner
 
 LOGGER = lme.get_logger(__name__)
 
 
 @tagging.tags(click_aliases=["pa"])
-class PythonAPI(models.Planner):
+class PythonAPI(PythonPlanner):
     """Generators for Python API docs"""
 
     class config_class(abcs.Config):

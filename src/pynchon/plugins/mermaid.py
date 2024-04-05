@@ -15,8 +15,10 @@ from pynchon.util import files, lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Mermaid(models.DockerWrapper):
-    """Mermaid Plugin"""
+class Mermaid(models.DiagramTool):
+    """
+    Finds & renders Mermaid diagram files
+    """
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "mermaid"

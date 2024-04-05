@@ -35,7 +35,10 @@ pynchon markdown parse --help
 pynchon markdown to-pdf --help
 pynchon markdown normalize --help
 pynchon parse markdown README.md --codeblocks | jq .
+pynchon markdown show README.md
 pynchon drawio --help
 pynchon draw --help
 pynchon draw ls --help
 pynchon draw export --help
+pynchon plugins schema jinja --markdown \
+  | pynchon markdown preview /dev/stdin 

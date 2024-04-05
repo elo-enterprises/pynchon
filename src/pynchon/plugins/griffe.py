@@ -8,9 +8,11 @@ from pynchon.util import lme, os, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
 
+from pynchon.plugins.python.common import PythonPlanner
+
 
 @tagging.tags(click_aliases=["g", "gr"])
-class Griffe(models.ToolPlugin):
+class Griffe(PythonPlanner):
     """Tools for working with Python ASTs"""
 
     class config_class(abcs.Config):

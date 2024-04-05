@@ -50,6 +50,7 @@ pynchon = PYNCHON = CoreConfig(
     **MERGED_CONFIG_FILES,
 )
 RAW = PYNCHON.copy()
+# from pynchon.constants import CLI_SETTERS
 PLUGINS = PYNCHON["plugins"]
 LOGGER.warning(f"plugins: {PLUGINS}")
 # FIXME: get from registry or mcls

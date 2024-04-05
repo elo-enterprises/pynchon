@@ -3,7 +3,7 @@
 
 from fnmatch import fnmatch
 
-from pynchon import abcs, constants, models
+from pynchon import abcs, models
 from pynchon.util import lme, typing
 from pynchon.util.os import invoke
 
@@ -32,6 +32,7 @@ class FixMe(models.Planner):
 
     name = "fixme"
     config_class = FixMeConfig
+    cli_label = "Docs Tools"
 
     def plan(self, config: dict = None) -> typing.List:
         """ """
@@ -58,15 +59,11 @@ class FixMe(models.Planner):
     def gen(
         self,
         output,
-        should_print,
+        should_print: bool,
         header,
     ):
-        """Generate FIXME.md files, aggregating references to all FIXME's in code-base
-
-        :param output: param should_print:
-        :param header:
-        :param should_print:
-
+        """
+        Generate FIXME.md files, aggregating references to all FIXME's in code-base
         """
         from pynchon import api
 
@@ -110,14 +107,12 @@ class FixMe(models.Planner):
         if should_print and output != "/dev/stdout":
             print(msg)
 
-    @classmethod
-    def asdasdinit_cli(kls):
-        """
-
-        :param kls:
-
-        """
-        parent = kls.click_group
-        T_FIXME = constants.ENV.get_template(
-            "pynchon/plugins/plugins/fixme/FIXME.md.j2"
-        )
+    #
+    # @classmethod
+    # def asdasdinit_cli(kls):
+    #     """
+    #     """
+    #     parent = kls.click_group
+    #     T_FIXME = constants.ENV.get_template(
+    #         "pynchon/plugins/plugins/fixme/FIXME.md.j2"
+    #     )

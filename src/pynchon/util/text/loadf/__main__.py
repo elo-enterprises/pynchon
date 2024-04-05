@@ -32,7 +32,7 @@ tmp = (
                 help=(
                     fxn.__doc__
                     if alias == fxn.__name__
-                    else f"alias for `{fxn.__name__}`"
+                    else f"Alias for `{fxn.__name__}`"
                 ),
             )(fxn)
             for alias in aliases

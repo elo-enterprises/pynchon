@@ -23,20 +23,23 @@ class GitHub(models.ToolPlugin):
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "github"
         enterprise: bool = typing.Field(default=False)
-        org_name: str = typing.Field(default=None)
-        org_url: str = typing.Field(default=None)
-        repo_url: str = typing.Field(default=None)
+        org_name: typing.StringMaybe = typing.Field(default=None)
+        org_url: typing.StringMaybe = typing.Field(default=None)
+        repo_url: typing.StringMaybe = typing.Field(default=None)
         actions: typing.List[abcs.Path] = typing.Field(default=[None])
-        raw_url: str = typing.Field(default=None)
-        repo_ssh_url: str = typing.Field(default=None)
+        raw_url: typing.StringMaybe = typing.Field(default=None)
+        repo_ssh_url: typing.StringMaybe = typing.Field(default=None)
 
         @property
         def raw_url(self):
-            return f"https://raw.githubusercontent.com/{self.org_name}/{config.git.repo_name}"
+            """URL for serving raw content"""
+            repo_name = config.git.repo_name
+            if self.org_name and config.git.repo_name:
+                return f"https://raw.githubusercontent.com/{self.org_name}/{repo_name}"
 
         @property
         def actions(self) -> typing.List[typing.Dict]:
-            """ """
+            """Github Action information"""
             groot = config.git.root
             if groot:
                 wflows = abcs.Path(groot) / ".github" / "workflows"
@@ -52,26 +55,32 @@ class GitHub(models.ToolPlugin):
             return []
 
         @property
-        def repo_url(self):
+        def repo_url(self) -> typing.StringMaybe:
+            """Repository URL"""
             return config.git.repo_url
 
         @property
-        def repo_ssh_url(self):
-            if self.repo_url:
+        def repo_ssh_url(self) -> typing.StringMaybe:
+            """Repository SSH URL"""
+            if self.org_name and self.repo_url:
                 return (
                     f"git@github.com:{self.org_name}/{self.repo_url.split('/')[-1]}.git"
                 )
 
         @property
-        def org_url(self):
-            return f"https://github.com/{self.org_name}"
+        def org_url(self) -> typing.StringMaybe:
+            """Org URL"""
+            if self.org_name:
+                return f"https://github.com/{self.org_name}"
 
         @property
-        def org_name(self):
+        def org_name(self) -> typing.StringMaybe:
+            """Org name"""
             return config.git.github_org
 
     name = "github"
     cli_name = "github"
+    cli_label = "Provider"
     cli_aliases = []
 
     @cli.click.option("--org", "-o")

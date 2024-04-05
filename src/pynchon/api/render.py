@@ -59,8 +59,10 @@ def get_jinja_globals():
 
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """A jinja filter/extension"""
+        strict = kwargs.pop("strict", True)
         out = invoke(*args, **kwargs)
-        assert out.succeeded
+        if not out.succeeded:
+            raise Exception(out)
         return out.stdout
 
     def markdown_toc(fname: str, level=None):
@@ -88,6 +90,7 @@ def get_jinja_globals():
     # assert result.succeeded
     # return result.stdout
     return dict(
+        str=str,
         sh=invoke_helper,
         bash=invoke_helper,
         is_markdown_list_item=is_markdown_list_item,
@@ -148,24 +151,6 @@ def get_jinja_env(*includes, quiet: bool = False):
         tmp = list({p.parents[0] for p in known_templates})
         LOGGER.info(msg + util_text.to_json(tmp))
     return env
-
-
-def get_template_from_string(content, **kwargs):
-    """ """
-    return get_template(from_string=content, **kwargs)
-
-
-def get_template_from_file(
-    file: str = None,
-    **kwargs,
-):
-    """
-    :param file: str = None:
-    :param **kwargs:
-    """
-    with open(file) as fhandle:
-        content = fhandle.read()
-    return get_template_from_string(content, file=file, **kwargs)
 
 
 def get_template(
@@ -236,6 +221,24 @@ def get_template(
 
     template.render = functools.partial(template.render, **jinja_context)
     return template
+
+
+def get_template_from_string(content, **kwargs):
+    """ """
+    return get_template(from_string=content, **kwargs)
+
+
+def get_template_from_file(
+    file: str = None,
+    **kwargs,
+):
+    """
+    :param file: str = None:
+    :param **kwargs:
+    """
+    with open(file) as fhandle:
+        content = fhandle.read()
+    return get_template_from_string(content, file=file, **kwargs)
 
 
 def clean_whitespace(txt: str):
