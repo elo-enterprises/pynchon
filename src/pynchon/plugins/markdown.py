@@ -27,7 +27,7 @@ class Markdown(models.DockerWrapper, models.Planner):
         root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
         linter_docker_image: str = typing.Field(
             default="peterdavehello/markdownlint",
-            help="Container to use for markdown linter"
+            help="Container to use for markdown linter",
         )
         linter_args: typing.List[str] = typing.Field(
             help="Arguments to pass to `linter_docker_image`",
@@ -99,9 +99,10 @@ class Markdown(models.DockerWrapper, models.Planner):
         # FIXME?: rich doesn't link hypertext.  patch upstream?
         from rich.console import Console
         from rich.markdown import Markdown
+
         console = Console()
         for p in paths:
-            with open(p,'r') as fhandle:
+            with open(p) as fhandle:
                 md = Markdown(fhandle.read())
                 console.print(md)
         # FIXME: glow is awesome but using it from docker seems to strip color
@@ -160,8 +161,9 @@ class Markdown(models.DockerWrapper, models.Planner):
         bash: bool = False,
     ) -> ElementList:
         """Parses given markdown file into JSON"""
-        from bs4 import BeautifulSoup # noqa
-        from marko.ast_renderer import ASTRenderer # noqa
+        from bs4 import BeautifulSoup  # noqa
+        from marko.ast_renderer import ASTRenderer  # noqa
+
         codeblocks = codeblocks or python or bash
         assert files or all and not (files and all)
         if files:

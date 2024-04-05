@@ -54,23 +54,23 @@ class GitHub(models.ToolPlugin):
             return []
 
         @property
-        def repo_url(self)-> typing.StringMaybe:
+        def repo_url(self) -> typing.StringMaybe:
             return config.git.repo_url
 
         @property
-        def repo_ssh_url(self)-> typing.StringMaybe:
+        def repo_ssh_url(self) -> typing.StringMaybe:
             if self.org_name and self.repo_url:
                 return (
                     f"git@github.com:{self.org_name}/{self.repo_url.split('/')[-1]}.git"
                 )
 
         @property
-        def org_url(self)-> typing.StringMaybe:
+        def org_url(self) -> typing.StringMaybe:
             if self.org_name:
                 return f"https://github.com/{self.org_name}"
 
         @property
-        def org_name(self)-> typing.StringMaybe:
+        def org_name(self) -> typing.StringMaybe:
             return config.git.github_org
 
     name = "github"

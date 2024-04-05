@@ -37,6 +37,25 @@ class DockerWrapper(ToolPlugin):
         command = sys.argv[sys.argv.index(self.click_group.name) + 2 :]
         return " ".join(command)
 
+    def _get_docker_command_base(self, *args, **kwargs):
+        docker_image = kwargs.pop("docker_image", self["docker_image"])
+        docker_args = kwargs.pop("docker_args", "")
+        docker_args = (
+            docker_args + " " + " ".join(f'--{k}="{v}"' for k, v in kwargs.items())
+        )
+        return (
+            "docker run -v `pwd`:/workspace -w /workspace "
+            f"{docker_args} {docker_image} {' '.join(args)}"
+        )
+
+    def _get_docker_command(self, *args, **kwargs):
+        """ """
+        cmd_t = self._get_docker_command_base(" ".join(args))
+        docker_args = " ".join(self["docker_args"])
+        zip_kws = " ".join(["{k}={v}" for k, v in kwargs.items()])
+        cmd_t += f" {docker_args} {zip_kws}"
+        return cmd_t
+
     @click.command(
         context_settings=dict(
             ignore_unknown_options=True,
@@ -71,25 +90,6 @@ class DockerWrapper(ToolPlugin):
         result = invoke(cmd, **kwargs)
         LOGGER.warning(result.stdout)
         return result
-
-    def _get_docker_command_base(self, *args, **kwargs):
-        docker_image = kwargs.pop("docker_image", self["docker_image"])
-        docker_args = kwargs.pop("docker_args", "")
-        docker_args = (
-            docker_args + " " + " ".join(f'--{k}="{v}"' for k, v in kwargs.items())
-        )
-        return (
-            "docker run -v `pwd`:/workspace -w /workspace "
-            f"{docker_args} {docker_image} {' '.join(args)}"
-        )
-
-    def _get_docker_command(self, *args, **kwargs):
-        """ """
-        cmd_t = self._get_docker_command_base(" ".join(args))
-        docker_args = " ".join(self["docker_args"])
-        zip_kws = " ".join(["{k}={v}" for k, v in kwargs.items()])
-        cmd_t += f" {docker_args} {zip_kws}"
-        return cmd_t
 
 
 class DiagramTool(DockerWrapper):
