@@ -13,24 +13,25 @@ ElementList = typing.List[typing.Dict]
 
 
 class Markdown(models.DockerWrapper, models.Planner):
-    """
-    Example usage:
-        # normalize markdown syntax (in-place)
-        $ pynchon markdown normalize file1 file2
-    """
+    """ Markdown Tools """
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "markdown"
-        goals: typing.List[str] = typing.Field(default=[])
-        include_patterns: typing.List[str] = typing.Field(default=[])
-        exclude_patterns: typing.List[str] = typing.Field(default=[])
-        root: typing.Union[str, abcs.Path, None] = typing.Field(default=None)
+        goals: typing.List[str] = typing.Field(
+            default=[], description='Extra goals related to markdown')
+        include_patterns: typing.List[str] = typing.Field(
+            default=[],
+            description='Patterns to include')
+        exclude_patterns: typing.List[str] = typing.Field(default=[], description='File globs to exclude from listing')
+        root: typing.Union[str, abcs.Path, None] = typing.Field(
+            default=None,
+            description='')
         linter_docker_image: str = typing.Field(
             default="peterdavehello/markdownlint",
-            help="Container to use for markdown linter",
+            description="Container to use for markdown linter",
         )
         linter_args: typing.List[str] = typing.Field(
-            help="Arguments to pass to `linter_docker_image`",
+            description="Arguments to pass to `linter_docker_image`",
             default=[
                 "--disable MD013",  # line-length
                 "--disable MD045",  # Images should have alternate text
@@ -40,7 +41,8 @@ class Markdown(models.DockerWrapper, models.Planner):
                 "--fix",
             ],
         )
-        goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
+        goals: typing.List[typing.Dict] = typing.Field(
+            default=[], description="")
 
     name = "markdown"
     cli_name = "markdown"
@@ -50,7 +52,7 @@ class Markdown(models.DockerWrapper, models.Planner):
     @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False):
         """
-        Lists affected resources for this project
+        Lists affected resources (**.md) for this project
         """
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]
@@ -92,9 +94,10 @@ class Markdown(models.DockerWrapper, models.Planner):
         return self.apply(plan=self.plan(goals=goals))
 
     @cli.click.argument("paths", nargs=-1)
-    def show(self, paths):
+    @tagging.tags(click_aliases=["show"])
+    def preview(self, paths):
         """
-        Preview markdown in the terminal
+        Previews markdown in the terminal
         """
         # FIXME?: rich doesn't link hypertext.  patch upstream?
         from rich.console import Console

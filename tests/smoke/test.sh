@@ -40,3 +40,5 @@ pynchon drawio --help
 pynchon draw --help
 pynchon draw ls --help
 pynchon draw export --help
+pynchon plugins schema jinja --markdown \
+  | pynchon markdown preview /dev/stdin 

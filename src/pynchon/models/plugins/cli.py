@@ -193,7 +193,7 @@ class CliPlugin(PynchonPlugin):
                 kls = kls.siblings[click_parent_plugin]
                 normalized_subcommand_name = fxn.__name__.replace("_", "-")
                 update_kwargs.update(
-                    help=f"(alias for `{okls.click_entry.name} {okls.cli_name} {normalized_subcommand_name}`)"
+                    help=f"(Alias for `{okls.click_entry.name} {okls.cli_name} {normalized_subcommand_name}`)"
                 )
             tmp = kls.click_create_cmd(
                 fxn,

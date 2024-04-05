@@ -1,4 +1,4 @@
-""" pynchon.plugins.mermaid
+""" pynchon.plugins.dockerhub
 """
 
 from fleks import cli, tagging  # noqa
@@ -31,8 +31,6 @@ class Dockerhub(models.Provider):
     cli_name = "dockerhub"
 
     def open(self):
-        import webbrowser
-
+        """ Open this dockerhub project's webpage """
         url = self.config.repo_url or self.config.org_url
-        # assert url,err
         webbrowser.open(url)

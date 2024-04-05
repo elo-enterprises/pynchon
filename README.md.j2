@@ -24,7 +24,7 @@
 
 ## Overview
 
-Pynchon is a library, tool, and extensible framework that helps with generating documentation, working with diagrams, rendering templates, and maybe other aspects of project management.  It's useful in general, but specializes in autogenerating documentation for python projects.
+Pynchon is a library, tool, and extensible framework that helps with generating documentation, working with diagrams, rendering templates, and maybe other aspects of project management.  It's useful in general but has extra features for working with python projects, including helpers for code-transformation and autogenerating documentation.
 
 This code is still experimental and interface stability is not yet guaranteed.. make sure to pin pynchon at specific versions for your project.
 
@@ -32,11 +32,14 @@ This code is still experimental and interface stability is not yet guaranteed.. 
 
 ## Features
 
-* Terraform-style plan/apply workflows, with support for parallel execution
+* Terraform-style plan / apply workflows
+* Some support for parallel execution in applies
+* Tight integration with [Jinja](#) for rendering templates
 * Plugin framework for extensions
-* Tight integration with [Jinja](#),
-* Support for tools like Markdown, [Mermaid](#), [draw.io](#), and [pandoc](#)
-* Friendly output for machines and for humans.  Most
+* Plugins have config
+* Helpers for parsing Markdown, INI, JSON, JSON5 and TOML
+* Support for diagramming tools like [Mermaid](#mermaid-plugin), [DrawIO](#drawio-plugin), & [pandoc](#pandoc-plugin)
+* Friendly output for machines and for humans
 
 ---------------------------------------------------------------------------------
 
@@ -98,7 +101,7 @@ $ pynchon --plugins mermaid mermaid --help
 
 To get started with file-based config, run `pynchon init` in your project folder to create `.pynchon.json5`.  From here you can modify `pynchon.plugins` to use a custom set of plugins, and configure the plugins as well.
 
-Every plugin has config, which can be overriden, which may include defaults, or which is dynamically determined from the current context.  To show current plugin config, you can always use `pynchon <plugin_name> cfg`.  For example, with the `github` plugin
+Every plugin has config, which can be overriden, which may include defaults, or which is dynamically determined from the current context.  To show current plugin config, you can always use `pynchon <plugin_name> cfg`.  Below are some examples with the `github` plugin (see the [Github Plugin docs](#github-plugin) for more information about this plugin in particular.)
 
 ```bash
 
@@ -129,17 +132,49 @@ $ pynchon github cfg
 }
 ```
 
-(See the [Github Plugin docs](#github-plugin) for more information about this plugin in particular.)
+You can see the the configuration schema for any given plugin like this:
 
-### Rendering
+```bash
 
-There's tight integration with the [jinja templating library](#), and defaults for rendering includes, default variables, etc can be configured via `.pynchon.json5`.  Supports includes:
+# default output is JSON schema
+$ pynchon plugin schema github
+{
+  "title": "github",
+  "type": "object",
+  "properties": {
+    "apply_hooks": {
+      "title": "Apply Hooks",
+      "description": "Hooks to run before/after `apply` for this plugin",
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "default": false,
+      "type": "boolean"
+    }
+  }
+}
 
-* Project-level variables.   Config at key `jinja.vars`
-* Default includes:  Config at key `jinja.vars`
-* Project-level variables.   Config at key `jinja.vars`
-*
-pynchon plugins schema github
+# markdown output is also supported
+$ pynchon plugin schema github --markdown
+
+# you can also pipe markdown output into the preview tool
+$ pynchon plugin schema github --markdown | pynchon markdown preview /dev/stdin
+```
+
+---------------------------------------------------------------------------------
+
+### Jinja Plugin
+
+There's tight integration with the [jinja templating library](https://jinja.palletsprojects.com/en/3.1.x/), and defaults for rendering includes, default variables, etc can be configured via `.pynchon.json5`.  See the configuration schema below:
+
+{{bash('pynchon plugins schema jinja --markdown')}}
+
+**Crucially, the jinja context also includes the entire pynchon configuration stack for all plugins,** i.e. the current output of `pynchon cfg`.  This gives it access to context provided by other plugins.  For example the `{%raw%}{{github.repo_url}}{%endraw%}` variable can be used in templates, and will be rendered as expected whenever the [Github Plugin](#github-plugin) is present and ready.
 
 Here's a typical workflow:
 
@@ -152,12 +187,22 @@ $ pynchon jinja list
 # appropriate calls to `pynchon jinja render ...`
 $ pynchon jinja plan
 
-#
+# Render every jinja template we can find.
 $ pynchon jinja apply
 ```
+
 ---------------------------------------------------------------------------------
 
-## Configuration
+{% for plugin_name in 'dockerhub github git pypi markdown mermaid pandoc drawio dot mkdocs json makefile parse src'.split() %}
+{%set plugin_cmd = 'pynchon ' + plugin_name + ' --help'%}
+### {{plugin_name.title()}} Plugin
 
+```bash
+$ {{plugin_cmd}}
+{{bash(plugin_cmd)}}
+```
 
-Pynchon works without any configuration at all, but loads no
+{{bash('pynchon plugins schema ' + plugin_name + ' --markdown')}}
+
+---------------------------------------------------------------------------------
+{%endfor%}

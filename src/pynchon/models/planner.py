@@ -28,7 +28,7 @@ class AbstractPlanner(BasePlugin):
         """
         Lists affected resources for this project
         """
-        use_glob = use_glob or getattr(self.__class__, "file_glob", None)
+        use_glob = use_glob or getattr(self.config, "file_glob", None)
         assert use_glob
         default = self[:"project"]
         proj_conf = self[:"project.subproject":default]

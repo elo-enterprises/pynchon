@@ -68,6 +68,7 @@
       ".*_version[.]py",
       "**/tests/fixtures/**",
       "**/build/lib/**",
+      "**/pynchon/templates/scaffolds/**"
     ],
   },
 
@@ -76,7 +77,6 @@
   "src": {
     "root": "{{pynchon.root}}/src",
     "exclude_patterns": [
-      "**/pynchon/templates/scaffolds/**",
     ],
 
     "include_patterns": [
@@ -143,10 +143,7 @@
   // Config for `jinja` plugin:
   // Planner for finding/rendering project .j2 files
   "jinja":{
-    "context_vars": {
-      // extra context-vars passed for renders
-       // allows {tpls|json}
-     },
+    "vars": {},
 
     "filter_includes": [
       // where to load jinja filters from

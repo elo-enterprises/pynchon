@@ -35,6 +35,10 @@ class DrawIO(models.DiagramTool, models.Planner):
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "drawio"
+        file_glob: str = typing.Field(
+            default="*.drawio",
+            description="Where to find jinja templates")
+
         docker_image: str = typing.Field(
             default="jgraph/drawio", help="Docker image to use"
         )
@@ -60,7 +64,6 @@ class DrawIO(models.DiagramTool, models.Planner):
     name = "drawio"
     cli_name = "drawio"
     priority = 0
-    file_glob = "*.drawio"
 
     @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False, **kwargs):

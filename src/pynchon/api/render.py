@@ -59,8 +59,10 @@ def get_jinja_globals():
 
     def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
         """A jinja filter/extension"""
+        strict = kwargs.pop('strict', True)
         out = invoke(*args, **kwargs)
-        assert out.succeeded
+        if not out.succeeded:
+            raise Exception(out)
         return out.stdout
 
     def markdown_toc(fname: str, level=None):
@@ -88,6 +90,7 @@ def get_jinja_globals():
     # assert result.succeeded
     # return result.stdout
     return dict(
+        str=str,
         sh=invoke_helper,
         bash=invoke_helper,
         is_markdown_list_item=is_markdown_list_item,
