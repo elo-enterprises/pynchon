@@ -44,20 +44,25 @@ class DrawIO(models.DiagramTool, models.Planner):
         )
         http_port: str = typing.Field(help="Port to use", default=DEFAULT_HTTP_PORT)
         docker_args: typing.List = typing.Field(
-            default=[f"-it --rm --name={DEFAULT_DOCKER_NAME}"],
+            default=[f"--rm --name={DEFAULT_DOCKER_NAME}"],
             help="Docker args to use",
         )
         export_docker_image: str = typing.Field(
             default="rlespinasse/drawio-desktop-headless"
         )
+        format: str = typing.Field(help="", default='png')
         export_width: int = typing.Field(help="", default=800)
         export_args: typing.List = typing.Field(
             help="",
             default=[
                 "--export",
-                "--embed-svg-images",
-                "--embed-diagram",
-                "--svg-theme light",
+                "--border 10",
+                "--crop",
+                # "--zoom",
+                # "--transparent",
+                # "--embed-svg-images",
+                # "--embed-diagram",
+                # "--svg-theme light",
             ],
         )
 
@@ -74,11 +79,12 @@ class DrawIO(models.DiagramTool, models.Planner):
 
     @cli.click.argument("output", required=False)
     @cli.click.argument("input")
-    def export(self, input, output=None, format="svg"):
+    def export(self, input, output=None,):
         """
         Exports a given .drawio file to some
         output file/format (default format is SVG)
         """
+        format=self.config['format']
         assert input.endswith(".drawio") or input.endswith(
             ".xml"
         ), "Expected an xml or drawio file as input"
@@ -86,7 +92,7 @@ class DrawIO(models.DiagramTool, models.Planner):
             list(filter(None, input.split(".")[:-1])) + [format]
         )
         export_args = " ".join(self.config.export_args)
-        export_args += f" --width {self.config.export_width}"
+        # export_args += f" --width {self.config.export_width} --height 600"
         export_docker_args = "-w /workspace -v `pwd`:/workspace"
         result = self._run_docker(
             (
@@ -98,14 +104,25 @@ class DrawIO(models.DiagramTool, models.Planner):
         print(result.stdout if result.succeeded else result)
         raise SystemExit(0 if result.succeeded else 1)
 
-    def serve(self):
+    def stop(self):
+        """ Stop DrawIO server """
+        return self._stop_container(name=DEFAULT_DOCKER_NAME)
+
+    @cli.click.option('--background', '-b',help='Run in background', is_flag=True, default=False)
+    def serve(self,background:bool=False):
         """
         Runs the drawio-UI in a docker-container
         """
         port = self.config.http_port
-        dargs = self.config.docker_args
+        dargs = ' '.join(self.config.docker_args)
         dimg = self.config.docker_image
-        cmd_t = f"docker run {dargs} -p {port}:{port} {dimg}"
+        if background:
+            background = "&"
+            dargs=dargs #f'-it {dargs}'
+        else:
+            dargs=f'-it {dargs}'
+            background = ""
+        cmd_t = f"docker run {dargs} -p {port}:{port} {dimg} {background}"
         return self._run_docker(cmd_t, strict=True, interactive=True)
 
     def open(self, *args, **kwargs):

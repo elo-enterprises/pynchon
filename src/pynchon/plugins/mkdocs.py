@@ -200,15 +200,27 @@ class Mkdocs(models.Planner):
         """
         Opens `dev_addr` in a webbrowser
         """
+        import os
+        import urllib.parse
         import webbrowser
-
-        file = files[0] if files else "."
+        if not files:
+            file = "."
+        else:
+            file = files[0] if files else "."
         # index_f = Path(self.site_dir).absolute() / "index.html"
         # url = f"file://{index_f}"
         mconfig = self.config.config
+        default_path = urllib.parse.urlparse(mconfig['site_url']).path
+        default_path = default_path[1:] if default_path.startswith('/') else default_path
+        default_path = default_path[:-1] if default_path.endswith('/') else default_path
+        file = Path(file).absolute().relative_to(Path(mconfig['docs_dir']).absolute())
+        file, ext = os.path.splitext(str(file))
+        file = file if ext=='.md' else ''.join([file,ext])
         url = mconfig["dev_addr"]
+        url = f"{url}/{default_path}" if default_path else url
         url = f"{url}/{file}" if file else url
         url = f"http://{url}" if not url.startswith("http") else url
+        url = url.replace('/blog/','/#blog/')
         self.logger.warning(f"opening {url}")
         return webbrowser.open(url)
 
