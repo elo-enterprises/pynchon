@@ -7,6 +7,7 @@ from pynchon.cli import click
 from .tool import ToolPlugin
 
 from pynchon.util import lme, typing  # noqa
+from pynchon.util.os import invoke
 
 from . import validators  # noqa
 
@@ -48,6 +49,23 @@ class DockerWrapper(ToolPlugin):
             f"{docker_args} {docker_image} {' '.join(args)}"
         )
 
+    def _stop_container(self, name:str='', strict=True):
+        if name:
+            filtered = invoke(f'docker ps -q -f "name={name}"')
+            if filtered.succeeded:
+                did = filtered.stdout.strip()
+                if did:
+                    return invoke(f'docker stop {did}', strict=True).succeeded
+                else:
+                    LOGGER.warning(f"could not find container: name={name}")
+                    return False
+            else:
+                LOGGER.warning(f"failed to find container: name={name}")
+                if strict:
+                    raise SystemExit(filtered.stderr)
+                else:
+                    return False
+
     def _get_docker_command(self, *args, **kwargs):
         """ """
         cmd_t = self._get_docker_command_base(" ".join(args))
@@ -84,8 +102,6 @@ class DockerWrapper(ToolPlugin):
 
     def _run_docker(self, cmd, **kwargs):
         """ """
-        from pynchon.util.os import invoke
-
         LOGGER.critical(cmd)
         result = invoke(cmd, **kwargs)
         LOGGER.warning(result.stdout)
