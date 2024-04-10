@@ -11,7 +11,7 @@ from pynchon.util import lme, typing  # noqa
 
 from . import validators  # noqa
 from .cli import CliPlugin  # noqa
-from .docker import DiagramTool, DockerWrapper  # noqa
+from .docker import DiagramTool, DockerWrapper, DockerComposeWrapper  # noqa
 from .provider import Provider  # noqa
 from .pynchon import PynchonPlugin  # noqa
 from .tool import AutomationTool, ToolPlugin  # noqa

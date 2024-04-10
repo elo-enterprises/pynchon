@@ -13,6 +13,7 @@ from . import validators  # noqa
 
 LOGGER = lme.get_logger("DOCKER")
 
+import sys
 
 class DockerWrapper(ToolPlugin):
     """
@@ -20,8 +21,10 @@ class DockerWrapper(ToolPlugin):
     """
 
     class BaseConfig(abcs.Config):
-        docker_image: str = typing.Field(default="docker/hello-world")
-        docker_args: typing.List = typing.Field(default=[])
+        docker_image: str = typing.Field(default="docker/hello-world", description='docker container to use')
+        docker_args: typing.List = typing.Field(
+            default=[],
+            description="Array of arguments to pass to docker command")
 
     cli_label = "Docker Wrappers"
     cli_description = "Plugins that wrap invocations on containers"
@@ -33,16 +36,19 @@ class DockerWrapper(ToolPlugin):
 
     @property
     def command_extra(self):
-        import sys
-
-        command = sys.argv[sys.argv.index(self.click_group.name) + 2 :]
+        name = self.click_group.name
+        try:
+            index = sys.argv.index(name) + 2
+        except (ValueError,) as exc:
+            index = 0
+        command = sys.argv[index + 2 :]
         return " ".join(command)
 
     def _get_docker_command_base(self, *args, **kwargs):
         docker_image = kwargs.pop("docker_image", self["docker_image"])
-        docker_args = kwargs.pop("docker_args", "")
+        docker_args = kwargs.pop("docker_args", [])
         docker_args = (
-            docker_args + " " + " ".join(f'--{k}="{v}"' for k, v in kwargs.items())
+            " ".join(docker_args) + " " + " ".join(f'--{k}="{v}"' for k, v in kwargs.items())
         )
         return (
             "docker run -v `pwd`:/workspace -w /workspace "
@@ -69,7 +75,8 @@ class DockerWrapper(ToolPlugin):
     def _get_docker_command(self, *args, **kwargs):
         """ """
         cmd_t = self._get_docker_command_base(" ".join(args))
-        docker_args = " ".join(self["docker_args"])
+        dargs=self["docker_args"] or []
+        docker_args = " ".join(dargs)
         zip_kws = " ".join(["{k}={v}" for k, v in kwargs.items()])
         cmd_t += f" {docker_args} {zip_kws}"
         return cmd_t
@@ -81,7 +88,8 @@ class DockerWrapper(ToolPlugin):
         )
     )
     def run(self, *args, **kwargs):
-        """Passes given command through to docker-image this plugin wraps"""
+        """ Passes given command through to docker-image this plugin wraps """
+        # raise Exception('bonk')
         command = self._get_docker_command(self.command_extra)
         LOGGER.warning(command)
         plan = super().plan(
@@ -107,6 +115,12 @@ class DockerWrapper(ToolPlugin):
         LOGGER.warning(result.stdout)
         return result
 
+class DockerComposeWrapper(DockerWrapper):
+    class config_class(DockerWrapper.BaseConfig):
+        service_name: str = typing.Field(default="service_name", description='compose service name to use')
+        compose_args: typing.List = typing.Field(
+            default=[],
+            description="Array of arguments to pass to docker command")
 
 class DiagramTool(DockerWrapper):
     cli_label = "Diagramming Tools"
