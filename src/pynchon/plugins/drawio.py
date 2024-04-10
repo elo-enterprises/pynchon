@@ -40,7 +40,8 @@ class DrawIO(models.DiagramTool, models.Planner):
         )
 
         docker_image: str = typing.Field(
-            default="jgraph/drawio", help="Docker image to use"
+            default="jgraph/drawio",
+            help="Docker image to use"
         )
         http_port: str = typing.Field(help="Port to use", default=DEFAULT_HTTP_PORT)
         docker_args: typing.List = typing.Field(
@@ -59,7 +60,7 @@ class DrawIO(models.DiagramTool, models.Planner):
                 "--border 10",
                 "--crop",
                 # "--zoom",
-                # "--transparent",
+                "--transparent",
                 # "--embed-svg-images",
                 # "--embed-diagram",
                 # "--svg-theme light",
@@ -69,17 +70,32 @@ class DrawIO(models.DiagramTool, models.Planner):
     name = "drawio"
     cli_name = "drawio"
     priority = 0
-
+    contribute_plan_apply = True
     @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False, **kwargs):
         """
         Lists affected resources (*.drawio files) for this project
         """
         return self._list(changes=changes, **kwargs)
+    def plan(
+        self,
+        config=None,
+    ) -> typing.List:
+        """ Creates a plan for this plugin """
+        plan = super(self.__class__, self).plan()
+        for src in self.list():
+            plan.append(
+                self.goal(
+                    type="render",
+                    resource=src,
+                    command=f"pynchon drawio render {src}",
+                )
+            )
+        return plan.finalize()
 
     @cli.click.argument("output", required=False)
     @cli.click.argument("input")
-    def export(self, input, output=None,):
+    def render(self, input, output=None,):
         """
         Exports a given .drawio file to some
         output file/format (default format is SVG)
@@ -103,6 +119,7 @@ class DrawIO(models.DiagramTool, models.Planner):
         )
         print(result.stdout if result.succeeded else result)
         raise SystemExit(0 if result.succeeded else 1)
+    export=render
 
     def stop(self):
         """ Stop DrawIO server """
