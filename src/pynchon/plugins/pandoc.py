@@ -62,7 +62,7 @@ class Pandoc(models.DockerWrapper, models.Planner):
     def shell(self):
         """Starts interactive shell for pandoc container"""
         command = ""
-        command = self._get_docker_command_base(docker_args="-it", entrypoint="sh")
+        command = self._get_docker_command_base(docker_args=["-it"], entrypoint="sh")
         LOGGER.warning(command)
         result = self.apply(
             plan=super().plan(
@@ -81,23 +81,24 @@ class Pandoc(models.DockerWrapper, models.Planner):
             LOGGER.critical(f"Action failed: {result.actions[0].error}")
             raise SystemExit(1)
 
-    @tagging.tags(click_aliases=["markdown.to-pdf"])
-    @cli.options.output_file
     @cli.click.argument("file")
+    @cli.click.option('--output', help='output file', default='')
+    # @tagging.tags(click_aliases=["markdown.to-pdf"])
     def md_to_pdf(
         self,
         file: str = None,
-        output: str = None,
+        output: str = '',
     ):
         """
         Converts markdown files to PDF with pandoc
         """
         output = abcs.Path(output or f"{abcs.Path(file).stem}.pdf")
-        # cmd = f"docker run -v `pwd`:/workspace -w /workspace {docker_image} {file} {docker_args} -o {output}"
-        return self.run(file, output=output)
-        # plan = super().plan(
-        #     goals=[
-        #         self.goal(resource=output.absolute(),
-        #         type="render", command=cmd)]
-        # )
-        # return self.apply(plan=plan)
+        docker_image = self['docker_image']
+        docker_args = ' '.join(self['docker_args'] or [])
+        cmd = f"docker run -v `pwd`:/workspace -w /workspace {docker_image} {file} {docker_args} -o {output}"
+        plan = super().plan(
+            goals=[
+                self.goal(resource=output.absolute(),
+                type="render", command=cmd)]
+        )
+        return self.apply(plan=plan)
