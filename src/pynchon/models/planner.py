@@ -134,14 +134,16 @@ class AbstractPlanner(BasePlugin):
         LOGGER.critical(
             f"{self.name}.apply ( {len(plan)} goals with {parallelism} workers)"
         )
-        results = plan.apply(parallelism=parallelism, git=self.siblings["git"])
+        results = plan.apply(fail_fast=fail_fast, parallelism=parallelism, git=self.siblings["git"])
 
         LOGGER.critical(
             f"{self.name}.apply finished ( {len(results.actions)}/{len(results.goals)} goals )"
         )
         self._dispatch_apply_hooks(results)
-        if not quiet:
+        if not any([fail_fast, quiet]):
             return results
+        if fail_fast and results.failed:
+            raise SystemExit(1)
 
     def _validate_hooks(self, hooks):
         # FIXME: validation elsewhere

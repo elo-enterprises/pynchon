@@ -234,6 +234,10 @@ class ApplyResults(typing.BaseModel):
     def ok(self) -> bool:
         return self.finished and all([a.ok for a in self])
 
+    @property 
+    def failed(self) -> bool:
+        return not self.ok
+
     @property
     def action_types(self):
         tmp = list({g.type for g in self})

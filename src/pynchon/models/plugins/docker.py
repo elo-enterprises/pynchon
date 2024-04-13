@@ -115,6 +115,12 @@ class DockerWrapper(ToolPlugin):
         LOGGER.warning(result.stdout)
         return result
 
+class DockerComposeWrapper(DockerWrapper):
+    class config_class(DockerWrapper.BaseConfig):
+        service_name: str = typing.Field(default="service_name", description='compose service name to use')
+        compose_args: typing.List = typing.Field(
+            default=[],
+            description="Array of arguments to pass to docker command")
 
 class DiagramTool(DockerWrapper):
     cli_label = "Diagramming Tools"
