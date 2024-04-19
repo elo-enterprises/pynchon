@@ -89,6 +89,13 @@ def get_jinja_globals():
     # )
     # assert result.succeeded
     # return result.stdout
+    def md2latex(inp, fname='.tmp.md2latex.md'):
+        with open(fname,'w') as fhandle:
+            fhandle.write(inp)
+        invoke(f'pandoc {fname} -t latex -o {fname}.tex', strict=True)
+        with open(f"{fname}.tex",'r') as fhandle:
+            return fhandle.read()
+
     return dict(
         str=str,
         sh=invoke_helper,
@@ -100,6 +107,7 @@ def get_jinja_globals():
         eval=eval,
         env=os.getenv,
         filter=filter,
+        md2latex=md2latex,
     )
 
 
@@ -140,7 +148,7 @@ def get_jinja_env(*includes, quiet: bool = False):
     env.filters.update(**get_jinja_filters())
     env.pynchon_includes = includes
 
-    env.globals.update(**get_jinja_globals())
+    env.globals.update(include=include_template, **get_jinja_globals())
 
     known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
 

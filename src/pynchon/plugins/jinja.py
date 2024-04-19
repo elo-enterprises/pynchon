@@ -140,7 +140,7 @@ class Jinja(RenderingPlugin):
         if plan_only:
             return plan
         else:
-            plan.apply()
+            return plan.apply(strict=True, fail_fast=True)
 
     def _get_template_args(self):
         """ """

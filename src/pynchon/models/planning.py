@@ -226,6 +226,12 @@ class ApplyResults(typing.BaseModel):
     actions: typing.List[Action] = typing.Field(default=[])
 
     @property
+    def culprit(self) -> typing.Union[Action, None]:
+        """Returns the action that caused failure, if any """
+        if self.failed:
+            for action in self:
+                if not action.ok: return action
+    @property
     def finished(self):
         """ """
         return len(self.goals) == len(self.actions)
@@ -234,7 +240,7 @@ class ApplyResults(typing.BaseModel):
     def ok(self) -> bool:
         return self.finished and all([a.ok for a in self])
 
-    @property 
+    @property
     def failed(self) -> bool:
         return not self.ok
 
@@ -276,7 +282,7 @@ class Plan(typing.BaseModel):
         help="Name of the plugin that owns this Plan", default=None
     )
 
-    def apply(self, parallelism: int = 0, fail_fast: bool = True, git=None):
+    def apply(self, parallelism: int = 0, strict:bool=False, fail_fast: bool = True, git=None):
         """ """
         goals = self.goals
         total = len(goals)
@@ -324,6 +330,8 @@ class Plan(typing.BaseModel):
                     LOGGER.critical(msg)
                     break
         results = ApplyResults(actions=results, goals=goals)
+        if strict and results.failed:
+            raise SystemExit(f"Failure on apply with strict=True.  Error in command: {results.culprit.command}")
         return results
 
     def finalize(self):
