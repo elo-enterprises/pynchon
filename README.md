@@ -34,7 +34,7 @@
 
 Pynchon is a library, tool, and extensible framework that helps with generating documentation, working with diagrams, rendering templates, and maybe other aspects of project management.  It's useful in general but has extra features for working with python projects, including helpers for code-transformation and autogenerating documentation.
 
-This code is still experimental and interface stability is not yet guaranteed.. make sure to pin pynchon at specific versions for your project.
+This code is still experimental and interface stability is not yet guaranteed.. make sure to pin pynchon at specific versions for your project. =)
 
 ---------------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ Options:
 
 ### CLI, Plugins, & Config
 
-For most functionality, you'll want to use the main `pynchon` tool.  Here, that functionality is provided via plugins, where every plugin is a subcommand for the main CLI.  There are several plugins which are provided by default, and you can see the plugins in use with the following command:
+For most functionality, you'll want to use the main `pynchon` tool.  Functionality here is provided via plugins, where **every plugin is a subcommand for the main CLI**.  There are several plugins which are provided by default, and you can see the plugins in use with the following command:
 
 ```bash
 # Shows the default plugin list, with no pynchon config present
@@ -132,20 +132,19 @@ $ pynchon plugins list
   "markdown",
   "github",
   "docs",
-  "json",
-  "parse",
   "gen",
+  "parse",
   "render",
-  "project",
-  "globals",
   "python",
+  "globals",
+  "project",
   "jinja",
   "pattern"
 ]
 
 
-# Add mermaid plugin, which is non-default, using the command-line.
-# Note that this is still without any file-based config
+# Adds the mermaid plugin, which is non-default, using the command-line.
+# (Note that this is still without any file-based config)
 $ pynchon --plugins mermaid mermaid --help
 Usage: pynchon mermaid [OPTIONS] COMMAND [ARGS]...
 
@@ -251,7 +250,7 @@ There's tight integration with the [jinja templating library](https://jinja.pall
     * Extra variables for template rendering
     * Value is **user-configurable**, with no default  
 * **jinja.exclude_patterns:** *(optional )*
-    * File patterns to exclude from resource-listing 
+    * File patterns to exclude from resource-listing
     * Value is **just-in-time** 
 
 
@@ -271,6 +270,38 @@ $ pynchon jinja plan
 # Render every jinja template we can find.
 $ pynchon jinja apply
 ```
+
+---------------------------------------------------------------------------------
+
+### Makefile Plugin
+
+```bash
+$ pynchon makefile --help
+Usage: pynchon makefile [OPTIONS] COMMAND [ARGS]...
+
+  Visualization and parsing tools for inspecting Makefiles
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  apply    Executes the plan for this plugin
+  cfg      Shows current config for this plugin
+  mermaid  Renders mermaid diagram for makefile targets
+  parse    Parse Makefile to JSON.
+  plan     Runs a plan for this plugin
+  render   Subcommands for rendering
+
+```
+
+ 
+* **makefile.apply_hooks:** *(optional typing.List[str])*
+    * Hooks to run before/after `apply` for this plugin
+    * Value is **user-configurable**, with no default  
+* **makefile.file:** *(optional )*
+    * (Missing docstring for property)
+    * Value is **just-in-time** 
+
 
 ---------------------------------------------------------------------------------
 
@@ -345,22 +376,22 @@ Commands:
     * (No description provided)
     * Value is **user-configurable**, with no default  
 * **github.actions:** *(optional typing.List[typing.Dict])*
-    * Github Action information 
+    * Github Action information
     * Value is **just-in-time**  
 * **github.org_name:** *(typing.Optional[str])*
-    * Org name 
+    * Org name
     * Value is **just-in-time**  
 * **github.org_url:** *(typing.Optional[str])*
-    * Org URL 
+    * Org URL
     * Value is **just-in-time**  
 * **github.raw_url:** *(optional )*
-    * URL for serving raw content 
+    * URL for serving raw content
     * Value is **just-in-time**  
 * **github.repo_ssh_url:** *(typing.Optional[str])*
-    * Repository SSH URL 
+    * Repository SSH URL
     * Value is **just-in-time**  
 * **github.repo_url:** *(typing.Optional[str])*
-    * Repository URL 
+    * Repository URL
     * Value is **just-in-time** 
 
 
@@ -393,28 +424,28 @@ Commands:
     * Hooks to run before/after `apply` for this plugin
     * Value is **user-configurable**, with no default  
 * **git.branch_name:** *(typing.Optional[str])*
-    * Name of current branch 
+    * Name of current branch
     * Value is **just-in-time**  
 * **git.github_org:** *(typing.Optional[str])*
-    * Name of this github organization 
+    * Name of this github organization
     * Value is **just-in-time**  
 * **git.hash:** *(typing.Optional[str])*
-    * Current git hash 
+    * Current git hash
     * Value is **just-in-time**  
 * **git.is_github:** *(optional <class 'bool'>)*
-    * True if this is a github repository 
+    * True if this is a github repository
     * Value is **just-in-time**  
 * **git.repo:** *(typing.Optional[str])*
-    * Repo name for this git project 
+    * Repo name for this git project
     * Value is **just-in-time**  
 * **git.repo_name:** *(typing.Optional[str])*
-    * Repository name 
+    * Repository name
     * Value is **just-in-time**  
 * **git.repo_url:** *(typing.Optional[str])*
-    * Repository URL 
+    * Repository URL
     * Value is **just-in-time**  
 * **git.root:** *(typing.Optional[str])*
-    * Root path for this git project 
+    * Root path for this git project
     * Value is **just-in-time** 
 
 
@@ -579,7 +610,10 @@ Commands:
     * Value is **user-configurable**, with default `['--toc', '--variable fontsize=10pt']`  
 * **pandoc.goals:** *(optional typing.List[typing.Dict])*
     * (No description provided)
-    * Value is **user-configurable**, with no default 
+    * Value is **user-configurable**, with no default  
+* **pandoc.service_name:** *(optional <class 'str'>)*
+    * (No description provided)
+    * Value is **user-configurable**, with default `pandoc` 
 
 
 ---------------------------------------------------------------------------------
@@ -599,13 +633,14 @@ Options:
 Commands:
   apply   Executes the plan for this plugin
   cfg     Shows current config for this plugin
-  export  Exports a given .drawio file to some output file/format...
   list    Lists affected resources (*.drawio files) for this project
   ls      (alias for `ls`)
   open    Opens a browser for the container started by `serve`
   plan    Creates a plan for this plugin
+  render  Exports a given .drawio file to some output file/format...
   run     Passes given command through to docker-image this plugin wraps
   serve   Runs the drawio-UI in a docker-container
+  stop    Stop DrawIO server
 
 ```
 
@@ -624,16 +659,19 @@ Commands:
     * Value is **user-configurable**, with default `8080`  
 * **drawio.docker_args:** *(optional typing.List)*
     * (No description provided)
-    * Value is **user-configurable**, with default `['-it --rm --name=drawio-server']`  
+    * Value is **user-configurable**, with default `['--rm --name=drawio-server']`  
 * **drawio.export_docker_image:** *(optional <class 'str'>)*
     * (No description provided)
     * Value is **user-configurable**, with default `rlespinasse/drawio-desktop-headless`  
+* **drawio.format:** *(optional <class 'str'>)*
+    * (No description provided)
+    * Value is **user-configurable**, with default `png`  
 * **drawio.export_width:** *(optional <class 'int'>)*
     * (No description provided)
     * Value is **user-configurable**, with default `800`  
 * **drawio.export_args:** *(optional typing.List)*
     * (No description provided)
-    * Value is **user-configurable**, with default `['--export', '--embed-svg-images', '--embed-diagram', '--svg-theme light']` 
+    * Value is **user-configurable**, with default `['--export', '--border 10', '--crop', '--transparent']` 
 
 
 ---------------------------------------------------------------------------------
@@ -722,66 +760,6 @@ Commands:
     * Value is **just-in-time**  
 * **mkdocs.tags:** *(optional typing.List)*
     * 
-    * Value is **just-in-time** 
-
-
----------------------------------------------------------------------------------
-
-
-### Json Plugin
-
-```bash
-$ pynchon json --help
-Usage: pynchon json [OPTIONS] COMMAND [ARGS]...
-
-  Tools for working with JSON & JSON5
-
-Options:
-  --help  Show this message and exit.
-
-Commands:
-  apply  Executes the plan for this plugin
-  cfg    Shows current config for this plugin
-  plan   Creates a plan for this plugin
-
-```
-
- 
-* **json.apply_hooks:** *(optional typing.List[str])*
-    * Hooks to run before/after `apply` for this plugin
-    * Value is **user-configurable**, with no default 
-
-
----------------------------------------------------------------------------------
-
-
-### Makefile Plugin
-
-```bash
-$ pynchon makefile --help
-Usage: pynchon makefile [OPTIONS] COMMAND [ARGS]...
-
-  Visualization and parsing tools for inspecting Makefiles
-
-Options:
-  --help  Show this message and exit.
-
-Commands:
-  apply    Executes the plan for this plugin
-  cfg      Shows current config for this plugin
-  mermaid  Renders mermaid diagram for makefile targets
-  parse    Parse Makefile to JSON.
-  plan     Runs a plan for this plugin
-  render   Subcommands for rendering
-
-```
-
- 
-* **makefile.apply_hooks:** *(optional typing.List[str])*
-    * Hooks to run before/after `apply` for this plugin
-    * Value is **user-configurable**, with no default  
-* **makefile.file:** *(optional )*
-    * (Missing docstring for property)
     * Value is **just-in-time** 
 
 

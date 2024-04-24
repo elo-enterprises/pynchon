@@ -26,7 +26,7 @@
 
 Pynchon is a library, tool, and extensible framework that helps with generating documentation, working with diagrams, rendering templates, and maybe other aspects of project management.  It's useful in general but has extra features for working with python projects, including helpers for code-transformation and autogenerating documentation.
 
-This code is still experimental and interface stability is not yet guaranteed.. make sure to pin pynchon at specific versions for your project.
+This code is still experimental and interface stability is not yet guaranteed.. make sure to pin pynchon at specific versions for your project. =)
 
 ---------------------------------------------------------------------------------
 
@@ -86,15 +86,15 @@ $ python -mpynchon.util.text render jinja --help
 
 ### CLI, Plugins, & Config
 
-For most functionality, you'll want to use the main `pynchon` tool.  Here, that functionality is provided via plugins, where every plugin is a subcommand for the main CLI.  There are several plugins which are provided by default, and you can see the plugins in use with the following command:
+For most functionality, you'll want to use the main `pynchon` tool.  Functionality here is provided via plugins, where **every plugin is a subcommand for the main CLI**.  There are several plugins which are provided by default, and you can see the plugins in use with the following command:
 
 ```bash
 # Shows the default plugin list, with no pynchon config present
 $ pynchon plugins list
 {{bash("cd /tmp; pynchon plugins list")}}
 
-# Add mermaid plugin, which is non-default, using the command-line.
-# Note that this is still without any file-based config
+# Adds the mermaid plugin, which is non-default, using the command-line.
+# (Note that this is still without any file-based config)
 $ pynchon --plugins mermaid mermaid --help
 {{bash("pynchon --plugins mermaid mermaid --help")}}
 ```
@@ -193,7 +193,18 @@ $ pynchon jinja apply
 
 ---------------------------------------------------------------------------------
 
-{% for plugin_name in 'dockerhub github git pypi markdown mermaid pandoc drawio dot mkdocs json makefile parse src'.split() %}
+### Makefile Plugin
+
+```bash
+$ pynchon makefile --help
+{{bash('pynchon makefile --help')}}
+```
+
+{{bash('pynchon plugins schema makefile --markdown')}}
+
+---------------------------------------------------------------------------------
+
+{% for plugin_name in 'dockerhub github git pypi markdown mermaid pandoc drawio dot mkdocs parse src'.split() %}
 {%set plugin_cmd = 'pynchon ' + plugin_name + ' --help'%}
 ### {{plugin_name.title()}} Plugin
 

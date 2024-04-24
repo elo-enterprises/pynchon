@@ -65,8 +65,8 @@ def get_jinja_globals():
             raise Exception(out)
         return out.stdout
 
-    def markdown_toc(fname: str, level=None):
-        """ """
+    def markdown_toc(fname: str, level: int = None, skip: list = []) -> str:
+        """returns a TOC for the given markdown file, wrapped inside a simple <ul>"""
         import markdown
 
         with open(fname) as fhandle:
@@ -75,6 +75,17 @@ def get_jinja_globals():
             extensions=["toc", "fenced_code"],
             extension_configs={"toc": {"toc_depth": level}},
         )
+        contents = contents.split("\n")
+        oskip = [s.strip().lstrip().lower() for s in skip]
+        skip = (
+            ["# " + s for s in oskip]
+            + ["## " + s for s in oskip]
+            + ["### " + s for s in oskip]
+        )
+        contents = [
+            line for line in contents if not line.lstrip().strip().lower() in skip
+        ]
+        contents = "\n".join(contents)
         html = md.convert(contents)
         return md.toc
 
@@ -89,6 +100,13 @@ def get_jinja_globals():
     # )
     # assert result.succeeded
     # return result.stdout
+    def md2latex(inp, fname=".tmp.md2latex.md"):
+        with open(fname, "w") as fhandle:
+            fhandle.write(inp)
+        invoke(f"pandoc {fname} -t latex -o {fname}.tex", strict=True)
+        with open(f"{fname}.tex") as fhandle:
+            return fhandle.read()
+
     return dict(
         str=str,
         sh=invoke_helper,
@@ -100,6 +118,7 @@ def get_jinja_globals():
         eval=eval,
         env=os.getenv,
         filter=filter,
+        md2latex=md2latex,
     )
 
 
@@ -140,7 +159,7 @@ def get_jinja_env(*includes, quiet: bool = False):
     env.filters.update(**get_jinja_filters())
     env.pynchon_includes = includes
 
-    env.globals.update(**get_jinja_globals())
+    env.globals.update(include=include_template, **get_jinja_globals())
 
     known_templates = list(map(abcs.Path, set(env.loader.list_templates())))
 

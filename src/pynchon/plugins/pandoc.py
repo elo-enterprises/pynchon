@@ -11,7 +11,7 @@ from pynchon.util import lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 
 
-class Pandoc(models.DockerWrapper, models.Planner):
+class Pandoc(models.DockerComposeWrapper, models.Planner):
     """
     Wrapper around `pandoc` docker image
     """
@@ -23,6 +23,7 @@ class Pandoc(models.DockerWrapper, models.Planner):
         )
         docker_image: str = typing.Field(default="pandoc/extra:latest")
         goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
+        service_name: str = typing.Field(default="pandoc")
 
     name = "pandoc"
     cli_name = "pandoc"
@@ -36,7 +37,6 @@ class Pandoc(models.DockerWrapper, models.Planner):
         )
     )
     def pdflatex(self, *args, **kwargs):
-        # command = self._get_docker_command(self.command_extra)
         command = self._get_docker_command_base(
             self.command_extra,
             # docker_args='-it',
@@ -44,32 +44,17 @@ class Pandoc(models.DockerWrapper, models.Planner):
         )
         LOGGER.warning(command)
         result = self._run_docker(command)
-        # result = self.apply(plan=super().plan(
-        #     goals=[
-        #         self.goal(
-        #             type="?",
-        #             # resource=kwargs.get("output", kwargs.get("o", None)),
-        #             command=command,
-        #         )
-        #     ]
-        # ))
-        # if result.ok:
-        #     raise SystemExit(0)
-        # else:
-        #     LOGGER.critical(f"Action failed: {result.actions[0].dict()}")
-        #     raise SystemExit(1)
 
     def shell(self):
         """Starts interactive shell for pandoc container"""
         command = ""
-        command = self._get_docker_command_base(docker_args="-it", entrypoint="sh")
+        command = self._get_docker_command_base(docker_args=["-it"], entrypoint="sh")
         LOGGER.warning(command)
         result = self.apply(
             plan=super().plan(
                 goals=[
                     self.goal(
                         type="interactive",
-                        # resource=kwargs.get("output", kwargs.get("o", None)),
                         command=command,
                     )
                 ]
@@ -81,23 +66,22 @@ class Pandoc(models.DockerWrapper, models.Planner):
             LOGGER.critical(f"Action failed: {result.actions[0].error}")
             raise SystemExit(1)
 
-    @tagging.tags(click_aliases=["markdown.to-pdf"])
-    @cli.options.output_file
     @cli.click.argument("file")
+    @cli.click.option("--output", help="output file", default="")
+    @tagging.tags(click_aliases=["markdown.to-pdf"])
     def md_to_pdf(
         self,
         file: str = None,
-        output: str = None,
+        output: str = "",
     ):
         """
         Converts markdown files to PDF with pandoc
         """
         output = abcs.Path(output or f"{abcs.Path(file).stem}.pdf")
-        # cmd = f"docker run -v `pwd`:/workspace -w /workspace {docker_image} {file} {docker_args} -o {output}"
-        return self.run(file, output=output)
-        # plan = super().plan(
-        #     goals=[
-        #         self.goal(resource=output.absolute(),
-        #         type="render", command=cmd)]
-        # )
-        # return self.apply(plan=plan)
+        docker_image = self["docker_image"]
+        docker_args = " ".join(self["docker_args"] or [])
+        cmd = f"docker compose run {self.config.service_name} {file} {docker_args} -o {output}"
+        plan = super().plan(
+            goals=[self.goal(resource=output.absolute(), type="render", command=cmd)]
+        )
+        return self.apply(plan=plan, fail_fast=True, strict=True)

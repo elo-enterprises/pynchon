@@ -226,7 +226,15 @@ class ApplyResults(typing.BaseModel):
     actions: typing.List[Action] = typing.Field(default=[])
 
     @property
-    def finished(self):
+    def culprit(self) -> typing.Union[Action, None]:
+        """Returns the action that caused failure, if any"""
+        if self.failed:
+            for action in self:
+                if not action.ok:
+                    return action
+
+    @property
+    def finished(self) -> bool:
         """ """
         return len(self.goals) == len(self.actions)
 
@@ -235,12 +243,16 @@ class ApplyResults(typing.BaseModel):
         return self.finished and all([a.ok for a in self])
 
     @property
-    def action_types(self):
+    def failed(self) -> bool:
+        return not self.ok
+
+    @property
+    def action_types(self) -> typing.Dict[str, typing.List]:
         tmp = list({g.type for g in self})
         return {k: [] for k in tmp}
 
     @property
-    def _dict(self):
+    def _dict(self) -> collections.OrderedDict:
         """ """
         result = collections.OrderedDict()
         result["ok"] = self.ok
@@ -257,10 +269,10 @@ class ApplyResults(typing.BaseModel):
     def __iter__(self):
         return iter(self.actions)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.actions)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<{self.__class__.__name__}[{len(self)} actions]>"
 
 
@@ -272,7 +284,13 @@ class Plan(typing.BaseModel):
         help="Name of the plugin that owns this Plan", default=None
     )
 
-    def apply(self, parallelism: int = 0, fail_fast: bool = True, git=None):
+    def apply(
+        self,
+        parallelism: int = 0,
+        strict: bool = False,
+        fail_fast: bool = True,
+        git=None,
+    ) -> ApplyResults:
         """ """
         goals = self.goals
         total = len(goals)
@@ -320,6 +338,10 @@ class Plan(typing.BaseModel):
                     LOGGER.critical(msg)
                     break
         results = ApplyResults(actions=results, goals=goals)
+        if strict and results.failed:
+            raise SystemExit(
+                f"Failure on apply with strict=True.  Error in command: {results.culprit.command}"
+            )
         return results
 
     def finalize(self):

@@ -16,7 +16,8 @@ from pynchon.models.planner import RenderingPlugin  # noqa
 class Jinja(RenderingPlugin):
     """Renders files with {jinja.template_includes}"""
 
-    # diff --color --minimal -w --side-by-side /etc/bash.bashrc <(bash --pretty-print /etc/bash.bashrc )
+    # FIXME: diff-rendering with something like this:
+    #   diff --color --minimal -w --side-by-side fname <(bash --pretty-print fname )
 
     class config_class(abcs.Config):
         config_key: typing.ClassVar[str] = "jinja"
@@ -34,13 +35,11 @@ class Jinja(RenderingPlugin):
             default={}, description="Extra variables for template rendering"
         )
 
-        # @tagging.tagged_property(conflict_strategy="override")
         @property
         def exclude_patterns(self):
             "File patterns to exclude from resource-listing"
             from pynchon.config import globals
 
-            # globals = plugin_util.get_plugin("globals").get_current_config()
             global_ex = globals.exclude_patterns
             my_ex = self.__dict__.get("exclude_patterns", [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
@@ -55,10 +54,14 @@ class Jinja(RenderingPlugin):
 
     def _get_jinja_context(self):
         """ """
-        fname = ".tmp.jinja.ctx.json"
-        with open(fname, "w") as fhandle:
-            fhandle.write(text.to_json(self.project_config))
-        return f"{fname}"
+        if getattr(self, "_jinja_ctx_file", None):
+            return self._jinja_ctx_file
+        else:
+            fname = ".tmp.jinja.ctx.json"
+            with open(fname, "w") as fhandle:
+                fhandle.write(text.to_json(self.project_config))
+            self._jinja_ctx_file = fname
+            return fname
 
     @property
     def _include_folders(self):
@@ -113,24 +116,52 @@ class Jinja(RenderingPlugin):
         """
         return self._list(changes=changes, **kwargs)
 
+    @cli.click.argument("files", nargs=-1)
+    def render(self, files, plan_only: bool = False):
+        """Renders 1 or more jinja templates"""
+        files = [abcs.Path(file) for file in files]
+        jctx = self._get_jinja_context()
+        templates = self._get_template_args()
+        plan = super(self.__class__, self).plan()
+        for src in files:
+            assert src.exists()
+            output = str(src).replace(".j2", "")
+            assert output != str(src), "filename did not change!"
+            plan.append(
+                self.goal(
+                    type="render",
+                    resource=output,
+                    command=self.COMMAND_TEMPLATE.format(
+                        src=src,
+                        context_file=jctx,
+                        template_args=templates,
+                        output=output,
+                    ),
+                )
+            )
+        if plan_only:
+            return plan
+        else:
+            return plan.apply(strict=True, fail_fast=True)
+
+    def _get_template_args(self):
+        """ """
+        # import IPython; IPython.embed()
+        templates = self["template_includes"]
+        templates = [t for t in templates]
+        templates = [f"--include {t}" for t in templates]
+        templates = " ".join(templates)
+        return templates
+
     def plan(
         self,
         config=None,
     ) -> typing.List:
         """Creates a plan for this plugin"""
 
-        def _get_template_args():
-            """ """
-            # import IPython; IPython.embed()
-            templates = self["template_includes"]
-            templates = [t for t in templates]
-            templates = [f"--include {t}" for t in templates]
-            templates = " ".join(templates)
-            return templates
-
         plan = super(self.__class__, self).plan()
         jctx = self._get_jinja_context()
-        templates = _get_template_args()
+        templates = self._get_template_args()
         for src in self.list():
             output = str(src).replace(".j2", "")
             plan.append(

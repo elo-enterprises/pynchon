@@ -5,7 +5,7 @@
     // defaults; these are included anyway
     'globals', 'render', 'gen', 'project', 'plugins',
     'jinja', 'json', 'git', 'core', 'python', 'gripe',
-    'dockerhub',"drawio",
+    'dockerhub',"drawio","compose",
 
     // Recommended for projects with source-code
     "docs", "src", "test", "cicd", "fixme", "github",
