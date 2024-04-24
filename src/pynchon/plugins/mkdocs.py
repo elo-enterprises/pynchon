@@ -2,13 +2,12 @@
 """
 
 import os
-import yaml
 import urllib
-import urllib.parse
 import webbrowser
-
+import urllib.parse
 from pathlib import Path
 
+import yaml
 import fleks
 from fleks import tagging
 
@@ -19,6 +18,7 @@ from pynchon import abcs, api, events, models  # noqa
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
+DEFAULT_LOG_FILE = ".tmp.mkdocs.log"
 
 
 class MkdocsPluginConfig(abcs.Config):
@@ -35,7 +35,7 @@ class MkdocsPluginConfig(abcs.Config):
         return sorted(list(filter(None, tags)))
 
     @property
-    def drafts(self):
+    def drafts(self) -> typing.List:
         ignore_list = ["index.md", "tags.md", "nav.md"]
         return [
             p
@@ -46,9 +46,9 @@ class MkdocsPluginConfig(abcs.Config):
     @property
     def pages(self) -> typing.List:
         """ """
+        from mkdocs.config.defaults import MkDocsConfig
         from mkdocs.structure.files import File
         from mkdocs.structure.pages import Page
-        from mkdocs.config.defaults import MkDocsConfig
 
         pages = []
         mconf = self.config
@@ -86,7 +86,7 @@ class MkdocsPluginConfig(abcs.Config):
         return pages
 
     @property
-    def blog_posts(self) -> list:
+    def blog_posts(self) -> typing.List:
         """
         returns blog posts, iff blogging plugin is installed.
         resulting files, if any, will not include index and
@@ -100,7 +100,7 @@ class MkdocsPluginConfig(abcs.Config):
         ]
 
     @property
-    def site_relative_url(self):
+    def site_relative_url(self) -> str:
         """ """
         site_url = self.config["site_url"] if "site_url" in self.config else None
         if site_url:
@@ -141,9 +141,6 @@ class MkdocsPluginConfig(abcs.Config):
                 return str(cand.absolute())
 
 
-DEFAULT_LOG_FILE = ".tmp.mkdocs.log"
-
-
 class Mkdocs(models.Planner):
     """Mkdocs helper"""
 
@@ -169,7 +166,7 @@ class Mkdocs(models.Planner):
         return result
 
     @tagging.tags(click_aliases=["ls"])
-    def list(self):
+    def list(self) -> typing.List:
         """Lists site-pages based on mkdocs.yml"""
         return self.config.pages
 
@@ -177,7 +174,7 @@ class Mkdocs(models.Planner):
     def open(
         self,
         files: tuple = tuple(),
-    ):
+    ) -> bool:
         """
         Opens `dev_addr` in a webbrowser
         """
@@ -191,17 +188,17 @@ class Mkdocs(models.Planner):
             default_path[1:] if default_path.startswith("/") else default_path
         )
         default_path = default_path[:-1] if default_path.endswith("/") else default_path
-        docs_dir=Path(mconfig["docs_dir"]).absolute()
-        if file.startswith('/'):
-            xxx = Path(file[1:])
-            # yyy=xxx.relative_to(Path(mconfig["docs_dir"]).absolute())
-            zzz = Path(mconfig["docs_dir"]) / xxx
-            # raise Exception([xxx,zzz, zzz/xxx])
-            file=zzz/xxx
-            file=file.absolute().relative_to(docs_dir)
+        docs_dir = Path(mconfig["docs_dir"]).absolute()
+        LOGGER.warning(f"opening {file}")
+        if file.startswith("/"):
+            LOGGER.warning("file is absolute..")
+            relf = Path(file[1:])
+            relf_on_docs = Path(mconfig["docs_dir"]) / relf
+            file = relf_on_docs / relf
+            file = file.absolute().relative_to(docs_dir)
         else:
-            file = Path(file).absolute().relative_to(
-                docs_dir)
+            LOGGER.warning("file is relative..")
+            file = Path(file).absolute().relative_to(docs_dir)
         file, ext = os.path.splitext(str(file))
         file = file if ext == ".md" else "".join([file, ext])
         url = mconfig["dev_addr"]
@@ -223,19 +220,17 @@ class Mkdocs(models.Planner):
         self.logger.warning(f"returning {result}")
         return result
 
-    # def _hook_open_after_apply(self, result) -> bool:
-    #     raise Exception(result)
-
     def plan(self):
         """
         Runs a plan for this plugin
         """
         plan = super(self.__class__, self).plan()
+        command = f"mkdocs build --config-file {self.config_file}"
         plan.append(
             self.goal(
                 type="render",
                 resource=self.site_dir,
-                command=f"mkdocs build --config-file {self.config_file}",
+                command=command,
             )
         )
         return plan

@@ -136,7 +136,10 @@ class AbstractPlanner(BasePlugin):
             f"{self.name}.apply ( {len(plan)} goals with {parallelism} workers)"
         )
         results = plan.apply(
-            fail_fast=fail_fast, strict=strict, parallelism=parallelism, git=self.siblings["git"]
+            fail_fast=fail_fast,
+            strict=strict,
+            parallelism=parallelism,
+            git=self.siblings["git"],
         )
 
         LOGGER.critical(
