@@ -39,6 +39,6 @@ pynchon markdown show README.md
 pynchon drawio --help
 pynchon draw --help
 pynchon draw ls --help
-pynchon draw export --help
+pynchon draw render --help
 pynchon plugins schema jinja --markdown \
-  | pynchon markdown preview /dev/stdin 
+  | pynchon markdown preview /dev/stdin
