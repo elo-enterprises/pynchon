@@ -120,6 +120,7 @@ class AbstractPlanner(BasePlugin):
         plan: planning.Plan = None,
         parallelism: str = "0",
         fail_fast: bool = False,
+        strict: bool = False,
         quiet: bool = False,
     ) -> planning.ApplyResults:
         """
@@ -134,7 +135,9 @@ class AbstractPlanner(BasePlugin):
         LOGGER.critical(
             f"{self.name}.apply ( {len(plan)} goals with {parallelism} workers)"
         )
-        results = plan.apply(fail_fast=fail_fast, parallelism=parallelism, git=self.siblings["git"])
+        results = plan.apply(
+            fail_fast=fail_fast, strict=strict, parallelism=parallelism, git=self.siblings["git"]
+        )
 
         LOGGER.critical(
             f"{self.name}.apply finished ( {len(results.actions)}/{len(results.goals)} goals )"
