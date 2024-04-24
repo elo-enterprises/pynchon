@@ -65,8 +65,8 @@ def get_jinja_globals():
             raise Exception(out)
         return out.stdout
 
-    def markdown_toc(fname: str, level:int=None, skip:list=[]) -> str:
-        """ returns a TOC for the given markdown file, wrapped inside a simple <ul>"""
+    def markdown_toc(fname: str, level: int = None, skip: list = []) -> str:
+        """returns a TOC for the given markdown file, wrapped inside a simple <ul>"""
         import markdown
 
         with open(fname) as fhandle:
@@ -75,13 +75,17 @@ def get_jinja_globals():
             extensions=["toc", "fenced_code"],
             extension_configs={"toc": {"toc_depth": level}},
         )
-        contents = contents.split('\n')
-        oskip = [ s.strip().lstrip() for s in skip ]
-        skip = ['# ' + s for s in oskip] \
-            + ['## ' + s for s in oskip] \
-            + ['### ' + s for s in oskip] 
-        contents = [line for line in contents if not line.lstrip().strip() in skip]
-        contents = '\n'.join(contents)
+        contents = contents.split("\n")
+        oskip = [s.strip().lstrip().lower() for s in skip]
+        skip = (
+            ["# " + s for s in oskip]
+            + ["## " + s for s in oskip]
+            + ["### " + s for s in oskip]
+        )
+        contents = [
+            line for line in contents if not line.lstrip().strip().lower() in skip
+        ]
+        contents = "\n".join(contents)
         html = md.convert(contents)
         return md.toc
 
