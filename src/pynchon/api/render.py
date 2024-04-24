@@ -89,11 +89,11 @@ def get_jinja_globals():
     # )
     # assert result.succeeded
     # return result.stdout
-    def md2latex(inp, fname='.tmp.md2latex.md'):
-        with open(fname,'w') as fhandle:
+    def md2latex(inp, fname=".tmp.md2latex.md"):
+        with open(fname, "w") as fhandle:
             fhandle.write(inp)
-        invoke(f'pandoc {fname} -t latex -o {fname}.tex', strict=True)
-        with open(f"{fname}.tex",'r') as fhandle:
+        invoke(f"pandoc {fname} -t latex -o {fname}.tex", strict=True)
+        with open(f"{fname}.tex") as fhandle:
             return fhandle.read()
 
     return dict(
