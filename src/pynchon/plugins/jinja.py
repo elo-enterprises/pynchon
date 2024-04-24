@@ -39,6 +39,7 @@ class Jinja(RenderingPlugin):
         def exclude_patterns(self):
             "File patterns to exclude from resource-listing"
             from pynchon.config import globals
+
             global_ex = globals.exclude_patterns
             my_ex = self.__dict__.get("exclude_patterns", [])
             return list(set(global_ex + my_ex + ["**/pynchon/templates/includes/**"]))
@@ -53,7 +54,7 @@ class Jinja(RenderingPlugin):
 
     def _get_jinja_context(self):
         """ """
-        if getattr(self,'_jinja_ctx_file', None):
+        if getattr(self, "_jinja_ctx_file", None):
             return self._jinja_ctx_file
         else:
             fname = ".tmp.jinja.ctx.json"
@@ -66,6 +67,7 @@ class Jinja(RenderingPlugin):
     def _include_folders(self):
         includes = self.project_config.jinja["template_includes"]
         from pynchon import api
+
         includes = api.render.get_jinja_includes(*includes)
         return includes
 
@@ -114,9 +116,9 @@ class Jinja(RenderingPlugin):
         """
         return self._list(changes=changes, **kwargs)
 
-    @cli.click.argument('files', nargs=-1)
-    def render(self, files, plan_only:bool=False):
-        """ Renders 1 or more jinja templates """
+    @cli.click.argument("files", nargs=-1)
+    def render(self, files, plan_only: bool = False):
+        """Renders 1 or more jinja templates"""
         files = [abcs.Path(file) for file in files]
         jctx = self._get_jinja_context()
         templates = self._get_template_args()
@@ -124,7 +126,7 @@ class Jinja(RenderingPlugin):
         for src in files:
             assert src.exists()
             output = str(src).replace(".j2", "")
-            assert output!= str(src), 'filename did not change!'
+            assert output != str(src), "filename did not change!"
             plan.append(
                 self.goal(
                     type="render",
@@ -150,6 +152,7 @@ class Jinja(RenderingPlugin):
         templates = [f"--include {t}" for t in templates]
         templates = " ".join(templates)
         return templates
+
     def plan(
         self,
         config=None,

@@ -18,9 +18,7 @@ class Compose(models.DockerWrapper, models.Planner):
 
     class config_class(models.DockerWrapper.BaseConfig):
         config_key: typing.ClassVar[str] = "compose"
-        compose_args: typing.List = typing.Field(
-            default=[]
-        )
+        compose_args: typing.List = typing.Field(default=[])
         # docker_image: str = typing.Field(default="pandoc/extra:latest")
         goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
 

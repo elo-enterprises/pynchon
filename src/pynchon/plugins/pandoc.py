@@ -24,6 +24,7 @@ class Pandoc(models.DockerComposeWrapper, models.Planner):
         docker_image: str = typing.Field(default="pandoc/extra:latest")
         goals: typing.List[typing.Dict] = typing.Field(default=[], help="")
         service_name: str = typing.Field(default="pandoc")
+
     name = "pandoc"
     cli_name = "pandoc"
     cli_label = "Docs Tools"
@@ -66,23 +67,21 @@ class Pandoc(models.DockerComposeWrapper, models.Planner):
             raise SystemExit(1)
 
     @cli.click.argument("file")
-    @cli.click.option('--output', help='output file', default='')
+    @cli.click.option("--output", help="output file", default="")
     @tagging.tags(click_aliases=["markdown.to-pdf"])
     def md_to_pdf(
         self,
         file: str = None,
-        output: str = '',
+        output: str = "",
     ):
         """
         Converts markdown files to PDF with pandoc
         """
         output = abcs.Path(output or f"{abcs.Path(file).stem}.pdf")
-        docker_image = self['docker_image']
-        docker_args = ' '.join(self['docker_args'] or [])
+        docker_image = self["docker_image"]
+        docker_args = " ".join(self["docker_args"] or [])
         cmd = f"docker compose run {self.config.service_name} {file} {docker_args} -o {output}"
         plan = super().plan(
-            goals=[
-                self.goal(resource=output.absolute(),
-                type="render", command=cmd)]
+            goals=[self.goal(resource=output.absolute(), type="render", command=cmd)]
         )
-        return self.apply(plan=plan,fail_fast=True)
+        return self.apply(plan=plan, fail_fast=True, strict=True)

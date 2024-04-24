@@ -40,8 +40,7 @@ class DrawIO(models.DiagramTool, models.Planner):
         )
 
         docker_image: str = typing.Field(
-            default="jgraph/drawio",
-            help="Docker image to use"
+            default="jgraph/drawio", help="Docker image to use"
         )
         http_port: str = typing.Field(help="Port to use", default=DEFAULT_HTTP_PORT)
         docker_args: typing.List = typing.Field(
@@ -51,7 +50,7 @@ class DrawIO(models.DiagramTool, models.Planner):
         export_docker_image: str = typing.Field(
             default="rlespinasse/drawio-desktop-headless"
         )
-        format: str = typing.Field(help="", default='png')
+        format: str = typing.Field(help="", default="png")
         export_width: int = typing.Field(help="", default=800)
         export_args: typing.List = typing.Field(
             help="",
@@ -71,17 +70,19 @@ class DrawIO(models.DiagramTool, models.Planner):
     cli_name = "drawio"
     priority = 0
     contribute_plan_apply = True
+
     @tagging.tags(click_aliases=["ls"])
     def list(self, changes=False, **kwargs):
         """
         Lists affected resources (*.drawio files) for this project
         """
         return self._list(changes=changes, **kwargs)
+
     def plan(
         self,
         config=None,
     ) -> typing.List:
-        """ Creates a plan for this plugin """
+        """Creates a plan for this plugin"""
         plan = super(self.__class__, self).plan()
         for src in self.list():
             plan.append(
@@ -95,12 +96,16 @@ class DrawIO(models.DiagramTool, models.Planner):
 
     @cli.click.argument("output", required=False)
     @cli.click.argument("input")
-    def render(self, input, output=None,):
+    def render(
+        self,
+        input,
+        output=None,
+    ):
         """
         Exports a given .drawio file to some
         output file/format (default format is SVG)
         """
-        format=self.config['format']
+        format = self.config["format"]
         assert input.endswith(".drawio") or input.endswith(
             ".xml"
         ), "Expected an xml or drawio file as input"
@@ -119,25 +124,28 @@ class DrawIO(models.DiagramTool, models.Planner):
         )
         print(result.stdout if result.succeeded else result)
         raise SystemExit(0 if result.succeeded else 1)
-    export=render
+
+    export = render
 
     def stop(self):
-        """ Stop DrawIO server """
+        """Stop DrawIO server"""
         return self._stop_container(name=DEFAULT_DOCKER_NAME)
 
-    @cli.click.option('--background', '-b',help='Run in background', is_flag=True, default=False)
-    def serve(self,background:bool=False):
+    @cli.click.option(
+        "--background", "-b", help="Run in background", is_flag=True, default=False
+    )
+    def serve(self, background: bool = False):
         """
         Runs the drawio-UI in a docker-container
         """
         port = self.config.http_port
-        dargs = ' '.join(self.config.docker_args)
+        dargs = " ".join(self.config.docker_args)
         dimg = self.config.docker_image
         if background:
             background = "&"
-            dargs=dargs #f'-it {dargs}'
+            dargs = dargs  # f'-it {dargs}'
         else:
-            dargs=f'-it {dargs}'
+            dargs = f"-it {dargs}"
             background = ""
         cmd_t = f"docker run {dargs} -p {port}:{port} {dimg} {background}"
         return self._run_docker(cmd_t, strict=True, interactive=True)
