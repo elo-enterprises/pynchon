@@ -78,9 +78,9 @@ pip install -e .
 
 ### Utility Invocation
 
-If you're more interested in tools than a framework, some functionality is available without completely loading pynchon.
+If you're more interested in tools than a framework, some functionality is available without completely loading pynchon.  Most things like that are available somewhere under [pynchon.util](src/pynchon/util), and they can be used with module-invocations like `python -mpynchon.util ...`.
 
-For this you can use module-invocations like `python -mpynchon.util.text ..`. For example:
+A few random examples:
 
 ```bash
 # Helpers for loading/converting config from many file formats:
@@ -116,6 +116,21 @@ Options:
   --context-file TEXT  context file.  must be JSON
   --help               Show this message and exit.
 
+
+# Makefile parser.
+# Capable of pulling make-targets even across nested/included Makefiles
+$ python -mpynchon.util.makefile --help
+Usage: python -m pynchon.util.makefile [OPTIONS] COMMAND [ARGS]...
+
+  pynchon.util.makefile CLI
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  database  Get database for Makefile (This output comes from 'make...
+  parse     Parse Makefile to JSON.
+
 ```
 
 ### CLI, Plugins, & Config
@@ -128,13 +143,13 @@ $ pynchon plugins list
 [
   "git",
   "core",
-  "src",
-  "markdown",
   "github",
+  "src",
   "docs",
-  "gen",
-  "parse",
+  "markdown",
   "render",
+  "parse",
+  "gen",
   "python",
   "globals",
   "project",
@@ -736,7 +751,7 @@ Commands:
 * **mkdocs.apply_hooks:** *(optional typing.List[str])*
     * Hooks to run before/after `apply` for this plugin
     * Value is **user-configurable**, with no default  
-* **mkdocs.blog_posts:** *(optional <class 'list'>)*
+* **mkdocs.blog_posts:** *(optional typing.List)*
     * returns blog posts, iff blogging plugin is installed.
         resulting files, if any, will not include index and
         will be sorted by modification time
@@ -749,14 +764,14 @@ Commands:
 * **mkdocs.config_file:** *(typing.Optional[str])*
     * returns the path to the mkdocs config-file, if applicable
     * Value is **just-in-time**  
-* **mkdocs.drafts:** *(optional )*
+* **mkdocs.drafts:** *(optional typing.List)*
     * (Missing docstring for property)
     * Value is **just-in-time**  
 * **mkdocs.pages:** *(optional typing.List)*
     * 
     * Value is **just-in-time**  
-* **mkdocs.site_relative_url:** *(optional )*
-    * (Missing docstring for property)
+* **mkdocs.site_relative_url:** *(optional <class 'str'>)*
+    * 
     * Value is **just-in-time**  
 * **mkdocs.tags:** *(optional typing.List)*
     * 
