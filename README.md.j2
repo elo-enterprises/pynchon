@@ -70,9 +70,9 @@ pip install -e .
 
 ### Utility Invocation
 
-If you're more interested in tools than a framework, some functionality is available without completely loading pynchon.
+If you're more interested in tools than a framework, some functionality is available without completely loading pynchon.  Most things like that are available somewhere under [pynchon.util](src/pynchon/util), and they can be used with module-invocations like `python -mpynchon.util ...`.
 
-For this you can use module-invocations like `python -mpynchon.util.text ..`. For example:
+A few random examples:
 
 ```bash
 # Helpers for loading/converting config from many file formats:
@@ -82,6 +82,11 @@ $ python -mpynchon.util.text loadf --help
 # Helpers for rendering Jinja templates
 $ python -mpynchon.util.text render jinja --help
 {{bash("python -mpynchon.util.text render jinja --help")}}
+
+# Makefile parser.
+# Capable of pulling make-targets even across nested/included Makefiles
+$ python -mpynchon.util.makefile --help
+{{bash("python -mpynchon.util.makefile --help")}}
 ```
 
 ### CLI, Plugins, & Config

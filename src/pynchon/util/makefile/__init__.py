@@ -18,7 +18,8 @@ fff = "# files hash-table stats:"
 @cli.click.argument("makefile")
 def database(makefile: str = "", make="make") -> typing.List[str]:
     """
-    Get database for Makefile (i.e. 'make --print-data-base')
+    Get database for Makefile
+    (This output comes from 'make --print-data-base')
     """
     assert makefile
     tmp = abcs.Path(makefile)
