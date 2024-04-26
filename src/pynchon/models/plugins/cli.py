@@ -160,6 +160,7 @@ class CliPlugin(PynchonPlugin):
             if rproto:
                 # LOGGER.warning(f"rproto {result}")
                 from pynchon.util import lme
+
                 lme.print(rproto())
             if result:
                 print(dumps.json(result))

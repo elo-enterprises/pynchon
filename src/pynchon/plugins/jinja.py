@@ -49,17 +49,28 @@ class Jinja(RenderingPlugin):
     COMMAND_TEMPLATE = (
         "python -mpynchon.util.text render jinja "
         "{src} --context-file {context_file} "
+        # "{print} "
         "--output {output} {template_args}"
     )
 
-    def _get_jinja_context(self, extra_jinja_vars:dict={}):
+    def _get_jinja_context(self, extra_jinja_vars: dict = {}):
         """ """
         if getattr(self, "_jinja_ctx_file", None):
             return self._jinja_ctx_file
         else:
+            if isinstance(extra_jinja_vars, (list, tuple)):
+                tmp = []
+                for ejv in extra_jinja_vars:
+                    ejv = ejv.split("=")
+                    k = ejv.pop(0)
+                    v = "=".join(ejv)
+                    tmp.append([k, v])
+                extra_jinja_vars = dict(tmp)
+            data = self.project_config.dict()
+            data["jinja"]["vars"].update(extra_jinja_vars)
             fname = ".tmp.jinja.ctx.json"
             with open(fname, "w") as fhandle:
-                fhandle.write(text.to_json(self.project_config))
+                fhandle.write(text.to_json(data))
             self._jinja_ctx_file = fname
             return fname
 
@@ -116,15 +127,31 @@ class Jinja(RenderingPlugin):
         """
         return self._list(changes=changes, **kwargs)
 
-    def list_filters(self, **kwargs) -> typing.Dict[str,str]:
+    def list_filters(self, **kwargs) -> typing.Dict[str, str]:
         """
         Lists filters available for the jinja environments
         """
-        self.logger.critical('not implemented yet')
+        self.logger.critical("not implemented yet")
         return dict()
 
+    # @cli.click.option('-o', "--output",default='')
+    # @cli.click.flag('-p', "--print", 'should_print', default=False, )
+    @cli.click.option(
+        "--var",
+        "extra_jinja_vars",
+        default=[],
+        help=("Overrides injected to {{jinja.vars}} namespace"),
+        multiple=True,
+    )
     @cli.click.argument("files", nargs=-1)
-    def render(self, files, plan_only: bool = False, extra_jinja_vars:dict={}):
+    def render(
+        self,
+        files,
+        # should_print:bool=False,
+        output: str = "",
+        plan_only: bool = False,
+        extra_jinja_vars: list = [],
+    ):
         """
         Renders 1 or more jinja templates
         """
@@ -132,9 +159,11 @@ class Jinja(RenderingPlugin):
         jctx = self._get_jinja_context(extra_jinja_vars=extra_jinja_vars)
         templates = self._get_template_args()
         plan = super(self.__class__, self).plan()
+        if output:
+            assert len(files) == 1
         for src in files:
             assert src.exists()
-            output = str(src).replace(".j2", "")
+            output = output or str(src).replace(".j2", "")
             assert output != str(src), "filename did not change!"
             plan.append(
                 self.goal(
@@ -142,6 +171,7 @@ class Jinja(RenderingPlugin):
                     resource=output,
                     command=self.COMMAND_TEMPLATE.format(
                         src=src,
+                        # print='' if not should_print else '--print',
                         context_file=jctx,
                         template_args=templates,
                         output=output,
@@ -178,6 +208,7 @@ class Jinja(RenderingPlugin):
                     type="render",
                     resource=output,
                     command=self.COMMAND_TEMPLATE.format(
+                        # print='',
                         src=src,
                         context_file=jctx,
                         template_args=templates,

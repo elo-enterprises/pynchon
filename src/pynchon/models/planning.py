@@ -33,9 +33,12 @@ class BaseModel(BaseModel):
 
     @property
     def rel_resource(self) -> str:
-        return (
-            abcs.Path(self.resource).absolute().relative_to(abcs.Path(".").absolute())
-        )
+        tmp1 = abcs.Path(self.resource).absolute()
+        tmp2 = abcs.Path(".").absolute()
+        try:
+            return tmp1.relative_to(tmp2)
+        except ValueError:
+            return tmp1
 
 
 class Action(BaseModel):

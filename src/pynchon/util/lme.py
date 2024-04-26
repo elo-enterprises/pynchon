@@ -3,17 +3,17 @@
 
 import logging
 
-from rich.style import Style
-from rich.theme import Theme
-from rich.console import Console
 from rich.logging import RichHandler
-from rich.default_styles import DEFAULT_STYLES
+from fleks.util.console import is_notebook
 
 from pynchon import constants
-from fleks.util.lme import THEME, COLOR_SYSTEM,CONSOLE,set_global_level # noqa
-from fleks.util.console import is_notebook
+
+from fleks.util.lme import COLOR_SYSTEM, CONSOLE, THEME, set_global_level  # noqa
+
+
 if is_notebook():
     from rich.jupyter import print as jpyprint
+
     print = jpyprint
 else:
     print = CONSOLE.print

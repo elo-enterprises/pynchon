@@ -38,6 +38,7 @@ class AppConsole(fleks_app.AppBase):
     @classmethod
     def init_rich_tracebacks(kls):
         from rich import traceback
+
         traceback.install(show_locals=True, indent_guides=True)
 
     # # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
@@ -52,6 +53,7 @@ class AppConsole(fleks_app.AppBase):
     def status_bar(self):
         """ """
         from fleks.util import lme
+
         if lme.COLOR_SYSTEM is not None:
             tmp = self.manager.status_bar(
                 status_format="{app}{fill}{stage}{fill}{elapsed}",
@@ -69,8 +71,11 @@ class AppConsole(fleks_app.AppBase):
             # )  # noqa: W605
             return tmp
         else:
-            LOGGER.warning(f"COLOR_SYSTEM={lme.COLOR_SYSTEM}, skipping attachment of status bar")
+            LOGGER.warning(
+                f"COLOR_SYSTEM={lme.COLOR_SYSTEM}, skipping attachment of status bar"
+            )
             return {}
+
     #
     # @memoized_property
     # def lifecycle_bar(self):
