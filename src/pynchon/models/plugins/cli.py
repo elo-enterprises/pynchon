@@ -153,15 +153,14 @@ class CliPlugin(PynchonPlugin):
             return
 
         def wrapper(*args, fxn=fxn, **kwargs):
-            LOGGER.warning(f"calling {fxn.__name__} from wrapper")
+            LOGGER.debug(f"calling {fxn.__name__} from wrapper")
             result = fxn(*args, **kwargs)
 
             rproto = getattr(result, "__rich__", None)
             if rproto:
                 # LOGGER.warning(f"rproto {result}")
-                from pynchon.util.lme import CONSOLE
-
-                CONSOLE.print(rproto())
+                from pynchon.util import lme
+                lme.print(rproto())
             if result:
                 print(dumps.json(result))
 

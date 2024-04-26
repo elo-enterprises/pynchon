@@ -52,7 +52,7 @@ class Jinja(RenderingPlugin):
         "--output {output} {template_args}"
     )
 
-    def _get_jinja_context(self):
+    def _get_jinja_context(self, extra_jinja_vars:dict={}):
         """ """
         if getattr(self, "_jinja_ctx_file", None):
             return self._jinja_ctx_file
@@ -116,11 +116,20 @@ class Jinja(RenderingPlugin):
         """
         return self._list(changes=changes, **kwargs)
 
+    def list_filters(self, **kwargs) -> typing.Dict[str,str]:
+        """
+        Lists filters available for the jinja environments
+        """
+        self.logger.critical('not implemented yet')
+        return dict()
+
     @cli.click.argument("files", nargs=-1)
-    def render(self, files, plan_only: bool = False):
-        """Renders 1 or more jinja templates"""
+    def render(self, files, plan_only: bool = False, extra_jinja_vars:dict={}):
+        """
+        Renders 1 or more jinja templates
+        """
         files = [abcs.Path(file) for file in files]
-        jctx = self._get_jinja_context()
+        jctx = self._get_jinja_context(extra_jinja_vars=extra_jinja_vars)
         templates = self._get_template_args()
         plan = super(self.__class__, self).plan()
         for src in files:
