@@ -122,16 +122,19 @@ class AbstractPlanner(BasePlugin):
         fail_fast: bool = False,
         strict: bool = False,
         quiet: bool = False,
+        **plan_kwargs,
     ) -> planning.ApplyResults:
         """
         Executes the plan for this plugin
         """
+        if plan_kwargs:
+            self.logger.warning(f"extra kwargs will be passed to plan: {plan_kwargs}")
         parallelism = int(parallelism)
         # app.status_bar.update(
         #     app="Pynchon::APPLY",
         #     stage=f"plugin:{self.__class__.name}"
         # )
-        plan = plan or self.plan()
+        plan = plan or self.plan(**plan_kwargs)
         LOGGER.critical(
             f"{self.name}.apply ( {len(plan)} goals with {parallelism} workers)"
         )

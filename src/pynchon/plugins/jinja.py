@@ -54,7 +54,17 @@ class Jinja(RenderingPlugin):
     )
 
     def _get_jinja_context(self, extra_jinja_vars: dict = {}):
-        """ """
+        """
+        creates the jinja context file which will be used with rendering.
+
+        context is derived from the entire current pynchon config,
+        see `pynchon cfg`, which is the static contents of `.pynchon.json5`
+        plus whatever dynamic data is provided by other plugins.  the
+        contents of `extra_jinja_vars` is merged-with-overrides into
+        `{{jinja.vars}}`.
+
+        FIXME: this is cached, but beware, that basically happens per-process.
+        """
         if getattr(self, "_jinja_ctx_file", None):
             return self._jinja_ctx_file
         else:
@@ -134,20 +144,14 @@ class Jinja(RenderingPlugin):
         self.logger.critical("not implemented yet")
         return dict()
 
+    # FIXME: only supports in-place rendering
     # @cli.click.option('-o', "--output",default='')
     # @cli.click.flag('-p', "--print", 'should_print', default=False, )
-    @cli.click.option(
-        "--var",
-        "extra_jinja_vars",
-        default=[],
-        help=("Overrides injected to {{jinja.vars}} namespace"),
-        multiple=True,
-    )
+    @cli.options.extra_jinja_vars
     @cli.click.argument("files", nargs=-1)
     def render(
         self,
         files,
-        # should_print:bool=False,
         output: str = "",
         plan_only: bool = False,
         extra_jinja_vars: list = [],
@@ -185,21 +189,21 @@ class Jinja(RenderingPlugin):
 
     def _get_template_args(self):
         """ """
-        # import IPython; IPython.embed()
         templates = self["template_includes"]
         templates = [t for t in templates]
         templates = [f"--include {t}" for t in templates]
         templates = " ".join(templates)
         return templates
 
+    @cli.options.extra_jinja_vars
     def plan(
         self,
         config=None,
+        extra_jinja_vars: list = [],
     ) -> typing.List:
         """Creates a plan for this plugin"""
-
         plan = super(self.__class__, self).plan()
-        jctx = self._get_jinja_context()
+        jctx = self._get_jinja_context(extra_jinja_vars=extra_jinja_vars)
         templates = self._get_template_args()
         for src in self.list():
             output = str(src).replace(".j2", "")
@@ -214,6 +218,10 @@ class Jinja(RenderingPlugin):
                         template_args=templates,
                         output=output,
                     ),
+                    # +" ".join("=".join([k,v] for k,v in extra_jinja_vars.items())),
                 )
             )
         return plan.finalize()
+
+    # allows `pynchon jinja apply --var ...`, which can then be passed-through to `pynchon jinja plan`
+    apply = cli.options.extra_jinja_vars(RenderingPlugin.apply)
