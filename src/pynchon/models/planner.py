@@ -128,7 +128,8 @@ class AbstractPlanner(BasePlugin):
         Executes the plan for this plugin
         """
         if plan_kwargs:
-            self.logger.warning(f"extra kwargs will be passed to plan: {plan_kwargs}")
+            self.logger.warning("extra kwargs will be passed to plan:")
+            self.logger.warning(f"\t{plan_kwargs}")
         parallelism = int(parallelism)
         # app.status_bar.update(
         #     app="Pynchon::APPLY",

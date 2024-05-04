@@ -146,13 +146,14 @@ class Jinja(RenderingPlugin):
 
     # FIXME: only supports in-place rendering
     # @cli.click.option('-o', "--output",default='')
-    # @cli.click.flag('-p', "--print", 'should_print', default=False, )
+    @cli.click.flag('-p', "--print", 'should_print', default=False, )
     @cli.options.extra_jinja_vars
     @cli.click.argument("files", nargs=-1)
     def render(
         self,
         files,
         output: str = "",
+        should_print:bool=False,
         plan_only: bool = False,
         extra_jinja_vars: list = [],
     ):
@@ -185,7 +186,26 @@ class Jinja(RenderingPlugin):
         if plan_only:
             return plan
         else:
-            return plan.apply(strict=True, fail_fast=True)
+            result = plan.apply(strict=True, fail_fast=True)
+            if should_print:
+                for action in result:
+                    if action.ok:
+                        with open(action.resource,'r') as fhandle:
+                            if action.resource.endswith('.md'):
+                                printer=self.siblings['markdown'].preview
+                                data = [action.resource]
+
+                                # from pynchon.util import lme
+                                # from rich.markdown import Markdown
+                                # printer = lme.print
+                                # data = Markdown(fhandle.read())
+                            else:
+                                printer=print
+                                data = fhandle.read()
+                            printer(data)
+                return None
+                # import IPython; IPython.embed()
+            return result
 
     def _get_template_args(self):
         """ """
@@ -218,10 +238,12 @@ class Jinja(RenderingPlugin):
                         template_args=templates,
                         output=output,
                     ),
-                    # +" ".join("=".join([k,v] for k,v in extra_jinja_vars.items())),
                 )
             )
         return plan.finalize()
 
-    # allows `pynchon jinja apply --var ...`, which can then be passed-through to `pynchon jinja plan`
-    apply = cli.options.extra_jinja_vars(RenderingPlugin.apply)
+    # allows `pynchon jinja apply --var ...`,
+    # which can then be passed-through to `pynchon jinja plan`
+    apply = cli.extends_super(
+        RenderingPlugin, "apply", extra_options=[cli.options.extra_jinja_vars]
+    )

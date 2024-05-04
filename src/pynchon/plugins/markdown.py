@@ -33,6 +33,10 @@ class Markdown(models.DockerWrapper, models.Planner):
             default="peterdavehello/markdownlint",
             description="Container to use for markdown linter",
         )
+        viewer_docker_image: str = typing.Field(
+            default='charmcli/glow',
+            help="Container to use for markdown console viewer")
+
         linter_args: typing.List[str] = typing.Field(
             description="Arguments to pass to `linter_docker_image`",
             default=[
@@ -102,18 +106,20 @@ class Markdown(models.DockerWrapper, models.Planner):
         Previews markdown in the terminal
         """
         # FIXME?: rich doesn't link hypertext.  patch upstream?
-        from rich.console import Console
-        from rich.markdown import Markdown
-
-        console = Console()
+        # from rich.console import Console
+        # from rich.markdown import Markdown
+        # from pynchon.util import lme
+        # from pynchon.util.os import invoke
+        import os
+        from python_on_whales import docker
         for p in paths:
-            with open(p) as fhandle:
-                md = Markdown(fhandle.read())
-                console.print(md)
+            docker.run(
+                self.config.viewer_docker_image, [f"{p}"],
+                tty=True,interactive=True,
+                volumes=[(os.getcwd(),'/workspace')],
+                workdir='/workspace',
+                )
         # FIXME: glow is awesome but using it from docker seems to strip color
-        # viewer_docker_image: str = typing.Field(
-        #     default='charmcli/glow',
-        #     help="Container to use for markdown console viewer")
         # docker_image = self["viewer_docker_image"]
         #         # viewer_args = " ".join(self["viewer_args"])
         #         return self._run_docker(
