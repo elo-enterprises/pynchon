@@ -111,6 +111,7 @@ def get_jinja_globals():
         str=str,
         sh=invoke_helper,
         bash=invoke_helper,
+        open=open,
         is_markdown_list_item=is_markdown_list_item,
         invoke=invoke_helper,
         map=map,

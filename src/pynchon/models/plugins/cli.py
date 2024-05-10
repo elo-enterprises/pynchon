@@ -163,7 +163,7 @@ class CliPlugin(PynchonPlugin):
 
                 lme.print(rproto())
             if result:
-                print(dumps.json(result))
+                print(dumps.json(result, ensure_ascii=False))
 
         commands = [
             kls.click_create_cmd(
