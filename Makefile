@@ -73,6 +73,7 @@ utest: tox-utest
 dtest: tox-dtest
 docs-test: dtest
 test: test-units test-integrations smoke-test
+iterate: clean normalize lint test
 # coverage:
 # 	echo NotImplementedYet
 

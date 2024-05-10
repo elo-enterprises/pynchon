@@ -147,53 +147,18 @@ class Markdown(models.DockerWrapper, models.Planner):
             )
             if is_pipe:
                 import sys
-                from unittest.mock import patch
 
-                from pynchon.util.os import invoke
-
-                with patch(
-                    "python_on_whales.components.container.cli_wrapper.stream_stdout_and_stderr"
-                ) as mocked:
-                    mocked.return_value = None
-                    dkwargs.update(
-                        stream=True,
-                        tty=True,
-                        # interactive=True
-                    )
-                    tmpstdin = ".tmp.stdin"
-                    dargs = (
-                        self.config.viewer_docker_image,
-                        ["-s", "dracula", tmpstdin],
-                        # ['/dev/stdin'],
-                    )
-                    docker.run(*dargs, **dkwargs)
-                    posargs, keyword_args = mocked.call_args
-                    # import pathlib
-                    # import pty
-                    # pty, tty = pty.openpty()
-                    # raise Exception(posargs)
-                    # posargs = .name + posargs[1:]
-                    LOGGER.critical("reading input from stdin..")
-                    with open(tmpstdin, "w") as fhandle:
-                        LOGGER.critical(f"writing tmp file {tmpstdin}")
-                        fhandle.write(sys.stdin.read())
-                    sys.stdin = open("/dev/tty")
-                    cmd = " ".join(map(str, posargs[0]))
-                    LOGGER.critical(cmd)
-                    resp = invoke(
-                        f"{cmd}",
-                        # system=True,
-                        command_logger=self.logger.critical,
-                        binary=True,
-                        # interactive=True,
-                        strict=True,  # interactive=True,
-                        # stdin=open(tmpstdin,'r').read()
-                    )
-                    sys.stdout.buffer.write(resp.stdout)
-                    # print('\n'.join(resp.stdout.split('\n')))
-                    # raise Exception(bonk)
-            else:
-                docker.run(*dargs, **dkwargs)
+                dkwargs.update(interactive=False, tty=True)
+                tmpstdin = ".tmp.stdin"
+                dargs = (
+                    self.config.viewer_docker_image,
+                    ["-s", "dracula", tmpstdin],
+                )
+                LOGGER.critical("reading input from stdin..")
+                with open(tmpstdin, "w") as fhandle:
+                    LOGGER.critical(f"writing tmp file {tmpstdin}")
+                    fhandle.write(sys.stdin.read())
+            docker.run(*dargs, **dkwargs)
         # FIXME: glow is awesome but using it from docker seems to strip color
         # docker_image = self["viewer_docker_image"]
         #         # viewer_args = " ".join(self["viewer_args"])

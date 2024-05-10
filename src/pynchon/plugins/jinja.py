@@ -197,9 +197,15 @@ class Jinja(RenderingPlugin):
                     if action.ok:
                         with open(action.resource) as fhandle:
                             if action.resource.endswith(".md"):
-                                printer = self.siblings["markdown"].preview
+                                try:
+                                    printer = self.siblings["markdown"]
+                                except (KeyError,):
+                                    self.logger.critical(
+                                        f"the `markdown` plugin is required for previewing {action.resource}"
+                                    )
+                                else:
+                                    printer = printer.preview
                                 data = [action.resource]
-
                                 # from pynchon.util import lme
                                 # from rich.markdown import Markdown
                                 # printer = lme.print
