@@ -16,6 +16,7 @@ DEFAULT_PLUGINS = [
     "git",
     # "pandoc",  # required by markdown
     "markdown",
+    "makefile",
     "src",
     "docs",
     "parse",

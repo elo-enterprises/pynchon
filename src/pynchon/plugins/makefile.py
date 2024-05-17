@@ -123,7 +123,3 @@ class Make(models.Planner):
         if only_graph:
             out = {t: out[t]["prereqs"] for t in out}
         return out
-
-    # def bootstrap(self):
-    #     """ placeholder """
-    #     raise NotImplementedError()

@@ -63,7 +63,10 @@ def get_jinja_globals():
         out = invoke(*args, **kwargs)
         if not out.succeeded:
             raise Exception(out)
-        return out.stdout
+        if kwargs.get('load_json',False):
+            return out.data 
+        else:
+            return out.stdout
 
     def markdown_toc(fname: str, level: int = None, skip: list = []) -> str:
         """returns a TOC for the given markdown file, wrapped inside a simple <ul>"""
@@ -88,27 +91,18 @@ def get_jinja_globals():
         contents = "\n".join(contents)
         html = md.convert(contents)
         return md.toc
-
-    # markdown-toc --type github  --no-write docs/blog/ambient-calculus-1.md
-    # assert fname
-    # fname = abcs.Path(fname)
-    # assert fname.exists()
-    # # script = abcs.Path(pynchon.__file__).parents[0] / "scripts" / "gh-md-toc.sh"
-    # result = invoke(
-    #     f"markdown-toc --type github --no-write {fname}",
-    #     command_logger=LOGGER.critical
-    # )
-    # assert result.succeeded
-    # return result.stdout
     def md2latex(inp, fname=".tmp.md2latex.md"):
         with open(fname, "w") as fhandle:
             fhandle.write(inp)
         invoke(f"pandoc {fname} -t latex -o {fname}.tex", strict=True)
         with open(f"{fname}.tex") as fhandle:
             return fhandle.read()
-
+    def strip_ansi_codes(s):
+        import re
+        return re.sub(r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?', '', s)
     return dict(
         str=str,
+        strip_ansi_codes=strip_ansi_codes,
         sh=invoke_helper,
         bash=invoke_helper,
         open=open,

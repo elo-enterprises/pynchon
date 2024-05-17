@@ -29,7 +29,7 @@ pynchon py --help
 pynchon src plan | jq .
 pynchon src sorted --help
 pynchon makefile parse --help
-pynchon makefile parse Makefile |jq .
+pynchon makefile parse Makefile | jq . > /dev/null
 pynchon parse markdown --help
 pynchon markdown parse --help
 pynchon markdown to-pdf --help
@@ -42,3 +42,4 @@ pynchon draw ls --help
 pynchon draw render --help
 pynchon plugins schema jinja --markdown \
   | pynchon markdown preview /dev/stdin
+pynchon github open --help
