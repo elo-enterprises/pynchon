@@ -119,7 +119,10 @@ class Make(models.Planner):
     def parse(self, makefile: str = "", only_graph: bool = False):
         """Parse Makefile to JSON.  Includes DAGs for targets, target-body, and target-type details"""
         makefile = makefile or self.config["file"]
+        from collections import OrderedDict
+
         out = makefile_parse(makefile=makefile)
+        out = OrderedDict(sorted([k, v] for k, v in out.items()))
         if only_graph:
             out = {t: out[t]["prereqs"] for t in out}
         return out

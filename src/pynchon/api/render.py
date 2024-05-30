@@ -63,8 +63,8 @@ def get_jinja_globals():
         out = invoke(*args, **kwargs)
         if not out.succeeded:
             raise Exception(out)
-        if kwargs.get('load_json',False):
-            return out.data 
+        if kwargs.get("load_json", False):
+            return out.data
         else:
             return out.stdout
 
@@ -91,15 +91,19 @@ def get_jinja_globals():
         contents = "\n".join(contents)
         html = md.convert(contents)
         return md.toc
+
     def md2latex(inp, fname=".tmp.md2latex.md"):
         with open(fname, "w") as fhandle:
             fhandle.write(inp)
         invoke(f"pandoc {fname} -t latex -o {fname}.tex", strict=True)
         with open(f"{fname}.tex") as fhandle:
             return fhandle.read()
+
     def strip_ansi_codes(s):
         import re
-        return re.sub(r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?', '', s)
+
+        return re.sub(r"\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?", "", s)
+
     return dict(
         str=str,
         strip_ansi_codes=strip_ansi_codes,

@@ -6,10 +6,11 @@
     'globals', 'render', 'gen', 'project', 'plugins',
     'jinja', 'json', 'git', 'core', 'python', 'gripe',
     'dockerhub',"drawio","compose",
+    "makefile",  // makefile parsing
 
     // Recommended for projects with source-code
     "docs", "src", "test", "cicd", "fixme", "github",
-    "makefile",  // makefile parsing
+    "vhs",  // vhs rendering
 
     // Standard if there's a python-project
     "pypi", "python-api", "python-cli", "python-libcst",

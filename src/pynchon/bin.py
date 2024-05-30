@@ -26,7 +26,7 @@ class RootGroup(fleks.cli.RootGroup):
 
 @tui()
 @click.version_option()
-@click.option("--plugins", help="shortcut for `--set plugins=...`")
+@click.option("--plugins", "-p", help="shortcut for `--set plugins=...`")
 @click.option("--set", "set_config", help="config overrides")
 @click.option("--get", "get_config", help="config retrieval")
 @click.group(

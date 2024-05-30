@@ -145,7 +145,7 @@ class Jinja(RenderingPlugin):
         return dict()
 
     # FIXME: only supports in-place rendering
-    # @cli.click.option('-o', "--output",default='')
+    @cli.click.option("-o", "--output", default="")
     @cli.click.flag(
         "-p",
         "--print",
@@ -174,7 +174,12 @@ class Jinja(RenderingPlugin):
         for src in files:
             assert src.exists()
             output = output or str(src).replace(".j2", "")
-            assert output != str(src), "filename did not change!"
+            if output == str(src):
+                if not should_print:
+                    raise RuntimeError("filename did not change!")
+                    # raise SystemExit(1)
+                else:
+                    output = "/dev/stdout"
             plan.append(
                 self.goal(
                     type="render",

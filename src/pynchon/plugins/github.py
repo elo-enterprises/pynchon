@@ -92,7 +92,9 @@ class GitHub(models.ToolPlugin):
     @cli.click.option("--org", "-o")
     @cli.click.argument("mode", required=False, default="top")
     def open(self, mode="top", org=None):
-        """Opens org/repo github in a webbrowser"""
+        """
+        Opens org/repo github in a webbrowser.
+        """
         org_name = self["org_name"]
         if org:
             url = self["org_url"]
@@ -105,6 +107,8 @@ class GitHub(models.ToolPlugin):
             url = self[:"git.repo_url":] + "/actions"
         elif mode in ["pulls", "prs", "p"]:
             url = self[:"git.repo_url":] + "/pulls"
+        else:
+            url = self[:"git.repo_url":]
         return webbrowser.open(url)
 
     @cli.options.org_name
