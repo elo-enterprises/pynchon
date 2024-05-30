@@ -1,54 +1,30 @@
-""" {{pkg}}.util.lme
+""" pynchon.util.lme
 """
 
 import logging
 
-from rich.style import Style
-from rich.theme import Theme
-from rich.console import Console
 from rich.logging import RichHandler
-from rich.default_styles import DEFAULT_STYLES
+from fleks.util.console import is_notebook
 
 from pynchon import constants
 
-THEME = Theme(
-    {
-        **DEFAULT_STYLES,
-        **{
-            "logging.keyword": Style(bold=True, color="yellow"),
-            # "logging.level.notset": Style(dim=True),
-            "logging.level.debug": Style(color="green"),
-            "logging.level.info": Style(
-                dim=True,
-                # color="blue",
-            ),
-            "logging.level.warning": Style(color="yellow"),
-            "logging.level.error": Style(color="red", dim=True, bold=True),
-            "logging.level.critical": Style(
-                color="red",
-                bold=True,
-                # reverse=True
-            ),
-            "log.level": Style.null(),
-            "log.time": Style(color="cyan", dim=True),
-            "log.message": Style.null(),
-            "log.path": Style(dim=True),
-        },
-    }
-)
-CONSOLE = Console(theme=THEME, stderr=True)
+from fleks.util.lme import COLOR_SYSTEM, CONSOLE, THEME, set_global_level  # noqa
 
 
-def set_global_level(level):
-    """https://stackoverflow.com/questions/19617355/dynamically-changing-log-level-without-restarting-the-application
+if is_notebook():
+    from rich.jupyter import print as jpyprint
 
-    :param level:
-
-    """
-    logger = logging.getLogger()
-    logger.setLevel(level)
-    for handler in logger.handlers:
-        handler.setLevel(level)
+    print = jpyprint
+else:
+    print = CONSOLE.print
+    # print=CONSOLE.print
+# COLOR_SYSTEM = None if any([is_notebook(), color_disabled()]) else "auto"
+# CONSOLE = Console(
+#     theme=THEME,
+#     stderr=True,
+#     color_system=COLOR_SYSTEM,
+# )
+# CONSOLE = Console(theme=THEME, stderr=True)
 
 
 class Fake:
@@ -62,8 +38,8 @@ def get_logger(name, console=CONSOLE, fake=False):
     """utility function for returning a logger
     with standard formatting patterns, etc
 
-    :param name: param console:  (Default value = CONSOLE)
-    :param console:  (Default value = CONSOLE)
+    :param name:
+    :param console: (Default value = CONSOLE)
 
     """
     if fake:

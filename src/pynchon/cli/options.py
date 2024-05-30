@@ -11,3 +11,10 @@ parallelism = click.option(
     default="0",
     help="Set number of workers (or 0 for sequential action)",
 )
+extra_jinja_vars = click.option(
+    "--var",
+    "extra_jinja_vars",
+    default=[],
+    help=("Overrides injected to {{jinja.vars}} namespace"),
+    multiple=True,
+)

@@ -49,17 +49,38 @@ class Jinja(RenderingPlugin):
     COMMAND_TEMPLATE = (
         "python -mpynchon.util.text render jinja "
         "{src} --context-file {context_file} "
+        # "{print} "
         "--output {output} {template_args}"
     )
 
-    def _get_jinja_context(self):
-        """ """
+    def _get_jinja_context(self, extra_jinja_vars: dict = {}):
+        """
+        creates the jinja context file which will be used with rendering.
+
+        context is derived from the entire current pynchon config,
+        see `pynchon cfg`, which is the static contents of `.pynchon.json5`
+        plus whatever dynamic data is provided by other plugins.  the
+        contents of `extra_jinja_vars` is merged-with-overrides into
+        `{{jinja.vars}}`.
+
+        FIXME: this is cached, but beware, that basically happens per-process.
+        """
         if getattr(self, "_jinja_ctx_file", None):
             return self._jinja_ctx_file
         else:
+            if isinstance(extra_jinja_vars, (list, tuple)):
+                tmp = []
+                for ejv in extra_jinja_vars:
+                    ejv = ejv.split("=")
+                    k = ejv.pop(0)
+                    v = "=".join(ejv)
+                    tmp.append([k, v])
+                extra_jinja_vars = dict(tmp)
+            data = self.project_config.dict()
+            data["jinja"]["vars"].update(extra_jinja_vars)
             fname = ".tmp.jinja.ctx.json"
             with open(fname, "w") as fhandle:
-                fhandle.write(text.to_json(self.project_config))
+                fhandle.write(text.to_json(data))
             self._jinja_ctx_file = fname
             return fname
 
@@ -116,23 +137,56 @@ class Jinja(RenderingPlugin):
         """
         return self._list(changes=changes, **kwargs)
 
+    def list_filters(self, **kwargs) -> typing.Dict[str, str]:
+        """
+        Lists filters available for the jinja environments
+        """
+        self.logger.critical("not implemented yet")
+        return dict()
+
+    # FIXME: only supports in-place rendering
+    @cli.click.option("-o", "--output", default="")
+    @cli.click.flag(
+        "-p",
+        "--print",
+        "should_print",
+        default=False,
+    )
+    @cli.options.extra_jinja_vars
     @cli.click.argument("files", nargs=-1)
-    def render(self, files, plan_only: bool = False):
-        """Renders 1 or more jinja templates"""
+    def render(
+        self,
+        files,
+        output: str = "",
+        should_print: bool = False,
+        plan_only: bool = False,
+        extra_jinja_vars: list = [],
+    ):
+        """
+        Renders 1 or more jinja templates
+        """
         files = [abcs.Path(file) for file in files]
-        jctx = self._get_jinja_context()
+        jctx = self._get_jinja_context(extra_jinja_vars=extra_jinja_vars)
         templates = self._get_template_args()
         plan = super(self.__class__, self).plan()
+        if output:
+            assert len(files) == 1
         for src in files:
             assert src.exists()
-            output = str(src).replace(".j2", "")
-            assert output != str(src), "filename did not change!"
+            output = output or str(src).replace(".j2", "")
+            if output == str(src):
+                if not should_print:
+                    raise RuntimeError("filename did not change!")
+                    # raise SystemExit(1)
+                else:
+                    output = "/dev/stdout"
             plan.append(
                 self.goal(
                     type="render",
                     resource=output,
                     command=self.COMMAND_TEMPLATE.format(
                         src=src,
+                        # print='' if not should_print else '--print',
                         context_file=jctx,
                         template_args=templates,
                         output=output,
@@ -142,25 +196,50 @@ class Jinja(RenderingPlugin):
         if plan_only:
             return plan
         else:
-            return plan.apply(strict=True, fail_fast=True)
+            result = plan.apply(strict=True, fail_fast=True)
+            if should_print:
+                for action in result:
+                    if action.ok:
+                        with open(action.resource) as fhandle:
+                            if action.resource.endswith(".md"):
+                                try:
+                                    printer = self.siblings["markdown"]
+                                except (KeyError,):
+                                    self.logger.critical(
+                                        f"the `markdown` plugin is required for previewing {action.resource}"
+                                    )
+                                else:
+                                    printer = printer.preview
+                                data = [action.resource]
+                                # from pynchon.util import lme
+                                # from rich.markdown import Markdown
+                                # printer = lme.print
+                                # data = Markdown(fhandle.read())
+                            else:
+                                printer = print
+                                data = fhandle.read()
+                            printer(data)
+                return None
+                # import IPython; IPython.embed()
+            return result
 
     def _get_template_args(self):
         """ """
-        # import IPython; IPython.embed()
         templates = self["template_includes"]
         templates = [t for t in templates]
         templates = [f"--include {t}" for t in templates]
         templates = " ".join(templates)
         return templates
 
+    @cli.options.extra_jinja_vars
     def plan(
         self,
         config=None,
+        extra_jinja_vars: list = [],
     ) -> typing.List:
         """Creates a plan for this plugin"""
-
         plan = super(self.__class__, self).plan()
-        jctx = self._get_jinja_context()
+        jctx = self._get_jinja_context(extra_jinja_vars=extra_jinja_vars)
         templates = self._get_template_args()
         for src in self.list():
             output = str(src).replace(".j2", "")
@@ -169,6 +248,7 @@ class Jinja(RenderingPlugin):
                     type="render",
                     resource=output,
                     command=self.COMMAND_TEMPLATE.format(
+                        # print='',
                         src=src,
                         context_file=jctx,
                         template_args=templates,
@@ -177,3 +257,9 @@ class Jinja(RenderingPlugin):
                 )
             )
         return plan.finalize()
+
+    # allows `pynchon jinja apply --var ...`,
+    # which can then be passed-through to `pynchon jinja plan`
+    apply = cli.extends_super(
+        RenderingPlugin, "apply", extra_options=[cli.options.extra_jinja_vars]
+    )

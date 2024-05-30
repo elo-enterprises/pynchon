@@ -14,12 +14,26 @@ NO_COLOR:=\033[0m
 COLOR_GREEN=\033[92m
 
 PYPI_PROJECT_NAME:=pynchon
+DOCKER_IMAGE_NAME?=pynchon
 
 .PHONY: build docs
 
 init: py-init
-build: py-build
-clean: py-clean
+build: py-build docker-build
+clean: py-clean docker-clean
+
+docker-clean:
+	docker rmi $(DOCKER_IMAGE_NAME) >/dev/null || true
+
+docker-build:	
+	docker build -t $(DOCKER_IMAGE_NAME) .
+
+docker-shell:
+	docker run -it --rm -v `pwd`:/workspace -w /workspace \
+		--entrypoint bash $(DOCKER_IMAGE_NAME)
+
+docker-test:
+	docker run --rm -v `pwd`:/workspace -w /workspace --entrypoint sh $(DOCKER_IMAGE_NAME) -x -c "pynchon--help"
 
 py-init:
 	# $(call _announce_target, $@)
@@ -73,6 +87,7 @@ utest: tox-utest
 dtest: tox-dtest
 docs-test: dtest
 test: test-units test-integrations smoke-test
+iterate: clean normalize lint test
 # coverage:
 # 	echo NotImplementedYet
 

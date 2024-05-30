@@ -33,6 +33,13 @@ class AppConsole(fleks_app.AppBase):
     def __init__(self, **kwargs):
         """ """
         self.console = Console()
+        self.init_rich_tracebacks()
+
+    @classmethod
+    def init_rich_tracebacks(kls):
+        from rich import traceback
+
+        traceback.install(show_locals=True, indent_guides=True)
 
     # # FIXME: use multi-dispatch over kwargs and define `lifecyle` repeatedly
     # def lifecycle_stage(self, sender, stage=None, **kwargs):
@@ -45,22 +52,29 @@ class AppConsole(fleks_app.AppBase):
     @memoized_property
     def status_bar(self):
         """ """
-        tmp = self.manager.status_bar(
-            status_format="{app}{fill}{stage}{fill}{elapsed}",
-            color="bold_underline_bright_white_on_lightslategray",
-            justify=enlighten.Justify.LEFT,
-            app="Pynchon",
-            stage="...",
-            autorefresh=True,
-            min_delta=0.1,
-        )
+        from fleks.util import lme
 
-        # atexit.register(
-        #     lambda: self.events.lifecycle.send(
-        #         self, stage=r"\o/" if not self.exc else "❌", msg=""
-        #     )
-        # )  # noqa: W605
-        return tmp
+        if lme.COLOR_SYSTEM is not None:
+            tmp = self.manager.status_bar(
+                status_format="{app}{fill}{stage}{fill}{elapsed}",
+                color="bold_underline_bright_white_on_lightslategray",
+                justify=enlighten.Justify.LEFT,
+                app="Pynchon",
+                stage="...",
+                autorefresh=True,
+                min_delta=0.1,
+            )
+            # atexit.register(
+            #     lambda: self.events.lifecycle.send(
+            #         self, stage=r"\o/" if not self.exc else "❌", msg=""
+            #     )
+            # )  # noqa: W605
+            return tmp
+        else:
+            LOGGER.warning(
+                f"COLOR_SYSTEM={lme.COLOR_SYSTEM}, skipping attachment of status bar"
+            )
+            return {}
 
     #
     # @memoized_property

@@ -21,6 +21,22 @@ LOGGER = lme.get_logger(__name__)
 DEFAULT_LOG_FILE = ".tmp.mkdocs.log"
 
 
+class MkdocsPage(fleks.config.Config):
+    config_key: typing.ClassVar[str] = "mkdocs.pages"
+    title: str = typing.Field()
+    path: typing.Union[abcs.Path, str] = typing.Field()
+    relative_url: str = typing.Field()
+    rel_path: str = typing.Field()
+    tags: typing.List[str] = typing.Field(
+        default=[], help="only used by mkdocs_blogging plugin"
+    )
+    draft: bool = typing.Field(default=False)
+    exclude_from_blog: bool = typing.Field(
+        default=False, help="only used by mkdocs_blogging plugin"
+    )
+    description: str = typing.Field(default="")
+
+
 class MkdocsPluginConfig(abcs.Config):
     config_key: typing.ClassVar[str] = "mkdocs"
     config_file: str = typing.Field(default=None)
@@ -30,7 +46,7 @@ class MkdocsPluginConfig(abcs.Config):
         """ """
         tags = set()
         for p in self.pages:
-            tags = tags.union(set(p.get("tags", [])))
+            tags = tags.union(set(p.tags))
         # NB: removes empty-string
         return sorted(list(filter(None, tags)))
 
@@ -71,17 +87,17 @@ class MkdocsPluginConfig(abcs.Config):
                     title=None,
                 )
                 pg.read_source(cfg)
-                tags = pg.meta.get("tags", [])
-                draft = any([pg.meta.get("draft", False), "draft" in str(rel_pfile)])
-                pmeta = dict(
-                    title=pg.title,
+                pmeta_d = dict(
+                    title=pg.meta.pop("title", pg.title),
                     # relative_url=pg.url,
                     relative_url=f"{self.site_relative_url}/{pg.url}",
                     path=pfile.absolute(),
                     rel_path=str(rel_pfile),
-                    tags=tags,
-                    draft=draft,
+                    tags=pg.meta.pop("tags", []),
+                    draft=any([pg.meta.pop("draft", False), "draft" in str(rel_pfile)]),
+                    **pg.meta,  # **dict(pg.title)},
                 )
+                pmeta = MkdocsPage(**pmeta_d)
                 pages.append(pmeta)
         return pages
 

@@ -33,6 +33,10 @@ class Markdown(models.DockerWrapper, models.Planner):
             default="peterdavehello/markdownlint",
             description="Container to use for markdown linter",
         )
+        viewer_docker_image: str = typing.Field(
+            default="charmcli/glow", help="Container to use for markdown console viewer"
+        )
+
         linter_args: typing.List[str] = typing.Field(
             description="Arguments to pass to `linter_docker_image`",
             default=[
@@ -97,23 +101,65 @@ class Markdown(models.DockerWrapper, models.Planner):
 
     @cli.click.argument("paths", nargs=-1)
     @tagging.tags(click_aliases=["show"])
-    def preview(self, paths):
+    def preview(self, paths=[]):
         """
         Previews markdown in the terminal
         """
-        # FIXME?: rich doesn't link hypertext.  patch upstream?
-        from rich.console import Console
-        from rich.markdown import Markdown
+        import os
 
-        console = Console()
+        from python_on_whales import docker
+
+        is_pipe = not os.isatty(0)
+        if is_pipe:
+            LOGGER.critical("detected pipe")
+        if not paths:
+            assert (
+                is_pipe
+            ), "if no paths are provided, expected you would be using this command with a pipe, but no pipe is detected"
+            paths = ["/dev/stdin"]
+            interactive, tty = True, False
+        else:
+            interactive, tty = True, True
+        #     return self.preview(paths = [tmpstdin], tty=False)
+
+        # assert not paths
+        #     tty=False
+        # else:
+        #     tty=True
+        specialf = ["/dev/stdin", "-"]
         for p in paths:
-            with open(p) as fhandle:
-                md = Markdown(fhandle.read())
-                console.print(md)
+            if os.path.isabs(p) and p not in specialf:
+                volumes = [(p, p)]
+            else:
+                volumes = [
+                    # in case of relative paths
+                    (os.getcwd(), "/workspace"),
+                ]
+            dargs = (
+                self.config.viewer_docker_image,
+                ["-s", "dracula", p],
+            )
+            dkwargs = dict(
+                tty=tty,
+                interactive=tty,
+                volumes=volumes,
+                workdir="/workspace",
+            )
+            if is_pipe:
+                import sys
+
+                dkwargs.update(interactive=False, tty=True)
+                tmpstdin = ".tmp.stdin"
+                dargs = (
+                    self.config.viewer_docker_image,
+                    ["-s", "dracula", tmpstdin],
+                )
+                LOGGER.critical("reading input from stdin..")
+                with open(tmpstdin, "w") as fhandle:
+                    LOGGER.critical(f"writing tmp file {tmpstdin}")
+                    fhandle.write(sys.stdin.read())
+            docker.run(*dargs, **dkwargs)
         # FIXME: glow is awesome but using it from docker seems to strip color
-        # viewer_docker_image: str = typing.Field(
-        #     default='charmcli/glow',
-        #     help="Container to use for markdown console viewer")
         # docker_image = self["viewer_docker_image"]
         #         # viewer_args = " ".join(self["viewer_args"])
         #         return self._run_docker(

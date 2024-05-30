@@ -29,6 +29,12 @@ class GitHub(models.ToolPlugin):
         actions: typing.List[abcs.Path] = typing.Field(default=[None])
         raw_url: typing.StringMaybe = typing.Field(default=None)
         repo_ssh_url: typing.StringMaybe = typing.Field(default=None)
+        # branch_name: typing.StringMaybe = typing.Field(default=None)
+
+        # @property
+        # def branch_name(self):
+        #     """URL for serving raw content"""
+        #     return config.git.branch_name
 
         @property
         def raw_url(self):
@@ -84,42 +90,46 @@ class GitHub(models.ToolPlugin):
     cli_aliases = []
 
     @cli.click.option("--org", "-o")
-    def open(self, org=None):
-        """Opens org/repo github in a webbrowser
-
-        :param org: Default value = None)
-
+    @cli.click.argument("mode", required=False, default="top")
+    def open(self, mode="top", org=None):
+        """
+        Opens org/repo github in a webbrowser.
         """
         org_name = self["org_name"]
-        url = self["org_url"]
-        if not org:
-            repo_name = self[:"git.repo_name":]
-            url = f"{url}/{repo_name}"
+        if org:
+            url = self["org_url"]
+        elif mode == "top":
+            url = self[:"git.repo_url":]
+        elif mode in ["branch", "b"]:
+            branch = self[:"git.branch_name":]
+            url = self[:"git.repo_url":] + f"/tree/{branch}"
+        elif mode in ["actions", "a", "action"]:
+            url = self[:"git.repo_url":] + "/actions"
+        elif mode in ["pulls", "prs", "p"]:
+            url = self[:"git.repo_url":] + "/pulls"
+        else:
+            url = self[:"git.repo_url":]
         return webbrowser.open(url)
 
     @cli.options.org_name
     @option_api_token
     def clone_org(self, org_name: str = None, token: str = None):  # noqa
-        """Clones an entire github-org
+        """
+        Clones an entire github-org
 
         :param org_name: str:  (Default value = None)
         :param token: str:  (Default value = None)
-        :param org_name: str:  (Default value = None)
-        :param token: str:  (Default value = None)
-
         """
         raise NotImplementedError()
 
     @cli.click.argument("repo")
     @option_api_token
     def clone(self, repo: str, token: str = None):  # noqa
-        """Clones a single repo from this project's org
+        """
+        Clones a single repo from this project's org
 
         :param repo: str:
         :param token: str:  (Default value = None)
-        :param repo: str:
-        :param token: str:  (Default value = None)
-
         """
         raise NotImplementedError()
 
@@ -127,13 +137,11 @@ class GitHub(models.ToolPlugin):
     @tagging.tags(click_aliases=["pr"])
     @option_api_token
     def pull_request(self, repo: str, token: str = None):  # noqa
-        """Creates a pull-request from this branch
+        """
+        Creates a pull-request from this branch
 
         :param repo: str:
         :param token: str:  (Default value = None)
-        :param repo: str:
-        :param token: str:  (Default value = None)
-
         """
         raise NotImplementedError()
 
@@ -144,8 +152,5 @@ class GitHub(models.ToolPlugin):
 
         :param repo: str:
         :param token: str:  (Default value = None)
-        :param repo: str:
-        :param token: str:  (Default value = None)
-
         """
         raise NotImplementedError()

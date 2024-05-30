@@ -153,17 +153,17 @@ class CliPlugin(PynchonPlugin):
             return
 
         def wrapper(*args, fxn=fxn, **kwargs):
-            LOGGER.warning(f"calling {fxn.__name__} from wrapper")
+            LOGGER.debug(f"calling {fxn.__name__} from wrapper")
             result = fxn(*args, **kwargs)
 
             rproto = getattr(result, "__rich__", None)
             if rproto:
                 # LOGGER.warning(f"rproto {result}")
-                from pynchon.util.lme import CONSOLE
+                from pynchon.util import lme
 
-                CONSOLE.print(rproto())
+                lme.print(rproto())
             if result:
-                print(dumps.json(result))
+                print(dumps.json(result, ensure_ascii=False))
 
         commands = [
             kls.click_create_cmd(

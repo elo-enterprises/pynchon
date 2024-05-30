@@ -33,7 +33,7 @@ def database(makefile: str = "", make="make") -> typing.List[str]:
     else:
         LOGGER.warning(f"parsing makefile @ {makefile}")
     cmd = f"{make} --print-data-base -pqRrs -f {makefile}"
-    resp = invoke(cmd)
+    resp = invoke(cmd, command_logger=LOGGER.warning)
     out = resp.stdout.split("\n")
     return out
 
@@ -94,6 +94,7 @@ def parse(makefile: str = None, bodies=False, **kwargs):
     implicit_target_names = list(filter(_test, implicit_targets_section))
     targets = file_target_names + implicit_target_names
     out = {}
+    targets = [t for t in targets if t != f"{makefile}:"]
     for tline in targets:
         bits = tline.split(":")
         target_name = bits.pop(0)
