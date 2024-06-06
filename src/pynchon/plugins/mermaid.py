@@ -38,10 +38,9 @@ class Mermaid(models.DiagramTool, Planner):
         docker_args: typing.List = typing.Field(
             default=[],
             description="Array of extra arguments to pass to docker command",
-            description="",
         )
         mermaid_args: typing.List = typing.Field(
-            default=["--backgroundColor efefef > /dev/stderr"],
+            default=[],
             description="Array of extra arguments to pass to mermaid command",
         )
 
@@ -64,19 +63,32 @@ class Mermaid(models.DiagramTool, Planner):
 
     apply = Planner.apply
 
-    @cli.options.output
+    @cli.click.flag("--imgcat", help="view output with imgcat")
     @cli.click.argument("file", nargs=1)
     def render(
         self,
         img: str = "??",
         file: str = "",
         output: str = "",
+        imgcat: bool = False,
     ):
         """
-        Renders mermaid diagram to image
+        Renders mermaid diagrams to images using the mermaid docker image.
+
+        Output support includes handling any of these:
+          * an explicitly provided output file
+          * guess output file from output-mode/input-filename,
+          * stdout, via '/dev/stdout' or '-'
+
+        If '--imgcat' is passed, this will preview the result using imgcat.
         """
+        # FIXME: move this stuff to shil lib?
+        from uuid import uuid4
+
         import python_on_whales
         from python_on_whales import docker
+
+        from pynchon.util.os import invoke
 
         special = output in ["-", "/dev/stdout"]
         post_op = ""
@@ -92,15 +104,17 @@ class Mermaid(models.DiagramTool, Planner):
         output = abcs.Path(output)
         output = output.absolute().relative_to(wd)
         uid = os.getuid()
-        from uuid import uuid4
-
-        from pynchon.util.os import invoke
-
         try:
             this_name = f"pynchon.mmd-{uuid4()}"
-            result = docker.run(
+            self.logger.warning(f"starting mmd container {this_name}")
+            mmd_args = " ".join(self["mermaid_args"::[]])
+            cmd = f"-i {file} -o {output} {mmd_args}"
+            cmd_array = cmd.split()
+            dargs = [
                 self.config.docker_image,
-                f"-i {file} -o {output} {self['default_args']}".split(),
+                cmd_array,
+            ]
+            dkwargs = dict(
                 name=this_name,
                 volumes=[(wd, "/workspace")],
                 # interactive=True,
@@ -109,13 +123,27 @@ class Mermaid(models.DiagramTool, Planner):
                 user=uid,
                 detach=True,
             )
-            c = [c for c in docker.ps() if c.name == this_name][0]
-            while c.state.status != "exited":
-                self.logger.debug(f"polling {this_name}..")
-                import time
+            LOGGER.warning("running docker:")
+            LOGGER.warning(f"    name: '{this_name}'")
+            LOGGER.warning(f"    image: '{self.config.docker_image}'")
+            LOGGER.warning(f"    command: '{cmd}' ")
+            cid = docker.run(*dargs, **dkwargs)
+            stat = None
+            import time
 
+            while stat != "exited":
                 time.sleep(0.7)
-                c = [c for c in docker.ps() if c.name == this_name][0]
+                self.logger.warning(f"polling for {this_name} @ {cid}..")
+                try:
+                    c = invoke(
+                        f"docker ps -a --filter id={cid} --format json | tee /dev/stderr",
+                        load_json=True,
+                    ).data
+                except (IndexError,):
+                    pass
+                else:
+                    stat = c["State"]
+                    LOGGER.debug(f"updated status: {stat}")
             # import IPython; IPython.embed()
         except (python_on_whales.exceptions.DockerException,) as exc:
             LOGGER.critical(exc)
@@ -124,7 +152,13 @@ class Mermaid(models.DiagramTool, Planner):
             invoke(post_op, strict=True, system=True)
             return None
         else:
-            return result
+            invoke(
+                f"docker logs {cid} > /dev/stderr",
+                command_logger=self.logger.warning,
+                system=True,
+            )
+        if imgcat:
+            invoke(f"imgcat {output}", system=True)
 
     @property
     def output_root(self):
