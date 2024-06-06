@@ -108,20 +108,37 @@ class Make(models.Planner):
 
     @tagging.tags(click_aliases=["parse.makefile"])
     @cli.click.flag(
-        "--graph", "only_graph", help="Returns only the prerequisites-graph"
+        "--graph", "-g", "only_graph", help="Returns only the prerequisites-graph"
+    )
+    @cli.click.flag(
+        "--include-private",
+        "-p",
+        "include_private",
+        help="Includes 'private' targets that start with '.')",
+    )
+    @cli.click.flag(
+        "--module-docs",
+        help="Module docs only)",
     )
     @cli.click.argument(
         "makefile",
-        # help="Return only the prerequisites-graph"
         default="",
         required=False,
     )
-    def parse(self, makefile: str = "", only_graph: bool = False):
+    def parse(
+        self,
+        makefile: str = "",
+        only_graph: bool = False,
+        include_private: bool = False,
+        module_docs: bool = False,
+    ):
         """Parse Makefile to JSON.  Includes DAGs for targets, target-body, and target-type details"""
         makefile = makefile or self.config["file"]
         from collections import OrderedDict
 
-        out = makefile_parse(makefile=makefile)
+        out = makefile_parse(
+            makefile=makefile, module_docs=module_docs, include_private=include_private
+        )
         out = OrderedDict(sorted([k, v] for k, v in out.items()))
         if only_graph:
             out = {t: out[t]["prereqs"] for t in out}

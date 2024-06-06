@@ -25,7 +25,7 @@ clean: py-clean docker-clean
 docker-clean:
 	docker rmi $(DOCKER_IMAGE_NAME) >/dev/null || true
 
-docker-build:	
+docker-build build.docker:	
 	docker build -t $(DOCKER_IMAGE_NAME) .
 
 docker-shell:
