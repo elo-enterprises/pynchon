@@ -33,7 +33,7 @@ class AppConsole(fleks_app.AppBase):
     def __init__(self, **kwargs):
         """ """
         self.console = Console()
-        self.init_rich_tracebacks()
+        # self.init_rich_tracebacks()
 
     @classmethod
     def init_rich_tracebacks(kls):
