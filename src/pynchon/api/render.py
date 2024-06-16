@@ -57,10 +57,12 @@ def get_jinja_globals():
     def is_markdown_list_item(text: str):
         return text.rstrip().startswith("* ")
 
-    def invoke_helper(*args, **kwargs) -> typing.StringMaybe:
+    def invoke_helper(cmd, **kwargs) -> typing.StringMaybe:
         """A jinja filter/extension"""
         strict = kwargs.pop("strict", True)
-        out = invoke(*args, **kwargs)
+        command_logger = kwargs.pop("command_logger", LOGGER.warning)
+        kwargs.update(command_logger=command_logger)
+        out = invoke(cmd, **kwargs)
         if not out.succeeded:
             raise Exception(out)
         if kwargs.get("load_json", False):

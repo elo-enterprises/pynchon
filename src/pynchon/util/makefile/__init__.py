@@ -32,9 +32,10 @@ def database(makefile: str = "", make="make") -> typing.List[str]:
         raise ValueError(f"{makefile} does not exist")
     else:
         LOGGER.warning(f"parsing makefile @ {makefile}")
-    cmd = f"{make} --print-data-base -pqRrs -f {makefile}"
-    resp = invoke(cmd, command_logger=LOGGER.warning)
-    out = resp.stdout.split("\n")
+    cmd = f"{make} --print-data-base -pqRrs -f {makefile} > .tmp.mk.db"
+    resp = invoke(cmd, system=True, command_logger=LOGGER.debug)
+    out = open('.tmp.mk.db','r').read().split('\n')
+    os.remove('.tmp.mk.db')
     return out
 
 
