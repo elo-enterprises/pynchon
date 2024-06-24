@@ -34,8 +34,8 @@ def database(makefile: str = "", make="make") -> typing.List[str]:
         LOGGER.warning(f"parsing makefile @ {makefile}")
     cmd = f"{make} --print-data-base -pqRrs -f {makefile} > .tmp.mk.db"
     resp = invoke(cmd, system=True, command_logger=LOGGER.debug)
-    out = open('.tmp.mk.db','r').read().split('\n')
-    os.remove('.tmp.mk.db')
+    out = open(".tmp.mk.db").read().split("\n")
+    os.remove(".tmp.mk.db")
     return out
 
 
@@ -52,7 +52,6 @@ def _test(x):
 
 
 def _get_prov_line(body):
-    # zzz = "#  recipe to execute (from '"
     pline = [x for x in body if zzz in x]
     pline = pline[0] if pline else None
     return pline
@@ -67,7 +66,7 @@ def _get_file(body=None, makefile=None):
 
 
 @cli.click.argument("makefile")
-def parse(makefile: str = None, bodies=False, **kwargs):
+def parse(makefile: str = None, bodies:bool=False, parse_target_aliases:bool=True, **kwargs):
     """
     Parse Makefile to JSON.  Includes targets/prereq detail
     """
@@ -161,6 +160,17 @@ def parse(makefile: str = None, bodies=False, **kwargs):
         for k, v in out.items():
             v.pop("body", [])
             tmp[k] = v
+        out = tmp
+
+    if parse_target_aliases:
+        tmp = {}
+        for aliases_maybe, v in out.items():
+            aliases = aliases_maybe.split(" ")
+            if len(aliases) > 1:
+                primary = aliases.pop(0)
+                tmp[primary] = v
+                for alias in aliases:
+                    tmp[alias] = {**v, **dict(docs=f"(Alias for {primary})")}
         out = tmp
     return out
 
