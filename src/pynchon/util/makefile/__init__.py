@@ -66,7 +66,12 @@ def _get_file(body=None, makefile=None):
 
 
 @cli.click.argument("makefile")
-def parse(makefile: str = None, bodies:bool=False, parse_target_aliases:bool=True, **kwargs):
+def parse(
+    makefile: str = None,
+    bodies: bool = False,
+    parse_target_aliases: bool = True,
+    **kwargs,
+):
     """
     Parse Makefile to JSON.  Includes targets/prereq detail
     """
@@ -170,7 +175,12 @@ def parse(makefile: str = None, bodies:bool=False, parse_target_aliases:bool=Tru
                 primary = aliases.pop(0)
                 tmp[primary] = v
                 for alias in aliases:
-                    tmp[alias] = {**v, **dict(docs=f"(Alias for {primary})")}
+                    tmp[alias] = {
+                        **v,
+                        **dict(alias=True, primary=primary, docs=[f"(Alias for '{primary}')"]),
+                    }
+            else:
+                tmp[aliases_maybe]=v
         out = tmp
     return out
 
