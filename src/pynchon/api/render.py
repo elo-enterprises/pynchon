@@ -106,8 +106,11 @@ def get_jinja_globals():
 
         return re.sub(r"\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?", "", s)
 
+    import urllib.parse
+
     return dict(
         str=str,
+        url_quote=urllib.parse.quote_plus,
         strip_ansi_codes=strip_ansi_codes,
         sh=invoke_helper,
         bash=invoke_helper,

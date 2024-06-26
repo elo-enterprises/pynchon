@@ -39,18 +39,6 @@ def database(makefile: str = "", make="make") -> typing.List[str]:
     return out
 
 
-def _test(x):
-    """ """
-    return all(
-        [
-            ":" in x.strip(),
-            not x.startswith("#"),
-            not x.startswith("."),
-            not x.startswith("\t"),
-        ]
-    )
-
-
 def _get_prov_line(body):
     pline = [x for x in body if zzz in x]
     pline = pline[0] if pline else None
@@ -69,12 +57,25 @@ def _get_file(body=None, makefile=None):
 def parse(
     makefile: str = None,
     bodies: bool = False,
+    include_private: bool = False,
     parse_target_aliases: bool = True,
     **kwargs,
 ):
     """
     Parse Makefile to JSON.  Includes targets/prereq detail
     """
+
+    def _test(x):
+        """ """
+        tests = [
+            ":" in x.strip(),
+            not x.startswith("#"),
+            not x.startswith("\t"),
+        ]
+        # if include_private:
+        #     tests+=[not x.startswith("."),]
+        return all(tests)
+
     assert os.path.exists(makefile)
     wd = abcs.Path(".")
     db = database(makefile, **kwargs)
@@ -167,6 +168,16 @@ def parse(
             tmp[k] = v
         out = tmp
 
+    if not include_private:
+        LOGGER.warning("Popping all the private-targets..")
+        tmp = {}
+        for k, v in out.items():
+            if not k.startswith("."):
+                tmp[k] = v
+        out = tmp
+    else:
+        LOGGER.warning("Including private-targets..")
+
     if parse_target_aliases:
         tmp = {}
         for aliases_maybe, v in out.items():
@@ -177,10 +188,14 @@ def parse(
                 for alias in aliases:
                     tmp[alias] = {
                         **v,
-                        **dict(alias=True, primary=primary, docs=[f"(Alias for '{primary}')"]),
+                        **dict(
+                            alias=True,
+                            primary=primary,
+                            docs=[f"(Alias for '{primary}')"],
+                        ),
                     }
             else:
-                tmp[aliases_maybe]=v
+                tmp[aliases_maybe] = v
         out = tmp
     return out
 
