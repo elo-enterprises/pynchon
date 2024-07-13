@@ -10,8 +10,8 @@ from pynchon.util.os import invoke
 from pynchon.util import lme, typing  # noqa
 
 LOGGER = lme.get_logger(__name__)
-zzz = "#  recipe to execute (from '"
-vvv = "# Variables"
+_recipe_pattern = "#  recipe to execute (from '"
+_variables_pattern = "# Variables"
 fff = "# files hash-table stats:"
 
 
@@ -21,6 +21,7 @@ def database(makefile: str = "", make="make") -> typing.List[str]:
     Get database for Makefile
     (This output comes from 'make --print-data-base')
     """
+    LOGGER.critical(f"building database for {makefile}")
     assert makefile
     tmp = abcs.Path(makefile)
     if not all(
@@ -32,27 +33,15 @@ def database(makefile: str = "", make="make") -> typing.List[str]:
         raise ValueError(f"{makefile} does not exist")
     else:
         LOGGER.warning(f"parsing makefile @ {makefile}")
-    cmd = f"{make} --print-data-base -pqRrs -f {makefile}"
-    resp = invoke(cmd, command_logger=LOGGER.warning)
-    out = resp.stdout.split("\n")
+    cmd = f"{make} --print-data-base -pqRrs -f {makefile} > .tmp.mk.db"
+    resp = invoke(cmd, system=True, command_logger=LOGGER.debug)
+    out = open(".tmp.mk.db").read().split("\n")
+    os.remove(".tmp.mk.db")
     return out
 
 
-def _test(x):
-    """ """
-    return all(
-        [
-            ":" in x.strip(),
-            not x.startswith("#"),
-            not x.startswith("."),
-            not x.startswith("\t"),
-        ]
-    )
-
-
 def _get_prov_line(body):
-    # zzz = "#  recipe to execute (from '"
-    pline = [x for x in body if zzz in x]
+    pline = [x for x in body if _recipe_pattern in x]
     pline = pline[0] if pline else None
     return pline
 
@@ -60,21 +49,41 @@ def _get_prov_line(body):
 def _get_file(body=None, makefile=None):
     pline = _get_prov_line(body)
     if pline:
-        return pline.split(zzz)[-1].split("'")[0]
+        return pline.split(_recipe_pattern)[-1].split("'")[0]
     else:
         return str(makefile)
 
 
+@cli.click.flag("--module-docs", help="Only return module docs")
 @cli.click.argument("makefile")
-def parse(makefile: str = None, bodies=False, **kwargs):
+def parse(
+    makefile: str = None,
+    bodies: bool = False,
+    include_private: bool = False,
+    module_docs: bool = False,
+    parse_target_aliases: bool = True,
+    **kwargs,
+):
     """
     Parse Makefile to JSON.  Includes targets/prereq detail
     """
+
+    def _test(x):
+        """ """
+        tests = [
+            ":" in x.strip(),
+            not x.startswith("#"),
+            not x.startswith("\t"),
+        ]
+        # if include_private:
+        #     tests+=[not x.startswith("."),]
+        return all(tests)
+
     assert os.path.exists(makefile)
     wd = abcs.Path(".")
     db = database(makefile, **kwargs)
     original = open(makefile).readlines()
-    variables_start = db.index(vvv)
+    variables_start = db.index(_variables_pattern)
     variables_end = db.index("", variables_start + 2)
     vars = db[variables_start:variables_end]
     db = db[variables_end:]
@@ -96,6 +105,13 @@ def parse(makefile: str = None, bodies=False, **kwargs):
     out = {}
     targets = [t for t in targets if t != f"{makefile}:"]
     for tline in targets:
+        if any(
+            [
+                tline.startswith(" ") or tline.startswith(x)
+                for x in "$ @ & \t".split(" ")
+            ]
+        ):
+            continue
         bits = tline.split(":")
         target_name = bits.pop(0)
         childs = ":".join(bits)
@@ -155,12 +171,85 @@ def parse(makefile: str = None, bodies=False, **kwargs):
             if len(tmeta["prereqs"]) == 1:
                 tmeta["chain"] = tmeta["prereqs"][0]
 
+    # user requested no target-bodies should be provided
     if not bodies:
         tmp = {}
         for k, v in out.items():
             v.pop("body", [])
             tmp[k] = v
         out = tmp
+
+    # user requested private-targets should not be included
+    if not include_private:
+        LOGGER.warning("Popping all the private-targets..")
+        tmp = {}
+        for k, v in out.items():
+            if not k.startswith("."):
+                tmp[k] = v
+        out = tmp
+    else:
+        LOGGER.warning("Including private-targets..")
+
+    # user requested target aliases should be treated
+    if parse_target_aliases:
+        tmp = {}
+        for aliases_maybe, v in out.items():
+            aliases = aliases_maybe.split(" ")
+            if len(aliases) > 1:
+                primary = aliases.pop(0)
+                tmp[primary] = v
+                for alias in aliases:
+                    tmp[alias] = {
+                        **v,
+                        **dict(
+                            alias=True,
+                            primary=primary,
+                            docs=[f"(Alias for '{primary}')"],
+                        ),
+                    }
+            else:
+                tmp[aliases_maybe] = v
+        out = tmp
+
+    #
+    if module_docs:
+        modules = []
+        blocks = {}
+        for k in out.keys():
+            k = k.strip().lstrip()
+            k = k.split(".")[0]
+            if not k:
+                continue
+            if k[0] in "_ \t $ self".split():
+                continue
+            if any([x in k for x in "& /".split(" ")]):
+                continue
+            if k not in modules:
+                modules.append(k)
+        LOGGER.debug(f"found modules: {modules}")
+        lines = open(makefile).readlines()
+        for i, line in enumerate(lines):
+            line = line.lstrip()
+            if not line.startswith("#") and not line.startswith("@#"):
+                continue
+            if "BEGIN" in line:
+                blockend = len(lines)
+                for j, l2 in enumerate(lines[i:]):
+                    if not l2.strip():
+                        block_end = i + j
+                        break
+                found = None
+                for mod in modules:
+                    if mod in line:
+                        found = mod
+                        break
+                if not found:
+                    LOGGER.warning(f"could not find module for block: {line}")
+                    blocks[line[line.index("BEGIN") :].strip()] = lines[i:block_end]
+                else:
+                    blocks[found] = lines[i:block_end]
+        blocks = {k: [line.strip() for line in v] for k, v in blocks.items()}
+        return blocks
     return out
 
 

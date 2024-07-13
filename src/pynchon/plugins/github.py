@@ -28,13 +28,20 @@ class GitHub(models.ToolPlugin):
         repo_url: typing.StringMaybe = typing.Field(default=None)
         actions: typing.List[abcs.Path] = typing.Field(default=[None])
         raw_url: typing.StringMaybe = typing.Field(default=None)
+        repo_name: typing.StringMaybe = typing.Field(default=None)
         repo_ssh_url: typing.StringMaybe = typing.Field(default=None)
+        actions_url: typing.StringMaybe = typing.Field(default=None)
         # branch_name: typing.StringMaybe = typing.Field(default=None)
 
         # @property
         # def branch_name(self):
         #     """URL for serving raw content"""
         #     return config.git.branch_name
+
+        @property
+        def actions_url(self) -> str:
+            """Base URL for github Actions"""
+            return f"{self.repo_url}/actions"
 
         @property
         def raw_url(self):
@@ -59,6 +66,12 @@ class GitHub(models.ToolPlugin):
                         for fname in wflows.list()
                     ]
             return []
+
+        @property
+        def repo_name(self) -> typing.StringMaybe:
+            """Repository Name"""
+            if self.repo_ssh_url:
+                return self.repo_ssh_url[self.repo_ssh_url.rfind("/") + 1 :].split()[0]
 
         @property
         def repo_url(self) -> typing.StringMaybe:
