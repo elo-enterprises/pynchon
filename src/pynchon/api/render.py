@@ -64,8 +64,8 @@ def get_jinja_globals():
         kwargs.update(command_logger=command_logger)
         out = invoke(cmd, **kwargs)
         if not out.succeeded:
-            LOGGER.critical('failed: '+str(out))
-            return 'failed'
+            LOGGER.critical("failed: " + str(out))
+            return "failed"
             # raise Exception(out)
         if kwargs.get("load_json", False):
             return out.data

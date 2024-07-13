@@ -16,6 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: make build-docker
+        run: make build.docker
       # - name: Smoke-Test
       #   run: make smoke-test
