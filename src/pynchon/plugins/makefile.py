@@ -120,6 +120,10 @@ class Make(models.Planner):
         "--module-docs",
         help="Module docs only)",
     )
+    @cli.click.option(
+        "--target",
+        help="Retrieve help for named target only",
+    )
     @cli.click.argument(
         "makefile",
         default="",
@@ -128,6 +132,7 @@ class Make(models.Planner):
     def parse(
         self,
         makefile: str = "",
+        target: str = "",
         only_graph: bool = False,
         include_private: bool = False,
         module_docs: bool = False,
@@ -137,7 +142,10 @@ class Make(models.Planner):
         from collections import OrderedDict
 
         out = makefile_parse(
-            makefile=makefile, module_docs=module_docs, include_private=include_private
+            makefile=makefile,
+            target=target,
+            module_docs=module_docs,
+            include_private=include_private,
         )
         out = OrderedDict(sorted([k, v] for k, v in out.items()))
         if only_graph:

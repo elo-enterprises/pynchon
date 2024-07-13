@@ -54,10 +54,12 @@ def _get_file(body=None, makefile=None):
         return str(makefile)
 
 
+@cli.click.option("--target", help="Retrieves help for named target only")
 @cli.click.flag("--module-docs", help="Only return module docs")
 @cli.click.argument("makefile")
 def parse(
     makefile: str = None,
+    target: str = "",
     bodies: bool = False,
     include_private: bool = False,
     module_docs: bool = False,
@@ -211,7 +213,9 @@ def parse(
                 tmp[aliases_maybe] = v
         out = tmp
 
-    #
+    if target:
+        out = out[target]
+
     if module_docs:
         modules = []
         blocks = {}
