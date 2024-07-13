@@ -70,7 +70,8 @@ class GitHub(models.ToolPlugin):
         @property
         def repo_name(self) -> typing.StringMaybe:
             """Repository Name"""
-            return self.repo_ssh_url[self.repo_ssh_url.rfind("/") + 1 :].split()[0]
+            if self.repo_ssh_url:
+                return self.repo_ssh_url[self.repo_ssh_url.rfind("/") + 1 :].split()[0]
 
         @property
         def repo_url(self) -> typing.StringMaybe:
