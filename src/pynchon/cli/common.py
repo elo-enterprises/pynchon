@@ -34,7 +34,6 @@ def entry_for(
     name,
 ):
     """ """
-    # from pynchon import shimport
     import importlib
 
     unf = importlib.import_module(name)
@@ -114,11 +113,13 @@ class kommand:
             result = self.fxn(*args, **call_kwargs)
             if result is not None:
                 result and LOGGER.info(f"json conversion for type: {type(result)}")
-                import rich
 
                 tmp = text.to_json(result)
-                # raise Exception('bonk')
-                rich.print(tmp)
+                # NB: using rich here is tempting but dangerous.  this can insert control-codes
+                # that interfere with json parsing downstream!
+                # import rich
+                # rich.print(tmp)
+                print(tmp)
             return result
 
         return newf

@@ -12,7 +12,7 @@ from pynchon.util import lme, typing  # noqa
 LOGGER = lme.get_logger(__name__)
 _recipe_pattern = "#  recipe to execute (from '"
 _variables_pattern = "# Variables"
-fff = "# files hash-table stats:"
+_ht_stats_pattern = "# files hash-table stats:"
 
 
 @cli.click.argument("makefile")
@@ -55,20 +55,34 @@ def _get_file(body=None, makefile=None):
 
 
 @cli.click.option("--target", help="Retrieves help for named target only")
+@cli.click.flag("--markdown", help="Enriches docs by guessing at markdown formatting")
 @cli.click.flag("--module-docs", help="Only return module docs")
 @cli.click.argument("makefile")
 def parse(
     makefile: str = None,
     target: str = "",
     bodies: bool = False,
+    markdown: bool = False,
     include_private: bool = False,
     module_docs: bool = False,
     parse_target_aliases: bool = True,
     **kwargs,
 ):
     """
-    Parse Makefile to JSON.  Includes targets/prereq detail
+    Parse Makefile to JSON.  Includes targets/prereqs details and documentation.
     """
+
+    # enrichment
+    def _enricher(text, pattern):
+        import re
+
+        def replacement(match):
+            before = match.group("before")
+            during = match.group("during")
+            return f"{before}\n```bash\n{during}\n```"
+
+        result = re.sub(pattern, replacement, text, flags=re.MULTILINE)
+        return result
 
     def _test(x):
         """ """
@@ -91,7 +105,7 @@ def parse(
     db = db[variables_end:]
     implicit_rule_start = db.index("# Implicit Rules")
     file_rule_start = db.index("# Files")
-    file_rule_end = db.index(fff)
+    file_rule_end = db.index(_ht_stats_pattern)
     for i, line in enumerate(db[implicit_rule_start:]):
         if "implicit rules, " in line and line.endswith(" terminal."):
             implicit_rule_end = implicit_rule_start + i
@@ -144,6 +158,7 @@ def parse(
             file=file,
             lineno=lineno,
             body=body,
+            chain=None,
             type=type,
             docs=[x[len("\t@#") :] for x in body if x.startswith("\t@#")],
             prereqs=prereqs,
@@ -157,7 +172,7 @@ def parse(
             for impl in out:
                 if impl != target_name and re.compile(tmeta["regex"]).match(impl):
                     implementors.append(impl)
-            tmeta["implementors"] = implementors
+            out[target_name]["implementors"] = implementors
 
     for target_name, tmeta in out.items():
         real_body = [
@@ -172,6 +187,25 @@ def parse(
                     tmeta["chain"] = chain
             if len(tmeta["prereqs"]) == 1:
                 tmeta["chain"] = tmeta["prereqs"][0]
+        else:
+            tmeta["chain"] = []
+        out[target_name] = tmeta
+
+    for target_name, tmeta in out.items():
+        # if this is a simple alias with no docs, pull the docs from the principal
+        if not tmeta["docs"] and tmeta["chain"]:
+            out[target_name]["docs"] = out[tmeta["chain"]]["docs"]
+        docs = "\n".join([x.lstrip() for x in out[target_name]["docs"]])
+        # user requested enriching docs with markdown
+        if markdown:
+            if "USAGE" in docs:
+                out[target_name]["docs"] = _enricher(
+                    docs, r"(?P<before>USAGE:.*)\n(?P<during>.*)\n"
+                ).split("\n")
+            if "EXAMPLE" in docs:
+                out[target_name]["docs"] = _enricher(
+                    docs, r"(?P<before>EXAMPLE:.*)\n(?P<during>.*)\n"
+                ).split("\n")
 
     # user requested no target-bodies should be provided
     if not bodies:
@@ -213,9 +247,11 @@ def parse(
                 tmp[aliases_maybe] = v
         out = tmp
 
+    # user requested target-search
     if target:
         out = out[target]
 
+    # user requested lookup string or module docs
     if module_docs:
         modules = []
         blocks = {}
@@ -240,7 +276,7 @@ def parse(
                 blockend = len(lines)
                 for j, l2 in enumerate(lines[i:]):
                     if not l2.strip():
-                        block_end = i + j
+                        block_end = i + j - 1
                         break
                 found = None
                 for mod in modules:
@@ -249,11 +285,14 @@ def parse(
                         break
                 if not found:
                     LOGGER.warning(f"could not find module for block: {line}")
-                    blocks[line[line.index("BEGIN") :].strip()] = lines[i:block_end]
+                    blocks[line[line.index("BEGIN") + 1 :].strip()] = lines[
+                        i + 1 : block_end
+                    ]
                 else:
                     blocks[found] = lines[i:block_end]
         blocks = {k: [line.strip() for line in v] for k, v in blocks.items()}
-        return blocks
+        if module_docs:
+            return blocks
     return out
 
 

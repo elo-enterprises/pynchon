@@ -114,16 +114,25 @@ class Make(models.Planner):
         "--include-private",
         "-p",
         "include_private",
-        help="Includes 'private' targets that start with '.')",
+        help="Includes 'private' targets that start with '.'",
     )
     @cli.click.flag(
         "--module-docs",
-        help="Module docs only)",
+        help="Module docs only",
+    )
+    @cli.click.flag(
+        "--markdown",
+        help="Enrich docs with markdown",
     )
     @cli.click.option(
         "--target",
         help="Retrieve help for named target only",
     )
+    # @cli.click.option(
+    #     "--lookup",
+    #     help="Retrieves best-guess for the relevant help, where lookup might be a target, or a target namespace, etc",
+    #     default="",
+    # )
     @cli.click.argument(
         "makefile",
         default="",
@@ -133,9 +142,11 @@ class Make(models.Planner):
         self,
         makefile: str = "",
         target: str = "",
+        # lookup: str = "",
         only_graph: bool = False,
         include_private: bool = False,
         module_docs: bool = False,
+        markdown: bool = False,
     ):
         """Parse Makefile to JSON.  Includes DAGs for targets, target-body, and target-type details"""
         makefile = makefile or self.config["file"]
@@ -144,10 +155,16 @@ class Make(models.Planner):
         out = makefile_parse(
             makefile=makefile,
             target=target,
+            # lookup=lookup,
             module_docs=module_docs,
+            markdown=markdown,
             include_private=include_private,
         )
-        out = OrderedDict(sorted([k, v] for k, v in out.items()))
+        out = (
+            OrderedDict(sorted([k, v] for k, v in out.items()))
+            if isinstance(out, (dict,))
+            else out
+        )
         if only_graph:
             out = {t: out[t]["prereqs"] for t in out}
         return out
