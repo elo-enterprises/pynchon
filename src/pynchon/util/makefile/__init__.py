@@ -82,7 +82,7 @@ def parse(
             return f"{before}\n```bash\n{during}\n```"
 
         result = re.sub(pattern, replacement, text, flags=re.MULTILINE)
-        return result
+        return result.replace("USAGE:", "*USAGE:*").replace("EXAMPLE:", "*EXAMPLE:*")
 
     def _test(x):
         """ """
@@ -204,9 +204,21 @@ def parse(
                 ).split("\n")
             if "EXAMPLE" in docs:
                 out[target_name]["docs"] = docs = _enricher(
-                    "\n".join([x.lstrip() for x in out[target_name]["docs"]]), \
-                    r"(?P<before>EXAMPLE:.*)\n(?P<during>.*)\n"
+                    "\n".join([x.lstrip() for x in out[target_name]["docs"]]),
+                    r"(?P<before>EXAMPLE:.*)\n(?P<during>.*)\n",
                 ).split("\n")
+                docs = out[target_name]["docs"]
+                rfmt = [""]
+                while docs:
+                    tmp = docs.pop(0)
+                    if any([x in tmp for x in "** ```".split()]):
+                        rfmt = rfmt + [tmp] + docs
+                        break
+                    if tmp:
+                        rfmt[-1] += f" {tmp}"
+                    else:
+                        rfmt += [tmp]
+                out[target_name]["docs"] = rfmt
 
     # user requested no target-bodies should be provided
     if not bodies:
