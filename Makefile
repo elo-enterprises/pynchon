@@ -25,7 +25,7 @@ clean: py-clean docker-clean
 docker-clean:
 	docker rmi $(DOCKER_IMAGE_NAME) >/dev/null || true
 
-docker-build build.docker:	
+docker-build docker.build build.docker:	
 	docker build -t $(DOCKER_IMAGE_NAME) .
 
 docker-shell:
@@ -76,20 +76,14 @@ tox-%:
 	tox -e ${*}
 
 normalize: tox-normalize
-lint: static-analysis
-static-analysis: tox-static-analysis
-test-units: utest
-test-integrations: itest
-smoke-test: stest
-stest: tox-stest
-itest: tox-itest
-utest: tox-utest
+lint static-analysis: tox-static-analysis
+smoke-test stest: tox-stest
+test-integrations itest: tox-itest
+utest test-units: tox-utest
 dtest: tox-dtest
 docs-test: dtest
 test: test-units test-integrations smoke-test
 iterate: clean normalize lint test
-# coverage:
-# 	echo NotImplementedYet
 
 plan: docs-plan
 plan-docs: docs-plan
@@ -101,10 +95,9 @@ docs-plan:
 	pynchon python-api plan
 	pynchon python-cli plan
 docs: docs-apply
-docs-apply:
+docs-apply apply:
 	@# Run from tox, not vice versa 
 	pynchon src apply
 	pynchon docs apply
 	pynchon python-api apply
 	pynchon python-cli apply
-apply: docs-apply
