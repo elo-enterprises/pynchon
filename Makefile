@@ -27,6 +27,11 @@ docker-clean:
 
 docker-build docker.build build.docker:	
 	docker build -t $(DOCKER_IMAGE_NAME) .
+	docker tag $(DOCKER_IMAGE_NAME) robotwranglers/pynchon:latest
+	docker tag $(DOCKER_IMAGE_NAME) robotwranglers/pynchon:`git rev-parse HEAD`
+docker.push:
+	docker push robotwranglers/pynchon:latest
+	docker push robotwranglers/pynchon:`git rev-parse HEAD`
 
 docker-shell:
 	docker run -it --rm -v `pwd`:/workspace -w /workspace \
