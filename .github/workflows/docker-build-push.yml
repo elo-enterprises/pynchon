@@ -38,7 +38,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: |
-            type=sha
-            robotwranglers/pynchon:latest
+          tags: robotwranglers/pynchon:latest robotwranglers/pynchon:${GITHUB_SHA}
           labels: ${{ steps.meta.outputs.labels }}
