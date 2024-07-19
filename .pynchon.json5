@@ -104,7 +104,7 @@
   },
   // Config for `dockerhub` plugin:
   "dockerhub":{
-    "org_name": "eloengineering",
+    "org_name": "robotwranglers",
     "repo_name": "pynchon",
   },
   // Config for `project` plugin:

@@ -195,16 +195,17 @@ def parse(
         # if this is a simple alias with no docs, pull the docs from the principal
         if not tmeta["docs"] and tmeta["chain"]:
             out[target_name]["docs"] = out[tmeta["chain"]]["docs"]
-        docs = "\n".join([x.lstrip() for x in out[target_name]["docs"]])
         # user requested enriching docs with markdown
         if markdown:
+            docs = "\n".join([x.lstrip() for x in out[target_name]["docs"]])
             if "USAGE" in docs:
                 out[target_name]["docs"] = _enricher(
                     docs, r"(?P<before>USAGE:.*)\n(?P<during>.*)\n"
                 ).split("\n")
             if "EXAMPLE" in docs:
-                out[target_name]["docs"] = _enricher(
-                    docs, r"(?P<before>EXAMPLE:.*)\n(?P<during>.*)\n"
+                out[target_name]["docs"] = docs = _enricher(
+                    "\n".join([x.lstrip() for x in out[target_name]["docs"]]), \
+                    r"(?P<before>EXAMPLE:.*)\n(?P<during>.*)\n"
                 ).split("\n")
 
     # user requested no target-bodies should be provided
