@@ -32,7 +32,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: robotwranglers/pynchon
-        tags: type=sha
+          tags: type=sha
       - name: Build and push Docker image
         # uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         uses: docker/build-push-action@v6
