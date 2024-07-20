@@ -72,9 +72,8 @@ def parse(
     Parse Makefile to JSON.  Includes targets/prereqs details and documentation.
     """
 
-    # enrichment
     def _enricher(text, pattern):
-        import re
+        """ """
 
         def replacement(match):
             before = match.group("before")
@@ -207,18 +206,18 @@ def parse(
                     "\n".join([x.lstrip() for x in out[target_name]["docs"]]),
                     r"(?P<before>EXAMPLE:.*)\n(?P<during>.*)\n",
                 ).split("\n")
-                docs = out[target_name]["docs"]
-                rfmt = [""]
-                while docs:
-                    tmp = docs.pop(0)
-                    if any([x in tmp for x in "** ```".split()]):
-                        rfmt = rfmt + [tmp] + docs
-                        break
-                    if tmp:
-                        rfmt[-1] += f" {tmp}"
-                    else:
-                        rfmt += [tmp]
-                out[target_name]["docs"] = rfmt
+            docs = out[target_name]["docs"]
+            rfmt = [""]
+            while docs:
+                tmp = docs.pop(0)
+                if any([x in tmp for x in "```".split()]):
+                    rfmt = rfmt + [tmp] + docs
+                    break
+                if tmp:
+                    rfmt[-1] += f" {tmp}"
+                else:
+                    rfmt += ["<br>", tmp]
+            out[target_name]["docs"] = rfmt
 
     # user requested no target-bodies should be provided
     if not bodies:
@@ -298,12 +297,14 @@ def parse(
                         break
                 if not found:
                     LOGGER.warning(f"could not find module for block: {line}")
-                    blocks[line[line.index("BEGIN") + 1 :].strip()] = lines[
+                    blocks[line[line.index("BEGIN") :].strip()] = lines[
                         i + 1 : block_end
                     ]
                 else:
                     blocks[found] = lines[i:block_end]
-        blocks = {k: [line.strip() for line in v] for k, v in blocks.items()}
+        blocks = {
+            k: [line[len("## ") :].strip() for line in v] for k, v in blocks.items()
+        }
         if module_docs:
             return blocks
     return out
