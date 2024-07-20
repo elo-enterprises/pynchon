@@ -25,13 +25,15 @@ clean: py-clean docker-clean
 docker-clean:
 	docker rmi $(DOCKER_IMAGE_NAME) >/dev/null || true
 
+SHORT_SHA=$(shell git rev-parse --short HEAD)
 docker-build docker.build build.docker:	
 	docker build -t $(DOCKER_IMAGE_NAME) .
 	docker tag $(DOCKER_IMAGE_NAME) robotwranglers/pynchon:latest
-	docker tag $(DOCKER_IMAGE_NAME) robotwranglers/pynchon:`git rev-parse HEAD`
+	docker tag $(DOCKER_IMAGE_NAME) robotwranglers/pynchon:${SHORT_SHA}
+
 docker.push:
 	docker push robotwranglers/pynchon:latest
-	docker push robotwranglers/pynchon:`git rev-parse --short HEAD`
+	docker push robotwranglers/pynchon:${SHORT_SHA}
 
 docker-shell:
 	docker run -it --rm -v `pwd`:/workspace -w /workspace \
