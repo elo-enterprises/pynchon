@@ -74,14 +74,28 @@ def parse(
 
     def _enricher(text, pattern):
         """ """
+        # raise Exception(text)
+        pat = re.compile(pattern, re.MULTILINE)
 
-        def replacement(match):
-            before = match.group("before")
-            during = match.group("during")
-            return f"{before}\n```bash\n{during}\n```"
+        def rrr(match):
+            label = match.group("label")
+            indent = match.group("indent")
+            content = match.group("content")
+            dedented_content = re.sub(r"^[\t\s]{2,4}", "", content, flags=re.MULTILINE)
+            code_block = (
+                f"{indent}\n\nEXAMPLE:{label}\n\n```bash\n{dedented_content}```\n"
+            )
+            return code_block
 
-        result = re.sub(pattern, replacement, text, flags=re.MULTILINE)
-        return result.replace("USAGE:", "*USAGE:*").replace("EXAMPLE:", "*EXAMPLE:*")
+        result = pat.sub(rrr, text)
+        # def replacement(match):
+        #     before = match.group("before")
+        #     during = match.group("during")
+        #     return f"{before}\n```bash\n{during}\n```"
+        # result = re.sub(pattern, replacement, text, flags=re.DOTALL)
+        return (
+            result  # .replace("USAGE:", "*USAGE:*").replace("EXAMPLE:", "*EXAMPLE:*")
+        )
 
     def _test(x):
         """ """
@@ -93,6 +107,26 @@ def parse(
         # if include_private:
         #     tests+=[not x.startswith("."),]
         return all(tests)
+
+    def zip_markdown(docs):
+        if isinstance(docs, (str,)):
+            docs = docs.split("\n")
+        rfmt = [""]
+        while docs:
+            tmp = docs.pop(0)
+            if tmp.lstrip().startswith("* ") or any(
+                [x in tmp for x in "USAGE: EXAMPLE: ```".split()]
+            ):
+                rfmt = rfmt + [tmp] + docs
+                break
+            if tmp.lstrip().startswith("---"):
+                rfmt += [tmp]
+                continue
+            elif tmp:
+                rfmt[-1] += f" {tmp}"
+            else:
+                rfmt += ["", tmp]
+        return rfmt
 
     assert os.path.exists(makefile)
     wd = abcs.Path(".")
@@ -196,28 +230,20 @@ def parse(
             out[target_name]["docs"] = out[tmeta["chain"]]["docs"]
         # user requested enriching docs with markdown
         if markdown:
-            docs = "\n".join([x.lstrip() for x in out[target_name]["docs"]])
-            if "USAGE" in docs:
-                out[target_name]["docs"] = _enricher(
-                    docs, r"(?P<before>USAGE:.*)\n(?P<during>.*)\n"
-                ).split("\n")
-            if "EXAMPLE" in docs:
-                out[target_name]["docs"] = docs = _enricher(
-                    "\n".join([x.lstrip() for x in out[target_name]["docs"]]),
-                    r"(?P<before>EXAMPLE:.*)\n(?P<during>.*)\n",
-                ).split("\n")
-            docs = out[target_name]["docs"]
-            rfmt = [""]
-            while docs:
-                tmp = docs.pop(0)
-                if any([x in tmp for x in "```".split()]):
-                    rfmt = rfmt + [tmp] + docs
-                    break
-                if tmp:
-                    rfmt[-1] += f" {tmp}"
-                else:
-                    rfmt += ["<br>", tmp]
-            out[target_name]["docs"] = rfmt
+            docs = [x.lstrip() for x in out[target_name]["docs"]]
+            for i, line in enumerate(docs):
+                if line.startswith("EXAMPLE:") or line.startswith("USAGE:"):
+                    docs[i] = (
+                        line.replace("EXAMPLE:", "*EXAMPLE:*")
+                        .replace("USAGE:", "*USAGE:*")
+                        .replace("REFS:", "*REFS:*")
+                        + "\n```bash"
+                    )
+                    for j, line2 in enumerate(docs[i:]):
+                        if not line2:
+                            docs[i + j] = line2 + "```\n"
+                            break
+            out[target_name]["docs"] = zip_markdown(docs)
 
     # user requested no target-bodies should be provided
     if not bodies:
@@ -305,6 +331,9 @@ def parse(
         blocks = {
             k: [line[len("## ") :].strip() for line in v] for k, v in blocks.items()
         }
+        for k, v in blocks.items():
+            blocks[k] = zip_markdown(v[1:])
+
         if module_docs:
             return blocks
     return out
