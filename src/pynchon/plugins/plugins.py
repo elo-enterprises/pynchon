@@ -43,7 +43,6 @@ class PluginsMan(models.Provider):
             fields = model.__fields__
             for dprop_name in model.get_properties():
                 dprop = getattr(model, dprop_name, None)
-                # import IPython; IPython.embed()
                 if dprop:
                     fields[dprop_name] = dict(
                         is_dynamic=True,

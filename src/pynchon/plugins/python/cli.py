@@ -206,7 +206,6 @@ class PythonCLI(PythonPlanner):
         LOGGER.warning(f"found {len(cse)} console-script-entrypoints")
         LOGGER.warning(f"found {len(cme)} module-entrypoints")
         entrypoints = cse + cme
-        # import IPython; IPython.embed()
         cfg = {**self.config.dict(), **dict(entrypoints=entrypoints)}
         cfg = {**api.project.get_config().dict(), **{self.config_class.config_key: cfg}}
         templatef = self.plugin_templates_root / "TOC.md.j2"
@@ -337,24 +336,6 @@ class PythonCLI(PythonPlanner):
                             path=emd.path,
                             file=emd.file,
                         )
-                # try:
-                # emd.update(entrypoints=tmp)
-                # except (AttributeError,) as exc:
-                # else:
-                # rsrc = self.root / f"{emd.dotpath}.md"
-                # docs_url = rsrc.relative_to(self.docs_root.parent)
-                # emd.update(
-                #     is_click=True,
-                #     # help_invocation=help_invocation,
-                #     docs_url=docs_url,
-                #     # src_url='/'+str(src_url),
-                #     # src_url=src_url,
-                #     resource=rsrc,
-                #     # entrypoints=sub_entrypoints,
-                # )
-                # metadata.update(**get_cmd_output(help_invocation))
-                # import IPython; IPython.embed()
-                # raise Exception(sub_entrypoints)
                 found = True
                 break
         if not found:

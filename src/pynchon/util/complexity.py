@@ -120,9 +120,7 @@ def visit_module(
         return output
     annotate.module(module_name, module, working_dir=working_dir)
     refs = get_refs(working_dir=working_dir, module=module)
-    # LOGGER.debug(f"exclude: {exclude}")
     LOGGER.debug(f"rendering module: {module_name}")
-    # import IPython; IPython.embed()
     rendered = template.render(
         griffe=griffe,
         stats=stats,
@@ -169,14 +167,9 @@ class Checker(mccabe.McCabeChecker):
 
 def complexity(code: str = None, fname: str = None, threshold: int = 7):
     """
-
     :param code: str:  (Default value = None)
     :param fname: str:  (Default value = None)
     :param threshold: int:  (Default value = 7)
-    :param code: str:  (Default value = None)
-    :param fname: str:  (Default value = None)
-    :param threshold: int:  (Default value = 7)
-
     """
     threshold = 7
     try:

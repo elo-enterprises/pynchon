@@ -211,16 +211,11 @@ class Jinja(RenderingPlugin):
                                 else:
                                     printer = printer.preview
                                 data = [action.resource]
-                                # from pynchon.util import lme
-                                # from rich.markdown import Markdown
-                                # printer = lme.print
-                                # data = Markdown(fhandle.read())
                             else:
                                 printer = print
                                 data = fhandle.read()
                             printer(data)
                 return None
-                # import IPython; IPython.embed()
             return result
 
     def _get_template_args(self):

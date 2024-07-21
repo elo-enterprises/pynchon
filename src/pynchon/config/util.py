@@ -20,6 +20,7 @@ from pydantic import create_model
 def finalize():
     """ """
     from pynchon import abcs
+    from pynchon.api import render
     from pynchon.plugins import registry as plugins_registry
 
     plugins = []
@@ -56,9 +57,6 @@ def finalize():
                 **config_module.MERGED_CONFIG_FILES,
                 **dict(pynchon=config_module.PYNCHON),
             }
-            # if conf_key=='globals':
-            #     import IPython; IPython.embed()
-            from pynchon.api import render
 
             user_defaults = render.dictionary(user_defaults, ctx)
 

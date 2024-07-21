@@ -144,7 +144,6 @@ class Mermaid(models.DiagramTool, Planner):
                 else:
                     stat = c["State"]
                     LOGGER.debug(f"updated status: {stat}")
-            # import IPython; IPython.embed()
         except (python_on_whales.exceptions.DockerException,) as exc:
             LOGGER.critical(exc)
             raise SystemExit(1)

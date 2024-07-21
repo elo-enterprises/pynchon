@@ -255,9 +255,6 @@ class function(base):
         expr, docstring = _get_docstring(original_node)
         if obj is None:
             LOGGER.critical(f"could not retrieve object for {[mod,dotpath]}")
-            import IPython
-
-            IPython.embed()
         if docstring is not None and docstring.strip():
             LOGGER.critical("docstring ok")
             return original_node

@@ -88,14 +88,7 @@ def parse(
             return code_block
 
         result = pat.sub(rrr, text)
-        # def replacement(match):
-        #     before = match.group("before")
-        #     during = match.group("during")
-        #     return f"{before}\n```bash\n{during}\n```"
-        # result = re.sub(pattern, replacement, text, flags=re.DOTALL)
-        return (
-            result  # .replace("USAGE:", "*USAGE:*").replace("EXAMPLE:", "*EXAMPLE:*")
-        )
+        return result
 
     def _test(x):
         """ """
@@ -114,7 +107,7 @@ def parse(
         rfmt = [""]
         while docs:
             tmp = docs.pop(0)
-            if tmp.lstrip().startswith("* ") or any(
+            if any([tmp.lstrip().startswith(x) for x in "* |".split()]) or any(
                 [x in tmp for x in "USAGE: EXAMPLE: ```".split()]
             ):
                 rfmt = rfmt + [tmp] + docs
