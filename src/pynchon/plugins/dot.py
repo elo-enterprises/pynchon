@@ -1,5 +1,4 @@
-""" pynchon.plugins.dot
-"""
+"""pynchon.plugins.dot"""
 
 from fleks import cli
 

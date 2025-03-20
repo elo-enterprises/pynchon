@@ -1,5 +1,4 @@
-""" pynchon.plugins.docs.main
-"""
+"""pynchon.plugins.docs.main"""
 
 import fleks
 import gripe

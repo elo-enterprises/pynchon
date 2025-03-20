@@ -1,5 +1,4 @@
-""" pynchon.util.lme
-"""
+"""pynchon.util.lme"""
 
 import logging
 

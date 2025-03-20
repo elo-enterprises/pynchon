@@ -1,5 +1,4 @@
-""" pynchon.plugins.makefile
-"""
+"""pynchon.plugins.makefile"""
 
 from fleks import cli, tagging
 

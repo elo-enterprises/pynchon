@@ -1,4 +1,4 @@
-""" pynchon.codemod.docstrings.javadoc """
+"""pynchon.codemod.docstrings.javadoc"""
 
 import libcst as cst
 

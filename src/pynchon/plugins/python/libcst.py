@@ -1,5 +1,4 @@
-""" pynchon.plugins.python.libcst
-"""
+"""pynchon.plugins.python.libcst"""
 
 from fleks import cli, tagging
 

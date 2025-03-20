@@ -1,10 +1,10 @@
-""" pynchon.plugins.mermaid
-    Examples:
-        # render and display with imgcat
-        pynchon mmd render docs/trifecta.mmd --output - | imgcat
-    See also:
-        * https://github.com/mermaid-js/mermaid-cli
-        * https://mermaid.live/
+"""pynchon.plugins.mermaid
+Examples:
+    # render and display with imgcat
+    pynchon mmd render docs/trifecta.mmd --output - | imgcat
+See also:
+    * https://github.com/mermaid-js/mermaid-cli
+    * https://mermaid.live/
 """
 
 import os

@@ -1,5 +1,4 @@
-""" pynchon.plugins.tests
-"""
+"""pynchon.plugins.tests"""
 
 from fleks import typing
 

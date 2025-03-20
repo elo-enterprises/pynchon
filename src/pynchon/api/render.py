@@ -1,9 +1,9 @@
-""" pynchon.api.render
+"""pynchon.api.render
 
-    Basically this is core jinja-rendering stuff.
+Basically this is core jinja-rendering stuff.
 
-    Looking for CLI entrypoints?  See pynchon.util.text.render
-    Looking for the JinjaPlugin?  See pynchon.plugins.jinja
+Looking for CLI entrypoints?  See pynchon.util.text.render
+Looking for the JinjaPlugin?  See pynchon.plugins.jinja
 """
 
 import os

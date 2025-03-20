@@ -1,6 +1,6 @@
-""" pynchon.util.text.loads
+"""pynchon.util.text.loads
 
-    Helpers for loading data structures from strings
+Helpers for loading data structures from strings
 """
 
 import json as json_mod

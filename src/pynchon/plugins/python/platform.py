@@ -1,5 +1,4 @@
-""" pynchon.plugins.python.platform:
-"""
+"""pynchon.plugins.python.platform:"""
 
 import platform as stdlib_platform
 

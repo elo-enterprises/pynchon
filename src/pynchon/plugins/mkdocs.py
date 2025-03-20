@@ -1,5 +1,4 @@
-""" pynchon.plugins.mkdocs
-"""
+"""pynchon.plugins.mkdocs"""
 
 import os
 import urllib

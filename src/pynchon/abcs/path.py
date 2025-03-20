@@ -1,5 +1,4 @@
-""" pynchon.abcs.path
-"""
+"""pynchon.abcs.path"""
 
 import os
 from fnmatch import fnmatch

@@ -1,5 +1,4 @@
-""" pynchon.plugins.python.api
-"""
+"""pynchon.plugins.python.api"""
 
 from fleks import cli, tagging
 

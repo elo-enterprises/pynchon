@@ -1,6 +1,6 @@
-""" pynchon.util.text.render
+"""pynchon.util.text.render
 
-    Helpers for rendering content
+Helpers for rendering content
 """
 
 import os

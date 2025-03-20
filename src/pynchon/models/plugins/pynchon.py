@@ -1,4 +1,4 @@
-""" pynchon.models.plugins.pynchon """
+"""pynchon.models.plugins.pynchon"""
 
 import collections
 

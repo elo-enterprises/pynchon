@@ -1,4 +1,4 @@
-""" pynchon.models.planner """
+"""pynchon.models.planner"""
 
 import typing
 

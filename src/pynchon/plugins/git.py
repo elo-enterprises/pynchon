@@ -1,5 +1,4 @@
-""" pynchon.plugins.git
-"""
+"""pynchon.plugins.git"""
 
 from fleks import tagging
 

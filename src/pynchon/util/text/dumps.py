@@ -1,4 +1,4 @@
-""" pynchon.util.text.dumps """
+"""pynchon.util.text.dumps"""
 
 import json as modjson
 

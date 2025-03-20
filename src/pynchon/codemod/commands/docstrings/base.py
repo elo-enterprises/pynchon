@@ -1,4 +1,4 @@
-""" pynchon.codemod.docstrings.base """
+"""pynchon.codemod.docstrings.base"""
 
 import argparse
 

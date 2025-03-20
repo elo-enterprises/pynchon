@@ -1,5 +1,4 @@
-""" pynchon.util.complexity
-"""
+"""pynchon.util.complexity"""
 
 import os
 import ast

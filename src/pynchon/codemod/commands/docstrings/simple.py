@@ -1,4 +1,4 @@
-""" pynchon.codemod.docstrings.simple """
+"""pynchon.codemod.docstrings.simple"""
 
 import inspect
 from textwrap import dedent

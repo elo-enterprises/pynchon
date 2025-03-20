@@ -1,5 +1,4 @@
-""" pynchon.models.planning
-"""
+"""pynchon.models.planning"""
 
 import typing
 import collections

@@ -1,5 +1,4 @@
-""" pynchon.models.python
-"""
+"""pynchon.models.python"""
 
 from fleks.models import BaseModel
 

@@ -1,7 +1,7 @@
-""" pynchon.plugins.pattern
+"""pynchon.plugins.pattern
 
-    See also:
-        https://github.com/cookiecutter/cookiecutter/issues/784
+See also:
+    https://github.com/cookiecutter/cookiecutter/issues/784
 """
 
 import os

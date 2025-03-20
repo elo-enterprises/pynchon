@@ -1,5 +1,4 @@
-""" pynchon.plugins.jinja
-"""
+"""pynchon.plugins.jinja"""
 
 from fleks import tagging
 

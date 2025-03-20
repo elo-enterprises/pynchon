@@ -1,5 +1,4 @@
-""" pynchon.plugins.python.cli
-"""
+"""pynchon.plugins.python.cli"""
 
 import glob
 import importlib

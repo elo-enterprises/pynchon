@@ -1,6 +1,6 @@
-""" pynchon.util.text.loadf
+"""pynchon.util.text.loadf
 
-    Helpers for loading data structures from files
+Helpers for loading data structures from files
 """
 
 import os

@@ -1,5 +1,4 @@
-""" pynchon.app
-"""
+"""pynchon.app"""
 
 import sys
 import atexit

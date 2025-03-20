@@ -1,5 +1,4 @@
-""" pynchon.util.makefile CLI
-"""
+"""pynchon.util.makefile CLI"""
 
 import shimport
 

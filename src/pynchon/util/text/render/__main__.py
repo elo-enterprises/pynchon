@@ -1,5 +1,4 @@
-""" pynchon.util.text.render CLI
-"""
+"""pynchon.util.text.render CLI"""
 
 from fleks.cli import click, options  # noqa
 from fleks.util.tagging import tags

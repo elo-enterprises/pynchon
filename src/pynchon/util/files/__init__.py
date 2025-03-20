@@ -1,5 +1,4 @@
-""" pynchon.util.files
-"""
+"""pynchon.util.files"""
 
 import re
 import glob
