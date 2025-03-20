@@ -1,8 +1,8 @@
-""" pynchon.util.makefile
-"""
+"""pynchon.util.makefile"""
 
 import os
 import re
+from fnmatch import fnmatch
 
 from pynchon import abcs, cli
 from pynchon.util.os import invoke
@@ -88,14 +88,7 @@ def parse(
             return code_block
 
         result = pat.sub(rrr, text)
-        # def replacement(match):
-        #     before = match.group("before")
-        #     during = match.group("during")
-        #     return f"{before}\n```bash\n{during}\n```"
-        # result = re.sub(pattern, replacement, text, flags=re.DOTALL)
-        return (
-            result  # .replace("USAGE:", "*USAGE:*").replace("EXAMPLE:", "*EXAMPLE:*")
-        )
+        return result
 
     def _test(x):
         """ """
@@ -114,7 +107,7 @@ def parse(
         rfmt = [""]
         while docs:
             tmp = docs.pop(0)
-            if tmp.lstrip().startswith("* ") or any(
+            if any([tmp.lstrip().startswith(x) for x in "* |".split()]) or any(
                 [x in tmp for x in "USAGE: EXAMPLE: ```".split()]
             ):
                 rfmt = rfmt + [tmp] + docs
@@ -288,6 +281,21 @@ def parse(
     # user requested target-search
     if target:
         out = out[target]
+
+    parametric = [k.replace("%", "*") for k in out.keys() if k.endswith("%")]
+    dupes = []
+    for k in out.keys():
+        if k.endswith("%"):
+            continue
+        for p in parametric:
+            if fnmatch(k, p):
+                dupes.append(k)
+                break
+    LOGGER.debug(
+        f"apparent targets are actually duplicates of parametric ones: {dupes}"
+    )
+    for k in dupes:
+        out.pop(k)
 
     # user requested lookup string or module docs
     if module_docs:
